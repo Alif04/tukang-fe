@@ -3,19 +3,12 @@ import React, {FC, useState, useEffect, useRef} from 'react'
 import './UpdateRefund.css'
 
 import axios from 'axios'
-import Select from 'react-select'
-import CreatableSelect from 'react-select/creatable'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Row, Col, Form, Button, Table, ListGroup} from 'react-bootstrap'
+import {Row, Col, Form, Button, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
-
-interface Option {
-  readonly label: string
-  readonly value: string
-}
 
 interface Refund {
   order_id: any
@@ -37,7 +30,6 @@ const UpdateRefundCS: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Refund Detail
-  const [orderId, setOrderId] = useState<string>('')
   const [refundDetail, setRefundDetail] = useState<any>()
 
   const fetchRefundData = async () => {
@@ -54,12 +46,8 @@ const UpdateRefundCS: FC = () => {
         .then((response) => {
           const data = response.data.data
 
-          if (data?.orders.id) {
-            setOrderId(data.id)
-          }
-
           setRefundValues({
-            order_id: data.id,
+            order_id: data?.orders?.id,
             refund_status: data.refund_status,
             notes: data.notes,
             reason: data.reason,
@@ -117,14 +105,6 @@ const UpdateRefundCS: FC = () => {
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
 
-  // Refund Order Id
-  useEffect(() => {
-    setRefundValues((prevRefundValues) => ({
-      ...prevRefundValues,
-      order_id: orderId,
-    }))
-  }, [refundValues, orderId])
-
   // Refund Status
   useEffect(() => {
     const storedStatus = sessionStorage.getItem('statusData')
@@ -149,6 +129,16 @@ const UpdateRefundCS: FC = () => {
     setRefundValues((prevRefundValues) => ({
       ...prevRefundValues,
       date_of_filing: newRefundDate,
+    }))
+  }
+
+  // Change Nomor Approval
+  const handleChangeApprovalNumber = (element: any) => {
+    const newRefundApprove = element.target.value
+
+    setRefundValues((prevRefundValues) => ({
+      ...prevRefundValues,
+      approval_number: newRefundApprove,
     }))
   }
 
@@ -827,7 +817,7 @@ const UpdateRefundCS: FC = () => {
 
             <Row className='mb-5'>
               <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-                <Form.Group>
+                <Form.Group className='mb-5'>
                   <Form.Label className='fs-5 fw-bold'>Tanggal Pengajuan Refund</Form.Label>
 
                   <Form.Control
@@ -836,6 +826,17 @@ const UpdateRefundCS: FC = () => {
                     min={today}
                     value={refundValues.date_of_filing}
                     onChange={(element) => handleChangeRefundDate(element)}
+                  />
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Nomor Receipt Refund :</Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    className='w-100'
+                    onChange={(element) => handleChangeApprovalNumber(element)}
+                    value={refundValues.approval_number}
                   />
                 </Form.Group>
               </Col>

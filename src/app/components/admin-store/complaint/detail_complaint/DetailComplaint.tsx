@@ -18,8 +18,9 @@ interface Complaint {
   description: string
   complaint_channel: number | null
   complaint_date: string
-  complaint_status: string
+  complaint_status: number | null
   complaint_type: number
+  work_status_update?: number | null
 }
 
 interface Remedial {
@@ -59,8 +60,9 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     description: '',
     complaint_channel: null,
     complaint_date: '',
-    complaint_status: '',
+    complaint_status: null,
     complaint_type: 1,
+    work_status_update: null,
   })
 
   // Remedial
@@ -74,8 +76,6 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     complaint_date: '',
     remedial_status: 31,
   })
-
-  console.log('remedial form', remedialForm)
 
   // Loading
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
@@ -170,10 +170,23 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
   // Reason Rejected
   const [showModal, setShowModal] = useState(false)
+  const [modalType, setModalType] = useState<number | null>(null)
   const [reasonRejected, setReasonRejected] = useState<string>('')
 
-  const handleShowModal = () => {
+  const handleShowModal = (type: number) => {
     setShowModal(true)
+    setModalType(type)
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+  }
+
+  const handleInputStatus = (e: any) => {
+    setComplaintForm({
+      ...complaintForm,
+      work_status_update: Number(e.target.value),
+    })
   }
 
   const handleInputReasonReject = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,7 +221,64 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Berhasil update pengaduan',
+            text: 'Berhasil update status pengaduan',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+
+          setIsLoading(false)
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+
+          setIsLoading(false)
+        }
+
+        navigate('/complaint/view-complaint')
+      })
+      .catch((error) => {
+        console.error(error)
+        setIsLoading(false)
+
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
+  const handleChangeStatusComplaint = async () => {
+    setIsLoading(true)
+
+    const formData = new FormData()
+
+    formData.append('order_id', String(complaintForm?.order_id))
+    formData.append('pic_name', complaintForm.pic_name)
+    formData.append('description', complaintForm.description)
+    formData.append('complaint_channel', String(complaintForm.complaint_channel))
+    formData.append('complaint_date', complaintForm.complaint_date)
+    formData.append('type', String(complaintForm.complaint_type))
+    formData.append('work_status_update', String(complaintForm.work_status_update))
+
+    await axios
+      .post(`${apiUrl}/complaints/${complaintForm.id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil update status pengaduan',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -1465,20 +1535,34 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                     className='d-flex justify-content-center align-items-center'
                     type='submit'
                     disabled={isLoading}
-                    onClick={handleShowModal}
+                    onClick={() => handleShowModal(1)}
                   >
                     {isLoading ? 'Rejected..' : 'Rejected'}
                   </Button>
 
-                  <Button
-                    variant='dark-primary'
-                    className='d-flex justify-content-center align-items-center'
-                    type='submit'
-                    disabled={isLoading}
-                    onClick={() => handleApprovalComplaint(complaintStatusApprove)}
-                  >
-                    {isLoading ? 'Accepted..' : 'Accepted'}
-                  </Button>
+                  {['WORKREQ', 'TUKANGWORK', 'WORKSTART', 'WORKEND'].includes(
+                    complaintDetail?.order?.status?.category
+                  ) ? (
+                    <Button
+                      variant='dark-primary'
+                      className='d-flex justify-content-center align-items-center'
+                      type='submit'
+                      disabled={isLoading}
+                      onClick={() => handleShowModal(2)}
+                    >
+                      {isLoading ? 'Accepted..' : 'Accepted'}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant='dark-primary'
+                      className='d-flex justify-content-center align-items-center'
+                      type='submit'
+                      disabled={isLoading}
+                      onClick={() => handleApprovalComplaint(complaintStatusApprove)}
+                    >
+                      {isLoading ? 'Accepted..' : 'Accepted'}
+                    </Button>
+                  )}
                 </div>
               )}
             </>
@@ -1840,28 +1924,50 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
         </Card.Body>
       </Card>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton></Modal.Header>
+      <Modal centered show={showModal} onHide={handleCloseModal}>
+        {modalType === 1 && (
+          <>
+            <Modal.Body>
+              <Form.Label className='fs-5 fw-bolder'>Reason Rejected :</Form.Label>
+              <Form.Group>
+                <Form.Control as='textarea' rows={3} onChange={handleInputReasonReject} />
+              </Form.Group>
+            </Modal.Body>
 
-        <Modal.Body>
-          <Form.Label className='fs-5 fw-bolder'>Reason Rejected :</Form.Label>
-          <Form.Group>
-            <Form.Control as='textarea' rows={3} onChange={handleInputReasonReject} />
-          </Form.Group>
-        </Modal.Body>
+            <Modal.Footer>
+              <Button variant='dark-danger' onClick={() => setShowModal(false)}>
+                Close
+              </Button>
 
-        <Modal.Footer>
-          <Button variant='dark-danger' onClick={() => setShowModal(false)}>
-            Close
-          </Button>
+              <Button
+                variant='dark-primary'
+                onClick={() => handleApprovalComplaint(complaintStatusCancel)}
+              >
+                Submit
+              </Button>
+            </Modal.Footer>
+          </>
+        )}
 
-          <Button
-            variant='dark-primary'
-            onClick={() => handleApprovalComplaint(complaintStatusCancel)}
-          >
-            Submit
-          </Button>
-        </Modal.Footer>
+        {modalType === 2 && (
+          <>
+            <Modal.Body>
+              <Form.Group className='mb-3'>
+                <Form.Label>Change Status :</Form.Label>
+
+                <Form.Select onChange={(e) => handleInputStatus(e)}>
+                  <option selected>Pilih status</option>
+                  <option value='17'>Permintaan Pengerjaan Ulang</option>
+                  <option value='8'>Permintaan Survei Ulang </option>
+                </Form.Select>
+              </Form.Group>
+
+              <Button variant='dark-primary' onClick={handleChangeStatusComplaint}>
+                Submit
+              </Button>
+            </Modal.Body>
+          </>
+        )}
       </Modal>
     </section>
   )

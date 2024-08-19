@@ -45,6 +45,7 @@ const {RangePicker} = DatePicker
 
 interface DataType {
   order_id: number
+  store_id: number
   date_order: Date
   assign_from: string
   vendor_name: string
@@ -72,6 +73,9 @@ interface VendorItem {
 interface Order {
   id: number | null
   project_status_id: number | null
+  store_id: number | null
+  request_survey: string
+  notes: string
   order_details: Array<{
     id: number | null
     item_id: number | null
@@ -149,6 +153,7 @@ const ViewOrders: FC = () => {
   const [mailLogs, setMailLogs] = useState<any>()
   const [orderDetail, setOrderDetail] = useState<any>()
   const [orderData, setOrderData] = useState<DataType[]>([])
+  const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(50)
@@ -177,8 +182,9 @@ const ViewOrders: FC = () => {
     label: 'All Store',
   })
 
-  const [vendor, setVendor] = useState<VendorItem[]>([])
-  const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendor]
+  const [vendor, setVendor] = useState<any[]>([])
+  const [vendorSelect, setVendorSelect] = useState<VendorItem[]>([])
+  const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendorSelect]
   const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorItem>>({
     value: null,
     label: 'All Vendor',
@@ -203,6 +209,9 @@ const ViewOrders: FC = () => {
   const [orderForm, setOrderForm] = useState<Order>({
     id: null,
     project_status_id: null,
+    store_id: null,
+    request_survey: '',
+    notes: '',
     order_details: [
       {
         id: null,
@@ -245,7 +254,19 @@ const ViewOrders: FC = () => {
               ...prev,
               id: data?.id ?? null,
               project_status_id: data?.project_status_id ?? null,
+              store_id: data?.store?.id ?? null,
+              notes: data?.notes ?? '',
+              request_survey: new Date(data.request_survey).toISOString().split('T')[0] ?? '',
             }))
+          }
+
+          if (data?.order_files) {
+            const initialOrderFilesValues = data.order_files.map((item: any) => ({
+              id: item.id,
+              name: item.path,
+            }))
+
+            setReceiptFiles(initialOrderFilesValues)
           }
 
           if (data?.order_details) {
@@ -258,17 +279,18 @@ const ViewOrders: FC = () => {
                   item_name: item?.item_name ?? '',
                   category_id: item?.item?.category.id,
                   default_price: item?.item?.default_price,
-                  prices: [
-                    {
-                      id: item?.item?.prices[0].id,
-                      item_id: item?.item?.prices[0]?.item_id,
-                      store_id: item?.item?.prices[0]?.store_id,
-                      periodic_start: item?.item?.prices[0]?.periodic_start,
-                      periodic_end: item?.item?.prices[0]?.periodic_end,
-                      price: item?.item?.prices[0]?.price,
-                      min_order: item?.item?.prices[0]?.min_order,
-                    },
-                  ],
+                  prices:
+                    item?.item?.prices?.length > 0
+                      ? item?.item?.prices.map((price: any) => ({
+                          id: price?.id,
+                          item_id: price?.item_id,
+                          store_id: price?.store_id,
+                          periodic_start: price?.periodic_start,
+                          periodic_end: price?.periodic_end,
+                          price: price?.price,
+                          min_order: price?.min_order,
+                        }))
+                      : [],
                 }
 
                 return {
@@ -330,6 +352,26 @@ const ViewOrders: FC = () => {
               readiness: data?.quotation[0]?.readiness,
               receipt_quotation: data?.quotation[0]?.receipt_quotation,
               quotation_details: quotationDetails,
+              receipts_quotation: [
+                {
+                  index: 123,
+                  receipt_quotation:
+                    data?.quotation[0]?.quotation_receipt[0]?.receipt_quotation ?? '',
+                  quotation_step: 1,
+                },
+                {
+                  index: 345,
+                  receipt_quotation:
+                    data?.quotation[0]?.quotation_receipt[1]?.receipt_quotation ?? '',
+                  quotation_step: 2,
+                },
+                {
+                  index: 678,
+                  receipt_quotation:
+                    data?.quotation[0]?.quotation_receipt[2]?.receipt_quotation ?? '',
+                  quotation_step: 3,
+                },
+              ],
             }))
           }
 
@@ -384,9 +426,11 @@ const ViewOrders: FC = () => {
     }
   }
 
-  const getVendor = async () => {
+  const getVendor = async (store_id?: number | null) => {
+    const storeId = store_id !== null ? `&store_id=${store_id}` : ''
+
     try {
-      const response = await axios.get(`${apiUrl}/vendor?take=0`, {
+      const response = await axios.get(`${apiUrl}/vendor?take=0${storeId}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -401,7 +445,8 @@ const ViewOrders: FC = () => {
           label: item.company_name,
         }))
 
-        setVendor(tempVendor)
+        setVendor(response.data.data)
+        setVendorSelect(tempVendor)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -439,7 +484,7 @@ const ViewOrders: FC = () => {
   useEffect(() => {
     fetchOrderData(null)
     getStore()
-    getVendor()
+    getVendor(null)
     getCSI()
   }, [])
 
@@ -520,6 +565,18 @@ const ViewOrders: FC = () => {
     ],
   })
 
+  const quotationSpecialStatus =
+    quotation.quotation_special === 1 &&
+    quotation?.receipts_quotation?.[0]?.receipt_quotation !== ''
+      ? statusData.find((status: any) => status.category === 'QUOTATIONPAID')
+      : quotation.quotation_special === 1 &&
+        quotation?.receipts_quotation?.[1]?.receipt_quotation !== ''
+      ? statusData.find((status: any) => status.category === 'WORKREQSTEPTWO')
+      : quotation.quotation_special === 1 &&
+        quotation?.receipts_quotation?.[2]?.receipt_quotation !== ''
+      ? statusData.find((status: any) => status.category === 'WORKREQSTEPTHREE')
+      : null
+
   // Quotation Files
   const [receiptQuotation, setReceiptQuotation] = useState<Array<File | null>>([])
   const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
@@ -535,7 +592,8 @@ const ViewOrders: FC = () => {
   const [visible, setVisible] = useState(false)
 
   // Upload Order File Handler
-  const inputRef = useRef<HTMLInputElement>(null)
+  const singleReceipt = useRef<HTMLInputElement>(null)
+  const notes = useRef<HTMLInputElement>(null)
   const receiptRefs = useRef<{[key: number]: HTMLInputElement | null}>({})
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
 
@@ -549,8 +607,14 @@ const ViewOrders: FC = () => {
   }, [focusedIndex, quotation.receipts_quotation])
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus()
+    if (notes.current) {
+      notes.current.focus()
+    }
+  }, [orderForm.notes])
+
+  useEffect(() => {
+    if (singleReceipt.current) {
+      singleReceipt.current.focus()
     }
   }, [quotation.receipt_quotation])
 
@@ -726,72 +790,9 @@ const ViewOrders: FC = () => {
           }
         })()
 
-        // const orderStatus = (() => {
-        //   if (item?.work_orders?.work_order_status?.length >= 0) {
-        //     if (
-        //       [
-        //         'QUOTEIN',
-        //         'QUOTEOUT',
-        //         'CANCEL',
-        //         'WARRANTYCLAIM',
-        //         'INVESTIGATED',
-        //         'COMPLAINTAPPROVEDBYHO',
-        //         'COMPLAINTREJECTEDBYHO',
-        //         'RESCHEDULE',
-        //         'RESURVEYREQ',
-        //         'REWORKREQ',
-        //       ].includes(item?.status?.category)
-        //     ) {
-        //       return item?.status?.category
-        //     } else if (
-        //       ['WORKREQ'].includes(item?.status?.category) &&
-        //       item?.payment_type === 'survey' &&
-        //       !['WORKSTART', 'WORKEND'].includes(
-        //         item?.work_orders?.work_order_status[0]?.status?.category
-        //       )
-        //     ) {
-        //       return item?.status?.category
-        //     } else {
-        //       return item?.work_orders?.work_order_status[0]?.status?.category
-        //     }
-        //   } else {
-        //     return item?.status?.category
-        //   }
-        // })()
-
-        // const orderStatusLabel = (() => {
-        //   if (item?.work_orders?.work_order_status?.length >= 0) {
-        //     if (
-        //       [
-        //         'QUOTEIN',
-        //         'QUOTEOUT',
-        //         'CANCEL',
-        //         'WARRANTYCLAIM',
-        //         'INVESTIGATED',
-        //         'RESCHEDULE',
-        //         'RESURVEYREQ',
-        //         'REWORKREQ',
-        //       ].includes(item?.status?.category)
-        //     ) {
-        //       return item?.status?.description
-        //     } else if (
-        //       ['WORKREQ'].includes(item?.status?.category) &&
-        //       item?.payment_type === 'survey' &&
-        //       !['WORKSTART', 'WORKEND'].includes(
-        //         item?.work_orders?.work_order_status[0]?.status?.category
-        //       )
-        //     ) {
-        //       return item?.status?.description
-        //     } else {
-        //       return item?.work_orders?.work_order_status[0]?.status?.description
-        //     }
-        //   } else {
-        //     return item?.status?.description
-        //   }
-        // })()
-
         data = {
           order_id: item.id,
+          store_id: item?.store?.id,
           assign_from: item?.store?.store_name,
           date_order: orderDate,
           vendor_name: item?.vendor?.company_name ?? 'Vendor Belum Ditugaskan',
@@ -947,14 +948,96 @@ const ViewOrders: FC = () => {
     calculatePaymentStages(quotation?.quotation_grand_total)
   }, [quotation?.quotation_grand_total])
 
+  // Update Request Survey
+  const OrderValidation = () => {
+    let valid = true
+
+    if (orderForm.request_survey === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi tanggal request pengerjaan',
+        icon: 'warning',
+      })
+      valid = false
+    }
+    return valid
+  }
+
+  const handleUpdateRequestSurvey = async () => {
+    if (!OrderValidation()) {
+      return false
+    }
+
+    const formData = new FormData()
+
+    const appendIfNotDefault = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        formData.append(key, String(value))
+      }
+    }
+
+    formData.append('order_id', String(orderForm?.id))
+    formData.append('request_survey', orderForm.request_survey)
+    formData.append('notes', orderForm.notes)
+
+    if (quotation.quotation_special === 1 && quotationSpecialStatus.value !== null) {
+      formData.append('project_status_id', quotationSpecialStatus?.value)
+    }
+
+    if (receiptFiles?.length) {
+      receiptFiles.forEach((item: any, index: number) => {
+        if (item.id) {
+          formData.append(`existing_order_files[${index}][order_file_id]`, item.id)
+        }
+      })
+    }
+
+    orderForm.order_details.forEach((item, index) => {
+      if (item) {
+        appendIfNotDefault(`order_details[${index}][id]`, item.id)
+        appendIfNotDefault(`order_details[${index}][item_id]`, item.item_id)
+        appendIfNotDefault(`order_details[${index}][item_code]`, item.item_code)
+        appendIfNotDefault(`order_details[${index}][item_name]`, item.item_name)
+        appendIfNotDefault(`order_details[${index}][item_notes]`, item.item_notes)
+        appendIfNotDefault(`order_details[${index}][quantity]`, item.quantity)
+      }
+    })
+
+    try {
+      await axios
+        .post(`${apiUrl}/orders/${orderForm?.id}`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then(() => {
+          setTimeout(() => {
+            window.location.reload()
+          }, 1000)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   // Quotation Validation
   const QuotationValidation = () => {
     let valid = true
 
-    if (quotation.receipt_quotation === '' && quotation.quotation_special === 0) {
+    if (quotation.receipt_quotation === '' && quotation.quotation_special !== 1) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please fill receipt quotation form',
+        text: 'Tolong isi formulir receipt quotation',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (quotation.receipts_quotation.length === 0 && quotation.quotation_special === 1) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Mohon untuk mengisi formulir receipt quotation tahap 1',
         icon: 'warning',
       })
       valid = false
@@ -1087,6 +1170,8 @@ const ViewOrders: FC = () => {
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
+          }).then(() => {
+            handleUpdateRequestSurvey()
           })
 
           setLoadingUpdate(false)
@@ -1099,10 +1184,6 @@ const ViewOrders: FC = () => {
 
           setLoadingUpdate(false)
         }
-
-        setTimeout(() => {
-          window.location.reload()
-        }, 2000)
       })
       .catch((error) => {
         setLoadingUpdate(false)
@@ -1227,10 +1308,10 @@ const ViewOrders: FC = () => {
                   </thead>
 
                   <tbody>
-                    {mailLogs?.map((item: any, index: any) => (
-                      <>
+                    {mailLogs && mailLogs.length > 0 ? (
+                      mailLogs.map((item: any, index: number) => (
                         <tr key={`${index} - email_log`}>
-                          <td>{item?.emailMessages?.title}</td>
+                          <td>{item?.emailMessages?.title || 'No Title'}</td>
                           <td>
                             {new Date(item?.createdAt).toLocaleDateString('id-ID', {
                               day: '2-digit',
@@ -1241,8 +1322,13 @@ const ViewOrders: FC = () => {
                             })}
                           </td>
                         </tr>
-                      </>
-                    ))}
+                      ))
+                    ) : (
+                      <tr>
+                        <td>-</td>
+                        <td>Belum ada email yang dikirim oleh sistem</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </Tab.Pane>
@@ -1927,7 +2013,7 @@ const ViewOrders: FC = () => {
                         </p>
                       </div>
 
-                      <div className='fs-6'>Jasa Pemasangan Tahap 1</div>
+                      <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
 
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
@@ -1969,7 +2055,7 @@ const ViewOrders: FC = () => {
                         </tbody>
                       </table>
 
-                      <div className='fs-6'>Jasa Pemasangan Tahap 2</div>
+                      <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
@@ -2011,7 +2097,7 @@ const ViewOrders: FC = () => {
                         </tbody>
                       </table>
 
-                      <div className='fs-6'>Jasa Pemasangan Tahap 3</div>
+                      <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
 
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
@@ -2206,7 +2292,7 @@ const ViewOrders: FC = () => {
                 <Form.Group className='mb-5'>
                   <Form.Label className='title'>Receipt Quotation</Form.Label>
                   <Form.Control
-                    ref={inputRef}
+                    ref={singleReceipt}
                     type='text'
                     placeholder='Isi nomor receipt transaksi..'
                     value={quotation.receipt_quotation}
@@ -2404,6 +2490,69 @@ const ViewOrders: FC = () => {
                     </ListGroup>
                   </Form.Group>
                 </Row>
+              </Col>
+            </Row>
+
+            <hr />
+
+            <Row>
+              <Col>
+                <Form.Group className='mb-5'>
+                  <Form.Label className='title'>Tanggal Request Pengerjaan</Form.Label>
+                  <Form.Control
+                    name='request_survey'
+                    type='date'
+                    placeholder='Isi tanggal request pengerjaan..'
+                    value={orderForm?.request_survey ?? ''}
+                    onChange={(e) => setOrderForm({...orderForm, request_survey: e.target.value})}
+                  />
+                </Form.Group>
+
+                <Form.Group className='mb-5'>
+                  <Form.Label className='title'>Catatan</Form.Label>
+                  <Form.Control
+                    name='notes'
+                    type='text'
+                    placeholder='Isi catatan toko..'
+                    value={orderForm?.notes ?? ''}
+                    ref={notes}
+                    onChange={(e) => setOrderForm({...orderForm, notes: e.target.value})}
+                  />
+                </Form.Group>
+
+                <div className='description fs-7 mb-5'>
+                  Informasi mengenai ketersediaan dari Vendor
+                </div>
+
+                <div className='vendor-avail'>
+                  <table className='table hover responsive'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th>Nama Vendor</th>
+                        <th>Service Type</th>
+                        <th>Ketersediaan Vendor</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {vendor.map((item: any) => (
+                        <tr key={item?.id}>
+                          <td>{item?.company_name ?? '-'}</td>
+                          <td>
+                            {Array.from(
+                              new Set(
+                                item?.vendor_service?.map(
+                                  (item: any) => item?.service_type?.service_type
+                                )
+                              )
+                            ).join(', ')}
+                          </td>
+                          <td>{vendorAvailbility(item)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </Col>
             </Row>
 
@@ -2905,6 +3054,66 @@ const ViewOrders: FC = () => {
     )
   }
 
+  // Vendor Availbility
+  const vendorAvailbility = (data: any) => {
+    const requestSurvey = orderForm.request_survey
+    const maxOrder = data.max_order
+
+    // Detect Request Survey Date Only
+    const orderVendor = data.orders.filter((x: any) => {
+      const surveyDate = new Date(x.request_survey).toISOString().split('T')[0]
+      return surveyDate === requestSurvey
+    })
+
+    // Detect Survey Date and Work Date
+    const workOrderVendor = data.work_orders.filter((x: any) => {
+      const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
+
+      const workStartDate = x.work_start_date
+        ? new Date(x.work_start_date).toISOString().split('T')[0]
+        : null
+
+      const workEndDate = x.work_end_date
+        ? new Date(x.work_end_date).toISOString().split('T')[0]
+        : null
+
+      if (surveyDate && !workStartDate && !workEndDate) {
+        return surveyDate === requestSurvey
+      } else if (surveyDate && workStartDate && workEndDate) {
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
+      } else if (!surveyDate && workStartDate && workEndDate) {
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
+      } else {
+        return surveyDate === requestSurvey
+      }
+    })
+
+    // Tukang Active
+    const tukangActive = data.tukang.filter((x: any) => {
+      const isActive = x.is_active === true && x.deleted_at === null
+      return isActive
+    }).length
+
+    // Tukang Availbility
+    const tukangActiveAvailability = data.tukang.filter((x: any) => {
+      const isAvailable =
+        x.is_active === true &&
+        x.deleted_at === null &&
+        maxOrder > x.slot_order &&
+        x.slot_order < orderVendor.length
+      return isAvailable
+    }).length
+
+    // Vendor Availbility Based On Tukang Active
+    if (tukangActive === 0 && orderVendor.length >= 0) {
+      return <p className='text-danger'>UNAVAILABLE</p>
+    } else if (tukangActiveAvailability === 0 && orderVendor.length > 0) {
+      return <p className='text-danger'>FULL BOOKED</p>
+    } else {
+      return <p className='text-black'>AVAILABLE</p>
+    }
+  }
+
   // Export PDF Quotation
   const exportToPDF = (order_id: number, receipt_quotation: string, customer_name: string) => {
     axios
@@ -2934,7 +3143,6 @@ const ViewOrders: FC = () => {
   }
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
-
   const columns: ColumnsType<DataType> = [
     {
       title: 'Order ID',
@@ -3078,6 +3286,7 @@ const ViewOrders: FC = () => {
 
           if (selected) {
             fetchOrderData(selected.order_id)
+            getVendor(selected.store_id)
             setShowModal(true)
             setModalType(type)
           }
@@ -3210,8 +3419,13 @@ const ViewOrders: FC = () => {
               </Button>
             </OverlayTrigger>
 
-            {['QUOTATIONPAID', 'QUOTEOUT'].includes(record.order_status) &&
-            userRole === 'Store CS' ? (
+            {[
+              'QUOTATIONPAID',
+              'QUOTEOUT',
+              'WORKENDSTEPONE',
+              'WORKENDSTEPTWO',
+              'WORKENDSTEPTHREE',
+            ].includes(record.order_status) && userRole === 'Store CS' ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}

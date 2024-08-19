@@ -170,7 +170,7 @@ const NewInvoiceVendor: FC = () => {
   const getOrders = async (page: number, pageSize: number, queryparams: any) => {
     if (desiredStatus) {
       const statuses = desiredStatus.map((x) => x.value)
-      let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&page=${page}&work_order_status=${statuses}&is_invoice=1&take=${pageSize}${queryparams}`
+      let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&page=${page}&status=${statuses}&take=${pageSize}${queryparams}`
 
       const response = await axios.get(apiUrlWithParams, {
         headers: {
@@ -209,6 +209,8 @@ const NewInvoiceVendor: FC = () => {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
         })
 
         const orderType = (() => {

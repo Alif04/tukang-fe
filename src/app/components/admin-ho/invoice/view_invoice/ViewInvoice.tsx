@@ -246,6 +246,24 @@ const ViewInvoiceHO: FC = () => {
               <></>
             )}
 
+            {[2].includes(record.status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Tolak Dokumen Tagihan')}
+              >
+                <Button
+                  className='button-cancel'
+                  variant='danger'
+                  onClick={() => handleShowModal(id, 3)}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+
             {[2, 4].includes(record.status) ? (
               <OverlayTrigger
                 placement='bottom'
@@ -346,17 +364,19 @@ const ViewInvoiceHO: FC = () => {
         const invoiceStatus = (status: number) => {
           switch (status) {
             case 1:
-              return 'Pengecekan Invoice'
+              return 'Pengecekan invoice'
             case 2:
-              return 'Invoice Disetujui'
+              return 'Invoice disetujui'
             case 3:
-              return 'Invoice Ditolak'
+              return 'Invoice ditolak'
             case 4:
-              return 'Menunggu Dokumen Tagihan'
+              return 'Menunggu dokumen tagihan'
             case 5:
-              return 'Invoice Diberikan Kepada Finance'
+              return 'Invoice diberikan kepada finance'
             case 6:
-              return 'Invoice Sudah Dibayarkan'
+              return 'Invoice sudah dibayarkan'
+            case 7:
+              return 'Dokumen ditolak'
             default:
               return ''
           }
@@ -576,12 +596,12 @@ const ViewInvoiceHO: FC = () => {
     setExcel(null)
   }
 
-  const handleDeclineInvoice = async () => {
+  const handleDeclineInvoice = async (statusInvoice: number) => {
     const formData = new FormData()
 
     formData.append(`invoice_id`, invoiceId)
     formData.append(`notes`, invoiceNotes)
-    formData.append(`status`, String(3))
+    formData.append(`status`, String(statusInvoice))
 
     if (invoiceEvidence?.length) {
       invoiceEvidence.forEach((item) => {
@@ -604,7 +624,11 @@ const ViewInvoiceHO: FC = () => {
         if (response.data.status === 201 || response.data.status === 200) {
           Swal.fire({
             title: 'Success',
-            text: 'Berhasil Membatalkan Pembayaran',
+            text: `${
+              statusInvoice === 3
+                ? 'Berhasil menolak invoice yang akan ditagihkan'
+                : 'Berhasil menolak dokumen tagihan'
+            }`,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -1092,7 +1116,7 @@ const ViewInvoiceHO: FC = () => {
 
               <Button
                 className='d-flex justify-content-center align-items-center w-100 mt-5'
-                onClick={handleDeclineInvoice}
+                onClick={() => handleDeclineInvoice(3)}
                 variant='primary'
               >
                 Submit
@@ -1193,6 +1217,36 @@ const ViewInvoiceHO: FC = () => {
               <Button
                 className='d-flex justify-content-center align-items-center w-100 mt-5'
                 onClick={handleUploadInvoiceFile}
+                variant='primary'
+              >
+                Submit
+              </Button>
+            </Modal.Body>
+          </>
+        )}
+
+        {modalType === 3 && (
+          <>
+            <Modal.Header closeButton>
+              <Modal.Title>Formulir Alasan Penolakan Dokumen Tagihan</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+              <Row className='notes mb-5'>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Alasan Ditolak :</Form.Label>
+                  <Form.Control
+                    style={{minHeight: '140px'}}
+                    as='textarea'
+                    onChange={(e) => setInvoiceNotes(e.target.value)}
+                    value={invoiceNotes}
+                  />
+                </Form.Group>
+              </Row>
+
+              <Button
+                className='d-flex justify-content-center align-items-center w-100 mt-5'
+                onClick={() => handleDeclineInvoice(7)}
                 variant='primary'
               >
                 Submit

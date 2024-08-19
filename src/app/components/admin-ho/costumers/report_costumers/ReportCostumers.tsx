@@ -322,6 +322,8 @@ const ReportCostumerHO: FC = () => {
             totalMember={totalMember}
             storeId={selectedStore?.value ?? null}
             storeName={selectedStore?.label ?? 'All Store'}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
           />
         </div>
       </div>

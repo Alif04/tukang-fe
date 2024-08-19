@@ -1,29 +1,11 @@
-import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 
 import './UpdateRefund.css'
 
 import axios from 'axios'
-import Select from 'react-select'
-import CreatableSelect from 'react-select/creatable'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Row, Col, Form, Button, Table} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
-
-interface Option {
-  readonly label: string
-  readonly value: string
-}
-
-const components = {
-  DropdownIndicator: null,
-}
-
-const inputVoucher = (label: string) => ({
-  label,
-  value: label,
-})
 
 interface Refund {
   order_id: any
@@ -35,7 +17,6 @@ interface Refund {
   penalty_nominal: any
   approval_number: any
   voucher: string
-  // refund_voucher: Option[]
 }
 
 const UpdateRefundHO: FC = () => {
@@ -45,7 +26,6 @@ const UpdateRefundHO: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Refund Detail
-  const [orderId, setOrderId] = useState<string>('')
   const [refundDetail, setRefundDetail] = useState<any>()
 
   const fetchRefundData = async () => {
@@ -62,12 +42,8 @@ const UpdateRefundHO: FC = () => {
         .then((response) => {
           const data = response.data.data
 
-          if (data?.orders.id) {
-            setOrderId(data.id)
-          }
-
           setRefundValues({
-            order_id: data.id,
+            order_id: data?.orders?.id,
             refund_status: data.refund_status,
             notes: data.notes,
             reason: data.reason,
@@ -784,7 +760,7 @@ const UpdateRefundHO: FC = () => {
                 <div className='complaint-information'>
                   <h4>Nomor Receipt Refund : </h4>
                   <Form.Control
-                    type='number'
+                    type='text'
                     className='w-75'
                     onChange={(element) => handleChangeApprovalNumber(element)}
                     value={refundValues.approval_number}

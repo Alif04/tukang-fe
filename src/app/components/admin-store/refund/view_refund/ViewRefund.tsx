@@ -29,6 +29,7 @@ interface DataType {
   phone_number: number
   payment_status: string
   order_status: string
+  refund_status: string
 }
 
 const ViewRefundCS: React.FC<Props> = ({className}) => {
@@ -163,6 +164,19 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.order_status.length - b.order_status.length,
     },
     {
+      title: 'Status Refund',
+      dataIndex: 'refund_status',
+      key: 'refund_status',
+      align: 'left',
+      width: 140,
+      render: (refund_status) => {
+        const refundStatus = refund_status
+        return <Tag color='blue'>{refundStatus}</Tag>
+      },
+      onFilter: (value, record) => record.refund_status.includes(String(value)),
+      sorter: (a, b) => a.refund_status.length - b.refund_status.length,
+    },
+    {
       title: 'Action',
       key: 'action',
       fixed: 'right',
@@ -269,6 +283,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
           member_name: item?.orders?.members?.full_name,
           phone_number: item?.orders?.project_number,
           payment_status: paymentStatus,
+          refund_status: item?.status?.description,
           order_status:
             item?.orders?.work_orders?.work_order_status?.length > 0 &&
             item?.status?.category !== 'QUOTEOUT'

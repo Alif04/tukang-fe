@@ -673,7 +673,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                         </Table>
                       ) : (
                         <>
-                          <div className='fs-6'>Pemasangan Tahap 1</div>
+                          <div className='fs-6 fw-bold'>Pemasangan Tahap 1</div>
                           <Table hover responsive='md'>
                             <thead className='table-warranty-head'>
                               <tr>
@@ -709,7 +709,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                             </tbody>
                           </Table>
 
-                          <div className='fs-6'>Pemasangan Tahap 2</div>
+                          <div className='fs-6 fw-bold'>Pemasangan Tahap 2</div>
                           <Table hover responsive='md'>
                             <thead className='table-warranty-head'>
                               <tr>
@@ -745,7 +745,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                             </tbody>
                           </Table>
 
-                          <div className='fs-6'>Pemasangan Tahap 3</div>
+                          <div className='fs-6 fw-bold'>Pemasangan Tahap 3</div>
                           <Table hover responsive='md'>
                             <thead className='table-warranty-head'>
                               <tr>
@@ -858,20 +858,40 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
             </Skeleton>
           </Row>
 
-          <Row className='table-warranty d-flex align-items-center mb-3'>
-            <div className='table-title-warranty'>
-              <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
-                <div className='fs-3 fw-bold mb-2'>Catatan Toko</div>
-              </Skeleton>
+          <Row>
+            <Col>
+              <div className='fs-3 fw-bold'>Catatan Order</div>
 
-              <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                <p className='fs-7 p-0'>
-                  {workOrderDetail?.order?.notes
-                    ? workOrderDetail?.order?.notes
-                    : 'Toko tidak memberikan catatan tambahan'}
+              <div className='detail-info mb-3'>
+                <p className='fs-5 fw-bold'>Catatan Toko :</p>
+
+                <p className='fs-7'>
+                  {workOrderDetail?.orders?.notes
+                    ? workOrderDetail?.orders?.notes
+                    : 'Toko tidak memberikan catatan'}
                 </p>
-              </Skeleton>
-            </div>
+              </div>
+
+              <div className='detail-info mb-3'>
+                <p className='fs-5 fw-bold'>Catatan Tukang :</p>
+
+                <p className='fs-7'>
+                  {workOrderDetail?.work_orders?.work_order_status[0]?.description
+                    ? workOrderDetail?.work_orders?.work_order_status[0]?.description
+                    : 'Tukang tidak memberikan catatan'}
+                </p>
+              </div>
+
+              <div className='detail-info mb-3'>
+                <p className='fs-5 fw-bold'>Intruksi Spesial :</p>
+
+                <p className='fs-7'>
+                  {workOrderDetail?.orders?.quotation?.[0]?.description
+                    ? workOrderDetail?.orders?.quotation?.[0]?.description
+                    : 'Vendor tidak memberikan catatan'}
+                </p>
+              </div>
+            </Col>
           </Row>
 
           <Skeleton active loading={isLoadingPage}>

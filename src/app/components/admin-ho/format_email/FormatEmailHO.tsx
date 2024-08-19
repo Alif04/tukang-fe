@@ -1,18 +1,17 @@
 import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
-import {useNavigate, useParams} from 'react-router-dom'
+import {toAbsoluteUrl} from '../../../../_metronic/helpers'
+import {useNavigate} from 'react-router-dom'
+
+import './FormatEmailHO.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import {Form, Button, Row, Col, Card} from 'react-bootstrap'
+import {Form, Button, Row, Col, Card, Accordion} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faCircleInfo} from '@fortawesome/free-solid-svg-icons'
 import {faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
-
-interface templateOption {
-  value: number | null
-  label: string
-}
 
 interface CSI {
   value: number | null
@@ -24,15 +23,10 @@ interface StatusStorage {
   label: string
 }
 
-interface Option {
+interface templateOption {
+  value: number | null
   label: string
-  value: string
 }
-
-const createOption = (label: string) => ({
-  label,
-  value: label,
-})
 
 interface emailLayout {
   csi_id: number | null
@@ -46,20 +40,107 @@ interface emailLayout {
   footer: string
   welcome_header: string
   terms_detail: Array<{
-    id: number | null
     term: string
   }>
   information_detail: Array<{
-    id: number | null
     information: string
   }>
 }
 
-const UpdateFormatEmailHO: FC = () => {
+interface Option {
+  label: string
+  value: string
+}
+
+const createOption = (label: string) => ({
+  label,
+  value: label,
+})
+
+const FormatEmailHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const params = useParams()
   const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  // Emai Type
+  const getEmailType = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/mails/types`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      let emailTypes = Object.entries(response.data.data).map(([key, value]) => ({
+        label: key as string,
+        value: value as number,
+      }))
+
+      setEmailType(emailTypes)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getStatus = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/status?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStatus = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.description,
+        }))
+
+        setStatus(tempStatus)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const getCSI = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/csi?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempCSI = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+        }))
+
+        setCsiData(tempCSI)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    getEmailType()
+    getStatus()
+    getCSI()
+  }, [])
 
   // List CSI
   const [csiData, setCsiData] = useState<CSI[]>([])
@@ -95,202 +176,23 @@ const UpdateFormatEmailHO: FC = () => {
     welcome_header: '',
     terms_detail: [
       {
-        id: null,
         term: '',
       },
     ],
     information_detail: [
       {
-        id: null,
         information: '',
       },
     ],
   })
 
-  // Fetch Data Email
-  const fetchEmailData = async () => {
-    try {
-      await axios
-        .get(`${apiUrl}/mails/${params.id}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          const data = response.data.data
-
-          if (data) {
-            setEmailForm((prev) => ({
-              ...prev,
-              csi_id: data?.csi_template?.id ?? null,
-              email_type: data?.email_type,
-              trigger_id: data?.trigger_id,
-              is_active: data?.is_active === true ? 1 : 0,
-              title: data?.title,
-              cc: data?.cc,
-              bcc: data?.bcc,
-              welcome_header: data?.welcome_header,
-              greetings: data?.greetings,
-              footer: data?.footer,
-            }))
-          }
-
-          if (data?.csi_template) {
-            setSelectedCSI((prev: any) => ({
-              ...prev,
-              value: data?.csi_template?.id ?? null,
-              label: data?.csi_template?.name ?? '',
-            }))
-          }
-
-          if (data?.cc || data?.bcc) {
-            setValueCC((prev) => [...prev, createOption(data?.cc)])
-            setValueBCC((prev) => [...prev, createOption(data?.bcc)])
-          }
-
-          if (data?.terms_detail?.length >= 1) {
-            setEmailForm((prev: any) => ({
-              ...prev,
-              terms_detail: data.terms_detail.map((item: any) => ({
-                id: item.id,
-                term: item?.terms,
-              })),
-            }))
-          } else {
-            setEmailForm((prev: any) => ({
-              ...prev,
-              terms_detail: [
-                {
-                  term: '',
-                },
-              ],
-            }))
-          }
-
-          if (data?.information_detail?.length >= 1) {
-            setEmailForm((prev: any) => ({
-              ...prev,
-              information_detail: data.information_detail.map((item: any) => ({
-                id: item.id,
-                information: item?.information,
-              })),
-            }))
-          } else {
-            setEmailForm((prev: any) => ({
-              ...prev,
-              terms_detail: [
-                {
-                  term: '',
-                },
-              ],
-            }))
-          }
-
-          if (data?.email_type) {
-            setSelectedEmailType((prev: any) => ({
-              ...prev,
-              value: data?.email_type,
-            }))
-          }
-
-          if (data?.trigger_id) {
-            setSelectedStatus((prev: any) => ({
-              ...prev,
-              value: data?.trigger?.id,
-              label: data?.trigger?.description,
-            }))
-          }
-        })
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  const getStatus = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/status?take=0`, {
-        headers: {
-          Accept: 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempStatus = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.description,
-        }))
-
-        setStatus(tempStatus)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  const getEmailType = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/mails/types`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      let emailTypes = Object.entries(response.data.data).map(([key, value]) => ({
-        label: key as string,
-        value: value as number,
-      }))
-
-      setEmailType(emailTypes)
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  const getCSI = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/csi?take=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempCSI = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.name,
-        }))
-
-        setCsiData(tempCSI)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
+  // Change Select CSI
   useEffect(() => {
-    getCSI()
-    getStatus()
-    fetchEmailData()
-  }, [])
-
-  useEffect(() => {
-    getEmailType()
-  }, [selectedEmailType])
+    setEmailForm((prev) => ({
+      ...prev,
+      csi_id: selectedCSI?.value ?? null,
+    }))
+  }, [selectedCSI])
 
   // Change Select Status
   useEffect(() => {
@@ -345,7 +247,6 @@ const UpdateFormatEmailHO: FC = () => {
   // Terms Details
   const addTermsDetails = () => {
     const newDetail = {
-      id: null,
       term: '',
     }
 
@@ -367,7 +268,6 @@ const UpdateFormatEmailHO: FC = () => {
   // Information Details
   const addInformationDetails = () => {
     const newDetail = {
-      id: null,
       information: '',
     }
 
@@ -423,34 +323,26 @@ const UpdateFormatEmailHO: FC = () => {
     }))
   }, [valueCC, valueBCC])
 
-  // Handle Update Email
-  const handleUpdateEmailMessages = async () => {
+  // Desctructure Object if the value null or empty string
+  const objectValueCheck = (data: emailLayout) => {
+    let cleanedData: Partial<emailLayout> = {}
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        cleanedData[key as keyof emailLayout] = value
+      }
+    })
+
+    return cleanedData
+  }
+
+  // Handle Create Email
+  const handleCreateEmailMessages = async () => {
     setIsLoading(true)
-
-    const updatedTerms = emailForm.terms_detail.map((terms) => {
-      if (terms.id === null) {
-        const {id, ...termsWithoutId} = terms
-        return termsWithoutId
-      }
-      return terms
-    })
-
-    const updatedInformations = emailForm.information_detail.map((information) => {
-      if (information.id === null) {
-        const {id, ...informationWithoutId} = information
-        return informationWithoutId
-      }
-      return information
-    })
-
-    const emailForms = {
-      ...emailForm,
-      terms_detail: updatedTerms,
-      information_detail: updatedInformations,
-    }
+    const emailBody = objectValueCheck(emailForm)
 
     await axios
-      .patch(`${apiUrl}/mails/${params.id}`, emailForms, {
+      .post(`${apiUrl}/mails`, emailBody, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -462,12 +354,12 @@ const UpdateFormatEmailHO: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Template',
+            text: 'Berhasil Membuat Template Email',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate(`/email/view-format-email`)
+            window.location.reload()
           })
 
           setIsLoading(false)
@@ -498,10 +390,27 @@ const UpdateFormatEmailHO: FC = () => {
 
   return (
     <section id='format-email'>
+      <Accordion className='mb-5'>
+        <Accordion.Item eventKey='0'>
+          <Accordion.Header>
+            <FontAwesomeIcon icon={faCircleInfo} size='lg' className='me-2' />
+            <p className='fs-7 fw-bold'>Preview Email</p>
+          </Accordion.Header>
+
+          <Accordion.Body>
+            <div className='description fs-7 mb-5'>
+              Disajikan informasi berupa gambar yang akan ditampilkankan melalui email
+            </div>
+
+            <img src={toAbsoluteUrl('/media/tukangin/format-email.png')} alt='Mitra110 Vector' />
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
+
       <Card className='mb-5'>
         <Card.Body>
           <Row>
-            <Form.Group className='header-template mb-3'>
+            <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'> Email template untuk :</Form.Label>
               <Select
                 name='template_option'
@@ -510,16 +419,11 @@ const UpdateFormatEmailHO: FC = () => {
                 isSearchable={true}
                 placeholder='Template untuk'
                 options={emailType}
-                value={{
-                  value: selectedEmailType?.value ?? null,
-                  label:
-                    emailType.find((x: any) => x.value === selectedEmailType?.value)?.label ?? '',
-                }}
                 onChange={(newValue) => setSelectedEmailType(newValue)}
               />
             </Form.Group>
 
-            {emailForm.csi_id !== null && (
+            {selectedEmailType?.label === 'CSI' && (
               <Form.Group className='header-template mb-4'>
                 <Form.Label className='fs-5'> Format Formulir CSI :</Form.Label>
                 <Select
@@ -530,10 +434,6 @@ const UpdateFormatEmailHO: FC = () => {
                   placeholder='Pilih Judul Format'
                   options={csiData}
                   onChange={(newValue) => setSelectedCSI(newValue)}
-                  value={{
-                    value: selectedCSI?.value ?? null,
-                    label: selectedCSI?.label ?? '',
-                  }}
                 />
               </Form.Group>
             )}
@@ -547,15 +447,11 @@ const UpdateFormatEmailHO: FC = () => {
                 isSearchable={true}
                 placeholder='Pilih status yang ingin dikirimkan emailnya'
                 options={status}
-                value={{
-                  value: selectedStatus?.value ?? null,
-                  label: selectedStatus?.label ?? '',
-                }}
                 onChange={(newValue) => setSelectedStatus(newValue)}
               />
             </Form.Group>
 
-            <Form.Group className='header-template mb-3'>
+            <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'>Judul :</Form.Label>
 
               <Form.Control
@@ -601,7 +497,7 @@ const UpdateFormatEmailHO: FC = () => {
               />
             </Form.Group>
 
-            <Form.Group className='header-template mb-3'>
+            <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'>Ucapan Sapaan :</Form.Label>
 
               <Form.Control
@@ -612,7 +508,7 @@ const UpdateFormatEmailHO: FC = () => {
               />
             </Form.Group>
 
-            <Form.Group className='header-template mb-3'>
+            <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'>Ucapan Terimakasih :</Form.Label>
 
               <Form.Control
@@ -623,7 +519,7 @@ const UpdateFormatEmailHO: FC = () => {
               />
             </Form.Group>
 
-            <Form.Group className='header-template mb-3'>
+            <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'>Syarat dan Ketentuan :</Form.Label>
 
               {emailForm.terms_detail.map((element, index) => (
@@ -666,7 +562,7 @@ const UpdateFormatEmailHO: FC = () => {
               ))}
             </Form.Group>
 
-            <Form.Group className='header-template mb-3'>
+            <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'>Detail Informasi :</Form.Label>
 
               {emailForm.information_detail.map((element, index) => (
@@ -709,7 +605,7 @@ const UpdateFormatEmailHO: FC = () => {
               ))}
             </Form.Group>
 
-            <Form.Group className='header-template mb-3'>
+            <Form.Group className='header-template mb-4'>
               <Form.Label className='fs-5'>Footer :</Form.Label>
 
               <Form.Control
@@ -730,9 +626,10 @@ const UpdateFormatEmailHO: FC = () => {
               className='d-flex justify-content-center align-items-center'
               variant='dark-primary'
               type='submit'
-              onClick={() => handleUpdateEmailMessages()}
+              disabled={isLoading}
+              onClick={() => handleCreateEmailMessages()}
             >
-              {isLoading ? 'Updating...' : 'Update Template'}
+              {isLoading ? 'Saving...' : 'Save Template'}
             </Button>
           </div>
         </Card.Body>
@@ -741,4 +638,4 @@ const UpdateFormatEmailHO: FC = () => {
   )
 }
 
-export {UpdateFormatEmailHO}
+export {FormatEmailHO}

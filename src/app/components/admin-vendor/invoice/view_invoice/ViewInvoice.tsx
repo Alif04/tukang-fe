@@ -284,7 +284,7 @@ const ViewInvoiceVendor: FC = () => {
               <></>
             )} */}
 
-            {[2].includes(record.status) ? (
+            {[2, 7].includes(record.status) ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -389,6 +389,7 @@ const ViewInvoiceVendor: FC = () => {
 
           setInvoice((prevInvoices) => ({
             ...prevInvoices,
+            id: data?.id ?? null,
             status: data?.status,
             invoice_details: data?.invoice_details.map((item: any) => ({
               id: item.id,
@@ -443,17 +444,19 @@ const ViewInvoiceVendor: FC = () => {
         const invoiceStatus = (status: number) => {
           switch (status) {
             case 1:
-              return 'Pengecekan Invoice'
+              return 'Pengecekan invoice'
             case 2:
-              return 'Invoice Disetujui'
+              return 'Invoice disetujui'
             case 3:
-              return 'Invoice Ditolak'
+              return 'Invoice ditolak'
             case 4:
-              return 'Menunggu Dokumen Tagihan'
+              return 'Menunggu dokumen tagihan'
             case 5:
-              return 'Invoice Diberikan Kepada Finance'
+              return 'Invoice diberikan kepada finance'
             case 6:
-              return 'Invoice Sudah Dibayarkan'
+              return 'Invoice sudah dibayarkan'
+            case 7:
+              return 'Dokumen ditolak'
             default:
               return ''
           }
@@ -591,18 +594,18 @@ const ViewInvoiceVendor: FC = () => {
 
     formData.append('vendor_id', String(invoice.vendor_id))
     formData.append('status', String(invoice.status))
-    invoice.invoice_details.forEach((invoice, index) => {
-      if (invoice.order_id !== null) {
-        formData.append(`invoice_details[${index}][id]`, String(invoice.id))
-        formData.append(`invoice_details[${index}][order_id]`, String(invoice.order_id))
-        formData.append(`invoice_details[${index}][type]`, String(invoice.type))
-      }
-    })
+    // invoice.invoice_details.forEach((invoice, index) => {
+    //   if (invoice.order_id !== null) {
+    //     formData.append(`invoice_details[${index}][id]`, String(invoice.id))
+    //     formData.append(`invoice_details[${index}][order_id]`, String(invoice.order_id))
+    //     formData.append(`invoice_details[${index}][type]`, String(invoice.type))
+    //   }
+    // })
 
     if (vendorFiles?.length) {
       vendorFiles.forEach((item) => {
         if (item instanceof Blob) {
-          formData.append(`invoice_evidence`, item, item.name)
+          formData.append(`invoice_evidences`, item, item.name)
         }
       })
     }
@@ -661,7 +664,7 @@ const ViewInvoiceVendor: FC = () => {
   const UploadFileVendor = ({
     invoiceDetail,
     loadingModal,
-    handleUpdateQuotation,
+    handleUploadFile,
     loadingUpdate,
     vendorFiles,
     handleImageClick,
@@ -768,7 +771,7 @@ const ViewInvoiceVendor: FC = () => {
             <div className='button-submit d-flex justify-content-center align-items-center'>
               <Button
                 className='d-flex justify-content-center align-items-center'
-                onClick={handleUpdateQuotation}
+                onClick={handleUploadFile}
                 disabled={loadingUpdate}
                 variant='dark-primary'
               >
@@ -898,6 +901,7 @@ const ViewInvoiceVendor: FC = () => {
             handleFileChange={handleFileChange}
             handleFileClick={handleFileClick}
             handleRemoveFile={handleRemoveFile}
+            handleUploadFile={handleUploadFile}
           />
         )}
       </Modal>

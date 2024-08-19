@@ -10,6 +10,8 @@ type Props = {
   totalMember: number
   storeId: number | null
   storeName: string
+  dateFrom: string
+  dateTo: string
 }
 
 const BestCostumers: React.FC<Props> = ({
@@ -18,11 +20,16 @@ const BestCostumers: React.FC<Props> = ({
   totalMember,
   storeId,
   storeName,
+  dateFrom,
+  dateTo,
 }) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const topThree = memberData.slice(0, 5)
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
+
   const checkStoreId = storeId ? `&store_id=${storeId}` : ''
+  const checkDateFrom = dateFrom ? `&date_from=${dateFrom}` : ''
+  const checkDateTo = dateTo ? `&date_to=${dateTo}` : ''
 
   // Export To Excel
   const exportToExcel = () => {
@@ -34,18 +41,26 @@ const BestCostumers: React.FC<Props> = ({
     setLoadingExport(true)
 
     axios
-      .get(`${apiUrl}/member/export-excel?take=0&top_best=1${checkStoreId}`, {
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      })
+      .get(
+        `${apiUrl}/member/order-export-excel?take=0&top_best=1${checkStoreId}${checkDateFrom}${checkDateTo}`,
+        {
+          method: 'GET',
+          responseType: 'blob',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        }
+      )
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `Data Member ${storeName}.xlsx`)
+        link.setAttribute(
+          'download',
+          `Data Member ${storeName} ${
+            dateFrom && dateTo ? 'Periode ' + dateFrom + ' - ' + dateTo : ''
+          }.xlsx`
+        )
         document.body.appendChild(link)
         link.click()
 

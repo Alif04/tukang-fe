@@ -9,6 +9,7 @@ import Swal from 'sweetalert2'
 import {Spin} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import Select, {SingleValue} from 'react-select'
+import CreatableSelect from 'react-select/creatable'
 import {Row, Col, Form, FormGroup, Table, Button, ListGroup, Card} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -32,6 +33,7 @@ interface SalesSelect {
 }
 
 interface ItemSelect {
+  __isNew__?: boolean
   value: number | null
   label: string
   item_code: string
@@ -40,6 +42,7 @@ interface ItemSelect {
   default_price: number
   prices: Array<{
     id: number | null
+    is_active: boolean
     item_id: number | null
     unit_id: number | null
     store_id: number | null
@@ -162,29 +165,41 @@ const NewOrderStoreCS: FC = () => {
 
   // Fetch API Data
   const getItem = async () => {
-    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=1' : ''
+    const itemFree =
+      paymentTypeValue[0] === 'gratis' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+        ? '&item_type=1'
+        : ''
+    const itemTanpaSurvey =
+      paymentTypeValue[0] === 'berbayar' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+        ? '&item_type=2'
+        : ''
+    const itemSurvey = paymentTypeValue[1] === 'survey' ? '&item_type=3' : ''
     const search = searchItem ? `&search=${searchItem}` : ''
 
     try {
-      const response = await axios.get(`${apiUrl}/items?take=0${search}${itemFree}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/items?take=0${search}${itemFree}${itemTanpaSurvey}${itemSurvey}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
         const item = response.data.data.map((item: any) => ({
           value: item.id,
-          label: item.service_name,
+          label: paymentTypeValue[1] === 'survey' ? item.item_code : item.service_name,
           item_code: item?.item_code ?? '',
           item_name: item?.item_name ?? '',
           category_id: item.category_id,
           default_price: item.default_price,
           prices: item.prices.map((priceItem: any) => ({
             id: priceItem.id,
+            is_active: priceItem.is_active,
             item_id: priceItem.item_id,
             store_id: priceItem.store_id,
             periodic_start: priceItem.periodic_start,
@@ -194,10 +209,7 @@ const NewOrderStoreCS: FC = () => {
           })),
         }))
 
-        const filteredItem = item.filter((detail: any) => detail.default_price !== '0')
-        setItem(paymentTypeValue[0] === 'berbayar' ? filteredItem : item)
-
-        // setItem(item)
+        setItem(item)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -312,6 +324,7 @@ const NewOrderStoreCS: FC = () => {
   }, [searchSales])
 
   // Order Form Handler
+  const today = new Date().toISOString().split('T')[0]
   const orderFormHandler = (e: any) => {
     setOrderForm({
       ...orderForm,
@@ -426,19 +439,38 @@ const NewOrderStoreCS: FC = () => {
 
   // Calculate each details
   const calcEachDetails = () => {
+    const today = new Date()
+
     setOrderForm((prev) => {
       const order_details = prev.order_details.map((detail) => {
         let newDetail = {...detail}
 
         if (detail.item) {
           const {item, quantity} = detail
-          const {prices, default_price} = item
+          const {prices = [], default_price} = item
+
+          // const activePrices = prices.filter((price) => price.is_active === true)
+
+          const validPrices = prices.filter((price) => {
+            const start = new Date(price.periodic_start)
+            const end = new Date(price.periodic_end)
+            return today >= start && today <= end
+          })
+
+          const applicablePrice = validPrices
+            .filter((price) => quantity >= +price.min_order)
+            .sort((a, b) => +b.min_order - +a.min_order)[0]
 
           const unitPrice =
-            quantity >= +prices[0]?.min_order.toString() ? +prices[0].price : +default_price
+            applicablePrice && quantity >= +applicablePrice.min_order
+              ? +applicablePrice.price
+              : +default_price || 0
+
           const total = unitPrice * quantity
 
           newDetail = {...newDetail, unit_price: unitPrice.toString(), total: total.toString()}
+        } else {
+          newDetail = {...newDetail, unit_price: '0', total: '0'}
         }
 
         return newDetail
@@ -563,10 +595,16 @@ const NewOrderStoreCS: FC = () => {
   }, [orderForm.order_details, orderForm.additional_fee, paymentTypeValue, isOverdistance])
 
   // Submit New Order
+  const formData = new FormData()
+  const appendIfNotDefault = (key: any, value: any) => {
+    if (value !== null && value !== undefined && value !== '' && value !== 0) {
+      formData.append(key, String(value))
+    }
+  }
+
   const handleSubmitNewOrder = async () => {
     setIsLoading(true)
     const url = `${apiUrl}/orders`
-    const formData = new FormData()
 
     let errorBags = []
     const requiredOrderFields = [
@@ -579,7 +617,6 @@ const NewOrderStoreCS: FC = () => {
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
       {key: 'receipt_number', fieldName: 'Nomor Receipt'},
-      {key: 'order_details', fieldName: 'Order Details'},
       {key: 'is_overdistance', fieldName: 'Overdistance'},
       {key: 'additional_fee', fieldName: 'Additional Fee'},
       {key: 'notes', fieldName: 'Catatan'},
@@ -593,83 +630,67 @@ const NewOrderStoreCS: FC = () => {
       {key: 'quantity', fieldName: 'Quantity'},
     ]
 
-    for (const key in orderForm) {
-      if (Object.prototype.hasOwnProperty.call(orderForm, key)) {
-        const value = orderForm[key]
-        const required = requiredOrderFields.find((fields: {key: string}) => fields.key === key)
+    for (const {key, fieldName} of requiredOrderFields) {
+      const value = orderForm[key]
+      if (!value && key !== 'order_details') {
+        if (key === 'additional_fee' && isOverdistance === 1) {
+          if (value) formData.append(key, value.toString())
+        } else if (key === 'is_overdistance' || key === 'notes') {
+          if (value) formData.append(key, value.toString())
+        } else {
+          errorBags.push({message: `Mohon isi kolom ${fieldName}`})
+          setIsLoading(false)
+        }
+      } else {
+        formData.append(key, value)
+      }
+    }
 
-        if (required) {
-          if (value) {
-            if (key === 'order_details') {
-              orderForm.order_details.forEach((item: any, index: number) => {
-                requiredOrderDetailsFields.forEach((field) => {
-                  if (field.key === 'item_notes' && orderForm.payment_type === 'survey') {
-                    if (!item[field.key]) {
-                      errorBags.push({
-                        message: `Field ${field.fieldName} cannot be empty`,
-                      })
-                    }
-                  } else if (field.key === 'item_id' && orderForm.payment_type !== 'survey') {
-                    if (!item[field.key]) {
-                      errorBags.push({
-                        message: `Field ${field.fieldName} in order detail  cannot be empty`,
-                      })
-                    }
-                  } else if (
-                    !item[field.key] &&
-                    field.key !== 'item_notes' &&
-                    field.key !== 'item_id'
-                  ) {
-                    errorBags.push({
-                      message: `Field ${field.fieldName} in order detail ${
-                        index + 1
-                      } cannot be empty`,
-                    })
-                  }
-                })
+    if (orderForm.order_details && Array.isArray(orderForm.order_details)) {
+      orderForm.order_details.forEach((item: any, index: number) => {
+        if (item?.item && item.item.prices?.length > 0) {
+          const minOrder = Number(item.item.prices[0].min_order)
 
-                if (item) {
-                  if (item?.item_code !== null) {
-                    formData.append(`order_details[${index}][item_code]`, item.item_code)
-                  }
-
-                  if (item?.item_name !== null) {
-                    formData.append(`order_details[${index}][item_name]`, item.item_name)
-                  }
-
-                  if (item?.item_notes !== null && item?.item_notes !== '') {
-                    formData.append(`order_details[${index}][item_notes]`, item.item_notes)
-                  }
-
-                  if (item?.item_id !== null) {
-                    formData.append(`order_details[${index}][item_id]`, item.item_id)
-                  }
-
-                  formData.append(`order_details[${index}][quantity]`, item.quantity)
-                }
-              })
-            } else {
-              formData.append(key, orderForm[key])
-            }
-          } else if (key === 'additional_fee' && isOverdistance === 1) {
-            if (value) {
-              formData.append(key, orderForm[key].toString())
-            }
-          } else if (key === 'is_overdistance') {
-            if (value) {
-              formData.append(key, orderForm[key].toString())
-            }
-          } else if (key === 'notes') {
-            if (value) {
-              formData.append(key, orderForm[key].toString())
-            }
-          } else {
+          if (item.quantity < minOrder) {
             errorBags.push({
-              message: `${required.fieldName} cannot be empty`,
+              message: `Quantity item "${item.item_name}" harus lebih dari minimal order (${minOrder}).`,
             })
+            setIsLoading(false)
           }
         }
-      }
+
+        requiredOrderDetailsFields.forEach(({key, fieldName}) => {
+          const value = item[key]
+
+          if (key === 'item_code') {
+            if (value?.length < 10) {
+              errorBags.push({
+                message: 'Kolom "Item Code" harus diisi minimal 10 karakter',
+              })
+              setIsLoading(false)
+            }
+          }
+
+          if (
+            (key === 'item_notes' && orderForm.payment_type === 'survey' && !value) ||
+            (key === 'item_id' && orderForm.payment_type !== 'survey' && !value) ||
+            (!value && key !== 'item_notes' && key !== 'item_id')
+          ) {
+            errorBags.push({
+              message: `Mohon isi kolom "${fieldName}"`,
+            })
+            setIsLoading(false)
+          }
+        })
+
+        if (item) {
+          appendIfNotDefault(`order_details[${index}][item_code]`, item.item_code ?? '')
+          appendIfNotDefault(`order_details[${index}][item_name]`, item.item_name ?? '')
+          appendIfNotDefault(`order_details[${index}][item_notes]`, item.item_notes ?? '')
+          appendIfNotDefault(`order_details[${index}][item_id]`, item.item_id ?? '')
+          appendIfNotDefault(`order_details[${index}][quantity]`, item.quantity ?? '')
+        }
+      })
     }
 
     if (errorBags.length > 0) {
@@ -689,6 +710,14 @@ const NewOrderStoreCS: FC = () => {
           formData.append(`order_files`, item, item?.name)
         }
       })
+    } else {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong upload bukti receipt',
+        icon: 'warning',
+      })
+      setIsLoading(false)
+      return false
     }
 
     await axios
@@ -761,6 +790,15 @@ const NewOrderStoreCS: FC = () => {
         Swal.fire({
           title: 'Warning',
           text: 'Please enter member email address.',
+          icon: 'warning',
+        })
+
+        setIsSubmittingNewMember(false)
+        return
+      } else if (!selectedMember.address_1) {
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please enter member address.',
           icon: 'warning',
         })
 
@@ -881,14 +919,14 @@ const NewOrderStoreCS: FC = () => {
         x.is_active === true &&
         x.deleted_at === null &&
         maxOrder > x.slot_order &&
-        x.slot_order < workOrderVendor.length
+        x.slot_order < orderVendor.length
       return isAvailable
     }).length
 
     // Vendor Availbility Based On Tukang Active
-    if (tukangActive === 0 && workOrderVendor.length >= 0) {
+    if (tukangActive === 0 && orderVendor.length >= 0) {
       return <p className='text-danger'>UNAVAILABLE</p>
-    } else if (tukangActiveAvailability === 0 && workOrderVendor.length > 0) {
+    } else if (tukangActiveAvailability === 0 && orderVendor.length > 0) {
       return <p className='text-danger'>FULL BOOKED</p>
     } else {
       return <p className='text-black'>AVAILABLE</p>
@@ -1248,8 +1286,7 @@ const NewOrderStoreCS: FC = () => {
                     type='date'
                     value={orderForm.request_survey}
                     onChange={(e) => orderFormHandler(e)}
-                    // TODO: ENABLE BACKDATE VALIDATION WHILE PRODUCTION
-                    // min={today}
+                    min={today}
                   />
                 </Form.Group>
               </Col>
@@ -1346,25 +1383,78 @@ const NewOrderStoreCS: FC = () => {
                   {orderForm.order_details.map((element, index) => (
                     <tr key={`${index}-order_details`}>
                       <td>
-                        <Form.Control
-                          id={`item-code-${index}`}
-                          as='textarea'
-                          plaintext
-                          ref={(el: any) => (textAreaRefs.current[index] = el)}
-                          readOnly={
-                            paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
-                          }
-                          name={`item_code`}
-                          value={element?.item_code ?? ''}
-                          onChange={(e) => orderDetailsFormHandler(e, index)}
-                          onInput={() => {
-                            const textarea = textAreaRefs.current[index]
-                            if (textarea) {
-                              textarea.style.height = 'auto'
-                              textarea.style.height = textarea.scrollHeight + 'px'
+                        {paymentTypeValue[1] === 'survey' ? (
+                          <CreatableSelect
+                            id={`item_id-${index}`}
+                            className='form-control p-0 form-item-code'
+                            classNamePrefix='select'
+                            placeholder='Pilih/Ketik Item Code'
+                            isSearchable={true}
+                            isClearable={true}
+                            options={item}
+                            name={`item_id`}
+                            styles={{
+                              singleValue: (base) => ({
+                                ...base,
+                                overflow: 'auto',
+                                whiteSpace: 'normal',
+                                textOverflow: '',
+                              }),
+                            }}
+                            value={orderForm.order_details[index]?.item ?? null}
+                            onInputChange={(newValue) => setSearchItem(newValue)}
+                            onChange={(newValue) => {
+                              setOrderForm((prev) => {
+                                const cache = {...prev}
+                                cache.order_details[index] = {
+                                  ...cache.order_details[index],
+                                  item_id:
+                                    newValue?.__isNew__ === true ? null : newValue?.value ?? null,
+                                  item_code: newValue?.__isNew__
+                                    ? ((newValue?.value ?? '') as string)
+                                    : ((newValue?.item_code ?? '') as string),
+                                  item_name: newValue?.item_name ?? '',
+                                  item_notes: newValue?.item_name ?? '',
+                                  item: newValue,
+                                }
+                                return cache
+                              })
+                              calcEachDetails()
+                            }}
+                            onKeyDown={(e) => {
+                              if (
+                                !/[0-9]/.test(e.key) &&
+                                e.key !== 'Backspace' &&
+                                e.key !== 'ArrowLeft' &&
+                                e.key !== 'ArrowRight' &&
+                                e.key !== 'Tab'
+                              ) {
+                                e.preventDefault()
+                              }
+                            }}
+                          />
+                        ) : (
+                          <Form.Control
+                            id={`item-code-${index}`}
+                            as='textarea'
+                            plaintext
+                            type='number'
+                            ref={(el: any) => (textAreaRefs.current[index] = el)}
+                            readOnly={
+                              paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
                             }
-                          }}
-                        />
+                            name={`item_code`}
+                            value={element?.item_code ?? ''}
+                            onChange={(e) => orderDetailsFormHandler(e, index)}
+                            onInput={() => {
+                              const textarea = textAreaRefs.current[index]
+                              if (textarea) {
+                                textarea.style.height = 'auto'
+                                textarea.style.height = textarea.scrollHeight + 'px'
+                              }
+                            }}
+                          />
+                        )}
                       </td>
 
                       <td style={{maxWidth: '200px', minWidth: '200px'}}>
@@ -1402,6 +1492,7 @@ const NewOrderStoreCS: FC = () => {
                             plaintext
                             as='textarea'
                             name={`item_notes`}
+                            value={element?.item_notes ?? ''}
                             ref={(el: any) =>
                               (textAreaRefs.current[2 * orderForm.order_details.length + index] =
                                 el)
@@ -1460,6 +1551,7 @@ const NewOrderStoreCS: FC = () => {
                         <Form.Control
                           id={`quantity-${index}`}
                           name={`quantity`}
+                          type='number'
                           value={element.quantity}
                           onChange={(e) => {
                             orderDetailsFormHandler(e, index)
