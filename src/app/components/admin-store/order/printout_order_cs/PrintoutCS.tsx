@@ -16,6 +16,7 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
   const navigate = useNavigate()
 
   const [orderDetail, setOrderDetail] = useState<any>()
+  const [emailDetail, setEmailDetail] = useState<any>()
   const [isPrinting, setIsPrinting] = useState<boolean>(false)
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
 
@@ -42,8 +43,29 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
     }
   }
 
+  const fetchEmailData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/mails/1`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setEmailDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     fetchOrderData()
+    fetchEmailData()
   }, [])
 
   useEffect(() => {
@@ -314,159 +336,16 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
             </div>
           </Skeleton>
 
-          {/* 
-          <Skeleton active loading={isLoadingPage}>
-            <div className='mb-5'>
-              <table className='detail-item'>
-                <thead>
-                  <tr>
-                    <th className='table-head-name text-uppercase'>Deskripsi Pemasangan</th>
-                    <th className='table-head-qty text-uppercase'>QTY</th>
-                    {!(
-                      orderDetail?.payment_type === 'gratis' ||
-                      orderDetail?.payment_type === 'survey'
-                    ) && (
-                      <>
-                        <th className='table-head-price text-uppercase'>Harga Jasa</th>
-                        <th className='table-head-subtotal text-end text-uppercase'>Jumlah</th>
-                      </>
-                    )}
-                  </tr>
-                </thead>
-              </table>
-
-              <hr className='line-1' />
-              <hr className='line-1' />
-
-              <table className='detail-item'>
-                <tbody>
-                  {orderDetail?.order_details?.map((item: any, index: any) => (
-                    <tr>
-                      <td className='table-content-name'>
-                        {orderDetail?.payment_type === 'survey'
-                          ? item?.item_notes
-                          : item?.item?.service_name}
-                      </td>
-
-                      <td className='table-content-qty'>{`${item?.quantity ?? 0} x`}</td>
-
-                      {!(
-                        orderDetail?.payment_type === 'gratis' ||
-                        orderDetail?.payment_type === 'survey'
-                      ) && (
-                        <>
-                          <td className='table-content-price'>{`Rp. ${parseInt(
-                            item?.unit_price ?? 0
-                          )?.toLocaleString('id')}`}</td>
-
-                          <td className='table-content-subtotal text-end'>{`Rp. ${parseInt(
-                            item?.total ?? 0
-                          )?.toLocaleString('id')}`}</td>
-                        </>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <hr className='line-2' />
-
-              <table className='detail-item'>
-                <tbody>
-                  {orderDetail?.payment_type !== 'gratis' &&
-                    orderDetail?.payment_type !== 'pemasangan_tanpa_survey' && (
-                      <tr>
-                        <td className='table-footer-1'>Biaya Survey</td>
-                        <td className='table-footer-2'>:</td>
-                        <td className='table-footer-3 text-end'>
-                          {orderDetail?.payment_type === 'gratis' ||
-                          orderDetail?.payment_type === 'pemasangan_tanpa_survey'
-                            ? `Rp. ${(0).toLocaleString('id')}`
-                            : orderDetail?.payment_type === 'survey'
-                            ? `Rp. ${(99000).toLocaleString('id')}`
-                            : `Rp. ${0}`}
-                        </td>
-                      </tr>
-                    )}
-
-                  {orderDetail?.is_overdistance === 1 && (
-                    <tr>
-                      <td className='table-footer-1'>Biaya Tambahan</td>
-                      <td className='table-footer-2'>:</td>
-                      <td className='table-footer-3 text-end'>{`Rp. ${parseInt(
-                        orderDetail?.additional_fee ?? 0
-                      ).toLocaleString('id')}`}</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-
-              <table className='detail-item'>
-                <tbody>
-                  <tr>
-                    <td className='table-footer-4'></td>
-
-                    <td className='table-footer-5 fw-bold'>
-                      {orderDetail?.is_overdistance === 1 ||
-                        (orderDetail?.payment_type === 'survey' && <hr className='line-2' />)}
-                      Grand Total :
-                    </td>
-
-                    <td className='table-footer-6 text-end fw-bold'>
-                      {orderDetail?.is_overdistance === 1 ||
-                        (orderDetail?.payment_type === 'survey' && <hr className='line-2' />)}
-
-                      {calculateTotal(orderDetail)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </Skeleton> */}
-
           <Skeleton active loading={isLoadingPage}>
             <Row>
               <Col>
                 <h3 className='fs-3 fw-bold mb-1'>Syarat & Ketentuan</h3>
 
-                <ol>
-                  <li className='fw-normal'>
-                    Jadwal survey/pengerjaan akan ditentukan oleh teknisi, setelah material tersedia
-                    dan barang diterima customer, serta barang yang akan dikerjakan jasa instalasi
-                    adalah barang dari Mitra10.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Penjadwalan ulang pada H-1 tidak dikenakan biaya, penjadwalan ulang pada hari H
-                    akan dikenakan biaya tambahan minimal sebesar Rp 75.000.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Pekerjaan tambahan (Pekerjaan diluar yang sudah diajukan & di transaksikan) akan
-                    dikenakan biaya tambahan.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Semua jasa pemasangan wajib dilakukan survey. Biaya survey akan dikembalikan
-                    apabila biaya jasa instalasi/service minimal Rp 500.000.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Quotation diberikan kepada customer maksimal H+2 hari kerja setelah survey
-                    selesai.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Garansi 7 (Tujuh) hari untuk instalasi/service terhitung sejak tanggal serah
-                    terima pekerjaan dan hanya 1x kunjungan. Kerusakan produk yang terpasang, tidak
-                    menjadi bagian garansi dan proses instalasi/service.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Biaya transportasi, jarak dari toko Mitra10 lokasi pengerjaan kurang dari 10KM
-                    adalah FREE : Lebih dari 10KM dikenakan biaya transportasi Rp 25.000 Max 40KM
-                  </li>
-                </ol>
+                {emailDetail?.terms_detail?.map((item: any, index: number) => (
+                  <ol key={index} className='fw-normal' start={index + 1}>
+                    <li className='fw-normal'>{item.terms}</li>
+                  </ol>
+                ))}
               </Col>
             </Row>
           </Skeleton>
@@ -476,20 +355,11 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
               <Col>
                 <h3 className='fs-3 fw-bold mb-1'>Informasi</h3>
 
-                <ol>
-                  <li className='fw-normal'>
-                    Kontak layanan pelanggan Instalasi/Service (WA Only) : 0878-8482-1089.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Operasional hari senin s/d jumat - Office hour 09:00 s/d 16:00.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Orderan instalasi/service yang masuk diluar jam operasional akan diproses pada
-                    jam operasional.
-                  </li>
-                </ol>
+                {emailDetail?.information_detail?.map((item: any, index: number) => (
+                  <ol key={index} className='fw-normal' start={index + 1}>
+                    <li className='fw-normal'>{item.information}</li>
+                  </ol>
+                ))}
               </Col>
             </Row>
           </Skeleton>

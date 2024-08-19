@@ -959,7 +959,7 @@ const NewMaterialVendor: FC = () => {
                     <Col md={8} className='mt-5'>
                       <div className='detail-info'>
                         <p className='fs-7 fw-normal '>
-                          {workOrderDetail?.notes ?? 'Toko tidak memberikan catatan'}
+                          {workOrderDetail?.order?.notes ?? 'Toko tidak memberikan catatan'}
                         </p>
                       </div>
                     </Col>

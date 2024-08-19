@@ -8,9 +8,9 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import dayjs from 'dayjs'
-import {DatePicker, Steps} from 'antd'
+import {DatePicker, Steps, Image} from 'antd'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Button, Row, Col, Card, Table} from 'react-bootstrap'
+import {Form, Button, Row, Col, Card, ListGroup, Modal} from 'react-bootstrap'
 const {RangePicker} = DatePicker
 
 interface StatusStorage {
@@ -82,6 +82,12 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   // Option Tukang
   const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
   const [searchTukang, setSearchTukang] = useState('')
+
+  // Preview Image
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
+  const [visibleReschedule, setVisibleReschedule] = useState(false)
+  const handleClose = () => setVisible(false)
 
   const fetchOrderData = async () => {
     try {
@@ -163,11 +169,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           if (data?.request_survey) {
             workOrderHandler(formatInputDate(new Date(data.request_survey)), 'request_work_time')
           }
-
-          // old without time
-          // if (data?.work_orders?.survey_date) {
-          //   workOrderHandler(formatInputDate(new Date(data.work_orders.survey_date)), 'survey_date')
-          // }
 
           // new with time
           if (data?.work_orders?.survey_date) {
@@ -313,22 +314,38 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   }
 
   // Filter Work Order Status
-  useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
 
+  useEffect(() => {
     const getStatusNameByCategory = (category: string) => {
       switch (category) {
         case 'SURVEYREQ':
           return 'TUKANGSURVEY'
-        case 'RESCHEDULE':
-          return 'TUKANGSURVEY'
         case 'WORKREQ':
           return 'TUKANGWORK'
+        default:
+          return null
       }
     }
 
-    const status = getStatusNameByCategory(orderDetail?.status?.category)
+    const rescheduleStatus =
+      orderDetail?.status?.category === 'RESCHEDULE' &&
+      (orderDetail?.work_orders?.work_order_status[0]?.status?.category === 'TUKANGSURVEY'
+        ? 'TUKANGSURVEY'
+        : orderDetail?.work_orders?.work_order_status[0]?.status?.category === 'TUKANGWORK'
+        ? 'TUKANGWORK'
+        : null)
+
+    const quotationSpecialStatus =
+      orderDetail?.status?.category === 'WORKREQ' &&
+      (orderDetail?.quotation[0]?.quotation_special === 1 ? 'WORKREQSTEPONE' : null)
+
+    const status =
+      quotationSpecialStatus ||
+      rescheduleStatus ||
+      getStatusNameByCategory(orderDetail?.status?.category)
+
     const desiredStatus =
       statusData.find((statuses: StatusStorage) => statuses.category === status)?.value ?? null
 
@@ -336,7 +353,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       ...workOrder,
       work_order_status: desiredStatus === null ? orderDetail?.status?.id : desiredStatus,
     })
-  }, [orderDetail?.status])
+  }, [orderDetail?.status, orderDetail?.work_orders])
 
   const workOrderHandler = (
     value: number | string | Array<number | string | null> | any | null,
@@ -538,7 +555,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   return (
     <section id='update-work-order'>
       <Card className=' mb-5'>
-        <div className='card-body'>
+        <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -893,10 +910,17 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
                   <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                     <Form.Label column>
-                      {orderDetail?.payment_type === 'survey' &&
-                      orderDetail?.quotation?.length === 0
-                        ? 'Tanggal request survey'
-                        : 'Tanggal request pemasangan'}
+                      {(() => {
+                        if (orderDetail?.payment_type === 'survey') {
+                          if (orderDetail?.quotation?.length === 0) {
+                            return `Tanggal request survey`
+                          } else {
+                            return `Tanggal request pemasangan`
+                          }
+                        } else {
+                          return `Tanggal request pemasangan`
+                        }
+                      })()}
                     </Form.Label>
 
                     <Col>
@@ -1117,7 +1141,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       </table>
                     ) : (
                       <>
-                        <div className='fs-6'>Jasa Pemasangan Tahap 1</div>
+                        <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
 
                         <table className='table hover responsive'>
                           <thead className='table-warranty-head'>
@@ -1161,7 +1185,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           </tbody>
                         </table>
 
-                        <div className='fs-6'>Jasa Pemasangan Tahap 2</div>
+                        <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
                         <table className='table hover responsive'>
                           <thead className='table-warranty-head'>
@@ -1205,7 +1229,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           </tbody>
                         </table>
 
-                        <div className='fs-6'>Jasa Pemasangan Tahap 3</div>
+                        <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
 
                         <table className='table hover responsive'>
                           <thead className='table-warranty-head'>
@@ -1421,13 +1445,38 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             })()}
           </Row>
 
-          <Row className='table-warranty d-flex align-items-center mb-2'>
-            <div className='table-title-warranty'>
-              <div className='fs-3 fw-bold mb-2'>Catatan Toko</div>
-              <p className='fs-7 p-0'>
-                {orderDetail?.notes ? orderDetail?.notes : 'Toko tidak memberikan catatan tambahan'}
-              </p>
-            </div>
+          <Row>
+            <Col>
+              <div className='fs-3 fw-bold'>Catatan Order</div>
+
+              <div className='detail-info mb-3'>
+                <p className='fs-5 fw-bold'>Catatan Toko :</p>
+
+                <p className='fs-7'>
+                  {orderDetail.notes ? orderDetail.notes : 'Toko tidak memberikan catatan'}
+                </p>
+              </div>
+
+              <div className='detail-info mb-3'>
+                <p className='fs-5 fw-bold'>Catatan Tukang :</p>
+
+                <p className='fs-7'>
+                  {orderDetail?.work_orders?.work_order_status[0]?.description
+                    ? orderDetail?.work_orders?.work_order_status[0]?.description
+                    : 'Tukang tidak memberikan catatan'}
+                </p>
+              </div>
+
+              <div className='detail-info mb-3'>
+                <p className='fs-5 fw-bold'>Intruksi Spesial :</p>
+
+                <p className='fs-7'>
+                  {orderDetail?.quotation?.[0]?.description
+                    ? orderDetail?.quotation?.[0]?.description
+                    : 'Vendor tidak memberikan catatan'}
+                </p>
+              </div>
+            </Col>
           </Row>
 
           {orderDetail?.work_orders?.work_order_status.length > 1 &&
@@ -1444,10 +1493,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             </div>
           ) : (
             <div className='d-flex justify-content-center'>
-              {/* <Button variant='dark-danger' type='submit' onClick={handleCancelUpdateWorkOrder}>
-                Cancel
-              </Button> */}
-
               <Button
                 className='d-flex justify-content-center align-items-center'
                 variant='dark-primary'
@@ -1459,14 +1504,175 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
               </Button>
             </div>
           )}
-        </div>
+        </Card.Body>
       </Card>
 
+      {orderDetail?.reschedule && orderDetail?.reschedule?.length > 0 && (
+        <Card className='mt-5'>
+          <Card.Header>
+            <Card.Title>Reschedule History</Card.Title>
+          </Card.Header>
+
+          <Card.Body>
+            <Row className='mb-5'>
+              <Col>
+                <Form.Group>
+                  <Form.Label>Tanggal Konfirmasi Awal Vendor :</Form.Label>
+
+                  <p className='fs-6'>
+                    {orderDetail?.work_orders
+                      ? orderDetail.work_orders.work_start_date &&
+                        orderDetail.work_orders.work_end_date
+                        ? `${new Date(orderDetail.work_orders.work_start_date).toLocaleDateString(
+                            'id-ID',
+                            {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            }
+                          )} sampai ${new Date(
+                            orderDetail.work_orders.work_end_date
+                          ).toLocaleDateString('id-ID', {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                          })}`
+                        : orderDetail.work_orders.survey_date
+                        ? new Date(orderDetail.work_orders.survey_date).toLocaleDateString(
+                            'id-ID',
+                            {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            }
+                          )
+                        : 'Tanggal belum dikonfirmasi vendor'
+                      : 'Tanggal belum dikonfirmasi vendor'}
+                  </p>
+                </Form.Group>
+              </Col>
+
+              <Col>
+                <Form.Group>
+                  <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
+
+                  <p className='fs-6'>
+                    {orderDetail?.reschedule[0]?.reschedule_date
+                      ? `${new Date(orderDetail?.reschedule[0]?.reschedule_date).toLocaleDateString(
+                          'id-ID',
+                          {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                          }
+                        )}`
+                      : 'Tanggal belum ditentukan vendor'}
+                  </p>
+                </Form.Group>
+              </Col>
+
+              <Col>
+                <Form.Group>
+                  <Form.Label>Tanggal Konfirmasi Vendor :</Form.Label>
+
+                  <p className='fs-6'>
+                    {orderDetail?.reschedule[0]?.confirm_date
+                      ? `${new Date(orderDetail?.reschedule[0]?.confirm_date).toLocaleDateString(
+                          'id-ID',
+                          {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                          }
+                        )}`
+                      : 'Tanggal belum ditentukan vendor'}
+                  </p>
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className='mb-5'>
+              <Col>
+                <Form.Label className='mt-3'>Bukti File :</Form.Label>
+                <ListGroup>
+                  {orderDetail?.reschedule?.[0]?.reschedule_evidences?.map((item: any) => (
+                    <ListGroup.Item
+                      key={item.id}
+                      action
+                      style={{cursor: 'pointer'}}
+                      onClick={() => {
+                        setPreviewImage(item.evidence_location)
+                        setVisibleReschedule(true)
+                      }}
+                    >
+                      {item.evidence_location}
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+
+                {previewImage && (
+                  <div>
+                    {previewImage.endsWith('.pdf') ? (
+                      <>
+                        <Modal
+                          dialogClassName='modal-show-pdf'
+                          centered
+                          show={visible}
+                          onHide={handleClose}
+                        >
+                          <Modal.Header closeButton>
+                            <Modal.Title>File - {previewImage}</Modal.Title>
+                          </Modal.Header>
+
+                          <Modal.Body>
+                            <iframe
+                              key={previewImage}
+                              width='100%'
+                              height='100%'
+                              src={`${apiUrl}/public/reschedule/${previewImage}`}
+                              style={{border: 'none'}}
+                            />
+                          </Modal.Body>
+                        </Modal>
+                      </>
+                    ) : (
+                      <Image
+                        key={previewImage}
+                        width={200}
+                        style={{display: 'none'}}
+                        src={`${apiUrl}/public/reschedule/${previewImage}`}
+                        preview={{
+                          visible: visibleReschedule,
+                          src: `${apiUrl}/public/reschedule/${previewImage}`,
+                          onVisibleChange: (value) => {
+                            setVisibleReschedule(value)
+                          },
+                        }}
+                      />
+                    )}
+                  </div>
+                )}
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+      )}
+
       <Card className='mb-5'>
+        <Card.Header>
+          <Card.Title className='fw-bold'>Order History</Card.Title>
+        </Card.Header>
+
         <Card.Body>
           <div className='work-order-history'>
-            <h1 className='title mb-5'>Order History</h1>
-
             <Steps
               progressDot
               current={OrderHistory.length - 1}

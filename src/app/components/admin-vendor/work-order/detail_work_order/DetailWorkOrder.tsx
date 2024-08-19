@@ -5,9 +5,8 @@ import './DetailWorkOrder.css'
 
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
-import {Image, Skeleton} from 'antd'
-import {Card, Row, Col, Form, ListGroup} from 'react-bootstrap'
-import {Steps} from 'antd'
+import {DatePicker, Steps, Image, Skeleton} from 'antd'
+import {Form, Button, Row, Col, Card, ListGroup, Modal} from 'react-bootstrap'
 
 interface Status {
   value: number | null
@@ -28,7 +27,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
   const [orderDetail, setOrderDetail] = useState<any>()
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
+  const [visibleReschedule, setVisibleReschedule] = useState(false)
   const [isLoadingPage, setIsLoadingPage] = useState(true)
+  const handleClose = () => setVisible(false)
 
   // Order History
   const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
@@ -477,9 +478,17 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
                     <Form.Label column>
-                      {orderDetail?.payment_type !== 'survey'
-                        ? 'Tanggal request pemasangan'
-                        : 'Tanggal request survey'}
+                      {(() => {
+                        if (orderDetail?.payment_type === 'survey') {
+                          if (orderDetail?.quotation?.length === 0) {
+                            return `Tanggal request survey`
+                          } else {
+                            return `Tanggal request pemasangan`
+                          }
+                        } else {
+                          return `Tanggal request pemasangan`
+                        }
+                      })()}
                     </Form.Label>
 
                     <Col>
@@ -706,7 +715,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                         </table>
                       ) : (
                         <>
-                          <div className='fs-6'>Jasa Pemasangan Tahap 1</div>
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -750,7 +759,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             </tbody>
                           </table>
 
-                          <div className='fs-6'>Jasa Pemasangan Tahap 2</div>
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -794,7 +803,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                             </tbody>
                           </table>
 
-                          <div className='fs-6'>Jasa Pemasangan Tahap 3</div>
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -1013,20 +1022,38 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             </Skeleton>
           </Row>
 
-          <Row className='table-warranty d-flex align-items-center mb-3'>
-            <div className='table-title-warranty'>
-              <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
-                <div className='fs-3 fw-bold mb-2'>Catatan Toko</div>
-              </Skeleton>
+          <Row>
+            <Col>
+              <div className='fs-3 fw-bold'>Catatan Order</div>
 
-              <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                <p className='fs-7 p-0'>
-                  {orderDetail?.notes
-                    ? orderDetail?.notes
-                    : 'Toko tidak memberikan catatan tambahan'}
+              <div className='detail-info mb-3'>
+                <p className='fs-5 fw-bold'>Catatan Toko :</p>
+
+                <p className='fs-7'>
+                  {orderDetail?.notes ? orderDetail?.notes : 'Toko tidak memberikan catatan'}
                 </p>
-              </Skeleton>
-            </div>
+              </div>
+
+              <div className='detail-info mb-3'>
+                <p className='fs-5 fw-bold'>Catatan Tukang :</p>
+
+                <p className='fs-7'>
+                  {orderDetail?.work_orders?.work_order_status[0]?.description
+                    ? orderDetail?.work_orders?.work_order_status[0]?.description
+                    : 'Tukang tidak memberikan catatan'}
+                </p>
+              </div>
+
+              <div className='detail-info mb-3'>
+                <p className='fs-5 fw-bold'>Intruksi Spesial :</p>
+
+                <p className='fs-7'>
+                  {orderDetail?.quotation?.[0]?.description
+                    ? orderDetail?.quotation?.[0]?.description
+                    : 'Vendor tidak memberikan catatan'}
+                </p>
+              </div>
+            </Col>
           </Row>
 
           <Skeleton active loading={isLoadingPage}>
@@ -1149,12 +1176,174 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
         </Card.Body>
       </Card>
 
-      <Card>
-        <Card.Body>
-          <Skeleton active loading={isLoadingPage}>
-            <div className='work-order-history'>
-              <h1 className='title mb-5'>Order History</h1>
+      <Skeleton active loading={isLoadingPage}>
+        {orderDetail?.reschedule && orderDetail?.reschedule?.length > 0 && (
+          <Card className='mt-5'>
+            <Card.Header>
+              <Card.Title>Reschedule History</Card.Title>
+            </Card.Header>
 
+            <Card.Body>
+              <Row className='mb-5'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Tanggal Konfirmasi Awal Vendor :</Form.Label>
+
+                    <p className='fs-6'>
+                      {orderDetail?.work_orders
+                        ? orderDetail.work_orders.work_start_date &&
+                          orderDetail.work_orders.work_end_date
+                          ? `${new Date(orderDetail.work_orders.work_start_date).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
+                              }
+                            )} sampai ${new Date(
+                              orderDetail.work_orders.work_end_date
+                            ).toLocaleDateString('id-ID', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            })}`
+                          : orderDetail.work_orders.survey_date
+                          ? new Date(orderDetail.work_orders.survey_date).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: 'numeric',
+                              }
+                            )
+                          : 'Tanggal belum dikonfirmasi vendor'
+                        : 'Tanggal belum dikonfirmasi vendor'}
+                    </p>
+                  </Form.Group>
+                </Col>
+
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
+
+                    <p className='fs-6'>
+                      {orderDetail?.reschedule[0]?.reschedule_date
+                        ? `${new Date(
+                            orderDetail?.reschedule[0]?.reschedule_date
+                          ).toLocaleDateString('id-ID', {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                          })}`
+                        : 'Tanggal belum ditentukan vendor'}
+                    </p>
+                  </Form.Group>
+                </Col>
+
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Tanggal Konfirmasi Vendor :</Form.Label>
+
+                    <p className='fs-6'>
+                      {orderDetail?.reschedule[0]?.confirm_date
+                        ? `${new Date(orderDetail?.reschedule[0]?.confirm_date).toLocaleDateString(
+                            'id-ID',
+                            {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                            }
+                          )}`
+                        : 'Tanggal belum ditentukan vendor'}
+                    </p>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='mb-5'>
+                <Col>
+                  <Form.Label className='mt-3'>Bukti File :</Form.Label>
+                  <ListGroup>
+                    {orderDetail?.reschedule?.[0]?.reschedule_evidences?.map((item: any) => (
+                      <ListGroup.Item
+                        key={item.id}
+                        action
+                        style={{cursor: 'pointer'}}
+                        onClick={() => {
+                          setPreviewImage(item.evidence_location)
+                          setVisibleReschedule(true)
+                        }}
+                      >
+                        {item.evidence_location}
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+
+                  {previewImage && (
+                    <div>
+                      {previewImage.endsWith('.pdf') ? (
+                        <>
+                          <Modal
+                            dialogClassName='modal-show-pdf'
+                            centered
+                            show={visible}
+                            onHide={handleClose}
+                          >
+                            <Modal.Header closeButton>
+                              <Modal.Title>File - {previewImage}</Modal.Title>
+                            </Modal.Header>
+
+                            <Modal.Body>
+                              <iframe
+                                key={previewImage}
+                                width='100%'
+                                height='100%'
+                                src={`${apiUrl}/public/reschedule/${previewImage}`}
+                                style={{border: 'none'}}
+                              />
+                            </Modal.Body>
+                          </Modal>
+                        </>
+                      ) : (
+                        <Image
+                          key={previewImage}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={`${apiUrl}/public/reschedule/${previewImage}`}
+                          preview={{
+                            visible: visibleReschedule,
+                            src: `${apiUrl}/public/reschedule/${previewImage}`,
+                            onVisibleChange: (value) => {
+                              setVisibleReschedule(value)
+                            },
+                          }}
+                        />
+                      )}
+                    </div>
+                  )}
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+        )}
+      </Skeleton>
+
+      <Skeleton active loading={isLoadingPage}>
+        <Card>
+          <Card.Header>
+            <Card.Title className='fw-bold'>Order History</Card.Title>
+          </Card.Header>
+
+          <Card.Body>
+            <div className='work-order-history'>
               <Steps
                 progressDot
                 current={OrderHistory.length - 1}
@@ -1167,9 +1356,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                 }))}
               />
             </div>
-          </Skeleton>
-        </Card.Body>
-      </Card>
+          </Card.Body>
+        </Card>
+      </Skeleton>
     </section>
   )
 }

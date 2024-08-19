@@ -442,7 +442,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   }
 
   useEffect(() => {
-    fetchData(1, 10, '')
+    fetchData(1, 50, '')
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -506,7 +506,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     valueCheck(`&search=`, searchFilter)
     valueCheck(`&vendor_id=`, selectedVendor?.value)
 
-    const data = await ViewQuotation(1, 10, queryparams)
+    const data = await ViewQuotation(1, 50, queryparams)
     setQuotationData(data)
 
     setLoadingButton(false)
@@ -631,6 +631,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             current={currentPage}
             total={totalData}
             showSizeChanger
+            defaultPageSize={50}
             pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
             itemRender={itemRender}
             onChange={(page, pageSize) => {

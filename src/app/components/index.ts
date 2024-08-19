@@ -179,13 +179,13 @@ export * from './admin-ho/csi/report_csi/ReportCSI'
 
 // Format Email
 // New Format Email
-export * from './admin-ho/format_email/new_format_email/FormatEmailHO'
+export * from './admin-ho/format_email/FormatEmailHO'
 
 // Update Format Email
-export * from './admin-ho/format_email/update_format_email/UpdateFormatEmailHO'
+export * from './admin-ho/format_email/UpdateFormatEmailHO'
 
 // List Format Email
-export * from './admin-ho/format_email/list_format_email/FormatEmailList'
+export * from './admin-ho/format_email/FormatEmailList'
 
 // User Management
 // New User

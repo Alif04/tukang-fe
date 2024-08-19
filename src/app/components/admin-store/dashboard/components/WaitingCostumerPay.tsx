@@ -19,9 +19,9 @@ const WaitingCostumerPay: React.FC<Props> = ({className, loadingPage, chartOrder
   }
 
   // Sum Total From API
-  // const sumTotal = (data: any, key: string) =>
-  //   data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
-  // const waitingPaymentReceipt = sumTotal(chartOrder, 'totalUnpaid')
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+  const waitingPaymentReceipt = sumTotal(chartOrder, 'totalPicklist')
 
   return (
     <div className={`card ${className}`}>
@@ -30,7 +30,7 @@ const WaitingCostumerPay: React.FC<Props> = ({className, loadingPage, chartOrder
           <Skeleton active loading={loadingPage}>
             <div className='d-flex flex-column gap-4'>
               <div className='fs-5 text-center fw-bold text-muted'>Menunggu Bayar</div>
-              <div className='fs-1 d-block m-auto'>{getStatusCount(orderData)}</div>
+              <div className='fs-1 d-block m-auto'>{waitingPaymentReceipt}</div>
               <div className='fs-5 text-center d-block m-auto text-muted'>
                 Menunggu Bayar Receipt
               </div>

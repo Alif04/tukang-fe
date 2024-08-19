@@ -48,7 +48,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [queryParams, setQueryParams] = useState('')
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(10)
+  const [pageSize, setPageSize] = useState<number>(50)
   const [totalOrder, setTotalOrder] = useState<number>(0)
   const [totalInsentive, setTotalInsentive] = useState<any>()
 
@@ -257,8 +257,8 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   }
 
   useEffect(() => {
-    fetchData(1, 10, queryParams)
-  }, [queryParams])
+    fetchData(1, pageSize, queryParams)
+  }, [queryParams, pageSize])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -323,7 +323,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
     valueCheck(`&search=`, searchFilter)
 
     setQueryParams(queryparams)
-    const data = await ViewOrder(1, 10, queryparams)
+    const data = await ViewOrder(1, pageSize, queryparams)
     setOrderData(data)
 
     setLoadingButton(false)
@@ -435,6 +435,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
               current={currentPage}
               total={totalOrder}
               showSizeChanger
+              defaultPageSize={pageSize}
               pageSizeOptions={[5, 10, 20, 50, 100]}
               itemRender={itemRender}
               onShowSizeChange={(current, size) => {

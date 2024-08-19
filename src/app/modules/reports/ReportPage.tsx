@@ -479,7 +479,7 @@ const RefundPage: React.FC = () => {
               statusName='WORKEND'
               headerColor='danger'
               title='Laporan Expense Promosi '
-              params='&payment_type=gratis&promotion=1'
+              params='&is_promotion=1'
             />
           </>
         }

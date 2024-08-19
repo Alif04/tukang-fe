@@ -68,6 +68,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       key: 'quotation_id',
       align: 'center',
       defaultSortOrder: 'descend',
+      width: 120,
       sorter: (a, b) => a.quotation_id - b.quotation_id,
     },
     {
@@ -76,6 +77,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       key: 'order_id',
       align: 'center',
       className: 'col_order_id',
+      width: 120,
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
@@ -83,6 +85,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
+      width: 120,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -91,6 +94,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
+      width: 120,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -99,6 +103,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
+      width: 120,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -107,6 +112,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
+      width: 120,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -131,40 +137,16 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_status',
       key: 'payment_status',
       align: 'left',
+      width: 150,
       onFilter: (value, record) => record.payment_status.includes(String(value)),
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
-    },
-    {
-      title: 'Quotation Status',
-      dataIndex: 'quotation_status',
-      key: 'quotation_status',
-      align: 'left',
-      render: (quotation_status) => {
-        const orderStatus = quotation_status
-        let color = ''
-
-        switch (orderStatus) {
-          case 'SUEVEYDONE':
-            color = 'green'
-            break
-          case 'QUOTEIN':
-            color = 'lime'
-            break
-          default:
-            color = 'blue'
-            break
-        }
-
-        return <Tag color={color}>{orderStatus}</Tag>
-      },
-      onFilter: (value, record) => record.quotation_status.includes(String(value)),
-      sorter: (a, b) => a.quotation_status.length - b.quotation_status.length,
     },
     {
       title: 'Action',
       key: 'action',
       fixed: 'right',
       align: 'center',
+      width: 110,
       render: (record) => {
         const handleDetailId = () => {
           const id = record.quotation_id
@@ -272,8 +254,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
           costumer_name: item?.order.members.full_name,
           service_name: workOrderItems,
           payment_status: paymentStatus,
-          order_status: item?.status?.description,
-          quotation_status: item?.status?.description,
+          order_status: item?.order?.status?.description,
         }
 
         return data
@@ -292,7 +273,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
   }
 
   useEffect(() => {
-    fetchData(1, 10, '')
+    fetchData(1, 50, '')
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -317,7 +298,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
 
     valueCheck(`&search=`, searchFilter)
 
-    const data = await ViewQuotation(1, 10, queryparams)
+    const data = await ViewQuotation(1, 50, queryparams)
     setOrderData(data)
 
     setLoadingButton(false)
@@ -420,6 +401,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
             current={currentPage}
             total={totalData}
             showSizeChanger
+            defaultPageSize={50}
             pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
             itemRender={itemRender}
             onChange={(page, pageSize) => {

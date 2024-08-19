@@ -119,8 +119,6 @@ const NewQuotationVendor: FC = () => {
     ],
   })
 
-  console.log('quotation', quotation)
-
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
   const [grandTotalRounded, setGrandTotalRounded] = useState<any>(0)

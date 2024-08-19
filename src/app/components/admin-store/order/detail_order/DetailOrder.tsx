@@ -482,7 +482,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             </Row>
           </div>
 
-          <Row className='table-warranty d-flex align-items-center mb-5'>
+          <Row className='table-warranty d-flex align-items-center mb-3'>
             <div className='table-title-warranty'>
               <Skeleton active loading={isLoadingPage} paragraph={{rows: 2}}>
                 <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
@@ -490,9 +490,17 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 <Row>
                   <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                     <Form.Label column>
-                      {order?.payment_type === 'survey'
-                        ? 'Tanggal request survey :'
-                        : 'Tanggal request pemasangan :'}
+                      {(() => {
+                        if (order?.payment_type === 'survey') {
+                          if (order?.quotation?.length === 0) {
+                            return `Tanggal request survey`
+                          } else {
+                            return `Tanggal request pemasangan`
+                          }
+                        } else {
+                          return `Tanggal request pemasangan`
+                        }
+                      })()}
                     </Form.Label>
                     <Col>
                       <p className='fs-7 p-0'>
@@ -568,14 +576,12 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
                         <tbody>
                           {order?.order_details.map((item: any, index: any) => (
-                            <>
-                              <tr key={`${index} - order_detail`}>
-                                <td>{item?.item_code}</td>
-                                <td>{item?.item_name}</td>
-                                <td>{item?.item_notes}</td>
-                                <td>{item?.quantity ?? 0}</td>
-                              </tr>
-                            </>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item_notes}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                            </tr>
                           ))}
 
                           <tr>
@@ -704,7 +710,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         </table>
                       ) : (
                         <>
-                          <div className='fs-6'>Jasa Pemasangan Tahap 1</div>
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -748,7 +754,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             </tbody>
                           </table>
 
-                          <div className='fs-6'>Jasa Pemasangan Tahap 2</div>
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -792,7 +798,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             </tbody>
                           </table>
 
-                          <div className='fs-6'>Jasa Pemasangan Tahap 3</div>
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -982,24 +988,22 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         </thead>
                         <tbody>
                           {order?.order_details.map((item: any, index: any) => (
-                            <>
-                              <tr key={`${index} - order_detail`}>
-                                <td>{item?.item_code}</td>
-                                <td>{item?.item_name}</td>
-                                <td>{item?.item?.service_name}</td>
-                                <td>{item?.quantity ?? 0}</td>
-                                {!(order?.payment_type === 'gratis') && (
-                                  <>
-                                    <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                      'id'
-                                    )}`}</td>
-                                    <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                      'id'
-                                    )}`}</td>
-                                  </>
-                                )}
-                              </tr>
-                            </>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item?.service_name}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                              {!(order?.payment_type === 'gratis') && (
+                                <>
+                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </>
+                              )}
+                            </tr>
                           ))}
 
                           {order?.is_overdistance === 1 && (
@@ -1078,26 +1082,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             <Col>
               <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
                 <Row className='information-detail'>
-                  <div className='fs-3 fw-bold'>Catatan Toko</div>
-
-                  <div className='detail-info mb-3'>
-                    <p className='fs-7 p-0'>
-                      {order?.notes !== '' ? (
-                        <p className='fs-7'>{order?.notes}</p>
-                      ) : (
-                        <p className='fs-7'>Toko tidak memberikan catatan</p>
-                      )}
-                    </p>
-                  </div>
-                </Row>
-              </Skeleton>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col>
-              <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
-                <Row className='information-detail'>
                   <div className='fs-3 fw-bold'>Informasi Survei Yang Dilakukan Oleh Vendor</div>
 
                   <div className='survey'>
@@ -1155,24 +1139,20 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     <div className='detail-info mb-3'>
                       <p className='fs-5 fw-bold'>Sesi:</p>
 
-                      {order?.payment_type === 'survey' ? (
-                        <>
-                          {order?.work_orders?.work_order_status.length ? (
-                            <p className='fs-7'>
-                              {order?.work_orders?.session === 1
-                                ? 'Sesi Pagi'
-                                : order?.work_orders?.session === 2
-                                ? 'Sesi Siang'
-                                : order?.work_orders?.session === 3
-                                ? 'Sesi Sore'
-                                : 'Sesi belum ditentukan oleh vendor'}
-                            </p>
-                          ) : (
-                            <p className='fs-7'>Sesi belum ditentukan oleh vendor</p>
-                          )}
-                        </>
+                      {order?.work_orders?.work_order_status.length ? (
+                        <p className='fs-7'>
+                          {order?.work_orders?.session === 1
+                            ? 'Sesi Pagi'
+                            : order?.work_orders?.session === 2
+                            ? 'Sesi Siang'
+                            : order?.work_orders?.session === 3
+                            ? 'Sesi Sore'
+                            : order?.work_orders?.session === 4
+                            ? 'Sesi Malam'
+                            : 'Sesi belum ditentukan oleh vendor'}
+                        </p>
                       ) : (
-                        <p className='fs-7'>Order ini tanpa survey</p>
+                        <p className='fs-7'>Sesi belum ditentukan oleh vendor</p>
                       )}
                     </div>
                   </div>
@@ -1250,26 +1230,60 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     <div className='detail-info mb-3'>
                       <p className='fs-5 fw-bold'>Sesi:</p>
 
-                      {order?.payment_type === 'survey' ? (
-                        <>
-                          {order?.work_orders?.work_order_status.length ? (
-                            <p className='fs-7'>
-                              {order?.work_orders?.session === 1
-                                ? 'Sesi Pagi'
-                                : order?.work_orders?.session === 2
-                                ? 'Sesi Siang'
-                                : order?.work_orders?.session === 3
-                                ? 'Sesi Sore'
-                                : 'Sesi belum ditentukan oleh vendor'}
-                            </p>
-                          ) : (
-                            <p className='fs-7'>Sesi belum ditentukan oleh vendor</p>
-                          )}
-                        </>
+                      {order?.work_orders?.work_order_status.length ? (
+                        <p className='fs-7'>
+                          {order?.work_orders?.session === 1
+                            ? 'Sesi Pagi'
+                            : order?.work_orders?.session === 2
+                            ? 'Sesi Siang'
+                            : order?.work_orders?.session === 3
+                            ? 'Sesi Sore'
+                            : order?.work_orders?.session === 4
+                            ? 'Sesi Malam'
+                            : 'Sesi belum ditentukan oleh vendor'}
+                        </p>
                       ) : (
-                        <p className='fs-7'>Order ini tanpa survey</p>
+                        <p className='fs-7'>Sesi belum ditentukan oleh vendor</p>
                       )}
                     </div>
+                  </div>
+                </Row>
+              </Skeleton>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+                <Row className='information-detail'>
+                  <div className='fs-3 fw-bold'>Catatan Order</div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Catatan Toko :</p>
+
+                    <p className='fs-7'>
+                      {order.notes ? order.notes : 'Toko tidak memberikan catatan'}
+                    </p>
+                  </div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Catatan Tukang :</p>
+
+                    <p className='fs-7'>
+                      {order?.work_orders?.work_order_status[0]?.description
+                        ? order?.work_orders?.work_order_status[0]?.description
+                        : 'Tukang tidak memberikan catatan'}
+                    </p>
+                  </div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Intruksi Spesial :</p>
+
+                    <p className='fs-7'>
+                      {order?.quotation[0]?.description
+                        ? order?.quotation[0]?.description
+                        : 'Vendor tidak memberikan catatan'}
+                    </p>
                   </div>
                 </Row>
               </Skeleton>
@@ -1578,7 +1592,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       {order?.complaints && order?.complaints?.length > 0 && (
         <Card className='mt-5'>
           <Card.Header>
-            <Card.Title>Complaint History</Card.Title>
+            <Card.Title className='fw-bold'>Complaint History</Card.Title>
           </Card.Header>
 
           <Card.Body>
@@ -1825,10 +1839,12 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       )}
 
       <Card className='mt-5'>
+        <Card.Header>
+          <Card.Title className='fw-bold'>Order History</Card.Title>
+        </Card.Header>
+
         <Card.Body>
           <div className='work-order-history'>
-            <h1 className='title fw-bold mb-5'>Order History</h1>
-
             <Steps
               progressDot
               current={orderHistorical.length - 1}

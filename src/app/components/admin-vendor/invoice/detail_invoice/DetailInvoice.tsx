@@ -315,7 +315,7 @@ const DetailInvoiceVendor: FC = () => {
                   </td>
 
                   <td className='fw-bolder'>{`Rp. ${parseInt(
-                    invoiceDetail?.total_amount
+                    invoiceDetail?.total_amount ?? 0
                   ).toLocaleString('id')}`}</td>
                 </tr>
               </tbody>

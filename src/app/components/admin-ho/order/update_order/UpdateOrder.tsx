@@ -7,6 +7,7 @@ import './UpdateOrder.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
+import CreatableSelect from 'react-select/creatable'
 import {Card, Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
 import {Image, Spin} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
@@ -43,12 +44,13 @@ interface VendorSelect {
 }
 
 interface ItemSelect {
+  __isNew__?: boolean
   value: number | null
   label: string
   item_code: string
   item_name: string
   category_id: number | null
-  default_price: number | null
+  default_price: number
   prices: Array<{
     id: number | null
     item_id: number | null
@@ -186,33 +188,46 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Order Detail Table
   const [item, setItem] = useState<ItemSelect[]>([])
+  const [searchItem, setSearchItem] = useState('')
   const [grandTotal, setGrandTotal] = useState<number>(0)
 
   // Fetch API Data
-  const getItem = async (itemNameSearch: string) => {
-    const itemFree = paymentTypeValue[0] === 'gratis' ? '&is_free=1' : ''
-    const search = itemNameSearch ? `&search=${itemNameSearch}` : ''
+  const getItem = async () => {
+    const itemFree =
+      paymentTypeValue[0] === 'gratis' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+        ? '&item_type=1'
+        : ''
+    const itemTanpaSurvey =
+      paymentTypeValue[0] === 'berbayar' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+        ? '&item_type=2'
+        : ''
+    const itemSurvey = paymentTypeValue[1] === 'survey' ? '&item_type=3' : ''
+    const search = searchItem ? `&search=${searchItem}` : ''
 
     try {
-      const response = await axios.get(`${apiUrl}/items?take=0${search}${itemFree}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/items?take=0${search}${itemFree}${itemTanpaSurvey}${itemSurvey}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
         const item = response.data.data.map((item: any) => ({
           value: item.id,
-          label: item.service_name,
+          label: paymentTypeValue[1] === 'survey' ? item.item_code : item.service_name,
           item_code: item?.item_code ?? '',
           item_name: item?.item_name ?? '',
           category_id: item.category_id,
           default_price: item.default_price,
           prices: item.prices.map((priceItem: any) => ({
             id: priceItem.id,
+            is_active: priceItem.is_active,
             item_id: priceItem.item_id,
             store_id: priceItem.store_id,
             periodic_start: priceItem.periodic_start,
@@ -222,10 +237,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           })),
         }))
 
-        const filteredItem = item.filter((detail: any) => detail.default_price !== '0')
-        setItem(paymentTypeValue[0] === 'berbayar' ? filteredItem : item)
-
-        // setItem(item)
+        setItem(item)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -235,7 +247,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   }
 
   useEffect(() => {
-    getItem('')
+    // eslint-disable-next-line
+    getItem()
   }, [paymentTypeValue])
 
   useEffect(() => {
@@ -400,22 +413,24 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 const previousDetailValues = data.order_details.map((item: any) => {
                   const previousItem = {
                     value: item.id,
-                    label: item?.item?.service_name,
+                    label:
+                      data?.payment_type === 'survey' ? item?.item_code : item?.item?.service_name,
                     category_id: item?.item?.category.id,
                     item_code: item?.item_code ?? '',
                     item_name: item?.item_name ?? '',
                     default_price: item?.item?.default_price,
-                    prices: [
-                      {
-                        id: item?.item?.prices[0].id,
-                        item_id: item?.item?.prices[0]?.item_id,
-                        store_id: item?.item?.prices[0]?.store_id,
-                        periodic_start: item?.item?.prices[0]?.periodic_start,
-                        periodic_end: item?.item?.prices[0]?.periodic_end,
-                        price: item?.item?.prices[0]?.price,
-                        min_order: item?.item?.prices[0]?.min_order,
-                      },
-                    ],
+                    prices:
+                      item?.item?.prices?.length > 0
+                        ? item?.item?.prices.map((price: any) => ({
+                            id: price?.id,
+                            item_id: price?.item_id,
+                            store_id: price?.store_id,
+                            periodic_start: price?.periodic_start,
+                            periodic_end: price?.periodic_end,
+                            price: price?.price,
+                            min_order: price?.min_order,
+                          }))
+                        : [],
                   }
 
                   return {
@@ -733,6 +748,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Calculate each details
   const calcEachDetails = () => {
+    const today = new Date()
+
     setOrderForm((prev) => {
       const order_details = prev.order_details.map((detail) => {
         let newDetail = {...detail}
@@ -741,12 +758,23 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           const {item, quantity} = detail
           const {prices, default_price} = item
 
+          // const activePrices = prices.filter((price) => price.is_active === true)
+
+          const validPrices = prices.filter((price) => {
+            const start = new Date(price.periodic_start)
+            const end = new Date(price.periodic_end)
+            return today >= start && today <= end
+          })
+
+          const applicablePrice = validPrices
+            .filter((price) => quantity >= +price.min_order)
+            .sort((a, b) => +b.min_order - +a.min_order)[0]
+
           const unitPrice =
-            prices && prices.length > 0 && quantity >= +prices[0]?.min_order
-              ? +prices[0].price
-              : default_price !== null
-              ? +default_price
-              : 0 // Provide a default value if default_price is null
+            applicablePrice && quantity >= +applicablePrice.min_order
+              ? +applicablePrice.price
+              : +default_price || 0
+
           const total = unitPrice * quantity
 
           newDetail = {...newDetail, unit_price: unitPrice.toString(), total: total.toString()}
@@ -820,7 +848,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       return cache
     })
 
-    getItem('')
+    getItem()
   }
 
   const handleRemoveForm = (index: any) => {
@@ -830,7 +858,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       return cache
     })
 
-    getItem('')
+    getItem()
   }
 
   useEffect(() => {
@@ -880,10 +908,17 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   }, [orderForm.order_details, orderForm.additional_fee, paymentTypeValue])
 
   // Submit Update Order
+  const formData = new FormData()
+  const appendIfNotDefault = (key: any, value: any) => {
+    if (value !== null && value !== undefined && value !== '' && value !== 0) {
+      formData.append(key, String(value))
+    }
+  }
+
   const handleUpdateOrder = async () => {
     setIsLoading(true)
     const url = `${apiUrl}/orders/${params.id}`
-    const formData = new FormData()
+
     let errorBags = []
     const requiredOrderFields = [
       {key: 'member_id', fieldName: 'Nomor Member'},
@@ -896,7 +931,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       {key: 'request_survey', fieldName: 'Request Survey'},
       {key: 'payment_type', fieldName: 'Payment Type'},
       {key: 'receipt_number', fieldName: 'Nomor Receipt'},
-      {key: 'order_details', fieldName: 'Order Details'},
       {key: 'is_overdistance', fieldName: 'Overdistance'},
       {key: 'additional_fee', fieldName: 'Additional Fee'},
       {key: 'notes', fieldName: 'Catatan'},
@@ -910,81 +944,47 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       {key: 'quantity', fieldName: 'Quantity'},
     ]
 
-    for (const key in orderForm) {
-      if (Object.prototype.hasOwnProperty.call(orderForm, key)) {
-        const value = orderForm[key]
-        const required = requiredOrderFields.find((fields: {key: string}) => fields.key === key)
-
-        if (required) {
-          if (value) {
-            if (key === 'order_details') {
-              orderForm.order_details.forEach((item: any, index: number) => {
-                requiredOrderDetailsFields.forEach((field) => {
-                  if (field.key === 'item_notes' && orderForm.payment_type === 'survey') {
-                    if (!item[field.key]) {
-                      errorBags.push({
-                        message: `Field "${field.fieldName}" cannot be empty`,
-                      })
-                    }
-                  } else if (field.key === 'item_id' && orderForm.payment_type !== 'survey') {
-                    if (!item[field.key]) {
-                      errorBags.push({
-                        message: `Field "${field.fieldName}" cannot be empty`,
-                      })
-                    }
-                  } else if (
-                    !item[field.key] &&
-                    field.key !== 'item_notes' &&
-                    field.key !== 'item_id'
-                  ) {
-                    errorBags.push({
-                      message: `Field "${field.fieldName}" cannot be empty`,
-                    })
-                  }
-                })
-
-                if (item) {
-                  if (item.id) {
-                    formData.append(`order_details[${index}][id]`, item.id)
-                  }
-
-                  if (item?.item_code !== null) {
-                    formData.append(`order_details[${index}][item_code]`, item.item_code)
-                  }
-
-                  if (item?.item_name !== null) {
-                    formData.append(`order_details[${index}][item_name]`, item.item_name)
-                  }
-
-                  if (item?.item_notes !== null && item?.item_notes !== '') {
-                    formData.append(`order_details[${index}][item_notes]`, item.item_notes)
-                  }
-
-                  if (item?.item_id !== null) {
-                    formData.append(`order_details[${index}][item_id]`, item.item_id)
-                  }
-
-                  formData.append(`order_details[${index}][quantity]`, item.quantity)
-                }
-              })
-            } else {
-              formData.append(key, orderForm[key])
-            }
-          } else if (key === 'additional_fee' && isOverdistance === 1) {
-            formData.append(key, orderForm[key].toString())
-          } else if (key === 'is_overdistance') {
-            formData.append(key, orderForm[key].toString())
-          } else if (key === 'notes') {
-            if (value) {
-              formData.append(key, orderForm[key].toString())
-            }
-          } else {
-            errorBags.push({
-              message: `${required.fieldName} cannot be empty`,
-            })
-          }
+    for (const {key, fieldName} of requiredOrderFields) {
+      const value = orderForm[key]
+      if (!value && key !== 'order_details') {
+        if (key === 'additional_fee' && isOverdistance === 1) {
+          if (value) formData.append(key, value.toString())
+        } else if (key === 'is_overdistance' || key === 'notes') {
+          if (value) formData.append(key, value.toString())
+        } else {
+          errorBags.push({message: `Mohon isi kolom ${fieldName}`})
+          setIsLoading(false)
         }
+      } else {
+        formData.append(key, value)
       }
+    }
+
+    if (orderForm.order_details && Array.isArray(orderForm.order_details)) {
+      orderForm.order_details.forEach((item: any, index: number) => {
+        requiredOrderDetailsFields.forEach(({key, fieldName}) => {
+          const value = item[key]
+
+          if (
+            (key === 'item_notes' && orderForm.payment_type === 'survey' && !value) ||
+            (key === 'item_id' && orderForm.payment_type !== 'survey' && !value) ||
+            (!value && key !== 'item_notes' && key !== 'item_id')
+          ) {
+            errorBags.push({
+              message: `Mohon isi kolom "${fieldName}"`,
+            })
+            setIsLoading(false)
+          }
+        })
+
+        if (item) {
+          appendIfNotDefault(`order_details[${index}][item_code]`, item.item_code ?? '')
+          appendIfNotDefault(`order_details[${index}][item_name]`, item.item_name ?? '')
+          appendIfNotDefault(`order_details[${index}][item_notes]`, item.item_notes ?? '')
+          appendIfNotDefault(`order_details[${index}][item_id]`, item.item_id ?? '')
+          appendIfNotDefault(`order_details[${index}][quantity]`, item.quantity ?? '')
+        }
+      })
     }
 
     if (errorBags.length > 0) {
@@ -1504,7 +1504,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   className='text-start order-status order-1 order-md-2'
                 >
                   <h1 className='fs-3 fw-bold'>
-                    ORDER STATUS :{' '}
+                    STATUS ORDER :{' '}
                     {orderDetail?.quotation[0].quotation_files.length ? (
                       <span className='fw-bold text-success'>
                         {`${orderDetail?.status?.description}`}{' '}
@@ -1582,8 +1582,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   className='order-status order-1 order-md-2'
                 >
                   <h1 className='fs-3 fw-bold'>
-                    ORDER STATUS :{' '}
-                    <span className='fw-bold text-success'>{orderDetail?.status.category}</span>
+                    STATUS ORDER :{' '}
+                    <span className='fw-bold text-success'>{orderDetail?.status?.description}</span>
                   </h1>
                 </Col>
 
@@ -1649,7 +1649,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                         </table>
                       ) : (
                         <>
-                          <div className='fs-6'>Jasa Pemasangan Tahap 1</div>
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -1693,7 +1693,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                             </tbody>
                           </table>
 
-                          <div className='fs-6'>Jasa Pemasangan Tahap 2</div>
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -1737,7 +1737,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                             </tbody>
                           </table>
 
-                          <div className='fs-6'>Jasa Pemasangan Tahap 3</div>
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -2052,25 +2052,81 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                           {orderForm.order_details.map((element, index) => (
                             <tr key={`${index}-order_details`}>
                               <td>
-                                <Form.Control
-                                  id={`item-code-${index}`}
-                                  name={`item_code`}
-                                  plaintext
-                                  as='textarea'
-                                  ref={(el: any) => (textAreaRefs.current[index] = el)}
-                                  readOnly={
-                                    paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
-                                  }
-                                  value={element.item_code ?? ''}
-                                  onChange={(e) => orderDetailsFormHandler(e, index)}
-                                  onInput={() => {
-                                    const textarea = textAreaRefs.current[index]
-                                    if (textarea) {
-                                      textarea.style.height = 'auto'
-                                      textarea.style.height = textarea.scrollHeight + 'px'
+                                {paymentTypeValue[1] === 'survey' ? (
+                                  <CreatableSelect
+                                    id={`item_id-${index}`}
+                                    className='form-control p-0 form-item-code'
+                                    classNamePrefix='select'
+                                    placeholder='Pilih/Ketik Item Code'
+                                    isSearchable={true}
+                                    isClearable={true}
+                                    options={item}
+                                    name={`item_id`}
+                                    styles={{
+                                      singleValue: (base) => ({
+                                        ...base,
+                                        overflow: 'auto',
+                                        whiteSpace: 'normal',
+                                        textOverflow: '',
+                                      }),
+                                    }}
+                                    value={orderForm.order_details[index]?.item ?? null}
+                                    onInputChange={(newValue) => setSearchItem(newValue)}
+                                    onChange={(newValue) => {
+                                      setOrderForm((prev) => {
+                                        const cache = {...prev}
+                                        cache.order_details[index] = {
+                                          ...cache.order_details[index],
+                                          item_id:
+                                            newValue?.__isNew__ === true
+                                              ? null
+                                              : newValue?.value ?? null,
+                                          item_code: newValue?.__isNew__
+                                            ? ((newValue?.value ?? '') as string)
+                                            : ((newValue?.item_code ?? '') as string),
+                                          item_name: newValue?.item_name ?? '',
+                                          item_notes: newValue?.item_name ?? '',
+                                          item: newValue,
+                                        }
+                                        return cache
+                                      })
+                                      calcEachDetails()
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (
+                                        !/[0-9]/.test(e.key) &&
+                                        e.key !== 'Backspace' &&
+                                        e.key !== 'ArrowLeft' &&
+                                        e.key !== 'ArrowRight' &&
+                                        e.key !== 'Tab'
+                                      ) {
+                                        e.preventDefault()
+                                      }
+                                    }}
+                                  />
+                                ) : (
+                                  <Form.Control
+                                    id={`item-code-${index}`}
+                                    name={`item_code`}
+                                    plaintext
+                                    as='textarea'
+                                    ref={(el: any) => (textAreaRefs.current[index] = el)}
+                                    readOnly={
+                                      paymentTypeValue[1] === 'pemasangan_tanpa_survey'
+                                        ? true
+                                        : false
                                     }
-                                  }}
-                                />
+                                    value={element.item_code ?? ''}
+                                    onChange={(e) => orderDetailsFormHandler(e, index)}
+                                    onInput={() => {
+                                      const textarea = textAreaRefs.current[index]
+                                      if (textarea) {
+                                        textarea.style.height = 'auto'
+                                        textarea.style.height = textarea.scrollHeight + 'px'
+                                      }
+                                    }}
+                                  />
+                                )}
                               </td>
 
                               <td style={{maxWidth: '200px', minWidth: '200px'}}>
@@ -2089,7 +2145,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                   value={element.item_name ?? ''}
                                   onChange={(e) => {
                                     orderDetailsFormHandler(e, index)
-                                    getItem(e.target.value)
                                   }}
                                   onInput={() => {
                                     const textarea =
@@ -2155,7 +2210,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                       category_id:
                                         orderForm.order_details[index]?.item?.category_id ?? null,
                                       default_price:
-                                        orderForm.order_details[index]?.item?.default_price ?? null,
+                                        orderForm.order_details[index]?.item?.default_price ?? 0,
                                       prices: orderForm.order_details[index]?.item?.prices ?? [],
                                     }}
                                     onChange={(newValue) => {
@@ -2180,6 +2235,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                 <Form.Control
                                   id={`quantity-${index}`}
                                   name={`quantity`}
+                                  type='number'
                                   value={element.quantity ?? ''}
                                   onChange={(e) => {
                                     orderDetailsFormHandler(e, index)
