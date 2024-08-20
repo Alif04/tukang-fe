@@ -296,6 +296,12 @@ export * from './admin-ho/reports/report/ReportHO'
 // Report Insentif HO
 export * from './admin-ho/reports/report_insentif/ReportInsentifHo'
 
+// Report Daily Follow Up Quotation
+export * from './admin-ho/reports/daily-followup/Quotation'
+
+// Report Daily Follow Up CSI
+export * from './admin-ho/reports/daily-followup/CSI'
+
 // CLAIM WARRANTY
 // List Claim Warranty
 export * from './admin-ho/warranty/form_warranty_claim/WarrantyFormClaim'

@@ -4,8 +4,13 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 
-import {ReportTukang, ReportVendor, TotalOrderReportStore} from '../../components'
-import {ReportHO} from '../../components'
+import {
+  ReportHO,
+  ReportVendor,
+  TotalOrderReportStore,
+  DailyFollowUpQuotation,
+  DailyFollowUpCSI,
+} from '../../components'
 
 import {PrintReport} from './components/PrintReport'
 import {ViewReport} from './components/ViewReport'
@@ -329,6 +334,56 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='success'
               title='Laporan Quotation ( Omset )'
+              params=''
+            />
+          </>
+        }
+      />
+
+      <Route
+        path='ho-report-followup-quotation'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN FOLLOW UP QUOTAITON</PageTitle>
+
+            <DailyFollowUpQuotation
+              endpoint='quotation'
+              statusName=''
+              headerColor='success'
+              title='Laporan Follow Up Quotation'
+              params=''
+            />
+          </>
+        }
+      />
+
+      <Route
+        path='ho-report-followup-csi'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN FOLLOW UP CSI</PageTitle>
+
+            <DailyFollowUpCSI
+              endpoint='orders'
+              statusName=''
+              headerColor='success'
+              title='Laporan Follow Up CSI'
               params=''
             />
           </>

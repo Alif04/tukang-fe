@@ -1540,7 +1540,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                     {isLoading ? 'Rejected..' : 'Rejected'}
                   </Button>
 
-                  {['WORKREQ', 'TUKANGWORK', 'WORKSTART', 'WORKEND'].includes(
+                  {['WARRANTYCLAIM', 'WORKREQ', 'TUKANGWORK', 'WORKSTART', 'WORKEND'].includes(
                     complaintDetail?.order?.status?.category
                   ) ? (
                     <Button
@@ -1550,7 +1550,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                       disabled={isLoading}
                       onClick={() => handleShowModal(2)}
                     >
-                      {isLoading ? 'Accepted..' : 'Accepted'}
+                      {isLoading ? 'Accepted..' : 'Accept and Choose Status'}
                     </Button>
                   ) : (
                     <Button

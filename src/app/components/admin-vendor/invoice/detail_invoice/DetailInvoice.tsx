@@ -26,7 +26,8 @@ const DetailInvoiceVendor: FC = () => {
 
   const userRole = localStorage.getItem('userRole') as string
 
-  const [loadingPDF, setLoadingPDF] = useState(false)
+  const [loadingPDF, setLoadingPDF] = useState<boolean>(false)
+  const [loadingTemplate, setLoadingTemplate] = useState<boolean>(false)
   const [store, setStore] = useState<Store[]>([])
   const [invoiceDetail, setInvoiceDetail] = useState<any>()
 
@@ -130,6 +131,30 @@ const DetailInvoiceVendor: FC = () => {
     setLoadingPDF(false)
   }
 
+  // Export Template Excel
+  const exportTemplate = () => {
+    setLoadingTemplate(true)
+
+    axios
+      .get(`${apiUrl}/invoices/export-excel?invoce_id=${params.id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Invoice.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingTemplate(false)
+      })
+  }
+
   return (
     <section id='detail-invoice'>
       <Card ref={pdfRef}>
@@ -216,7 +241,7 @@ const DetailInvoiceVendor: FC = () => {
                   <th className='text-center'>Tanggal Order</th>
                   <th className='text-center'>Nama Toko</th>
                   <th className='text-center'>Nama Konsumen</th>
-                  <th className='text-center'>Jenis Pekerjaan</th>
+                  <th className='text-center'>Tipe Order</th>
                   <th className='text-center'>Nomor Receipt</th>
                   <th className='text-center'>Total Harga</th>
                 </tr>
@@ -242,9 +267,9 @@ const DetailInvoiceVendor: FC = () => {
                       {item?.order?.payment_type === 'survey'
                         ? 'Survey'
                         : item?.order?.payment_type === 'pemasangan_tanpa_survey'
-                        ? 'Pengerjaan'
+                        ? 'Pemasangan Tanpa Survey'
                         : item?.order?.payment_type === 'gratis'
-                        ? item?.order?.m_order_details.map((x: any) => x.item_name).join(', ')
+                        ? 'Gratis'
                         : ''}
                     </td>
                     <td>
@@ -419,6 +444,21 @@ const DetailInvoiceVendor: FC = () => {
           </Row>
         </Card.Body>
       </Card>
+
+      <Button
+        className='btn-dark-primary d-flex justify-content-center align-items-center w-50 gap-3'
+        disabled={loadingPDF}
+        onClick={() => exportTemplate()}
+      >
+        {loadingTemplate === false ? (
+          <>
+            <FontAwesomeIcon icon={faDownload} size='lg' />
+            Export Invoice
+          </>
+        ) : (
+          'Exporting...'
+        )}
+      </Button>
 
       <Button
         className='btn-dark-primary d-flex justify-content-center align-items-center mt-5 w-100 gap-3'

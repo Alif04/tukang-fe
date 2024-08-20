@@ -176,6 +176,11 @@ hr.line-5 {
   color: #c1af99 !important;
 }
 
+/* Checkbox */
+.daily-follow-up-checkbox input.form-check-input {
+  border: 1px solid black !important;
+}
+
 /* Body Content*/
 div#kt_content {
   background-color: white;

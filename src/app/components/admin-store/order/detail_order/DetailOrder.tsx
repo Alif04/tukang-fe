@@ -37,6 +37,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     store_id: null,
     project_status_id: null,
     request_survey: '',
+    request_work: '',
     vendor_id: null,
     tukang_id: null,
     notes: '',
@@ -146,8 +147,27 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'TUKANGWORK', 'WORKSTART'])
-  const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
+  const workStatuses = getStatuses([
+    'WORKREQ',
+    'TUKANGWORK',
+    'WORKSTART',
+    'WORKREQSTEPONE',
+    'WORKREQSTEPTWO',
+    'WORKREQSTEPTHREE',
+    'WORKSTARTSTEPONE',
+    'WORKSTARTSTEPTWO',
+    'WORKSTARTSTEPTHREE',
+    'TUKANGWORKSTEPONE',
+    'TUKANGWORKSTEPTWO',
+    'TUKANGWORKSTEPTHREE',
+  ])
+  const workDoneStatuses = getStatuses([
+    'WORKEND',
+    'DONE',
+    'WORKENDSTEPONE',
+    'WORKENDSTEPTWO',
+    'WORKENDSTEPTHREE',
+  ])
 
   const orderHistory = [
     {title: 'Booking Process', value: bookStatuses},
@@ -357,14 +377,15 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       <span className='fs-4 ms-2 fw-normal'>{order?.receipt_number ?? '-'}</span>
                     </Form.Label>
 
-                    {order?.quotation[0]?.receipt_quotation && (
-                      <Form.Label className='fs-4 fw-bold'>
-                        Receipt Quotation :
-                        <span className='fs-4 ms-2 fw-normal'>
-                          {order?.quotation[0]?.receipt_quotation ?? '-'}
-                        </span>
-                      </Form.Label>
-                    )}
+                    {order?.quotation[0]?.receipt_quotation &&
+                      order?.quotation[0]?.quotation_special === 0 && (
+                        <Form.Label className='fs-4 fw-bold'>
+                          Receipt Quotation :
+                          <span className='fs-4 ms-2 fw-normal'>
+                            {order?.quotation[0]?.receipt_quotation ?? '-'}
+                          </span>
+                        </Form.Label>
+                      )}
                   </Skeleton>
                 </Col>
 
@@ -492,11 +513,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     <Form.Label column>
                       {(() => {
                         if (order?.payment_type === 'survey') {
-                          if (order?.quotation?.length === 0) {
-                            return `Tanggal request survey`
-                          } else {
-                            return `Tanggal request pemasangan`
-                          }
+                          return `Tanggal Request Survey`
                         } else {
                           return `Tanggal request pemasangan`
                         }
@@ -512,6 +529,23 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       </p>
                     </Col>
                   </Form.Group>
+
+                  {order?.payment_type === 'survey' && (
+                    <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                      <Form.Label column>Tanggal request pemasangan</Form.Label>
+                      <Col>
+                        <p className='fs-7 p-0'>
+                          {order?.request_work
+                            ? new Date(order?.request_work).toLocaleDateString('id-ID', {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                              })
+                            : 'Tanggal belum diset oleh toko'}
+                        </p>
+                      </Col>
+                    </Form.Group>
+                  )}
 
                   <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                     <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
@@ -710,7 +744,18 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         </table>
                       ) : (
                         <>
-                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
+                          <div className='fs-6 fw-bold mb-2'>Jasa Pemasangan Tahap 1</div>
+
+                          {order?.quotation[0]?.quotation_receipt[0]?.receipt_quotation &&
+                            order?.quotation[0]?.quotation_special === 1 && (
+                              <div className='fs-6 fw-bold'>
+                                Receipt Quotation Tahap 1 :{' '}
+                                <span className='fs-6 fw-semibold'>
+                                  {order?.quotation[0]?.quotation_receipt[0]?.receipt_quotation ??
+                                    '-'}
+                                </span>
+                              </div>
+                            )}
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -756,6 +801,17 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
                           <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
+                          {order?.quotation[0]?.quotation_receipt[1]?.receipt_quotation &&
+                            order?.quotation[0]?.quotation_special === 1 && (
+                              <div className='fs-6 fw-bold'>
+                                Receipt Quotation Tahap 1 :{' '}
+                                <span className='fs-6 fw-semibold'>
+                                  {order?.quotation[0]?.quotation_receipt[1]?.receipt_quotation ??
+                                    '-'}
+                                </span>
+                              </div>
+                            )}
+
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
                               <tr>
@@ -799,6 +855,17 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           </table>
 
                           <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
+
+                          {order?.quotation[0]?.quotation_receipt[2]?.receipt_quotation &&
+                            order?.quotation[0]?.quotation_special === 1 && (
+                              <div className='fs-6 fw-bold'>
+                                Receipt Quotation Tahap 1 :{' '}
+                                <span className='fs-6 fw-semibold'>
+                                  {order?.quotation[0]?.quotation_receipt[2]?.receipt_quotation ??
+                                    '-'}
+                                </span>
+                              </div>
+                            )}
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -1760,6 +1827,27 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               year: 'numeric',
                               hour: 'numeric',
                               minute: 'numeric',
+                            }
+                          )}`
+                        : 'Tanggal belum ditentukan vendor'}
+                    </p>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='mb-5'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+
+                    <p className='fs-6'>
+                      {order?.reschedule[0]?.reschedule_date
+                        ? `${new Date(order?.reschedule[0]?.reschedule_date).toLocaleDateString(
+                            'id-ID',
+                            {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
                             }
                           )}`
                         : 'Tanggal belum ditentukan vendor'}

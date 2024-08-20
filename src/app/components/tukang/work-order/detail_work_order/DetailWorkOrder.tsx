@@ -97,9 +97,27 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
 
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses(['SURVEYREQ', 'TUKANGSURVEY', 'SURVEYSTART', 'SURVEYDONE'])
-
-  const workStatuses = getStatuses(['WORKREQ', 'TUKANGWORK', 'WORKSTART'])
-  const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
+  const workStatuses = getStatuses([
+    'WORKREQ',
+    'TUKANGWORK',
+    'WORKSTART',
+    'WORKREQSTEPONE',
+    'WORKREQSTEPTWO',
+    'WORKREQSTEPTHREE',
+    'WORKSTARTSTEPONE',
+    'WORKSTARTSTEPTWO',
+    'WORKSTARTSTEPTHREE',
+    'TUKANGWORKSTEPONE',
+    'TUKANGWORKSTEPTWO',
+    'TUKANGWORKSTEPTHREE',
+  ])
+  const workDoneStatuses = getStatuses([
+    'WORKEND',
+    'DONE',
+    'WORKENDSTEPONE',
+    'WORKENDSTEPTWO',
+    'WORKENDSTEPTHREE',
+  ])
 
   const orderHistory = [
     {title: 'Booking Process', value: bookStatuses},
@@ -396,6 +414,18 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     'REWORKEND',
                     'RESCHEDULE',
                     'DONE',
+                    'WORKREQSTEPONE',
+                    'WORKREQSTEPTWO',
+                    'WORKREQSTEPTHREE',
+                    'WORKSTARTSTEPONE',
+                    'WORKSTARTSTEPTWO',
+                    'WORKSTARTSTEPTHREE',
+                    'WORKENDSTEPONE',
+                    'WORKENDSTEPTWO',
+                    'WORKENDSTEPTHREE',
+                    'TUKANGWORKSTEPONE',
+                    'TUKANGWORKSTEPTWO',
+                    'TUKANGWORKSTEPTHREE',
                   ].includes(
                     workOrderDetail?.work_order_status.length
                       ? workOrderDetail?.work_order_status[0]?.status?.category
@@ -495,13 +525,22 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
               <Row>
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                    <Form.Label column>Tanggal request pemasangan :</Form.Label>
+                    <Form.Label column>
+                      {(() => {
+                        if (workOrderDetail?.order?.payment_type === 'survey') {
+                          return `Tanggal request survey`
+                        } else {
+                          return `Tanggal request pemasangan`
+                        }
+                      })()}
+                    </Form.Label>
+
                     <Col>
                       <p className='fs-7 p-0'>
                         {new Date(workOrderDetail?.order?.request_survey).toLocaleDateString(
                           'id-ID',
                           {
-                            day: 'numeric',
+                            day: '2-digit',
                             month: 'long',
                             year: 'numeric',
                           }
@@ -510,6 +549,29 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                     </Col>
                   </Skeleton>
                 </Form.Group>
+
+                {workOrderDetail?.order?.payment_type === 'survey' && (
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                      <Form.Label column>Tanggal request pemasangan :</Form.Label>
+
+                      <Col>
+                        <p className='fs-7 p-0'>
+                          {workOrderDetail?.order?.request_work
+                            ? new Date(workOrderDetail?.order?.request_work).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: '2-digit',
+                                  month: 'long',
+                                  year: 'numeric',
+                                }
+                              )
+                            : 'Tanggal belum diset oleh toko'}
+                        </p>
+                      </Col>
+                    </Skeleton>
+                  </Form.Group>
+                )}
 
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>

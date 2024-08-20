@@ -301,7 +301,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   })
 
   // Format Date
-  const today = new Date().toISOString().split('T')[0]
   const formatInputDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -324,6 +323,12 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           return 'TUKANGSURVEY'
         case 'WORKREQ':
           return 'TUKANGWORK'
+        case 'WORKREQSTEPONE':
+          return 'TUKANGWORKSTEPONE'
+        case 'WORKREQSTEPTWO':
+          return 'TUKANGWORKSTEPTWO'
+        case 'WORKREQSTEPTHREE':
+          return 'TUKANGWORKSTEPTHREE'
         default:
           return null
       }
@@ -337,14 +342,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         ? 'TUKANGWORK'
         : null)
 
-    const quotationSpecialStatus =
-      orderDetail?.status?.category === 'WORKREQ' &&
-      (orderDetail?.quotation[0]?.quotation_special === 1 ? 'WORKREQSTEPONE' : null)
-
-    const status =
-      quotationSpecialStatus ||
-      rescheduleStatus ||
-      getStatusNameByCategory(orderDetail?.status?.category)
+    const status = rescheduleStatus || getStatusNameByCategory(orderDetail?.status?.category)
 
     const desiredStatus =
       statusData.find((statuses: StatusStorage) => statuses.category === status)?.value ?? null
@@ -603,7 +601,12 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       <span className='fw-normal'>
                         {orderDetail?.status?.category === 'SURVEYREQ'
                           ? 'Tukang ditugaskan untuk survei'
-                          : orderDetail?.status?.category === 'WORKREQ'
+                          : [
+                              'WORKREQ',
+                              'WORKREQSTEPONE',
+                              'WORKREQSTEPTWO',
+                              'WORKREQSTEPTHREE',
+                            ].includes(orderDetail?.status?.category)
                           ? 'Tukang ditugaskan untuk pengerjaan'
                           : orderDetail?.status?.description}
                       </span>
@@ -778,6 +781,18 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                     'REWORKEND',
                     'RESCHEDULE',
                     'DONE',
+                    'WORKREQSTEPONE',
+                    'WORKREQSTEPTWO',
+                    'WORKREQSTEPTHREE',
+                    'WORKSTARTSTEPONE',
+                    'WORKSTARTSTEPTWO',
+                    'WORKSTARTSTEPTHREE',
+                    'WORKENDSTEPONE',
+                    'WORKENDSTEPTWO',
+                    'WORKENDSTEPTHREE',
+                    'TUKANGWORKSTEPONE',
+                    'TUKANGWORKSTEPTWO',
+                    'TUKANGWORKSTEPTHREE',
                   ].includes(orderDetail?.status?.category) && (
                     <Col>
                       <div className='work-date'>
@@ -907,16 +922,12 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             <div className='table-title-warranty'>
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
               <Row>
-                <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                <Col xxl={3} xl={3} lg={3} md={3} sm={12}>
                   <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                     <Form.Label column>
                       {(() => {
                         if (orderDetail?.payment_type === 'survey') {
-                          if (orderDetail?.quotation?.length === 0) {
-                            return `Tanggal request survey`
-                          } else {
-                            return `Tanggal request pemasangan`
-                          }
+                          return `Tanggal Request Survey`
                         } else {
                           return `Tanggal request pemasangan`
                         }
@@ -935,7 +946,27 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </Form.Group>
                 </Col>
 
-                <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                {orderDetail?.payment_type === 'survey' && (
+                  <Col xxl={3} xl={3} lg={3} md={3} sm={12}>
+                    <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                      <Form.Label column>Tanggal request pemasangan</Form.Label>
+
+                      <Col>
+                        <p className='fs-7 p-0'>
+                          {orderDetail?.request_work
+                            ? new Date(orderDetail?.request_work).toLocaleDateString('id-ID', {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                              })
+                            : 'Tanggal belum diset oleh toko'}
+                        </p>
+                      </Col>
+                    </Form.Group>
+                  </Col>
+                )}
+
+                <Col xxl={3} xl={3} lg={3} md={3} sm={12}>
                   <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                     <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
                     <Col>
@@ -944,7 +975,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   </Form.Group>
                 </Col>
 
-                <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                <Col xxl={3} xl={3} lg={3} md={3} sm={12}>
                   <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                     <Form.Label column>Payment Type:</Form.Label>
                     <Col>

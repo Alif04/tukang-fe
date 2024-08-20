@@ -98,8 +98,27 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses(['SURVEYREQ', 'TUKANGSURVEY', 'SURVEYSTART', 'SURVEYDONE'])
-  const workStatuses = getStatuses(['WORKREQ', 'TUKANGWORK', 'WORKSTART'])
-  const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
+  const workStatuses = getStatuses([
+    'WORKREQ',
+    'TUKANGWORK',
+    'WORKSTART',
+    'WORKREQSTEPONE',
+    'WORKREQSTEPTWO',
+    'WORKREQSTEPTHREE',
+    'WORKSTARTSTEPONE',
+    'WORKSTARTSTEPTWO',
+    'WORKSTARTSTEPTHREE',
+    'TUKANGWORKSTEPONE',
+    'TUKANGWORKSTEPTWO',
+    'TUKANGWORKSTEPTHREE',
+  ])
+  const workDoneStatuses = getStatuses([
+    'WORKEND',
+    'DONE',
+    'WORKENDSTEPONE',
+    'WORKENDSTEPTWO',
+    'WORKENDSTEPTHREE',
+  ])
 
   const orderHistory = [
     {title: 'Booking Process', value: bookStatuses},
@@ -192,37 +211,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     <Form.Label className='fs-4 fw-bold'>
                       Order Status :
                       <span className='fs-4 ms-2 fw-bold text-success'>
-                        {(() => {
-                          if (orderDetail?.work_orders?.work_order_status?.length >= 0) {
-                            if (
-                              [
-                                'QUOTEIN',
-                                'QUOTEOUT',
-                                'WARRANTYCLAIM',
-                                'INVESTIGATED',
-                                'RESCHEDULE',
-                                'CANCEL',
-                                'RESURVEYREQ',
-                                'REWORKREQ',
-                              ].includes(orderDetail?.status?.category)
-                            ) {
-                              return orderDetail?.status?.description
-                            } else if (
-                              ['WORKREQ', 'TUKANGWORK'].includes(orderDetail?.status?.category) &&
-                              orderDetail?.payment_type === 'survey' &&
-                              !['WORKSTART', 'WORKEND'].includes(
-                                orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                              )
-                            ) {
-                              return orderDetail?.status?.description
-                            } else {
-                              return orderDetail?.work_orders?.work_order_status[0]?.status
-                                ?.description
-                            }
-                          } else {
-                            return orderDetail?.status?.description
-                          }
-                        })()}
+                        {orderDetail?.status?.description}
                       </span>
                     </Form.Label>
                   </Col>
@@ -382,6 +371,18 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     'REWORKEND',
                     'RESCHEDULE',
                     'DONE',
+                    'WORKREQSTEPONE',
+                    'WORKREQSTEPTWO',
+                    'WORKREQSTEPTHREE',
+                    'WORKSTARTSTEPONE',
+                    'WORKSTARTSTEPTWO',
+                    'WORKSTARTSTEPTHREE',
+                    'WORKENDSTEPONE',
+                    'WORKENDSTEPTWO',
+                    'WORKENDSTEPTHREE',
+                    'TUKANGWORKSTEPONE',
+                    'TUKANGWORKSTEPTWO',
+                    'TUKANGWORKSTEPTHREE',
                   ].includes(orderDetail?.status?.category) && (
                     <Col>
                       <div className='work-date'>
@@ -480,11 +481,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     <Form.Label column>
                       {(() => {
                         if (orderDetail?.payment_type === 'survey') {
-                          if (orderDetail?.quotation?.length === 0) {
-                            return `Tanggal request survey`
-                          } else {
-                            return `Tanggal request pemasangan`
-                          }
+                          return `Tanggal request survey`
                         } else {
                           return `Tanggal request pemasangan`
                         }
@@ -502,6 +499,26 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                     </Col>
                   </Skeleton>
                 </Form.Group>
+
+                {orderDetail?.payment_type === 'survey' && (
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                      <Form.Label column>Tanggal request pemasangan :</Form.Label>
+
+                      <Col>
+                        <p className='fs-7 p-0'>
+                          {orderDetail?.request_work
+                            ? new Date(orderDetail?.request_work).toLocaleDateString('id-ID', {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                              })
+                            : 'Tanggal belum diset oleh toko'}
+                        </p>
+                      </Col>
+                    </Skeleton>
+                  </Form.Group>
+                )}
 
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>

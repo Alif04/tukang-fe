@@ -251,6 +251,9 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               'COMPLAINTREJECTEDBYHO',
               'SURVEYDONE',
               'WORKEND',
+              'WORKENDSTEPONE',
+              'WORKENDSTEPTWO',
+              'WORKENDSTEPTHREE',
             ].includes(record.order_status) ? (
               <OverlayTrigger
                 placement='bottom'
@@ -265,7 +268,14 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               <></>
             )}
 
-            {['QUOTEIN', 'QUOTEOUT', 'QUOTATIONPAID'].includes(record.order_status) && (
+            {[
+              'QUOTEIN',
+              'QUOTEOUT',
+              'QUOTATIONPAID',
+              'QUOTATIONPAIDSTEPONE',
+              'QUOTATIONPAIDSTEPTWO',
+              'QUOTATIONPAIDSTEPTHREE',
+            ].includes(record.order_status) && (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -391,72 +401,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           }
         })()
 
-        const orderStatus = (() => {
-          if (item?.work_orders?.work_order_status?.length >= 0) {
-            if (
-              [
-                'QUOTEIN',
-                'QUOTEOUT',
-                'CANCEL',
-                'WARRANTYCLAIM',
-                'INVESTIGATED',
-                'COMPLAINTAPPROVEDBYHO',
-                'COMPLAINTREJECTEDBYHO',
-                'RESCHEDULE',
-                'RESURVEYREQ',
-                'REWORKREQ',
-              ].includes(item?.status?.category)
-            ) {
-              return item?.status?.category
-            } else if (
-              ['WORKREQ'].includes(item?.status?.category) &&
-              item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(
-                item?.work_orders?.work_order_status[0]?.status?.category
-              )
-            ) {
-              return item?.status?.category
-            } else {
-              return item?.work_orders?.work_order_status[0]?.status?.category
-            }
-          } else {
-            return item?.status?.category
-          }
-        })()
-
-        const orderStatusLabel = (() => {
-          if (item?.work_orders?.work_order_status?.length >= 0) {
-            if (
-              [
-                'QUOTEIN',
-                'QUOTEOUT',
-                'CANCEL',
-                'WARRANTYCLAIM',
-                'INVESTIGATED',
-                'COMPLAINTAPPROVEDBYHO',
-                'COMPLAINTREJECTEDBYHO',
-                'RESCHEDULE',
-                'RESURVEYREQ',
-                'REWORKREQ',
-              ].includes(item?.status?.category ?? '')
-            ) {
-              return item?.status?.description
-            } else if (
-              ['WORKREQ'].includes(item?.status?.category) &&
-              item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(
-                item?.work_orders?.work_order_status[0]?.status?.category
-              )
-            ) {
-              return item?.status?.description
-            } else {
-              return item?.work_orders?.work_order_status[0]?.status?.description
-            }
-          } else {
-            return item?.status?.description
-          }
-        })()
-
         data = {
           order_id: item?.id,
           work_order_id: item?.work_orders?.id,
@@ -467,8 +411,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           phone_number: phoneNumber,
           item_name: item?.m_order_details[0]?.item_name ?? '-',
           payment_quotation: paymentQuotation,
-          order_status: orderStatus,
-          order_status_label: orderStatusLabel,
+          order_status: item?.status?.category,
+          order_status_label: item?.status?.description,
           existing_tukang: item?.work_orders?.request_tukang ?? [],
         }
 
@@ -570,8 +514,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     tukang_id: null,
     notes: '',
   })
-
-  console.log('tukang request', tukangRequest)
 
   // File
   const [files, setFiles] = useState<Array<File | null>>([])

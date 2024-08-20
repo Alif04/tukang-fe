@@ -3,11 +3,12 @@ import React, {useState, useEffect} from 'react'
 import './ReportHO.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
 import Select from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
-import {InboxOutlined} from '@ant-design/icons'
-import {Table, PaginationProps, Tag, Upload, DatePicker} from 'antd'
+import {InboxOutlined, LoadingOutlined} from '@ant-design/icons'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker, Image, Upload} from 'antd'
 import {Card, Row, Col, Button, Modal} from 'react-bootstrap'
 
 const {RangePicker} = DatePicker
@@ -47,16 +48,21 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
   const [reportData, setReportData] = useState<any[]>([])
   const [reportGrandTotal, setReportGrandTotal] = useState<any>()
+
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(50)
   const [totalOrder, setTotalOrder] = useState<number>(0)
 
+  const [loadData, setLoadData] = useState<boolean>(true)
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
   const [loadingTemplate, setLoadingTemplate] = useState<boolean>(false)
   const [loadingUploadExcel, setLoadingUploadExcel] = useState<boolean>(false)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  )
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const [store, setStore] = useState<StoreItem[]>([])
   const [area, setArea] = useState<AreaItem[]>([])
@@ -945,7 +951,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
 
-      let url = `${urlBase}?order_by=desc&take=0${params}`
+      let url = `${urlBase}?order_by=desc&take=0${params}&date_from=${dateFrom}&date_to=${dateTo}`
 
       if (endpoint === 'sales-comission') {
         if (statusName === 'UNPAID') {
@@ -1026,7 +1032,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
       let urlBase = nonReportEndpoints.includes(endpoint)
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
-      let url = `${urlBase}?order_by=desc&page=${page}&take=${pageSize}${params}`
+      let url = `${urlBase}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${params}`
 
       if (endpoint === 'sales-comission') {
         if (statusName === 'UNPAID') {
@@ -1052,6 +1058,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         },
       })
 
+      setLoadData(false)
+
       if (endpoint === 'refund') {
         if (response?.data) {
           setCurrentPage(response?.data?.page ?? 1)
@@ -1061,6 +1069,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         if (['Laporan CSI Terkirim', 'Laporan CSI Belum Terkirim'].includes(title)) {
           setCurrentPage(response?.data?.page ?? 1)
           setTotalOrder(response?.data?.takeTotal ?? 0)
+        } else {
+          setCurrentPage(response?.data?.page ?? 1)
+          setTotalOrder(response?.data?.total ?? 0)
         }
       } else {
         if (response?.data) {
@@ -1390,9 +1401,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
   }
 
   useEffect(() => {
-    fetchData(1, 10, '')
+    fetchData(currentPage, pageSize, '')
     fetchAllReportData(endpoint, '')
-  }, [])
+  }, [currentPage, pageSize])
 
   useEffect(() => {
     const selectedStoreCityId = selectedStore?.city_id
@@ -1642,7 +1653,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
     const reportGrandTotal = await fetchAllReportData(endpoint, queryparams)
     setReportGrandTotal(reportGrandTotal)
 
-    const data = await ViewReportData(endpoint, 1, 10, queryparams)
+    const data = await ViewReportData(endpoint, 1, pageSize, queryparams)
     setReportData(data)
 
     setLoadingButton(false)
@@ -1651,6 +1662,34 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
   return (
     <section id='view-report-ho'>
       <Row className='mb-5'>
+        <Col xxl={4} xl={4} sm={12}>
+          <Row>
+            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
+              <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
+            </Col>
+
+            <Col xxl={8} xl={8} lg={8}>
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range w-100'
+                defaultValue={[dayjs().subtract(30, 'day'), dayjs()]}
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom('')
+                    setDateTo('')
+                  }
+                }}
+              />
+            </Col>
+          </Row>
+        </Col>
+
         <Col xxl={3} xl={3} sm={12}>
           <Row>
             <Col xxl={4} xl={4} lg={12} className='d-flex align-items-center'>
@@ -1693,33 +1732,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
                   onChange={(newValue) => setSelectedZone(newValue)}
                 />
               </div>
-            </Col>
-          </Row>
-        </Col>
-
-        <Col xxl={4} xl={4} sm={12}>
-          <Row>
-            <Col xxl={4} xl={4} lg={4} className='d-flex align-items-center'>
-              <h3 className='title-header fs-5 fw-normal'>Pilih rentang waktu</h3>
-            </Col>
-
-            <Col xxl={8} xl={8} lg={8}>
-              <RangePicker
-                format={'DD-MM-YYYY'}
-                className='date-range w-100'
-                onChange={(values) => {
-                  if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
-
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
-                  } else {
-                    setDateFrom('')
-                    setDateTo('')
-                  }
-                }}
-              />
             </Col>
           </Row>
         </Col>
@@ -1813,73 +1825,65 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
       <Row className='mb-5'>
         <Col>
-          {endpoint === 'complaints' ? (
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={reportData}
-              rowKey={(record) => record.complaint_id}
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-              pagination={{
-                position: ['bottomRight'],
-                current: currentPage,
-                total: totalOrder,
-                showSizeChanger: true,
-                pageSizeOptions: [5, 10, 20, 50, 100],
-                onChange: (page, pageSize) => {
-                  fetchData(page, pageSize, '')
-                },
-                itemRender: itemRender,
-                showTotal: (total, range) => (
-                  <span style={{left: 0, position: 'absolute'}}>
-                    Showing {range[0]} - {range[1]} of {total} List
-                  </span>
-                ),
+          <Spin
+            tip='Loading...'
+            spinning={loadData}
+            size='large'
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
+          >
+            <div className='table-custom-wrapper'>
+              <Table
+                className='table-striped-rows'
+                bordered
+                columns={columns}
+                dataSource={reportData}
+                rowKey={(record) =>
+                  endpoint === 'orders'
+                    ? record.order_id
+                    : endpoint === 'refund'
+                    ? record.refund_id
+                    : endpoint === 'reschedule'
+                    ? record.reschedule_id
+                    : endpoint === 'quotation'
+                    ? record.quotation_id
+                    : endpoint === 'invoices'
+                    ? record.invoice_id
+                    : endpoint === 'sales-comission'
+                    ? record.sales_comission_id
+                    : endpoint === 'complaints'
+                    ? record.complaint_id
+                    : record.order_id
+                }
+                tableLayout='auto'
+                scroll={{x: 'max-content'}}
+                pagination={false}
+                sticky={true}
+              />
+            </div>
+          </Spin>
+
+          <div className='pagination-container mt-5'>
+            <span className='total-text'>
+              Showing {(currentPage - 1) * pageSize + 1} -{' '}
+              {Math.min(currentPage * pageSize, totalOrder)} of {totalOrder} Order
+            </span>
+
+            <Pagination
+              className='pagination'
+              current={currentPage}
+              total={totalOrder}
+              showSizeChanger
+              defaultPageSize={pageSize}
+              pageSizeOptions={[5, 10, 20, 50, 100]}
+              itemRender={itemRender}
+              onShowSizeChange={(current, size) => {
+                setPageSize(size)
+              }}
+              onChange={(page, pageSize) => {
+                fetchData(page, pageSize, '')
               }}
             />
-          ) : (
-            <Table
-              className='table-striped-rows'
-              bordered
-              columns={columns}
-              dataSource={reportData}
-              rowKey={(record) =>
-                endpoint === 'orders'
-                  ? record.order_id
-                  : endpoint === 'refund'
-                  ? record.refund_id
-                  : endpoint === 'reschedule'
-                  ? record.reschedule_id
-                  : endpoint === 'quotation'
-                  ? record.quotation_id
-                  : endpoint === 'invoices'
-                  ? record.invoice_id
-                  : endpoint === 'sales-comission'
-                  ? record.sales_comission_id
-                  : record.order_id
-              }
-              tableLayout='auto'
-              scroll={{x: 'max-content'}}
-              pagination={{
-                position: ['bottomRight'],
-                current: currentPage,
-                total: totalOrder,
-                showSizeChanger: true,
-                pageSizeOptions: [5, 10, 20, 50, 100],
-                onChange: (page, pageSize) => {
-                  fetchData(page, pageSize, '')
-                },
-                itemRender: itemRender,
-                showTotal: (total, range) => (
-                  <span style={{left: 0, position: 'absolute'}}>
-                    Showing {range[0]} - {range[1]} of {total} List
-                  </span>
-                ),
-              }}
-            />
-          )}
+          </div>
         </Col>
       </Row>
 

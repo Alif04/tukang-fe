@@ -1,11 +1,14 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate, useParams} from 'react-router-dom'
+import {WorkOrderTukang} from '../../../../interfaces/work-order'
 
 import './UpdateReschedule.css'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
+import Select from 'react-select'
+import makeAnimated from 'react-select/animated'
 import Swal from 'sweetalert2'
 import {Table, Form, Button, Row, Col, Card, ListGroup} from 'react-bootstrap'
 import {Image, DatePicker} from 'antd'
@@ -21,6 +24,10 @@ interface Reschedule {
   reschedule_status_id: any
   description: string
   reschedule_status_by: string
+  reschedule_tukang: Array<{
+    id: number | null
+    tukang_id: number | null
+  }>
 }
 
 const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
@@ -29,9 +36,14 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+  const animatedComponents = makeAnimated()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const userRole = localStorage.getItem('userRole') as string
+  const userVendor = localStorage.getItem('vendor_id') as string
+  const vendorId = userVendor ? `&vendor_id=${userVendor}` : ''
+
+  // Reschedule
   const [rescheduleDetail, setRescheduleDetail] = useState<any>()
   const [reschedule, setReschedule] = useState<Reschedule>({
     id: null,
@@ -42,11 +54,24 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     reschedule_status_id: null,
     description: '',
     reschedule_status_by: '',
+    reschedule_tukang: [
+      {
+        id: null,
+        tukang_id: null,
+      },
+    ],
   })
+
+  console.log('reschedule', reschedule)
+
   const [rescheduleApproval, setRescheduleApproval] = useState<any>({
     approve: null,
     rejected: null,
   })
+
+  // Option Tukang
+  const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
+  const [searchTukang, setSearchTukang] = useState('')
 
   const getRescheduleDetail = async () => {
     try {
@@ -75,6 +100,10 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               description: data?.reschedule_status[0]?.description,
               reschedule_status_by: data?.reschedule_status[0]?.status_by,
               confirm_date: data?.confirm_date,
+              reschedule_tukang: data?.reschedule_tukang.map((item: any) => ({
+                id: item.id,
+                tukang_id: item.tukang_id,
+              })),
             })
           }
 
@@ -93,9 +122,46 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     }
   }
 
+  const getTukang = async () => {
+    const search = searchTukang ? `&search=${searchTukang}` : ''
+
+    try {
+      const response = await axios.get(`${apiUrl}/tukang?take=0${vendorId}${search}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempTukang = response.data.data.map((item: any) => ({
+          tukang_id: item.id,
+          tukang_name: item.full_name,
+          is_active: item.is_active,
+          deleted_at: item.deleted_at,
+          slot_order: item.slot_order,
+        }))
+        const filteredTukang = tempTukang.filter(
+          (x: any) => x.is_active === true && x.deleted_at === null
+        )
+        setTukang(filteredTukang)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     getRescheduleDetail()
   }, [])
+
+  useEffect(() => {
+    getTukang()
+  }, [searchTukang])
 
   // Reschedule Status
   useEffect(() => {
@@ -116,13 +182,27 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
   }, [rescheduleApproval])
 
   // Reschedule Handler Form
-  const today = new Date().toISOString().split('T')[0]
+  const disabledDate = (current: dayjs.Dayjs) => {
+    const today = dayjs().startOf('day')
+    return current.isBefore(today, 'day')
+  }
 
-  const RescheduleFormHandler = (e: any) => {
+  const rescheduleForm = (e: any) => {
     setReschedule({
       ...reschedule,
       [e.target.name]: e.target.value,
     })
+  }
+
+  const tukangHandler = (selectedOption: any) => {
+    const updatedServices = selectedOption.map((option: any) => ({
+      tukang_id: option.tukang_id,
+    }))
+
+    setReschedule((prev) => ({
+      ...prev,
+      reschedule_tukang: updatedServices,
+    }))
   }
 
   // Upload File Reschedule
@@ -206,6 +286,14 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     formData.append('reschedule_status[id]', reschedule.id)
     formData.append('reschedule_status[description]', reschedule.description)
     formData.append('reschedule_status[status_by]', reschedule.reschedule_status_by)
+
+    if (reschedule.reschedule_tukang.length > 0) {
+      reschedule.reschedule_tukang.forEach((item, index) => {
+        if (item.tukang_id !== null) {
+          formData.append(`reschedule_tukang[${index}][tukang_id]`, String(item.tukang_id))
+        }
+      })
+    }
 
     switch (status) {
       case 1:
@@ -709,6 +797,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   }}
                   className='date-range w-100'
                   format='DD-MM-YYYY HH:mm'
+                  disabledDate={disabledDate}
                   value={
                     reschedule.confirm_date
                       ? dayjs(reschedule.confirm_date, 'YYYY-MM-DD HH:mm')
@@ -723,6 +812,22 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   }}
                 />
               </Form.Group>
+
+              <Form.Group className='detail-info mb-3'>
+                <Form.Label>Nama lengkap tehnisi :</Form.Label>
+                <Select
+                  classNamePrefix='select'
+                  placeholder='Pilih Keahlian Tukang'
+                  closeMenuOnSelect={false}
+                  components={animatedComponents}
+                  isMulti
+                  options={tukang}
+                  getOptionLabel={(option: WorkOrderTukang) => `${option.tukang_name}`}
+                  getOptionValue={(option: WorkOrderTukang) => `${option.tukang_id}`}
+                  onChange={(e) => tukangHandler(e)}
+                  onInputChange={(newValue) => setSearchTukang(newValue)}
+                />
+              </Form.Group>
             </Col>
 
             <Col xxl={4} xl={4} md={4} sm={12}>
@@ -734,7 +839,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   name='description'
                   readOnly={['Owner Vendor', 'Admin Vendor'].includes(userRole) ? true : false}
                   value={reschedule.description}
-                  onChange={(e) => RescheduleFormHandler(e)}
+                  onChange={(e) => rescheduleForm(e)}
                 />
               </Form.Group>
             </Col>
