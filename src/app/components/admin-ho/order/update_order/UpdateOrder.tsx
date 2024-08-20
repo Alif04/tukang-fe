@@ -719,21 +719,45 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     const storedStatus = sessionStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
-    const statusNameByPaymentType = () => {
-      if (paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'pemasangan_tanpa_survey') {
-        return 'WORKREQ'
-      } else if (paymentTypeValue[1] === 'survey' && orderDetail?.quotation?.length === 0) {
-        return 'SURVEYREQ'
-      } else if (paymentTypeValue[1] === 'survey' && orderDetail?.quotation?.length) {
-        return 'WORKREQ'
-      } else if (isCanceledOrder === true) {
-        return 'CANCEL'
-      } else {
-        return 'WORKREQ'
+    const determineStatus = () => {
+      switch (true) {
+        case paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'pemasangan_tanpa_survey':
+          return 'WORKREQ'
+
+        case paymentTypeValue[1] === 'survey': {
+          const hasQuotation = orderDetail?.quotation?.length > 0
+          const isQuotationSpecial = orderDetail?.quotation[0]?.quotation_special === 1
+
+          if (!hasQuotation || !isQuotationSpecial) {
+            return 'SURVEYREQ'
+          }
+
+          const receiptQuotations =
+            orderDetail?.quotation[0]?.quotation_receipt?.map(
+              (receipt: any) => receipt?.receipt_quotation
+            ) || []
+
+          switch (true) {
+            case receiptQuotations[2] !== null:
+              return 'WORKREQSTEPTHREE'
+            case receiptQuotations[1] !== null:
+              return 'WORKREQSTEPTWO'
+            case receiptQuotations[0] !== null:
+              return 'WORKREQSTEPONE'
+            default:
+              return 'WORKREQ'
+          }
+        }
+
+        case isCanceledOrder:
+          return 'CLOSE'
+
+        default:
+          return 'WORKREQ'
       }
     }
 
-    const status = statusNameByPaymentType()
+    const status = determineStatus()
     const desiredStatus = statusData.find((statuses: any) => statuses.category === status)
     const statusId = desiredStatus?.value
 
@@ -1393,26 +1417,27 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   </Col>
                 </Form.Group>
 
-                {orderDetail?.quotation[0]?.receipt_quotation && (
-                  <Form.Group as={Row} className='mb-5'>
-                    <Form.Label column sm='4'>
-                      Receipt Transaksi
-                    </Form.Label>
-                    <Col sm='8'>
-                      <Form.Control
-                        type='text'
-                        value={orderDetail?.quotation[0]?.receipt_quotation}
-                        readOnly={
-                          orderDetail?.quotation?.length >= 1 &&
-                          orderDetail?.payment_type === 'survey'
-                            ? true
-                            : false
-                        }
-                        onChange={(e) => orderFormHandler(e)}
-                      />
-                    </Col>
-                  </Form.Group>
-                )}
+                {orderDetail?.quotation[0]?.receipt_quotation &&
+                  orderDetail?.quotation[0]?.quotation_special === 0 && (
+                    <Form.Group as={Row} className='mb-5'>
+                      <Form.Label column sm='4'>
+                        Receipt Transaksi
+                      </Form.Label>
+                      <Col sm='8'>
+                        <Form.Control
+                          type='text'
+                          value={orderDetail?.quotation[0]?.receipt_quotation}
+                          readOnly={
+                            orderDetail?.quotation?.length >= 1 &&
+                            orderDetail?.payment_type === 'survey'
+                              ? true
+                              : false
+                          }
+                          onChange={(e) => orderFormHandler(e)}
+                        />
+                      </Col>
+                    </Form.Group>
+                  )}
 
                 <Form.Group as={Row} className='mb-5'>
                   <Form.Label className='title' column xxl='4' xl='5' md='2'>
@@ -1651,6 +1676,17 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                         <>
                           <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
 
+                          {orderDetail?.quotation[0]?.quotation_receipt[0]?.receipt_quotation &&
+                            orderDetail?.quotation[0]?.quotation_special === 1 && (
+                              <div className='fs-6 fw-bold'>
+                                Receipt Transaksi Tahap 1 :{' '}
+                                <span className='fs-6 fw-semibold'>
+                                  {orderDetail?.quotation[0]?.quotation_receipt[0]
+                                    ?.receipt_quotation ?? '-'}
+                                </span>
+                              </div>
+                            )}
+
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
                               <tr>
@@ -1695,6 +1731,17 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
                           <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
+                          {orderDetail?.quotation[0]?.quotation_receipt[1]?.receipt_quotation &&
+                            orderDetail?.quotation[0]?.quotation_special === 1 && (
+                              <div className='fs-6 fw-bold'>
+                                Receipt Transaksi Tahap 1 :{' '}
+                                <span className='fs-6 fw-semibold'>
+                                  {orderDetail?.quotation[0]?.quotation_receipt[1]
+                                    ?.receipt_quotation ?? '-'}
+                                </span>
+                              </div>
+                            )}
+
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
                               <tr>
@@ -1738,6 +1785,17 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                           </table>
 
                           <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
+
+                          {orderDetail?.quotation[0]?.quotation_receipt[2]?.receipt_quotation &&
+                            orderDetail?.quotation[0]?.quotation_special === 1 && (
+                              <div className='fs-6 fw-bold'>
+                                Receipt Transaksi Tahap 1 :{' '}
+                                <span className='fs-6 fw-semibold'>
+                                  {orderDetail?.quotation[0]?.quotation_receipt[2]
+                                    ?.receipt_quotation ?? '-'}
+                                </span>
+                              </div>
+                            )}
 
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
@@ -2468,7 +2526,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
               {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey' ? (
                 <Button onClick={handleCancelOrder} disabled={isLoading} variant='dark-danger'>
-                  Cancel Order
+                  Close Order
                 </Button>
               ) : (
                 <></>

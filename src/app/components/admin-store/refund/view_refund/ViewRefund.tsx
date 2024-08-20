@@ -416,7 +416,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
                 bordered
                 columns={columns}
                 dataSource={refundData}
-                rowKey={(record) => record.order_id}
+                rowKey={(record) => record.refund_id}
                 pagination={false}
                 sticky={true}
                 tableLayout='auto'

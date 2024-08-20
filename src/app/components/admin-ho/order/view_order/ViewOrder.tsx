@@ -75,6 +75,7 @@ interface Order {
   project_status_id: number | null
   store_id: number | null
   request_survey: string
+  request_work: string
   notes: string
   order_details: Array<{
     id: number | null
@@ -211,6 +212,7 @@ const ViewOrders: FC = () => {
     project_status_id: null,
     store_id: null,
     request_survey: '',
+    request_work: '',
     notes: '',
     order_details: [
       {
@@ -565,17 +567,24 @@ const ViewOrders: FC = () => {
     ],
   })
 
-  const quotationSpecialStatus =
-    quotation.quotation_special === 1 &&
-    quotation?.receipts_quotation?.[0]?.receipt_quotation !== ''
-      ? statusData.find((status: any) => status.category === 'QUOTATIONPAID')
-      : quotation.quotation_special === 1 &&
-        quotation?.receipts_quotation?.[1]?.receipt_quotation !== ''
-      ? statusData.find((status: any) => status.category === 'WORKREQSTEPTWO')
-      : quotation.quotation_special === 1 &&
-        quotation?.receipts_quotation?.[2]?.receipt_quotation !== ''
-      ? statusData.find((status: any) => status.category === 'WORKREQSTEPTHREE')
-      : null
+  const quotationSpecialStatus = (() => {
+    if (quotation.quotation_special === 1) {
+      const receipts =
+        quotation?.receipts_quotation?.map((receipt: any) => receipt?.receipt_quotation) || []
+
+      switch (true) {
+        case receipts[0] !== null && receipts[1] === null && receipts[2] === null:
+          return statusData.find((status: any) => status.category === 'QUOTATIONPAIDSTEPONE')
+        case receipts[0] !== null && receipts[1] !== null && receipts[2] === null:
+          return statusData.find((status: any) => status.category === 'QUOTATIONPAIDSTEPTWO')
+        case receipts[0] !== null && receipts[1] !== null && receipts[2] !== null:
+          return statusData.find((status: any) => status.category === 'QUOTATIONPAIDSTEPTHREE')
+        default:
+          return null
+      }
+    }
+    return null
+  })()
 
   // Quotation Files
   const [receiptQuotation, setReceiptQuotation] = useState<Array<File | null>>([])
@@ -977,11 +986,11 @@ const ViewOrders: FC = () => {
     }
 
     formData.append('order_id', String(orderForm?.id))
-    formData.append('request_survey', orderForm.request_survey)
+    formData.append('request_work', orderForm.request_work)
     formData.append('notes', orderForm.notes)
 
-    if (quotation.quotation_special === 1 && quotationSpecialStatus.value !== null) {
-      formData.append('project_status_id', quotationSpecialStatus?.value)
+    if (quotation.quotation_special === 1 && quotationSpecialStatus?.value !== null) {
+      formData.append('project_status_id', quotationSpecialStatus.value)
     }
 
     if (receiptFiles?.length) {
@@ -1896,18 +1905,21 @@ const ViewOrders: FC = () => {
                   Receipt Number :
                   <span className='fs-6 ms-2 fw-normal'>{orderDetail?.receipt_number ?? '-'}</span>
                 </Form.Label>
-                <br></br>
-                {orderDetail?.quotation[0]?.receipt_quotation && (
-                  <>
-                    <Form.Label className='fs-6 fw-bold'>
-                      Receipt Quotation :
-                      <span className='fs-6 ms-2 fw-normal'>
-                        {orderDetail?.quotation[0]?.receipt_quotation}
-                      </span>
-                    </Form.Label>
-                    <br></br>
-                  </>
-                )}
+
+                {orderDetail?.quotation[0]?.receipt_quotation &&
+                  orderDetail?.quotation[0]?.quotation_special === 0 && (
+                    <>
+                      <br></br>
+                      <Form.Label className='fs-6 fw-bold'>
+                        Receipt Quotation :
+                        <span className='fs-6 ms-2 fw-normal'>
+                          {orderDetail?.quotation[0]?.receipt_quotation}
+                        </span>
+                      </Form.Label>
+                      <br></br>
+                    </>
+                  )}
+
                 <Form.Label className='fs-6 fw-bold'>
                   Order Status :
                   <span className='fs-6 ms-2 fw-bold text-success'>
@@ -2015,6 +2027,17 @@ const ViewOrders: FC = () => {
 
                       <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
 
+                      {orderDetail?.quotation[0]?.quotation_receipt[0]?.receipt_quotation &&
+                        orderDetail?.quotation[0]?.quotation_special === 1 && (
+                          <div className='fs-6 fw-bold'>
+                            Receipt Quotation Tahap 1 :{' '}
+                            <span className='fs-6 fw-semibold'>
+                              {orderDetail?.quotation[0]?.quotation_receipt[0]?.receipt_quotation ??
+                                '-'}
+                            </span>
+                          </div>
+                        )}
+
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
@@ -2057,6 +2080,17 @@ const ViewOrders: FC = () => {
 
                       <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
+                      {orderDetail?.quotation[0]?.quotation_receipt[1]?.receipt_quotation &&
+                        orderDetail?.quotation[0]?.quotation_special === 1 && (
+                          <div className='fs-6 fw-bold'>
+                            Receipt Quotation Tahap 1 :{' '}
+                            <span className='fs-6 fw-semibold'>
+                              {orderDetail?.quotation[0]?.quotation_receipt[1]?.receipt_quotation ??
+                                '-'}
+                            </span>
+                          </div>
+                        )}
+
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
@@ -2098,6 +2132,17 @@ const ViewOrders: FC = () => {
                       </table>
 
                       <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
+
+                      {orderDetail?.quotation[0]?.quotation_receipt[2]?.receipt_quotation &&
+                        orderDetail?.quotation[0]?.quotation_special === 1 && (
+                          <div className='fs-6 fw-bold'>
+                            Receipt Quotation Tahap 1 :{' '}
+                            <span className='fs-6 fw-semibold'>
+                              {orderDetail?.quotation[0]?.quotation_receipt[2]?.receipt_quotation ??
+                                '-'}
+                            </span>
+                          </div>
+                        )}
 
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
@@ -2500,11 +2545,11 @@ const ViewOrders: FC = () => {
                 <Form.Group className='mb-5'>
                   <Form.Label className='title'>Tanggal Request Pengerjaan</Form.Label>
                   <Form.Control
-                    name='request_survey'
+                    name='request_work'
                     type='date'
                     placeholder='Isi tanggal request pengerjaan..'
-                    value={orderForm?.request_survey ?? ''}
-                    onChange={(e) => setOrderForm({...orderForm, request_survey: e.target.value})}
+                    value={orderForm?.request_work ?? ''}
+                    onChange={(e) => setOrderForm({...orderForm, request_work: e.target.value})}
                   />
                 </Form.Group>
 
@@ -3383,8 +3428,18 @@ const ViewOrders: FC = () => {
               </>
             )}
 
-            {['WORKREQ', 'SURVEYREQ', 'QUOTEOUT', 'QUOTATIONPAID'].includes(record.order_status) &&
-            ['Super User', 'Admin HO'].includes(userRole) ? (
+            {[
+              'WORKREQ',
+              'SURVEYREQ',
+              'QUOTEOUT',
+              'QUOTATIONPAID',
+              'QUOTATIONPAIDSTEPONE',
+              'QUOTATIONPAIDSTEPTWO',
+              'QUOTATIONPAIDSTEPTHREE',
+              'WORKENDSTEPONE',
+              'WORKENDSTEPTWO',
+              'WORKENDSTEPTHREE',
+            ].includes(record.order_status) && ['Super User', 'Admin HO'].includes(userRole) ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}

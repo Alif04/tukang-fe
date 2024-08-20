@@ -24,16 +24,11 @@ const ReportCostumerHO: FC = () => {
   }
 
   const [loadingButton, setLoadingButton] = useState(false)
-  const [workOrderData, setWorkOrderData] = useState<any[]>([])
-  const [complaintData, setComplaintData] = useState<any[]>([])
-  const [csiData, setCsiData] = useState<any[]>([])
-
   const [chartOrder, setChartOrder] = useState<any[]>([])
-  const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
-  const [chartComplaint, setChartComplaint] = useState<any[]>([])
-
   const [member, setMember] = useState<any[]>([])
   const [totalMember, setTotalMember] = useState(0)
+  const [singleOrder, setSingleOrder] = useState<number>(0)
+  const [multiOrder, setMultiOrder] = useState<number>(0)
 
   const [storeOption, setStoreOption] = useState<any[]>([])
   const storeOptions = [{value: null, label: 'All Toko'}, ...storeOption]
@@ -71,15 +66,20 @@ const ReportCostumerHO: FC = () => {
 
   const getMember = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/member?take=0&top_best=1${storeId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/member?take=0&top_best=1${storeId}&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
       if (Array.isArray(response.data.data)) {
+        setSingleOrder(response.data.totalOrderOne)
+        setMultiOrder(response.data.totalOrderMany)
         setMember(response.data.data)
         setTotalMember(response.data.total)
       } else {
@@ -122,47 +122,11 @@ const ReportCostumerHO: FC = () => {
       console.error('Error fetching data:', error)
     }
   }
-  const getComplaint = async () => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/reports/complaints?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${storeId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      const data = response.data.data
-      const chartDatas = response.data.monthlyComplaint
-
-      const fromDate = new Date(dateFrom)
-      const toDate = new Date(dateTo)
-
-      const fromMonth = fromDate.getMonth()
-      const toMonth = toDate.getMonth()
-
-      const startIndex = fromMonth
-      const endIndex = toMonth + 1
-
-      const slicedData = chartDatas.slice(startIndex, endIndex)
-
-      setComplaintData(data)
-      setChartComplaint(slicedData)
-      return data
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
 
   useEffect(() => {
     getStore()
     getMember()
     getReportOrder()
-    getComplaint()
   }, [])
 
   const handleSubmitFilter = async () => {
@@ -170,7 +134,6 @@ const ReportCostumerHO: FC = () => {
 
     await getMember()
     await getReportOrder()
-    await getComplaint()
 
     setLoadingButton(false)
   }
@@ -186,9 +149,6 @@ const ReportCostumerHO: FC = () => {
 
   const sumTotal = (data: any, key: string) =>
     data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
-
-  const singleOrder = member.filter((member: any) => member?.order?.length === 1).length
-  const multiOrder = member.filter((member: any) => member?.order?.length > 1).length
 
   const totalComplaint = sumTotal(chartOrder, 'totalComplaint')
   const totalRework = sumTotal(chartOrder, 'totalRework')

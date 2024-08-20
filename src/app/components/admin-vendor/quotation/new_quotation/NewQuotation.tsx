@@ -534,14 +534,16 @@ const NewQuotationVendor: FC = () => {
         icon: 'warning',
       })
       valid = false
-    } else if (quotation.quotation_grand_total >= 20000000 && quotation.quotation_special === 0) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Tolong gunakan tipe quotation spesial',
-        icon: 'warning',
-      })
-      valid = false
     }
+
+    // else if (quotation.quotation_grand_total >= 20000000 && quotation.quotation_special === 0) {
+    //   Swal.fire({
+    //     title: 'Warning',
+    //     text: 'Tolong gunakan tipe quotation spesial',
+    //     icon: 'warning',
+    //   })
+    //   valid = false
+    // }
     return valid
   }
 
