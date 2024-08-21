@@ -38,6 +38,7 @@ interface ItemSelect {
   item_name: string
   category_id: number | null
   default_price: number
+  type: number | null
   prices: Array<{
     id: number | null
     is_active: boolean
@@ -198,6 +199,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
           item_name: item?.item_name ?? '',
           category_id: item.category_id,
           default_price: item.default_price,
+          type: item?.type,
           prices: item.prices.map((priceItem: any) => ({
             id: priceItem.id,
             is_active: priceItem.is_active,
@@ -312,6 +314,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                     item_name: item?.item_name ?? '',
                     category_id: item?.item?.category.id,
                     default_price: item?.item?.default_price,
+                    type: item?.type,
                     prices:
                       item?.item?.prices?.length > 0
                         ? item?.item?.prices.map((price: any) => ({
@@ -733,14 +736,15 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
         requiredOrderDetailsFields.forEach(({key, fieldName}) => {
           const value = item[key]
 
-          if (key === 'item_code') {
-            if (value?.length < 10) {
-              errorBags.push({
-                message: 'Kolom "Item Code" harus diisi minimal 10 karakter',
-              })
-              setIsLoading(false)
-            }
-          }
+          // TODO: UNCOMMENT IF BACKEND RESPONSE IS CHANGED
+          // if (key === 'item_code') {
+          //   if (value?.length < 10 && ![1, 2].includes(item?.item?.type)) {
+          //     errorBags.push({
+          //       message: 'Kolom "Item Code" harus diisi minimal 10 karakter',
+          //     })
+          //     setIsLoading(false)
+          //   }
+          // }
 
           if (
             (key === 'item_notes' && orderForm.payment_type === 'survey' && !value) ||
@@ -1403,6 +1407,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                                 orderForm.order_details[index]?.item?.category_id ?? null,
                               default_price:
                                 orderForm.order_details[index]?.item?.default_price ?? 0,
+                              type: orderForm.order_details[index]?.item?.type ?? null,
                               prices: orderForm.order_details[index]?.item?.prices ?? [],
                             }}
                             onChange={(newValue) => {
