@@ -52,6 +52,7 @@ interface ItemSelect {
   item_name: string
   category_id: number | null
   default_price: number
+  type: number
   prices: Array<{
     id: number | null
     is_active: boolean
@@ -219,6 +220,7 @@ const NewOrderHO: FC = () => {
           item_name: item?.item_name ?? '',
           category_id: item.category_id,
           default_price: item.default_price,
+          type: item?.type,
           prices: item.prices.map((priceItem: any) => ({
             id: priceItem.id,
             is_active: priceItem.is_active,
@@ -778,7 +780,7 @@ const NewOrderHO: FC = () => {
           const value = item[key]
 
           if (key === 'item_code') {
-            if (value?.length < 10) {
+            if (value?.length < 10 && ![1, 2].includes(item?.item?.type)) {
               errorBags.push({
                 message: 'Kolom "Item Code" harus diisi minimal 10 karakter',
               })
