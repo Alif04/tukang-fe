@@ -39,6 +39,7 @@ interface ItemSelect {
   item_code: string
   item_name: string
   category: string
+  type: number
   default_price: number
   prices: Array<{
     id: number | null
@@ -163,6 +164,9 @@ const NewOrderStoreCS: FC = () => {
   const [searchItem, setSearchItem] = useState('')
   const [grandTotal, setGrandTotal] = useState<number>(0)
 
+  console.log('orderForm', orderForm)
+  console.log('item', item)
+
   // Fetch API Data
   const getItem = async () => {
     const itemFree =
@@ -197,6 +201,7 @@ const NewOrderStoreCS: FC = () => {
           item_name: item?.item_name ?? '',
           category_id: item.category_id,
           default_price: item.default_price,
+          type: item?.type,
           prices: item.prices.map((priceItem: any) => ({
             id: priceItem.id,
             is_active: priceItem.is_active,
@@ -663,7 +668,7 @@ const NewOrderStoreCS: FC = () => {
           const value = item[key]
 
           if (key === 'item_code') {
-            if (value?.length < 10) {
+            if (value?.length < 10 && ![1, 2].includes(item?.item?.type)) {
               errorBags.push({
                 message: 'Kolom "Item Code" harus diisi minimal 10 karakter',
               })
