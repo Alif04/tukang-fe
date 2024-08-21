@@ -51,6 +51,7 @@ interface ItemSelect {
   item_name: string
   category_id: number | null
   default_price: number
+  type: number | null
   prices: Array<{
     id: number | null
     item_id: number | null
@@ -225,6 +226,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           item_name: item?.item_name ?? '',
           category_id: item.category_id,
           default_price: item.default_price,
+          type: item?.type,
           prices: item.prices.map((priceItem: any) => ({
             id: priceItem.id,
             is_active: priceItem.is_active,
@@ -419,6 +421,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     item_code: item?.item_code ?? '',
                     item_name: item?.item_name ?? '',
                     default_price: item?.item?.default_price,
+                    type: item?.type,
                     prices:
                       item?.item?.prices?.length > 0
                         ? item?.item?.prices.map((price: any) => ({
@@ -726,10 +729,11 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
         case paymentTypeValue[1] === 'survey': {
           const hasQuotation = orderDetail?.quotation?.length > 0
-          const isQuotationSpecial = orderDetail?.quotation[0]?.quotation_special === 1
 
-          if (!hasQuotation || !isQuotationSpecial) {
+          if (!hasQuotation) {
             return 'SURVEYREQ'
+          } else if (hasQuotation) {
+            return 'WORKREQ'
           }
 
           const receiptQuotations =
@@ -2269,6 +2273,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                         orderForm.order_details[index]?.item?.category_id ?? null,
                                       default_price:
                                         orderForm.order_details[index]?.item?.default_price ?? 0,
+                                      type: orderForm.order_details[index]?.item?.type ?? null,
                                       prices: orderForm.order_details[index]?.item?.prices ?? [],
                                     }}
                                     onChange={(newValue) => {

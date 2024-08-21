@@ -38,6 +38,7 @@ interface ItemSelect {
   item_name: string
   category_id: number | null
   default_price: number
+  type: number | null
   prices: Array<{
     id: number | null
     is_active: boolean
@@ -187,6 +188,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
           item_name: item?.item_name ?? '',
           category_id: item.category_id,
           default_price: item.default_price,
+          type: item?.type,
           prices: item.prices.map((priceItem: any) => ({
             id: priceItem.id,
             item_id: priceItem.item_id,
@@ -663,7 +665,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
           const value = item[key]
 
           if (key === 'item_code') {
-            if (value?.length < 10) {
+            if (value?.length < 10 && ![1, 2].includes(item?.item?.type)) {
               errorBags.push({
                 message: 'Kolom "Item Code" harus diisi minimal 10 karakter',
               })
@@ -1241,6 +1243,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
                                 orderForm.order_details[index]?.item?.category_id ?? null,
                               default_price:
                                 orderForm.order_details[index]?.item?.default_price ?? 0,
+                              type: orderForm.order_details[index]?.item?.type ?? null,
                               prices: orderForm.order_details[index]?.item?.prices ?? [],
                             }}
                             onChange={(newValue) => {

@@ -164,9 +164,6 @@ const NewOrderStoreCS: FC = () => {
   const [searchItem, setSearchItem] = useState('')
   const [grandTotal, setGrandTotal] = useState<number>(0)
 
-  console.log('orderForm', orderForm)
-  console.log('item', item)
-
   // Fetch API Data
   const getItem = async () => {
     const itemFree =
