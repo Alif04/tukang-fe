@@ -1643,64 +1643,60 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             </Row>
           </Card.Body>
         </Card>
+
+        <hr />
+
+        <Card className='mb-5'>
+          <Card.Header>
+            <Card.Title>Profile</Card.Title>
+          </Card.Header>
+
+          <Card.Body>
+            <Row>
+              <Col xxl={6}>
+                <Form.Group className='tukang-info'>
+                  <Form.Label>Username</Form.Label>
+                  <Form.Control
+                    type='text'
+                    name='username'
+                    onChange={handleChangeUsernameVendor}
+                    value={username}
+                  />
+
+                  <Form.Text className='fs-8 fs-l text-dark-danger'>
+                    *Jika username kosong, maka sistem akan menghasilkan username secara otomatis
+                    dari alamat email
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+
+              <Col xxl={6}>
+                <Form.Group className='tukang-info'>
+                  <Form.Label>Reset Password</Form.Label>
+                  <Form.Control
+                    type='text'
+                    name='password'
+                    onChange={handleChangePasswordVendor}
+                    value={password}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+
+        <div className='d-flex justify-content-center mt-5'>
+          <Button
+            className='d-flex justify-content-center align-items-center'
+            variant='dark-primary'
+            type='submit'
+            disabled={isLoading}
+            onClick={handleUpdateVendor}
+          >
+            {isLoading ? 'Saving..' : 'Save'}
+          </Button>
+        </div>
       </Spin>
-
-      {!['Owner Vendor', 'Admin Vendor'].includes(userRole) && (
-        <>
-          <hr />
-
-          <Card className='mb-5'>
-            <Card.Header>
-              <Card.Title>Profile</Card.Title>
-            </Card.Header>
-
-            <Card.Body>
-              <Row>
-                <Col xxl={6}>
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Username</Form.Label>
-                    <Form.Control
-                      type='text'
-                      name='username'
-                      onChange={handleChangeUsernameVendor}
-                      value={username}
-                    />
-
-                    <Form.Text className='fs-8 fs-l text-dark-danger'>
-                      *Jika username kosong, maka sistem akan menghasilkan username secara otomatis
-                      dari alamat email
-                    </Form.Text>
-                  </Form.Group>
-                </Col>
-
-                <Col xxl={6}>
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Reset Password</Form.Label>
-                    <Form.Control
-                      type='text'
-                      name='password'
-                      onChange={handleChangePasswordVendor}
-                      value={password}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
-        </>
-      )}
-
-      <div className='d-flex justify-content-center mt-5'>
-        <Button
-          className='d-flex justify-content-center align-items-center'
-          variant='dark-primary'
-          type='submit'
-          disabled={isLoading}
-          onClick={handleUpdateVendor}
-        >
-          {isLoading ? 'Saving..' : 'Save'}
-        </Button>
-      </div>
     </section>
   )
 }

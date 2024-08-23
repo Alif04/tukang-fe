@@ -22,6 +22,7 @@ interface Status {
 }
 
 interface DataType {
+  _key: number
   order_id: number
   store_name: string
   date_order: string
@@ -108,17 +109,11 @@ const NewInvoiceVendor: FC = () => {
   const [pageSize, setPageSize] = useState<number>(10)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
-
-  const today = new Date()
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -128,9 +123,10 @@ const NewInvoiceVendor: FC = () => {
   // Status
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const desiredStatus = statusData.filter((status: any) =>
-    ['SURVEYDONE', 'WORKEND'].includes(status.category)
-  )
+  const workend = statusData.filter((status: any) => ['WORKEND'].includes(status.category))
+  const surveyend = statusData.filter((status: any) => ['SURVEYDONE'].includes(status.category))
+  const workStatuses = workend.map((x) => x.value)
+  const surveyStatuses = surveyend.map((x) => x.value)
 
   // Create Invoice
   const [selectedRows, setSelectedRows] = useState<DataType[]>([])
@@ -167,86 +163,118 @@ const NewInvoiceVendor: FC = () => {
     }
   }
 
-  const getOrders = async (page: number, pageSize: number, queryparams: any) => {
-    if (desiredStatus) {
-      const statuses = desiredStatus.map((x) => x.value)
-      let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&page=${page}&status=${statuses}&take=${pageSize}${queryparams}`
+  const getAllData = async (url: string, headers: any) => {
+    let allData: any[] = []
+    let page = 1
+    const pageSize = 50
 
-      const response = await axios.get(apiUrlWithParams, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+    while (true) {
+      const response = await axios.get(`${url}&page=${page}&take=${pageSize}`, {headers})
+      const data = response.data.data || []
+      allData = [...allData, ...data]
 
-      const data = response.data.data
+      if (data.length < pageSize) break
+      page += 1
+    }
 
-      setCurrentPage(response.data.page)
-      setTotalData(response.data.total)
+    return allData
+  }
+
+  const getOrders = async (queryparams: any) => {
+    const urlWork = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&status=${workStatuses}${queryparams}`
+    const urlSurvey = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${surveyStatuses}${queryparams}`
+
+    try {
+      const headers = {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      }
+
+      const [workOrders, surveyOrders] = await Promise.all([
+        getAllData(urlWork, headers),
+        getAllData(urlSurvey, headers),
+      ])
+
       setLoadData(false)
 
-      return data
-    } else {
-      console.error('Desired status not found in statusData')
+      return {workOrders, surveyOrders}
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+      throw error
     }
   }
 
-  const ViewWorkOrder = async (page: number, pageSize: number, queryparams: any) => {
+  const ViewWorkOrder = async (queryparams: any) => {
     try {
-      const apiData = await getOrders(page, pageSize, queryparams)
+      const {workOrders, surveyOrders} = await getOrders(queryparams)
 
-      if (!apiData) {
+      if (!workOrders && !surveyOrders) {
         console.error('No data received from getOrders')
         return []
       }
 
-      const workOrderData = apiData.map((item: any) => {
-        let data
+      const workOrderData = workOrders
+        .filter(
+          (x) =>
+            x.invoice_details.length === 0 ||
+            x.invoice_details.find((x: any) => x.type === 2)?.length === 0
+        )
+        .map((item: any, index: number) => {
+          const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+          })
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
+          return {
+            _key: index + 1,
+            order_id: item?.id,
+            store_name: item?.store?.store_name,
+            date_order: orderDate,
+            member_name: item?.members?.full_name,
+            order_type: 'Pengerjaan',
+            order_status: item?.work_orders?.work_order_status[0]?.status?.category,
+            order_status_label: item?.work_orders?.work_order_status[0]?.status?.description,
+          }
         })
 
-        const orderType = (() => {
-          if (
-            item?.payment_type === 'survey' &&
-            ['SURVEYDONE'].includes(item?.work_orders?.work_order_status[0]?.status?.category)
-          ) {
-            return 'Survei'
-          } else if (
-            item?.payment_type === 'survey' &&
-            ['WORKEND'].includes(item?.work_orders?.work_order_status[0]?.status?.category)
-          ) {
-            return 'Pengerjaan'
-          } else if (item?.payment_type === 'gratis') {
-            return 'Pengerjaan'
-          } else if (item?.payment_type === 'pemasangan_tanpa_survey') {
-            return 'Pengerjaan'
-          } else {
-            return ''
+      const surveyOrderData = surveyOrders
+        .filter(
+          (x) =>
+            x.order_history.length !== 0 &&
+            x.invoice_details.find((x: any) => x.type === 1)?.length === 0
+        )
+        .map((item: any, index: number) => {
+          const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+          })
+
+          const surveyDoneHistory = item?.order_history?.find(
+            (x: any) => x.status.category === 'SURVEYDONE'
+          )
+
+          return {
+            _key: index + workOrders.length + 1,
+            order_id: item?.id,
+            store_name: item?.store?.store_name,
+            date_order: orderDate,
+            member_name: item?.members?.full_name,
+            order_type: 'Survei',
+            order_status: surveyDoneHistory ? surveyDoneHistory.status.category : null,
+            order_status_label: surveyDoneHistory ? surveyDoneHistory.status.description : null,
           }
-        })()
+        })
 
-        data = {
-          order_id: item?.id,
-          store_name: item?.store?.store_name,
-          date_order: orderDate,
-          member_name: item?.members?.full_name,
-          order_type: orderType,
-          order_status: item?.work_orders?.work_order_status[0]?.status?.category,
-          order_status_label: item?.work_orders?.work_order_status[0]?.status?.description,
-        }
-
-        return data
-      })
-
-      return workOrderData
+      const data = [...workOrderData, ...surveyOrderData]
+      return data
     } catch (error) {
       console.error('Error getting work order list data:', error)
       return []
@@ -254,8 +282,11 @@ const NewInvoiceVendor: FC = () => {
   }
 
   const fetchData = async (page: number, pageSize: number, queryparams: any) => {
-    const data = await ViewWorkOrder(page, pageSize, queryparams)
-    setOrder(data)
+    const data = await ViewWorkOrder(queryparams)
+    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize)
+    setOrder(paginatedData)
+    setCurrentPage(page)
+    setTotalData(data.length)
   }
 
   useEffect(() => {
@@ -278,14 +309,6 @@ const NewInvoiceVendor: FC = () => {
         invoice_details: invoiceType,
       }))
 
-      // setInvoices((prevInvoices) => ({
-      //   ...prevInvoices,
-      //   invoice_details: selectedRows.map((row) => ({
-      //     order_id: row.order_id,
-      //     type: 1,
-      //   })),
-      // }))
-
       console.log(`selectedRowKeys: ${updatedSelectedRowKeys}`, 'selectedRows: ', selectedRows)
     },
   }
@@ -305,6 +328,8 @@ const NewInvoiceVendor: FC = () => {
 
     return valid
   }
+
+  console.log('invoices', invoices)
 
   // Handle Submit
   const handleCreateInvoice = async () => {
@@ -383,7 +408,7 @@ const NewInvoiceVendor: FC = () => {
     setLoadingButton(true)
     let queryparams = ``
 
-    const valueCheck = (key: any, value: any) => {
+    const valueCheck = (key: string, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
         queryparams += `${key}${value}`
       }
@@ -391,8 +416,9 @@ const NewInvoiceVendor: FC = () => {
 
     valueCheck(`&search=`, searchFilter)
 
-    const data = await ViewWorkOrder(1, 10, queryparams)
-    setOrder(data)
+    const page = 1
+    const pageSize = 10
+    await fetchData(page, pageSize, queryparams)
 
     setLoadingButton(false)
   }
@@ -417,10 +443,7 @@ const NewInvoiceVendor: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
-                defaultValue={[
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                ]}
+                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -490,7 +513,7 @@ const NewInvoiceVendor: FC = () => {
                   preserveSelectedRowKeys: true,
                   ...rowSelection,
                 }}
-                rowKey={(record) => record.order_id}
+                rowKey={(record) => record._key}
                 pagination={false}
                 sticky={true}
                 tableLayout='auto'

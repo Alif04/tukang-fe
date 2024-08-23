@@ -422,7 +422,7 @@ const ViewReportHO = () => {
 
             <Row>
               <Col md={4}>
-                <Link to={`/reports/ho-report-daily-followup-quotation`}>
+                <Link to={`/reports/ho-report-followup-quotation`}>
                   <Card className='content-card border-green' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex justify-content-left align-items-center'>
                       <img
@@ -440,7 +440,7 @@ const ViewReportHO = () => {
               </Col>
 
               <Col md={4}>
-                <Link to={`/reports/ho-report-daily-followup-csi`}>
+                <Link to={`/reports/ho-report-followup-csi`}>
                   <Card className='content-card border-green' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex justify-content-left align-items-center'>
                       <img

@@ -398,6 +398,117 @@ iframe.csi-frame {
   color: white !important;
 }
 
+/* Action Button */
+a.button-transparent.text-danger.btn.btn-primary {
+  margin: 10px !important;
+  padding: 0 !important;
+  border: none !important;
+  background-color: transparent !important;
+}
+
+a.button-cancel.btn.btn-danger {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
+a.button-delete.btn.btn-danger {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
+a.button-disable.btn.btn-danger {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
+a.button-detail.btn.btn-primary {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
+a.button-edit.btn.btn-primary {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
+a.button-request.btn.btn-warning {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+  border: transparent !important;
+}
+
+a.button-email.btn.btn-success {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+  background-color: #548a03 !important;
+  border: transparent !important;
+}
+
+a.button-email.btn.btn-success:hover:not(.btn-active) {
+  background-color: #6d9631 !important;
+}
+
+a.button-active.btn.btn-success {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+  background-color: #548a03 !important;
+  border: transparent !important;
+}
+
+a.button-active.btn.btn-success:hover:not(.btn-active) {
+  background-color: #6d9631 !important;
+}
+
+a.button-verif.btn.btn-primary {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+}
+
 /* Button Action */
 button.button-transparent.text-danger.btn.btn-primary {
   margin: 10px !important;
@@ -885,6 +996,17 @@ svg.svg-inline--fa.fa-file-image.fa-sm {
 
 svg.svg-inline--fa.fa-trash.fa-sm {
   margin: 0 0 0 10px;
+}
+
+@media screen and (min-width: 1400px) {
+  .container-xxl,
+  .container-xl,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container {
+    max-width: 100% !important;
+  }
 }
 
 @media screen and (max-width: 1200px) {

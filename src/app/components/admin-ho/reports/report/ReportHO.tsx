@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react'
 
 import './ReportHO.css'
 
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
+
 import axios from 'axios'
 import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
@@ -98,6 +100,14 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
+          title: 'Tanggal Order',
+          dataIndex: 'date_order',
+          key: 'date_order',
+          align: 'left',
+          width: 110,
+          sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+        },
+        {
           title: 'Nama Toko',
           dataIndex: 'store_name',
           key: 'store_name',
@@ -140,14 +150,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           align: 'center',
           width: 135,
           sorter: (a, b) => a.grand_total - b.grand_total,
-        },
-        {
-          title: 'Tanggal Order',
-          dataIndex: 'date_order',
-          key: 'date_order',
-          align: 'left',
-          width: 110,
-          sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
         },
       ]
       break
@@ -951,7 +953,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
 
-      let url = `${urlBase}?order_by=desc&take=0${params}&date_from=${dateFrom}&date_to=${dateTo}`
+      let url = `${urlBase}?order_by=desc&take=0${params}`
 
       if (endpoint === 'sales-comission') {
         if (statusName === 'UNPAID') {
@@ -965,6 +967,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         }
         if (queryparams) {
           url += queryparams
+        }
+        if (dateFrom && dateTo) {
+          url += `&date_from=${dateFrom}&date_to=${dateTo}`
         }
       }
 
@@ -1032,7 +1037,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
       let urlBase = nonReportEndpoints.includes(endpoint)
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
-      let url = `${urlBase}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${params}`
+      let url = `${urlBase}?order_by=desc&page=${page}&take=${pageSize}${params}`
 
       if (endpoint === 'sales-comission') {
         if (statusName === 'UNPAID') {
@@ -1046,6 +1051,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         }
         if (queryparams) {
           url += queryparams
+        }
+        if (dateFrom && dateTo) {
+          url += `&date_from=${dateFrom}&date_to=${dateTo}`
         }
       }
 
@@ -1401,8 +1409,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
   }
 
   useEffect(() => {
-    fetchData(currentPage, pageSize, '')
     fetchAllReportData(endpoint, '')
+    fetchData(currentPage, pageSize, '')
   }, [currentPage, pageSize])
 
   useEffect(() => {
@@ -1601,7 +1609,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         link.href = url
         link.setAttribute(
           'download',
-          `Report ${title} ${dateFrom && dateTo ? `Periode ${dateFrom} - ${dateTo}` : ''}.xlsx`
+          `Report ${title} ${
+            dateFrom && dateTo
+              ? `Periode ${dateFrom} - ${dateTo}`
+              : formatDateWithTime(new Date().toISOString())
+          }.xlsx`
         )
         document.body.appendChild(link)
         link.click()
@@ -1646,8 +1658,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&store_id=`, selectedStore?.value)
 
     const reportGrandTotal = await fetchAllReportData(endpoint, queryparams)

@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react'
+import {DailyOrder} from '../../../../interfaces/order'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -6,8 +7,20 @@ import Swal from 'sweetalert2'
 import Select from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker, Upload} from 'antd'
-import {Card, Row, Col, Button, FormGroup, Form} from 'react-bootstrap'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {
+  Card,
+  Row,
+  Col,
+  Button,
+  FormGroup,
+  Form,
+  Modal,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faNoteSticky} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -35,10 +48,18 @@ interface AreaItem {
   label: string
 }
 
-interface TimeLeft {
-  days: number
-  hours: number
-  minutes: number
+interface DataType {
+  order_id: number
+  store_name: string
+  date_order: string
+  member_number: string
+  costumer_name: string
+  vendor_name: string
+  phone_number: string
+  csi_survey: number
+  csi_work: number
+  description: string
+  grand_total: number
 }
 
 const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, title, params}) => {
@@ -49,16 +70,21 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
   const desiredStatus = statusData.filter((status: any) => status.category === statusName)
   const statuses = desiredStatus.map((x) => x.value)
 
+  // Report Data
   const [reportData, setReportData] = useState<any[]>([])
   const [reportGrandTotal, setReportGrandTotal] = useState<any>()
 
+  // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(50)
   const [totalOrder, setTotalOrder] = useState<number>(0)
 
+  // Loader
   const [loadData, setLoadData] = useState<boolean>(true)
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
+  const [loadingPdf, setLoadingPdf] = useState(false)
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState<boolean>(false)
 
   const [dateFrom, setDateFrom] = useState<any>(
     new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
@@ -83,104 +109,21 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
   const storeOptions = [{value: null, label: 'All Store', city_id: null}, ...store]
   const zoneOptions = [{value: null, label: 'All Zona'}, ...area]
 
-  let columns: ColumnsType<any> = []
-
-  columns = [
-    {
-      title: 'Order ID',
-      dataIndex: 'order_id',
-      key: 'order_id',
-      align: 'center',
-      width: 110,
-      className: 'col_order_id',
-      defaultSortOrder: 'descend',
-      sorter: (a, b) => a.order_id - b.order_id,
-    },
-    {
-      title: 'Tanggal Order',
-      dataIndex: 'date_order',
-      key: 'date_order',
-      align: 'left',
-      width: 120,
-      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
-    },
-    {
-      title: 'Nama Toko',
-      dataIndex: 'store_name',
-      key: 'store_name',
-      align: 'left',
-      width: 140,
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
-    },
-    {
-      title: 'Nama Costumer',
-      dataIndex: 'costumer_name',
-      key: 'costumer_name',
-      align: 'left',
-      width: 140,
-      onFilter: (value, record) => record.costumer_name.includes(String(value)),
-      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
-    },
-    {
-      title: 'No. Telp/WA',
-      dataIndex: 'phone_number',
-      key: 'phone_number',
-      align: 'left',
-      width: 120,
-      onFilter: (value, record) => record.phone_number.includes(String(value)),
-      sorter: (a, b) => a.phone_number.length - b.phone_number.length,
-    },
-    {
-      title: 'Nama Vendor',
-      dataIndex: 'vendor_name',
-      key: 'vendor_name',
-      align: 'left',
-      width: 120,
-      onFilter: (value, record) => record.vendor_name.includes(String(value)),
-      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
-    },
-    {
-      title: 'Grand Total',
-      dataIndex: 'grand_total',
-      key: 'grand_total',
-      align: 'center',
-      width: 135,
-      sorter: (a, b) => a.grand_total - b.grand_total,
-    },
-    {
-      title: 'CSI Survey',
-      dataIndex: 'csi_survey',
-      key: 'csi_survey',
-      align: 'center',
-      width: 130,
-      render: (record) => {
-        return (
-          <FormGroup>
-            <Form.Check className='daily-follow-up-checkbox' type='checkbox' />
-          </FormGroup>
-        )
+  // Daily Quotation
+  const [dailyOrder, setDailyOrder] = useState<DailyOrder>({
+    order_follow_up: [
+      {
+        order_id: null,
+        csi_survey: 0,
+        csi_work: 0,
+        description: '',
       },
-    },
-    {
-      title: 'CSI Pengerjaan',
-      dataIndex: 'csi_pengerjaan',
-      key: 'csi_pengerjaan',
-      align: 'center',
-      width: 130,
-      render: (record) => {
-        return (
-          <FormGroup>
-            <Form.Check className='daily-follow-up-checkbox' type='checkbox' />
-          </FormGroup>
-        )
-      },
-    },
-  ]
+    ],
+  })
 
   const fetchAllReportData = async (endpoint: string, queryparams: any) => {
     try {
-      let url = `${apiUrl}/${endpoint}?order_by=desc&take=0${params}&date_from=${dateFrom}&date_to=${dateTo}`
+      let url = `${apiUrl}/${endpoint}?order_by=desc&take=0${params}`
 
       if (statuses.length) {
         url += `&status=${statuses}`
@@ -188,6 +131,10 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
 
       if (queryparams) {
         url += queryparams
+      }
+
+      if (dateFrom && dateTo) {
+        url += `&date_from=${dateFrom}&date_to=${dateTo}`
       }
 
       const response = await axios.get(url, {
@@ -200,8 +147,8 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
       })
 
       if (response?.data) {
-        setReportGrandTotal(response?.data?.quotationGrandTotal ?? 0)
-        return response?.data?.quotationGrandTotal ?? 0
+        setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
+        return response?.data?.orderGrandTotal ?? 0
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -215,7 +162,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
     queryparams: any
   ) => {
     try {
-      let url = `${apiUrl}/${endpoint}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${params}`
+      let url = `${apiUrl}/${endpoint}?order_by=desc&page=${page}&take=${pageSize}${params}`
 
       if (statuses.length) {
         url += `&status=${statuses}`
@@ -223,6 +170,10 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
 
       if (queryparams) {
         url += queryparams
+      }
+
+      if (dateFrom && dateTo) {
+        url += `&date_from=${dateFrom}&date_to=${dateTo}`
       }
 
       const response = await axios.get(url, {
@@ -234,9 +185,23 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
         },
       })
 
+      const data = response.data.data
+
       setLoadData(false)
       setCurrentPage(response?.data?.page ?? 1)
       setTotalOrder(response?.data?.total ?? 0)
+
+      if (data) {
+        setDailyOrder((prev: any) => ({
+          ...prev,
+          order_follow_up: data?.map((item: any) => ({
+            order_id: item?.id ?? null,
+            csi_survey: item?.order_follow_up[0]?.follow_up_1 === true ? 1 : 0,
+            csi_work: item?.order_follow_up[0]?.follow_up_2 === true ? 1 : 0,
+            description: item?.order_follow_up[0]?.description ?? '',
+          })),
+        }))
+      }
 
       return response.data.data
     } catch (error) {
@@ -278,12 +243,15 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
         data = {
           order_id: item.id,
           store_name: item?.store?.store_name,
+          date_order: orderDate,
           member_number: item?.members?.whatsapp_number,
           costumer_name: item?.members?.full_name,
           phone_number: item?.project_number,
           vendor_name: item?.vendor?.company_name ?? '-',
+          csi_survey: item?.csi_survey ?? 0,
+          csi_work: item?.csi_work ?? 0,
+          description: item?.description ?? '',
           grand_total: `Rp. ${grandTotal.toLocaleString('id')}`,
-          date_order: orderDate,
         }
 
         return data
@@ -379,6 +347,152 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
     getArea()
   }, [selectedZone])
 
+  // Table Column
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
+      align: 'center',
+      width: 110,
+      className: 'col_order_id',
+      sorter: (a, b) => a.order_id - b.order_id,
+    },
+    {
+      title: 'Tanggal Order',
+      dataIndex: 'date_order',
+      key: 'date_order',
+      align: 'left',
+      width: 120,
+      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
+    },
+    {
+      title: 'Nama Toko',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+    },
+    {
+      title: 'Nama Costumer',
+      dataIndex: 'costumer_name',
+      key: 'costumer_name',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.costumer_name.includes(String(value)),
+      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+    },
+    {
+      title: 'No. Telp/WA',
+      dataIndex: 'phone_number',
+      key: 'phone_number',
+      align: 'left',
+      width: 120,
+      onFilter: (value, record) => record.phone_number.includes(String(value)),
+      sorter: (a, b) => a.phone_number.length - b.phone_number.length,
+    },
+    {
+      title: 'Nama Vendor',
+      dataIndex: 'vendor_name',
+      key: 'vendor_name',
+      align: 'left',
+      width: 120,
+      onFilter: (value, record) => record.vendor_name.includes(String(value)),
+      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+    },
+    {
+      title: 'Grand Total',
+      dataIndex: 'grand_total',
+      key: 'grand_total',
+      align: 'center',
+      width: 135,
+      sorter: (a, b) => a.grand_total - b.grand_total,
+    },
+    {
+      title: 'CSI Survey',
+      key: 'csi_survey',
+      align: 'center',
+      width: 130,
+      render: (record) => {
+        const followUpItem = dailyOrder.order_follow_up.find((x) => x.order_id === record.order_id)
+        const isChecked = followUpItem && followUpItem.csi_survey === 1 ? true : false
+
+        return (
+          <FormGroup>
+            <Form.Check
+              className='daily-follow-up-checkbox'
+              type='checkbox'
+              checked={isChecked}
+              onChange={(e) => checkboxHandler(record.order_id, 'csi_survey', e.target.checked)}
+            />
+          </FormGroup>
+        )
+      },
+    },
+    {
+      title: 'CSI Pengerjaan',
+      key: 'csi_pengerjaan',
+      align: 'center',
+      width: 130,
+      render: (record) => {
+        const followUpItem = dailyOrder.order_follow_up.find(
+          (x) => x?.order_id === record?.order_id
+        )
+        const isChecked = followUpItem && followUpItem.csi_work === 1 ? true : false
+
+        return (
+          <FormGroup>
+            <Form.Check
+              className='daily-follow-up-checkbox'
+              type='checkbox'
+              checked={isChecked}
+              onChange={(e) => checkboxHandler(record.order_id, 'csi_work', e.target.checked)}
+            />
+          </FormGroup>
+        )
+      },
+    },
+    {
+      title: 'Catatan',
+      key: 'description',
+      align: 'center',
+      width: 100,
+      render: (record) => {
+        const id = record.order_id
+
+        const handleShowModal = (id: number) => {
+          const selected = reportData.find((item: any) => item?.order_id === id)
+
+          if (selected) {
+            setSelectedOrderId(selected?.order_id)
+            setShowModal(true)
+          }
+        }
+
+        return (
+          <div className='button-wrapper d-flex justify-content-center align-items-center gap-3'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Catatan Follow Up')}
+            >
+              <Button
+                variant='primary'
+                className='button-verif'
+                onClick={() => handleShowModal(id)}
+              >
+                <FontAwesomeIcon className='text-white' icon={faNoteSticky} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
+          </div>
+        )
+      },
+    },
+  ]
+
   // Render
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -428,6 +542,55 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
       })
   }
 
+  // Export To PDF
+  const exportToPDF = () => {
+    setLoadingPdf(true)
+
+    let url = `${apiUrl}/orders/export-follow-up-pdf?order_by=desc`
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        url += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
+    axios
+      .get(url, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          const link = document.createElement('a')
+          link.href = url
+          link.setAttribute('download', `Report Performance.pdf`)
+          document.body.appendChild(link)
+          link.click()
+
+          setLoadingPdf(false)
+        } else {
+          Swal.fire({
+            title: 'Warning',
+            text: response.data.message,
+            icon: 'warning',
+          })
+
+          setLoadingPdf(false)
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+        setLoadingPdf(false)
+      })
+  }
+
   // Submit Filter
   const handleSubmitFilter = async (endpoint: string) => {
     setLoadingButton(true)
@@ -440,8 +603,6 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&store_id=`, selectedStore?.value)
 
     const reportGrandTotal = await fetchAllReportData(endpoint, queryparams)
@@ -451,6 +612,75 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
     setReportData(data)
 
     setLoadingButton(false)
+  }
+
+  // Daily Quotation Handler
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null)
+  const [showModal, setShowModal] = useState(false)
+  const handleCloseModal = () => {
+    setShowModal(false)
+  }
+
+  const dailyOrderHandler = (e: any) => {
+    setDailyOrder((prev) => ({
+      order_follow_up: prev.order_follow_up.map((item) =>
+        item.order_id === selectedOrderId ? {...item, description: e.target.value} : item
+      ),
+    }))
+  }
+
+  const checkboxHandler = (order_id: number, csi_type: string, isChecked: boolean) => {
+    setDailyOrder((prev) => ({
+      order_follow_up: prev.order_follow_up.map((item) =>
+        item.order_id === order_id ? {...item, [csi_type]: isChecked ? 1 : 0} : item
+      ),
+    }))
+  }
+
+  const handleSubmitFollowUp = async () => {
+    setIsLoadingSubmit(true)
+
+    await axios
+      .post(`${apiUrl}/order/follow-up`, dailyOrder, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil menyimpan daily follow up csi',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            window.location.reload()
+          })
+
+          setIsLoadingSubmit(false)
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+
+          setIsLoadingSubmit(false)
+        }
+      })
+      .catch((error) => {
+        setIsLoadingSubmit(false)
+
+        Swal.fire({
+          title: 'Terjadi Kesalahan Pada Server',
+          text: 'Tolong untuk mencoba hubungi administrator',
+          icon: 'error',
+        })
+      })
   }
 
   return (
@@ -548,12 +778,21 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
               <div className='d-flex justify-content-between align-items-center'>
                 <h3 className='fs-3 fw-semibold text-uppercase mb-3'>{title}</h3>
 
-                <button className='button-export' onClick={exportToExcel}>
-                  <h3 className='fs-5 fw-semibold'>
-                    {loadingExport ? 'Exporting..' : 'Export To Excel'}
-                  </h3>
-                </button>
+                <div className='button-wrapper gap-3'>
+                  <button className='button-export' onClick={exportToPDF}>
+                    <h3 className='fs-5 fw-semibold'>
+                      {loadingPdf ? 'Exporting..' : 'Export To PDF'}
+                    </h3>
+                  </button>
+
+                  <button className='button-export' onClick={exportToExcel}>
+                    <h3 className='fs-5 fw-semibold'>
+                      {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                    </h3>
+                  </button>
+                </div>
               </div>
+
               {/* 
               <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
                 'id'
@@ -615,11 +854,42 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
           <Button
             className='d-flex justify-content-center align-items-center w-100'
             variant='dark-primary'
+            disabled={isLoadingSubmit}
+            onClick={handleSubmitFollowUp}
           >
             Submit Follow Up
           </Button>
         </Col>
       </Row>
+
+      {/* Modal Input Catatan Follow Up */}
+      <Modal
+        dialogClassName='modal-upload-notes'
+        centered
+        show={showModal}
+        onHide={handleCloseModal}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Catatan Follow Up CSI</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Row className='notes mb-5'>
+            <Form.Group>
+              <Form.Label className='fs-5 fw-bold'>Catatan :</Form.Label>
+              <Form.Control
+                style={{minHeight: '140px'}}
+                as='textarea'
+                onChange={(e) => dailyOrderHandler(e)}
+                value={
+                  dailyOrder.order_follow_up.find((item) => item.order_id === selectedOrderId)
+                    ?.description ?? ''
+                }
+              />
+            </Form.Group>
+          </Row>
+        </Modal.Body>
+      </Modal>
     </section>
   )
 }

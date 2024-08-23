@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react'
+import {DailyQuotation} from '../../../../interfaces/quotation'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -6,17 +7,29 @@ import Swal from 'sweetalert2'
 import Select from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker, Upload} from 'antd'
-import {Card, Row, Col, Button, FormGroup, Form} from 'react-bootstrap'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {
+  Card,
+  Row,
+  Col,
+  Button,
+  FormGroup,
+  Form,
+  Modal,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faNoteSticky} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
 type Props = {
   endpoint: string
-  statusName: string
   headerColor: string
   title: string
   params: string
+  statusName: string[]
 }
 
 interface Status {
@@ -41,6 +54,21 @@ interface TimeLeft {
   minutes: number
 }
 
+interface DataType {
+  order_id: number
+  quotation_id: number
+  store_name: string
+  date_order: string
+  costumer_name: string
+  vendor_name: string
+  grand_total: number
+  countdown_to_expired: string
+  follow_up_1: number
+  follow_up_2: number
+  follow_up_3: number
+  description: string
+}
+
 const DailyFollowUpQuotation: React.FC<Props> = ({
   endpoint,
   statusName,
@@ -52,19 +80,24 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
 
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const desiredStatus = statusData.filter((status: any) => status.category === statusName)
+  const desiredStatus = statusData.filter((status) => statusName.includes(status.category))
   const statuses = desiredStatus.map((x) => x.value)
 
-  const [reportData, setReportData] = useState<any[]>([])
-  const [reportGrandTotal, setReportGrandTotal] = useState<any>()
+  // Report Data
+  const [reportData, setReportData] = useState<DataType[]>([])
+  const [reportGrandTotal, setReportGrandTotal] = useState<number>(0)
 
+  // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(50)
   const [totalOrder, setTotalOrder] = useState<number>(0)
 
+  // Loader
   const [loadData, setLoadData] = useState<boolean>(true)
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
+  const [loadingPdf, setLoadingPdf] = useState(false)
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState<boolean>(false)
 
   const [dateFrom, setDateFrom] = useState<any>(
     new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
@@ -89,118 +122,22 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
   const storeOptions = [{value: null, label: 'All Store', city_id: null}, ...store]
   const zoneOptions = [{value: null, label: 'All Zona'}, ...area]
 
-  let columns: ColumnsType<any> = []
-
-  columns = [
-    {
-      title: 'Order ID',
-      dataIndex: 'order_id',
-      key: 'order_id',
-      align: 'center',
-      width: 90,
-      className: 'col_order_id',
-      sorter: (a, b) => a.order_id - b.order_id,
-    },
-    {
-      title: 'Nama Toko',
-      dataIndex: 'store_name',
-      key: 'store_name',
-      align: 'center',
-      width: 130,
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
-    },
-    {
-      title: 'Tanggal Order',
-      dataIndex: 'date_order',
-      key: 'date_order',
-      align: 'center',
-      width: 110,
-      onFilter: (value, record) => record.date_order.includes(String(value)),
-      sorter: (a, b) => a.date_order.length - b.date_order.length,
-    },
-    {
-      title: 'Nama Customer',
-      dataIndex: 'costumer_name',
-      key: 'costumer_name',
-      align: 'left',
-      width: 130,
-      onFilter: (value, record) => record.costumer_name.includes(String(value)),
-      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
-    },
-    {
-      title: 'Nama Vendor',
-      dataIndex: 'vendor_name',
-      key: 'vendor_name',
-      align: 'left',
-      width: 130,
-      onFilter: (value, record) => record.vendor_name.includes(String(value)),
-      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
-    },
-    {
-      title: 'Grand Total',
-      dataIndex: 'grand_total',
-      key: 'grand_total',
-      align: 'left',
-      width: 130,
-      sorter: (a, b) => a.grand_total - b.grand_total,
-    },
-    {
-      title: 'Umur Masa Quotation',
-      dataIndex: 'countdown_to_expired',
-      key: 'countdown_to_expired',
-      align: 'left',
-      width: 130,
-      onFilter: (value, record) => record.countdown_to_expired.includes(String(value)),
-      sorter: (a, b) => a.countdown_to_expired.length - b.countdown_to_expired.length,
-    },
-    {
-      title: 'FU1',
-      dataIndex: 'fu_1',
-      key: 'fu_1',
-      align: 'center',
-      width: 80,
-      render: (record) => {
-        return (
-          <FormGroup>
-            <Form.Check className='daily-follow-up-checkbox' type='checkbox' />
-          </FormGroup>
-        )
+  // Daily Quotation
+  const [dailyQuotation, setDailyQuotation] = useState<DailyQuotation>({
+    quotation_follow_up: [
+      {
+        quotation_id: null,
+        follow_up_1: 0,
+        follow_up_2: 0,
+        follow_up_3: 0,
+        description: '',
       },
-    },
-    {
-      title: 'FU2',
-      dataIndex: 'fu_2',
-      key: 'fu_2',
-      align: 'center',
-      width: 80,
-      render: (record) => {
-        return (
-          <FormGroup>
-            <Form.Check className='daily-follow-up-checkbox' type='checkbox' />
-          </FormGroup>
-        )
-      },
-    },
-    {
-      title: 'FU3',
-      dataIndex: 'fu_3',
-      key: 'fu_3',
-      align: 'center',
-      width: 80,
-      render: (record) => {
-        return (
-          <FormGroup>
-            <Form.Check className='daily-follow-up-checkbox' type='checkbox' />
-          </FormGroup>
-        )
-      },
-    },
-  ]
+    ],
+  })
 
   const fetchAllReportData = async (endpoint: string, queryparams: any) => {
     try {
-      let url = `${apiUrl}/${endpoint}?order_by=desc&take=0${params}&date_from=${dateFrom}&date_to=${dateTo}`
+      let url = `${apiUrl}/${endpoint}?order_by=desc&take=0${params}`
 
       if (statuses.length) {
         url += `&status=${statuses}`
@@ -208,6 +145,10 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
 
       if (queryparams) {
         url += queryparams
+      }
+
+      if (dateFrom && dateTo) {
+        url += `&date_from=${dateFrom}&date_to=${dateTo}`
       }
 
       const response = await axios.get(url, {
@@ -220,7 +161,7 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
       })
 
       if (response?.data) {
-        setReportGrandTotal(response?.data?.quotationGrandTotal ?? 0)
+        setReportGrandTotal(parseInt(response?.data?.quotationGrandTotal) ?? 0)
         return response?.data?.quotationGrandTotal ?? 0
       }
     } catch (error) {
@@ -235,7 +176,7 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
     queryparams: any
   ) => {
     try {
-      let url = `${apiUrl}/${endpoint}?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${params}`
+      let url = `${apiUrl}/${endpoint}?order_by=desc&page=${page}&take=${pageSize}${params}`
 
       if (statuses.length) {
         url += `&status=${statuses}`
@@ -243,6 +184,10 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
 
       if (queryparams) {
         url += queryparams
+      }
+
+      if (dateFrom && dateTo) {
+        url += `&date_from=${dateFrom}&date_to=${dateTo}`
       }
 
       const response = await axios.get(url, {
@@ -254,9 +199,24 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
         },
       })
 
+      const data = response?.data?.data
+
       setLoadData(false)
       setCurrentPage(response?.data?.page ?? 1)
       setTotalOrder(response?.data?.total ?? 0)
+
+      if (data) {
+        setDailyQuotation((prev: any) => ({
+          ...prev,
+          quotation_follow_up: data?.map((item: any) => ({
+            quotation_id: item?.id ?? null,
+            follow_up_1: item?.quotation_follow_up[0]?.follow_up_1 === true ? 1 : 0,
+            follow_up_2: item?.quotation_follow_up[0]?.follow_up_2 === true ? 1 : 0,
+            follow_up_3: item?.quotation_follow_up[0]?.follow_up_3 === true ? 1 : 0,
+            description: item?.quotation_follow_up[0]?.description ?? '',
+          })),
+        }))
+      }
 
       return response.data.data
     } catch (error) {
@@ -278,9 +238,7 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
         return []
       }
 
-      let quotationData
-
-      quotationData = apiData.map((item: any) => {
+      const quotationData = apiData.map((item: any) => {
         let data
 
         const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
@@ -352,10 +310,14 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
           vendor_name: item?.order?.vendor?.company_name ?? '-',
           order_status: item?.status?.description ?? '',
           countdown_to_expired: quotationCountdownText,
+          follow_up_1: item?.follow_up_1 ?? 0,
+          follow_up_2: item?.follow_up_2 ?? 0,
+          follow_up_3: item?.follow_up_3 ?? 0,
+          description: item?.description ?? '',
+          quotation_status: item?.status?.category ?? '',
           grand_total: `Rp. ${
             [parseInt(item?.quotation_grand_total).toLocaleString('id-ID')] ?? 0
           }`,
-          quotation_status: item?.status?.category ?? '',
         }
 
         return data
@@ -451,6 +413,184 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
     getArea()
   }, [selectedZone])
 
+  // Table Column
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
+  const columns: ColumnsType<DataType> = [
+    {
+      title: 'Order ID',
+      dataIndex: 'order_id',
+      key: 'order_id',
+      align: 'left',
+      width: 80,
+      className: 'col_order_id',
+      sorter: (a, b) => a.order_id - b.order_id,
+    },
+    {
+      title: 'Nama Toko',
+      dataIndex: 'store_name',
+      key: 'store_name',
+      align: 'left',
+      width: 110,
+      onFilter: (value, record) => record.store_name.includes(String(value)),
+      sorter: (a, b) => a.store_name.length - b.store_name.length,
+    },
+    {
+      title: 'Tanggal Order',
+      dataIndex: 'date_order',
+      key: 'date_order',
+      align: 'left',
+      width: 110,
+      onFilter: (value, record) => record.date_order.includes(String(value)),
+      sorter: (a, b) => a.date_order.length - b.date_order.length,
+    },
+    {
+      title: 'Nama Customer',
+      dataIndex: 'costumer_name',
+      key: 'costumer_name',
+      align: 'left',
+      width: 110,
+      onFilter: (value, record) => record.costumer_name.includes(String(value)),
+      sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
+    },
+    {
+      title: 'Nama Vendor',
+      dataIndex: 'vendor_name',
+      key: 'vendor_name',
+      align: 'left',
+      width: 110,
+      onFilter: (value, record) => record.vendor_name.includes(String(value)),
+      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+    },
+    {
+      title: 'Grand Total',
+      dataIndex: 'grand_total',
+      key: 'grand_total',
+      align: 'left',
+      width: 130,
+      sorter: (a, b) => a.grand_total - b.grand_total,
+    },
+    {
+      title: 'Umur Masa Quotation',
+      dataIndex: 'countdown_to_expired',
+      key: 'countdown_to_expired',
+      align: 'left',
+      width: 130,
+      onFilter: (value, record) => record.countdown_to_expired.includes(String(value)),
+      sorter: (a, b) => a.countdown_to_expired.length - b.countdown_to_expired.length,
+    },
+    {
+      title: 'FU1',
+      key: 'follow_up_1',
+      align: 'center',
+      width: 80,
+      render: (record) => {
+        const followUpItem = dailyQuotation.quotation_follow_up.find(
+          (x) => x.quotation_id === record.quotation_id
+        )
+        const isChecked = followUpItem && followUpItem.follow_up_1 === 1 ? true : false
+
+        return (
+          <FormGroup>
+            <Form.Check
+              className='daily-follow-up-checkbox'
+              type='checkbox'
+              checked={isChecked}
+              onChange={(e) =>
+                checkboxHandler(record.quotation_id, 'follow_up_1', e.target.checked)
+              }
+            />
+          </FormGroup>
+        )
+      },
+    },
+    {
+      title: 'FU2',
+      key: 'follow_up_2',
+      align: 'center',
+      width: 80,
+      render: (record) => {
+        const followUpItem = dailyQuotation.quotation_follow_up.find(
+          (x) => x.quotation_id === record.quotation_id
+        )
+        const isChecked = followUpItem && followUpItem.follow_up_2 === 1 ? true : false
+
+        return (
+          <FormGroup>
+            <Form.Check
+              className='daily-follow-up-checkbox'
+              type='checkbox'
+              checked={isChecked}
+              onChange={(e) =>
+                checkboxHandler(record.quotation_id, 'follow_up_2', e.target.checked)
+              }
+            />
+          </FormGroup>
+        )
+      },
+    },
+    {
+      title: 'FU3',
+      key: 'follow_up_3',
+      align: 'center',
+      width: 80,
+      render: (record) => {
+        const followUpItem = dailyQuotation.quotation_follow_up.find(
+          (x) => x.quotation_id === record.quotation_id
+        )
+        const isChecked = followUpItem && followUpItem.follow_up_3 === 1 ? true : false
+
+        return (
+          <FormGroup>
+            <Form.Check
+              className='daily-follow-up-checkbox'
+              type='checkbox'
+              checked={isChecked}
+              onChange={(e) =>
+                checkboxHandler(record.quotation_id, 'follow_up_3', e.target.checked)
+              }
+            />
+          </FormGroup>
+        )
+      },
+    },
+    {
+      title: 'Catatan',
+      key: 'description',
+      align: 'center',
+      width: 100,
+      render: (record) => {
+        const id = record.quotation_id
+
+        const handleShowModal = (id: number) => {
+          const selected = reportData.find((item: any) => item.quotation_id === id)
+
+          if (selected) {
+            setSelectedQuotationId(selected?.quotation_id)
+            setShowModal(true)
+          }
+        }
+
+        return (
+          <div className='button-wrapper d-flex justify-content-center align-items-center gap-3'>
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Catatan Follow Up')}
+            >
+              <Button
+                variant='primary'
+                className='button-verif'
+                onClick={() => handleShowModal(id)}
+              >
+                <FontAwesomeIcon className='text-white' icon={faNoteSticky} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
+          </div>
+        )
+      },
+    },
+  ]
+
   // Render
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -466,7 +606,7 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
   const exportToExcel = () => {
     setLoadingExport(true)
 
-    let url = `${apiUrl}/${endpoint}/export-excel?take=0${params}`
+    let url = `${apiUrl}/${endpoint}/export-excel-follow-up?take=0${params}`
 
     const valueCheck = (key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
@@ -500,6 +640,55 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
       })
   }
 
+  // Export To PDF
+  const exportToPDF = () => {
+    setLoadingPdf(true)
+
+    let url = `${apiUrl}/quotation/export-pdf-follow-up?order_by=desc`
+
+    const valueCheck = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        url += `${key}${value}`
+      }
+    }
+
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
+    axios
+      .get(url, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          const link = document.createElement('a')
+          link.href = url
+          link.setAttribute('download', `Report Performance.pdf`)
+          document.body.appendChild(link)
+          link.click()
+
+          setLoadingPdf(false)
+        } else {
+          Swal.fire({
+            title: 'Warning',
+            text: response.data.message,
+            icon: 'warning',
+          })
+
+          setLoadingPdf(false)
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+        setLoadingPdf(false)
+      })
+  }
+
   // Submit Filter
   const handleSubmitFilter = async (endpoint: string) => {
     setLoadingButton(true)
@@ -512,8 +701,6 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&store_id=`, selectedStore?.value)
 
     const reportGrandTotal = await fetchAllReportData(endpoint, queryparams)
@@ -523,6 +710,75 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
     setReportData(data)
 
     setLoadingButton(false)
+  }
+
+  // Daily Quotation Handler
+  const [selectedQuotationId, setSelectedQuotationId] = useState<number | null>(null)
+  const [showModal, setShowModal] = useState(false)
+  const handleCloseModal = () => {
+    setShowModal(false)
+  }
+
+  const dailyQuotationHandler = (e: any) => {
+    setDailyQuotation((prev) => ({
+      quotation_follow_up: prev.quotation_follow_up.map((item) =>
+        item.quotation_id === selectedQuotationId ? {...item, description: e.target.value} : item
+      ),
+    }))
+  }
+
+  const checkboxHandler = (quotation_id: number, followUp: string, isChecked: boolean) => {
+    setDailyQuotation((prev) => ({
+      quotation_follow_up: prev.quotation_follow_up.map((item) =>
+        item.quotation_id === quotation_id ? {...item, [followUp]: isChecked ? 1 : 0} : item
+      ),
+    }))
+  }
+
+  const handleSubmitFollowUp = async () => {
+    setIsLoadingSubmit(true)
+
+    await axios
+      .post(`${apiUrl}/quotation/follow-up`, dailyQuotation, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil menyimpan daily follow up quotation',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            window.location.reload()
+          })
+
+          setIsLoadingSubmit(false)
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+
+          setIsLoadingSubmit(false)
+        }
+      })
+      .catch((error) => {
+        setIsLoadingSubmit(false)
+
+        Swal.fire({
+          title: 'Terjadi Kesalahan Pada Server',
+          text: 'Tolong untuk mencoba hubungi administrator',
+          icon: 'error',
+        })
+      })
   }
 
   return (
@@ -620,16 +876,22 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
               <div className='d-flex justify-content-between align-items-center'>
                 <h3 className='fs-3 fw-semibold text-uppercase mb-3'>{title}</h3>
 
-                <button className='button-export' onClick={exportToExcel}>
-                  <h3 className='fs-5 fw-semibold'>
-                    {loadingExport ? 'Exporting..' : 'Export To Excel'}
-                  </h3>
-                </button>
+                <div className='button-wrapper gap-3'>
+                  <button className='button-export' onClick={exportToPDF}>
+                    <h3 className='fs-5 fw-semibold'>
+                      {loadingPdf ? 'Exporting..' : 'Export To PDF'}
+                    </h3>
+                  </button>
+
+                  <button className='button-export' onClick={exportToExcel}>
+                    <h3 className='fs-5 fw-semibold'>
+                      {loadingExport ? 'Exporting..' : 'Export To Excel'}
+                    </h3>
+                  </button>
+                </div>
               </div>
 
-              <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
-                'id'
-              )}`}</h1>
+              <h1 className='fs-1 fw-bold'>{`Rp. ${reportGrandTotal.toLocaleString('id')}`}</h1>
             </Card.Body>
           </Card>
         </Col>
@@ -687,11 +949,43 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
           <Button
             className='d-flex justify-content-center align-items-center w-100'
             variant='dark-primary'
+            disabled={isLoadingSubmit}
+            onClick={handleSubmitFollowUp}
           >
-            Submit Follow Up
+            {isLoadingSubmit ? 'Submitting..' : 'Submit Follow Up'}
           </Button>
         </Col>
       </Row>
+
+      {/* Modal Input Catatan Follow Up */}
+      <Modal
+        dialogClassName='modal-upload-notes'
+        centered
+        show={showModal}
+        onHide={handleCloseModal}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Catatan Follow Up Quotation</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Row className='notes mb-5'>
+            <Form.Group>
+              <Form.Label className='fs-5 fw-bold'>Catatan :</Form.Label>
+              <Form.Control
+                style={{minHeight: '140px'}}
+                as='textarea'
+                onChange={(e) => dailyQuotationHandler(e)}
+                value={
+                  dailyQuotation.quotation_follow_up.find(
+                    (item) => item.quotation_id === selectedQuotationId
+                  )?.description ?? ''
+                }
+              />
+            </Form.Group>
+          </Row>
+        </Modal.Body>
+      </Modal>
     </section>
   )
 }

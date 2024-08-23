@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
-import {KTSVG, toAbsoluteUrl} from '../../../../../../_metronic/helpers'
+import {toAbsoluteUrl} from '../../../../../../_metronic/helpers'
 
 type Props = {
   className: string
@@ -35,7 +35,7 @@ const TopVendorWidget: React.FC<Props> = ({className, vendorData}) => {
             </div>
 
             <div className='d-flex flex-column justify-content-center align-items-end'>
-              <span className='fw-normal text-dark'>{item?.orders.length} Order</span>
+              <span className='fw-normal text-dark'>{item?.orders?.length} Order</span>
             </div>
           </div>
         ))}
