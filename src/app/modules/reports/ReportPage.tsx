@@ -356,10 +356,10 @@ const RefundPage: React.FC = () => {
 
             <DailyFollowUpQuotation
               endpoint='quotation'
-              statusName=''
               headerColor='success'
               title='Laporan Follow Up Quotation'
               params=''
+              statusName={['QUOTEOUT', 'QUOTEIN']}
             />
           </>
         }
@@ -381,10 +381,10 @@ const RefundPage: React.FC = () => {
 
             <DailyFollowUpCSI
               endpoint='orders'
-              statusName=''
               headerColor='success'
               title='Laporan Follow Up CSI'
               params=''
+              statusName=''
             />
           </>
         }

@@ -5,6 +5,7 @@ import {useNavigate} from 'react-router-dom'
 import './ViewInvoice.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination, Upload, Image} from 'antd'
@@ -25,7 +26,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
   faBook,
   faSearch,
-  faXmarkCircle,
+  faPen,
   faImage,
   faFileImage,
   faTrash,
@@ -71,8 +72,10 @@ const ViewInvoiceHO: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  )
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
 
   // Status
@@ -81,7 +84,6 @@ const ViewInvoiceHO: FC = () => {
 
   // Update Invoice
   const [invoiceId, setInvoiceId] = useState<any>()
-  console.log('invoice', invoiceId)
   const [invoiceNotes, setInvoiceNotes] = useState<any>()
   const [invoices, setInvoices] = useState<Invoices>({
     status: 2,
@@ -178,7 +180,11 @@ const ViewInvoiceHO: FC = () => {
       render: (record) => {
         const id = record.invoice_id
 
-        const handleDetailInvoice = () => {
+        const handleUpdateInvoicePage = () => {
+          navigate(`/invoice/update-invoice/${id}`)
+        }
+
+        const handleDetailInvoicePage = () => {
           navigate(`/invoice/detail-invoice/${id}`)
         }
 
@@ -199,12 +205,26 @@ const ViewInvoiceHO: FC = () => {
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Detail Invoice')}
             >
-              <Button variant='primary' className='button-detail' onClick={handleDetailInvoice}>
+              <Button variant='primary' className='button-detail' onClick={handleDetailInvoicePage}>
                 <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
               </Button>
             </OverlayTrigger>
 
             {[1].includes(record.status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Edit Invoice')}
+              >
+                <Button variant='primary' className='button-edit' onClick={handleUpdateInvoicePage}>
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+
+            {/* {[1].includes(record.status) ? (
               <>
                 <OverlayTrigger
                   placement='bottom'
@@ -244,9 +264,9 @@ const ViewInvoiceHO: FC = () => {
               </>
             ) : (
               <></>
-            )}
+            )} */}
 
-            {[2].includes(record.status) ? (
+            {/* {[2].includes(record.status) ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -262,7 +282,7 @@ const ViewInvoiceHO: FC = () => {
               </OverlayTrigger>
             ) : (
               <></>
-            )}
+            )} */}
 
             {[2, 4].includes(record.status) ? (
               <OverlayTrigger
@@ -431,8 +451,6 @@ const ViewInvoiceHO: FC = () => {
       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
     },
   }
-
-  console.log('invoices', invoices)
 
   // Handle Approve Invoice
   const handleApproveInvoice = async () => {
@@ -868,6 +886,7 @@ const ViewInvoiceHO: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range ms-3'
+                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')

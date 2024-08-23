@@ -227,13 +227,13 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       key: 'action',
       fixed: 'right',
       render: (record) => {
+        const id = record.quotation_id
+
         const handleDetail = () => {
-          const id = record.quotation_id
           navigate(`/quotation/detail-quotation/${id}`)
         }
 
         const handleEdit = () => {
-          const id = record.quotation_id
           navigate(`/quotation/update-quotation/${id}`)
         }
 
@@ -244,9 +244,22 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Detail Quotation')}
             >
-              <Button variant='primary' className='button-detail' onClick={handleDetail}>
+              {/* <Button variant='primary' className='button-detail' onClick={handleDetail}>
                 <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
-              </Button>
+              </Button> */}
+
+              <a
+                href={`/quotation/detail-quotation/${id}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='btn btn-primary button-detail'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleDetail()
+                }}
+              >
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </a>
             </OverlayTrigger>
 
             {['QUOTEIN', 'UNPAID', 'PAID', 'QUOTEOUT', 'QUOTATIONPAID', 'APPROVED'].includes(
@@ -257,9 +270,22 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
                 delay={{show: 250, hide: 400}}
                 overlay={renderTooltip('Edit Quotation')}
               >
-                <Button variant='primary' className='button-edit' onClick={handleEdit}>
+                {/* <Button variant='primary' className='button-edit' onClick={handleEdit}>
                   <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                </Button>
+                </Button> */}
+
+                <a
+                  href={`/quotation/update-quotation/${id}`}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='btn btn-primary button-edit'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleEdit()
+                  }}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </a>
               </OverlayTrigger>
             )}
 

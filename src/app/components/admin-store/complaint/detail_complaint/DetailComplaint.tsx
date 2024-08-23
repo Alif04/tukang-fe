@@ -1373,7 +1373,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                 <Form.Label className='mt-3'>Bukti Transfer Quotation :</Form.Label>
                 <ListGroup>
                   {complaintDetail?.orders?.quotation[0]?.quotation_files
-                    .filter((x: any) => x.type === 1)
+                    .filter((x: any) => x.type === 1 || x.type === 3)
                     .map((item: any) => (
                       <ListGroup.Item
                         key={item.id}
@@ -1385,6 +1385,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                         }}
                       >
                         {item.path}
+                        {item.type === 3 ? ' ( Bukti transfer dikirim oleh customer)' : ''}
                       </ListGroup.Item>
                     ))}
                 </ListGroup>

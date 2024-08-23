@@ -788,9 +788,16 @@ const ViewOrders: FC = () => {
           if (item?.quotation?.length) {
             if (
               item?.quotation[0]?.receipt_quotation !== null &&
-              item?.quotation[0]?.quotation_files.length
+              item?.quotation[0]?.quotation_files.length &&
+              item?.quotation[0].quotation_files.find((x: any) => x.type === 2)
             ) {
-              return 'PAID'
+              return 'PAID (RECEIPT DI UPLOAD OLEH TOKO)'
+            } else if (
+              item?.quotation[0]?.receipt_quotation !== null &&
+              item?.quotation[0]?.quotation_files.length &&
+              item?.quotation[0].quotation_files.find((x: any) => x.type === 3)
+            ) {
+              return 'BUKTI TRANSFER SUDAH DI UPLOAD OLEH KONSUMEN'
             } else {
               return 'UNPAID'
             }
@@ -3407,9 +3414,18 @@ const ViewOrders: FC = () => {
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Detail Order')}
             >
-              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+              <a
+                href={`/order/detail-order/${id}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='btn btn-primary button-detail'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleDetailId()
+                }}
+              >
                 <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
-              </Button>
+              </a>
             </OverlayTrigger>
 
             {!['Sales'].includes(userRole) && (
@@ -3420,9 +3436,22 @@ const ViewOrders: FC = () => {
                     delay={{show: 250, hide: 400}}
                     overlay={renderTooltip('Update Order')}
                   >
-                    <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                    {/* <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
                       <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                    </Button>
+                    </Button> */}
+
+                    <a
+                      href={`/order/update-order/${id}`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='btn btn-primary button-edit'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleUpdateId()
+                      }}
+                    >
+                      <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                    </a>
                   </OverlayTrigger>
                 )}
               </>
@@ -3445,9 +3474,22 @@ const ViewOrders: FC = () => {
                 delay={{show: 250, hide: 400}}
                 overlay={renderTooltip('Update Order')}
               >
-                <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                {/* <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
                   <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                </Button>
+                </Button> */}
+
+                <a
+                  href={`/order/update-order/${id}`}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='btn btn-primary button-edit'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleUpdateId()
+                  }}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </a>
               </OverlayTrigger>
             ) : (
               <></>

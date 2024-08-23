@@ -22,16 +22,10 @@ interface VendorItem {
 const ReportVendorHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
 
-  const today = new Date()
-  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
 
   const [loadingButton, setLoadingButton] = useState(false)
 
@@ -50,14 +44,17 @@ const ReportVendorHO: FC = () => {
 
   const getVendor = async () => {
     try {
-      const response = await axiosInstance.get(`${apiUrl}/vendor?take=0&top_best=1`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axiosInstance.get(
+        `${apiUrl}/vendor?take=0&top_best=1&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
         const tempVendor = response.data.data.map((item: any) => ({
@@ -150,6 +147,7 @@ const ReportVendorHO: FC = () => {
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
+    await getVendor()
     await getReportOrder()
     await getReportWorkOrder()
 
@@ -217,10 +215,7 @@ const ReportVendorHO: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range w-100'
-                defaultValue={[
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-                ]}
+                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')

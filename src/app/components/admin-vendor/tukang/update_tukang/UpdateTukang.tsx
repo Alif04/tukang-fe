@@ -781,45 +781,41 @@ const UpdateTukangVendor: FC = () => {
         </Card.Body>
       </Card>
 
-      {!['Tukang'].includes(userRole) && (
-        <>
-          <hr />
+      <hr />
 
-          <Card className='mb-5'>
-            <Card.Header>
-              <Card.Title>Account</Card.Title>
-            </Card.Header>
+      <Card className='mb-5'>
+        <Card.Header>
+          <Card.Title>Account</Card.Title>
+        </Card.Header>
 
-            <Card.Body>
-              <Row>
-                <Col xxl={6}>
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Username</Form.Label>
-                    <Form.Control
-                      type='text'
-                      name='username'
-                      value={tukang.username}
-                      onChange={(e) => tukangFormHandler(e)}
-                    />
-                  </Form.Group>
-                </Col>
+        <Card.Body>
+          <Row>
+            <Col xxl={6}>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='username'
+                  value={tukang.username}
+                  onChange={(e) => tukangFormHandler(e)}
+                />
+              </Form.Group>
+            </Col>
 
-                <Col xxl={6}>
-                  <Form.Group className='tukang-info'>
-                    <Form.Label>Reset Password</Form.Label>
-                    <Form.Control
-                      type='text'
-                      name='password'
-                      value={tukang.password}
-                      onChange={(e) => tukangFormHandler(e)}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
-        </>
-      )}
+            <Col xxl={6}>
+              <Form.Group className='tukang-info'>
+                <Form.Label>Reset Password</Form.Label>
+                <Form.Control
+                  type='text'
+                  name='password'
+                  value={tukang.password}
+                  onChange={(e) => tukangFormHandler(e)}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
 
       <div className='d-flex justify-content-center'>
         {!['Tukang'].includes(userRole) && (

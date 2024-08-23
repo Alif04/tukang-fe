@@ -1,5 +1,5 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
-import {useParams} from 'react-router-dom'
+import {useParams, useNavigate} from 'react-router-dom'
 
 import './DetailInvoice.css'
 
@@ -28,7 +28,10 @@ const DetailInvoiceVendor: FC = () => {
 
   const [loadingPDF, setLoadingPDF] = useState<boolean>(false)
   const [loadingTemplate, setLoadingTemplate] = useState<boolean>(false)
+
   const [store, setStore] = useState<Store[]>([])
+
+  // Invoice
   const [invoiceDetail, setInvoiceDetail] = useState<any>()
 
   const [previewImage, setPreviewImage] = useState<any>()
@@ -445,34 +448,40 @@ const DetailInvoiceVendor: FC = () => {
         </Card.Body>
       </Card>
 
-      <Button
-        className='btn-dark-primary d-flex justify-content-center align-items-center w-50 gap-3'
-        disabled={loadingPDF}
-        onClick={() => exportTemplate()}
-      >
-        {loadingTemplate === false ? (
-          <>
-            <FontAwesomeIcon icon={faDownload} size='lg' />
-            Export Invoice
-          </>
-        ) : (
-          'Exporting...'
-        )}
-      </Button>
+      <Row className='mt-5'>
+        <Col xxl={6} xl={6} md={6} sm={12}>
+          <Button
+            className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3'
+            disabled={loadingPDF}
+            onClick={() => exportTemplate()}
+          >
+            {loadingTemplate === false ? (
+              <>
+                <FontAwesomeIcon icon={faDownload} size='lg' />
+                Export Invoice
+              </>
+            ) : (
+              'Exporting...'
+            )}
+          </Button>
+        </Col>
 
-      <Button
-        className='btn-dark-primary d-flex justify-content-center align-items-center mt-5 w-100 gap-3'
-        onClick={generatePdf}
-      >
-        {loadingPDF === false ? (
-          <>
-            <FontAwesomeIcon icon={faDownload} size='lg' />
-            Download PDF
-          </>
-        ) : (
-          'Generating PDF...'
-        )}
-      </Button>
+        <Col xxl={6} xl={6} md={6} sm={12}>
+          <Button
+            className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3'
+            onClick={generatePdf}
+          >
+            {loadingPDF === false ? (
+              <>
+                <FontAwesomeIcon icon={faDownload} size='lg' />
+                Download PDF
+              </>
+            ) : (
+              'Generating PDF...'
+            )}
+          </Button>
+        </Col>
+      </Row>
     </section>
   )
 }

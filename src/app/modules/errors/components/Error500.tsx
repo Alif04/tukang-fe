@@ -1,56 +1,24 @@
 import {FC} from 'react'
-import {Link} from 'react-router-dom'
 import {toAbsoluteUrl} from '../../../../_metronic/helpers'
+import {Button} from 'react-bootstrap'
 
 const Error500: FC = () => {
+  const handleClick = () => {
+    window.open('https://instalasi.mitra10.com', '_blank')
+  }
+
   return (
-    <div className='d-flex flex-column flex-root'>
-      {/*begin::Authentication - Error 500 */}
-      <div className='d-flex flex-column flex-column-fluid'>
-        {/*begin::Content*/}
-        <div className='d-flex flex-column flex-column-fluid text-center p-10 py-lg-15'>
-          {/*begin::Logo*/}
-          <Link to='/' className='mb-10 pt-lg-10'>
-            <img
-              alt='Logo'
-              src={toAbsoluteUrl('/media/logos/default.svg')}
-              className='h-40px mb-5'
-            />
-          </Link>
-          {/*end::Logo*/}
-          {/*begin::Wrapper*/}
-          <div className='pt-lg-10 mb-10'>
-            {/*begin::Logo*/}
-            <h1 className='fw-bolder fs-2qx text-gray-800 mb-10'>System Error</h1>
-            {/*end::Logo*/}
-            {/*begin::Message*/}
-            <div className='fw-bold fs-3 text-muted mb-15'>
-              Something went wrong!
-              <br />
-              Please try again later.
-            </div>
-            {/*end::Message*/}
-            {/*begin::Action*/}
-            <div className='text-center'>
-              <Link to='/' className='btn btn-lg btn-primary fw-bolder'>
-                Go to homepage
-              </Link>
-            </div>
-            {/*end::Action*/}
-          </div>
-          {/*end::Wrapper*/}
-          {/*begin::Illustration*/}
-          <div
-            className='d-flex flex-row-auto bgi-no-repeat bgi-position-x-center bgi-size-contain bgi-position-y-bottom min-h-100px min-h-lg-350px'
-            style={{
-              backgroundImage: `url('${toAbsoluteUrl('/media/auth/error-500.png')}')`,
-            }}
-          ></div>
-          {/*end::Illustration*/}
-        </div>
-        {/*end::Content*/}
+    <div className='d-flex flex-column flex-root bg-white'>
+      <div className='d-flex flex-column flex-center flex-column-fluid p-10'>
+        <img
+          src={toAbsoluteUrl('/media/tukangin/vector-mitra10.png')}
+          alt='Mitra110 Vector'
+          className='mw-100 mb-10 h-lg-150px'
+        />
+
+        <h1 className='fs-1 fw-bold mb-5'>Maaf, data order tidak ditemukan</h1>
+        <h1 className='fs-5 fw-normal mb-10'>Silahkan konfirmasi kembali data order anda</h1>
       </div>
-      {/*end::Authentication - Error 500*/}
     </div>
   )
 }

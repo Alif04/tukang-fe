@@ -629,6 +629,16 @@ const DetailRefundCS: FC = () => {
             <Row className='mb-5'>
               <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
                 <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Nominal Voucher Konsumen :</Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    readOnly
+                    value={refundDetail ? refundDetail?.approval_number : ''}
+                  />
+                </Form.Group>
+
+                <Form.Group>
                   <Form.Label className='mt-3'>File Pendukung :</Form.Label>
 
                   <ListGroup>

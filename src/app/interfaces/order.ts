@@ -109,3 +109,12 @@ export interface Orders {
   quotation: any[]
   order_history: any
 }
+
+export interface DailyOrder {
+  order_follow_up: Array<{
+    order_id: number | null
+    csi_survey: number
+    csi_work: number
+    description: string
+  }>
+}

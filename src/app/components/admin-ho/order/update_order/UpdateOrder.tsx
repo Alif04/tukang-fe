@@ -2042,7 +2042,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                         <Form.Label className='mt-3'>Bukti Transfer :</Form.Label>
                         <ListGroup>
                           {orderDetail?.quotation[0].quotation_files
-                            .filter((x: any) => x.type === 1)
+                            .filter((x: any) => x.type === 1 || x.type === 3)
                             .map((item: any) => (
                               <ListGroup.Item
                                 key={item.id}
@@ -2053,6 +2053,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                                 }}
                               >
                                 {item.path}
+                                {item.type === 3 ? ' ( Bukti transfer dikirim oleh customer)' : ''}
                               </ListGroup.Item>
                             ))}
                         </ListGroup>
