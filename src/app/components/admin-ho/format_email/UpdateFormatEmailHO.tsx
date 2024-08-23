@@ -464,7 +464,7 @@ const UpdateFormatEmailHO: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Template',
+            text: 'Berhasil Update Template Email',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,

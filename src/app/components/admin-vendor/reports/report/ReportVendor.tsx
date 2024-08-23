@@ -46,7 +46,9 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
 
   const today = new Date()
-  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   let columns: ColumnsType<any> = []
@@ -60,7 +62,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'order_id',
           align: 'center',
           className: 'col_order_id',
-          defaultSortOrder: 'descend',
+          width: 90,
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
@@ -69,7 +71,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'invoice_id',
           align: 'center',
           className: 'col_order_id',
-          defaultSortOrder: 'descend',
+          width: 90,
           sorter: (a, b) => a.invoice_id - b.invoice_id,
         },
         {
@@ -77,6 +79,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'date_order',
           key: 'date_order',
           align: 'left',
+          width: 110,
           sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
         },
         {
@@ -84,6 +87,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'date_invoice',
           key: 'date_invoice',
           align: 'left',
+          width: 120,
           sorter: (a, b) => new Date(a.date_invoice).getTime() - new Date(b.date_invoice).getTime(),
         },
         {
@@ -91,6 +95,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'costumer_name',
           key: 'costumer_name',
           align: 'left',
+          width: 120,
           onFilter: (value, record) => record.costumer_name.includes(String(value)),
           sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
         },
@@ -99,6 +104,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'service_name',
           key: 'service_name',
           align: 'left',
+          width: 120,
           onFilter: (value, record) => record.service_name.includes(String(value)),
           sorter: (a, b) => a.service_name.length - b.service_name.length,
         },
@@ -107,6 +113,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'phone_number',
           key: 'phone_number',
           align: 'left',
+          width: 120,
           onFilter: (value, record) => record.phone_number.includes(String(value)),
           sorter: (a, b) => a.phone_number.length - b.phone_number.length,
         },
@@ -115,12 +122,14 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'grand_total',
           key: 'grand_total',
           align: 'center',
+          width: 120,
           sorter: (a, b) => a.grand_total - b.grand_total,
         },
         {
           title: 'Status Order',
           dataIndex: 'order_status',
           key: 'order_status',
+          width: 120,
           render: (order_status) => {
             const orderStatus = order_status
             return <Tag color='blue'>{orderStatus}</Tag>
@@ -140,7 +149,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'complaint_id',
           align: 'center',
           className: 'text-start',
-          defaultSortOrder: 'descend',
+          width: 90,
           sorter: (a, b) => a.complaint_id - b.complaint_id,
         },
         {
@@ -149,6 +158,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'order_id',
           align: 'center',
           className: 'text-start',
+          width: 90,
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
@@ -157,6 +167,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'date_order',
           align: 'center',
           className: 'text-start',
+          width: 120,
           onFilter: (value, record) => record.date_order.includes(String(value)),
           sorter: (a, b) => a.date_order.length - b.date_order.length,
         },
@@ -166,22 +177,16 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'assign_from',
           align: 'center',
           className: 'text-start',
+          width: 120,
           onFilter: (value, record) => record.assign_from.includes(String(value)),
           sorter: (a, b) => a.assign_from.length - b.assign_from.length,
-        },
-        {
-          title: 'No Member',
-          dataIndex: 'no_member',
-          key: 'no_member',
-          align: 'center',
-          className: 'text-start',
-          sorter: (a, b) => a.no_member - b.no_member,
         },
         {
           title: 'Nama Customer',
           dataIndex: 'costumer_name',
           key: 'costumer_name',
           className: 'text-start',
+          width: 120,
           onFilter: (value, record) => record.costumer_name.includes(String(value)),
           sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
         },
@@ -190,12 +195,14 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'phone_number',
           key: 'phone_number',
           className: 'text-start',
+          width: 120,
           sorter: (a, b) => a.phone_number - b.phone_number,
         },
         {
           title: 'Status Order',
           dataIndex: 'order_status',
           key: 'order_status',
+          width: 120,
           render: (order_status) => {
             const orderStatus = order_status
             return <Tag color='blue'>{orderStatus}</Tag>
@@ -208,6 +215,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           title: 'Work Status',
           dataIndex: 'work_status',
           key: 'work_status',
+          width: 120,
           className: 'col-complaint-date text-start',
           onFilter: (value, record) => record.work_status.includes(String(value)),
           sorter: (a, b) => a.work_status.length - b.work_status.length,
@@ -235,6 +243,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'complaint_date',
           key: 'complaint_date',
           className: 'col-complaint-date text-start',
+          width: 120,
           onFilter: (value, record) => record.complaint_date.includes(String(value)),
           sorter: (a, b) => a.complaint_date.length - b.complaint_date.length,
         },
@@ -243,6 +252,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'complaint_age',
           key: 'complaint_age',
           className: 'col-complaint-date text-start',
+          width: 120,
           onFilter: (value, record) => record.complaint_age.includes(String(value)),
           sorter: (a, b) => a.complaint_age.length - b.complaint_age.length,
         },
@@ -250,6 +260,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           title: 'Status Komplain',
           dataIndex: 'complaint_status',
           key: 'complaint_status',
+          width: 120,
           className: 'col-complaint-status text-start',
           render: (complaint_status) => {
             const complaintStatus = complaint_status
@@ -282,7 +293,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'quotation_id',
           key: 'quotation_id',
           align: 'center',
-          defaultSortOrder: 'descend',
+          width: 90,
           sorter: (a, b) => a.quotation_id - b.quotation_id,
         },
         {
@@ -291,6 +302,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'order_id',
           align: 'center',
           className: 'col_order_id',
+          width: 90,
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
@@ -298,6 +310,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'date_order',
           key: 'date_order',
           align: 'center',
+          width: 120,
           onFilter: (value, record) => record.date_order.includes(String(value)),
           sorter: (a, b) => a.date_order.length - b.date_order.length,
         },
@@ -306,6 +319,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'store_name',
           key: 'store_name',
           align: 'center',
+          width: 120,
           onFilter: (value, record) => record.store_name.includes(String(value)),
           sorter: (a, b) => a.store_name.length - b.store_name.length,
         },
@@ -314,6 +328,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'costumer_name',
           key: 'costumer_name',
           align: 'left',
+          width: 120,
           onFilter: (value, record) => record.costumer_name.includes(String(value)),
           sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
         },
@@ -322,6 +337,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'service_name',
           key: 'service_name',
           align: 'left',
+          width: 120,
           onFilter: (value, record) => record.service_name.includes(String(value)),
           sorter: (a, b) => a.service_name.length - b.service_name.length,
         },
@@ -330,6 +346,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'grand_total_quotation',
           key: 'grand_total_quotation',
           align: 'left',
+          width: 120,
           sorter: (a, b) => a.grand_total_quotation - b.grand_total_quotation,
         },
         {
@@ -337,6 +354,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'payment_status',
           key: 'payment_status',
           align: 'left',
+          width: 120,
           onFilter: (value, record) => record.payment_status.includes(String(value)),
           sorter: (a, b) => a.payment_status.length - b.payment_status.length,
         },
@@ -344,6 +362,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           title: 'Status Order',
           dataIndex: 'order_status',
           key: 'order_status',
+          width: 120,
           className: 'text-start',
           render: (order_status) => {
             const orderStatus = order_status
@@ -364,6 +383,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           align: 'center',
           className: 'col_order_id',
           defaultSortOrder: 'descend',
+          width: 90,
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
@@ -371,6 +391,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'date_order',
           key: 'date_order',
           align: 'center',
+          width: 120,
           onFilter: (value, record) => record.date_order.includes(String(value)),
           sorter: (a, b) => a.date_order.length - b.date_order.length,
         },
@@ -379,6 +400,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'refund_id',
           key: 'refund_id',
           align: 'center',
+          width: 90,
           sorter: (a, b) => a.refund_id - b.refund_id,
         },
         {
@@ -386,6 +408,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'store_name',
           key: 'store_name',
           align: 'center',
+          width: 120,
           onFilter: (value, record) => record.store_name.includes(String(value)),
           sorter: (a, b) => a.store_name.length - b.store_name.length,
         },
@@ -394,6 +417,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'member_name',
           key: 'member_name',
           align: 'left',
+          width: 120,
           onFilter: (value, record) => record.member_name.includes(String(value)),
           sorter: (a, b) => a.member_name.length - b.member_name.length,
         },
@@ -402,6 +426,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'phone_number',
           key: 'phone_number',
           align: 'center',
+          width: 120,
           sorter: (a, b) => a.phone_number - b.phone_number,
         },
         {
@@ -409,6 +434,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'voucher',
           key: 'voucher',
           align: 'center',
+          width: 120,
           onFilter: (value, record) => record.voucher.includes(String(value)),
           sorter: (a, b) => a.voucher.length - b.voucher.length,
         },
@@ -417,20 +443,23 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'penalty_vendor',
           key: 'penalty_vendor',
           align: 'center',
+          width: 120,
           sorter: (a, b) => a.penalty_vendor - b.penalty_vendor,
         },
         {
-          title: 'Status Penalti',
-          dataIndex: 'status_penalty',
-          key: 'status_penalty',
+          title: 'Status Pembayaran Pinalti',
+          dataIndex: 'payment_status_penalty',
+          key: 'payment_status_penalty',
           align: 'center',
-          onFilter: (value, record) => record.status_penalty.includes(String(value)),
-          sorter: (a, b) => a.status_penalty.length - b.status_penalty.length,
+          width: 120,
+          onFilter: (value, record) => record.payment_status_penalty.includes(String(value)),
+          sorter: (a, b) => a.payment_status_penalty.length - b.payment_status_penalty.length,
         },
         {
           title: 'Order Status',
           dataIndex: 'order_status',
           key: 'order_status',
+          width: 120,
           align: 'left',
           render: (order_status) => {
             const orderStatus = order_status
@@ -477,7 +506,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'order_id',
           align: 'center',
           className: 'col_order_id',
-          defaultSortOrder: 'descend',
+          width: 90,
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
@@ -485,6 +514,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'refund_id',
           key: 'refund_id',
           align: 'center',
+          width: 100,
           sorter: (a, b) => a.refund_id - b.refund_id,
         },
         {
@@ -492,6 +522,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'date_order',
           key: 'date_order',
           align: 'center',
+          width: 120,
           onFilter: (value, record) => record.date_order.includes(String(value)),
           sorter: (a, b) => a.date_order.length - b.date_order.length,
         },
@@ -500,6 +531,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'reschedule_date',
           key: 'reschedule_date',
           align: 'center',
+          width: 120,
           onFilter: (value, record) => record.work_date.includes(String(value)),
           sorter: (a, b) => a.work_date.length - b.work_date.length,
         },
@@ -508,6 +540,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'reschedule_date',
           key: 'reschedule_date',
           align: 'center',
+          width: 120,
           onFilter: (value, record) => record.reschedule_date.includes(String(value)),
           sorter: (a, b) => a.reschedule_date.length - b.reschedule_date.length,
         },
@@ -516,6 +549,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'confirm_date',
           key: 'confirm_date',
           align: 'center',
+          width: 120,
           onFilter: (value, record) => record.confirm_date.includes(String(value)),
           sorter: (a, b) => a.confirm_date.length - b.confirm_date.length,
         },
@@ -524,6 +558,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'store_name',
           key: 'store_name',
           align: 'center',
+          width: 120,
           onFilter: (value, record) => record.store_name.includes(String(value)),
           sorter: (a, b) => a.store_name.length - b.store_name.length,
         },
@@ -532,6 +567,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'member_name',
           key: 'member_name',
           align: 'left',
+          width: 120,
           onFilter: (value, record) => record.member_name.includes(String(value)),
           sorter: (a, b) => a.member_name.length - b.member_name.length,
         },
@@ -540,12 +576,14 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'phone_number',
           key: 'phone_number',
           align: 'center',
+          width: 120,
           sorter: (a, b) => a.phone_number - b.phone_number,
         },
         {
           title: 'Status Order',
           dataIndex: 'order_status',
           key: 'order_status',
+          width: 120,
           align: 'left',
           render: (order_status) => {
             const orderStatus = order_status
@@ -592,7 +630,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'invoice_id',
           align: 'center',
           className: 'col_order_id',
-          defaultSortOrder: 'descend',
+          width: 110,
           sorter: (a, b) => a.invoice_id - b.invoice_id,
         },
         {
@@ -601,7 +639,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           key: 'order_id',
           align: 'center',
           className: 'col_order_id',
-          defaultSortOrder: 'descend',
+          width: 110,
           sorter: (a, b) => a.order_id - b.order_id,
         },
         {
@@ -609,6 +647,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'invoice_date',
           key: 'invoice_date',
           align: 'left',
+          width: 120,
           sorter: (a, b) => new Date(a.invoice_date).getTime() - new Date(b.invoice_date).getTime(),
         },
         {
@@ -616,6 +655,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'invoice_status',
           key: 'invoice_status',
           align: 'left',
+          width: 120,
           onFilter: (value, record) => record.invoice_status.includes(String(value)),
           sorter: (a, b) => a.invoice_status.length - b.invoice_status.length,
         },
@@ -624,6 +664,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           dataIndex: 'grand_total',
           key: 'grand_total',
           align: 'center',
+          width: 120,
           sorter: (a, b) => a.grand_total - b.grand_total,
         },
       ]
@@ -703,12 +744,16 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
 
-      let url = `${urlBase}?order_by=desc&take=0&date_from=${dateFrom}&date_to=${dateTo}${vendorId}`
-      // if (statuses && statuses.length) {
-      //   url += `&status=${statuses}`
-      // }
+      let url = `${urlBase}?order_by=desc&take=0${vendorId}`
+
+      if (statuses && statuses?.length) {
+        url += `&status=${statuses}`
+      }
       if (queryparams) {
         url += queryparams
+      }
+      if (dateFrom && dateTo) {
+        url += `&date_from=${dateFrom}&date_to=${dateTo}`
       }
 
       const response = await axios.get(url, {
@@ -772,13 +817,16 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
         ? `${apiUrl}/${endpoint}`
         : `${apiUrl}/reports/${endpoint}`
 
-      let url = `${urlBase}?order_by=desc${vendorId}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${params}`
+      let url = `${urlBase}?order_by=desc${vendorId}&page=${page}&take=${pageSize}${params}`
 
-      // if (statuses.length) {
-      //   url += `&status=${statuses}`
-      // }
+      if (statuses && statuses?.length) {
+        url += `&status=${statuses}`
+      }
       if (queryparams) {
         url += queryparams
+      }
+      if (dateFrom && dateTo) {
+        url += `&date_from=${dateFrom}&date_to=${dateTo}`
       }
 
       const response = await axios.get(url, {
@@ -1007,8 +1055,6 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               minute: 'numeric',
             })
 
-            let paymentStatus = item.orders.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
-
             data = {
               refund_id: item?.id,
               order_id: item?.order_id,
@@ -1019,7 +1065,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               phone_number: item?.orders?.project_number,
               voucher: item?.voucher ?? '-',
               penalty_vendor: `Rp. ${parseInt(item?.penalty_nominal).toLocaleString('id')}` ?? 0,
-              payment_status: paymentStatus,
+              payment_status_penalty: item?.paid_status === 1 ? 'PAID' : 'UNPAID',
               order_status: item?.status?.description,
             }
 
@@ -1284,10 +1330,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           <RangePicker
             format={'DD-MM-YYYY'}
             className='date-range'
-            defaultValue={[
-              dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-              dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
-            ]}
+            defaultValue={[dayjs().subtract(30, 'day'), dayjs()]}
             onChange={(values) => {
               if (values && values.length === 2) {
                 const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -1372,7 +1415,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
                 tip='Loading...'
                 spinning={loadData}
                 size='large'
-                indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+                indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
               >
                 <div className='table-custom-wrapper'>
                   <Table

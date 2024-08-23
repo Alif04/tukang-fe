@@ -37,6 +37,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     store_id: null,
     project_status_id: null,
     request_survey: '',
+    request_work: '',
     vendor_id: null,
     tukang_id: null,
     notes: '',
@@ -146,8 +147,27 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'TUKANGWORK', 'WORKSTART'])
-  const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
+  const workStatuses = getStatuses([
+    'WORKREQ',
+    'TUKANGWORK',
+    'WORKSTART',
+    'WORKREQSTEPONE',
+    'WORKREQSTEPTWO',
+    'WORKREQSTEPTHREE',
+    'WORKSTARTSTEPONE',
+    'WORKSTARTSTEPTWO',
+    'WORKSTARTSTEPTHREE',
+    'TUKANGWORKSTEPONE',
+    'TUKANGWORKSTEPTWO',
+    'TUKANGWORKSTEPTHREE',
+  ])
+  const workDoneStatuses = getStatuses([
+    'WORKEND',
+    'DONE',
+    'WORKENDSTEPONE',
+    'WORKENDSTEPTWO',
+    'WORKENDSTEPTHREE',
+  ])
 
   const orderHistory = [
     {title: 'Booking Process', value: bookStatuses},
@@ -224,28 +244,6 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   }
 
   // Export PDF Quotation
-  const exportToPDF = (order_id: number) => {
-    axios
-      .get(`${apiUrl}/orders/quotation-pdf/${order_id}`, {
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      })
-      .then((response) => {
-        const url = window.URL.createObjectURL(new Blob([response.data]))
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', `Quotation - Order ID ${order_id}.pdf`)
-        document.body.appendChild(link)
-        link.click()
-      })
-      .catch((error: any) => {
-        Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
-      })
-  }
-
   const generatePdf = (order_id: any, receipt_quotation: any, customer_name: any) => {
     setLoadingPDF(true)
 
@@ -277,6 +275,29 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
         Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
       })
   }
+
+  // Payment Stage
+  const [paymentStages, setPaymentStages] = useState([
+    {stage: 'Tahap 1', percentage: '25%', amount: 0},
+    {stage: 'Tahap 2', percentage: '50%', amount: 0},
+    {stage: 'Tahap 3', percentage: '25%', amount: 0},
+  ])
+
+  const calculatePaymentStages = (grandTotal: number) => {
+    const stage1 = grandTotal * 0.25
+    const stage2 = grandTotal * 0.5
+    const stage3 = grandTotal * 0.25
+
+    setPaymentStages([
+      {stage: 'Tahap 1', percentage: '25%', amount: stage1},
+      {stage: 'Tahap 2', percentage: '50%', amount: stage2},
+      {stage: 'Tahap 3', percentage: '25%', amount: stage3},
+    ])
+  }
+
+  useEffect(() => {
+    calculatePaymentStages(order?.quotation?.[0]?.quotation_grand_total)
+  }, [order?.quotation?.[0]?.quotation_grand_total])
 
   return (
     <section id='detail-order'>
@@ -334,14 +355,15 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       <span className='fs-4 ms-2 fw-normal'>{order?.receipt_number ?? '-'}</span>
                     </Form.Label>
 
-                    {order?.quotation[0]?.receipt_quotation && (
-                      <Form.Label className='fs-4 fw-bold'>
-                        Receipt Quotation :
-                        <span className='fs-4 ms-2 fw-normal'>
-                          {order?.quotation[0]?.receipt_quotation ?? '-'}
-                        </span>
-                      </Form.Label>
-                    )}
+                    {order?.quotation[0]?.receipt_quotation &&
+                      order?.quotation[0]?.quotation_special === 0 && (
+                        <Form.Label className='fs-4 fw-bold'>
+                          Receipt Quotation :
+                          <span className='fs-4 ms-2 fw-normal'>
+                            {order?.quotation[0]?.receipt_quotation ?? '-'}
+                          </span>
+                        </Form.Label>
+                      )}
                   </Skeleton>
                 </Col>
 
@@ -459,7 +481,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             </Row>
           </div>
 
-          <Row className='table-warranty d-flex align-items-center mb-5'>
+          <Row className='table-warranty d-flex align-items-center mb-3'>
             <div className='table-title-warranty'>
               <Skeleton active loading={isLoadingPage} paragraph={{rows: 2}}>
                 <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
@@ -467,9 +489,13 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 <Row>
                   <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                     <Form.Label column>
-                      {order?.payment_type === 'survey'
-                        ? 'Tanggal request survey :'
-                        : 'Tanggal request pemasangan :'}
+                      {(() => {
+                        if (order?.payment_type === 'survey') {
+                          return `Tanggal Request Survey`
+                        } else {
+                          return `Tanggal request pemasangan`
+                        }
+                      })()}
                     </Form.Label>
                     <Col>
                       <p className='fs-7 p-0'>
@@ -481,6 +507,23 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       </p>
                     </Col>
                   </Form.Group>
+
+                  {order?.payment_type === 'survey' && (
+                    <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                      <Form.Label column>Tanggal request pemasangan</Form.Label>
+                      <Col>
+                        <p className='fs-7 p-0'>
+                          {order?.request_work
+                            ? new Date(order?.request_work).toLocaleDateString('id-ID', {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                              })
+                            : 'Tanggal belum diset oleh toko'}
+                        </p>
+                      </Col>
+                    </Form.Group>
+                  )}
 
                   <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                     <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
@@ -545,14 +588,12 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
                         <tbody>
                           {order?.order_details.map((item: any, index: any) => (
-                            <>
-                              <tr key={`${index} - order_detail`}>
-                                <td>{item?.item_code}</td>
-                                <td>{item?.item_name}</td>
-                                <td>{item?.item_notes}</td>
-                                <td>{item?.quantity ?? 0}</td>
-                              </tr>
-                            </>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item_notes}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                            </tr>
                           ))}
 
                           <tr>
@@ -637,45 +678,216 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 } else if (order?.quotation?.length >= 1 && order?.payment_type === 'survey') {
                   return (
                     <div className='table-warranty-content'>
-                      <table className='table hover responsive'>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th className='text-center' style={{width: '355px'}}>
-                              Jenis Jasa
-                            </th>
+                      {order?.quotation?.[0]?.quotation_special === 0 ? (
+                        <table className='table hover responsive'>
+                          <thead className='table-warranty-head'>
+                            <tr>
+                              <th className='text-center' style={{width: '355px'}}>
+                                Jenis Jasa
+                              </th>
 
-                            <th className='text-center' style={{width: '100px'}}>
-                              QTY
-                            </th>
+                              <th className='text-center' style={{width: '100px'}}>
+                                QTY
+                              </th>
 
-                            <th className='text-center' style={{width: '250px'}}>
-                              Satuan
-                            </th>
+                              <th className='text-center' style={{width: '250px'}}>
+                                Satuan
+                              </th>
 
-                            <th className='text-center' style={{width: '250px'}}>
-                              Final Price
-                            </th>
-                          </tr>
-                        </thead>
+                              <th className='text-center' style={{width: '250px'}}>
+                                Final Price
+                              </th>
+                            </tr>
+                          </thead>
 
-                        <tbody>
-                          {order?.quotation[0]?.quotation_details
-                            .filter((x: any) => x.item_type === 2)
-                            .map((item: any, index: any) => (
-                              <tr key={`${index}-quotation`}>
-                                <td>
-                                  {item?.name ?? '-'}{' '}
-                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                                </td>
-                                <td>{item?.quantity ?? 0}</td>
-                                <td>{item?.unit}</td>
-                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
-                                  'id'
-                                )}`}</td>
+                          <tbody>
+                            {order?.quotation[0]?.quotation_details
+                              .filter((x: any) => x.item_type === 2)
+                              .map((item: any, index: any) => (
+                                <tr key={`${index}-quotation`}>
+                                  <td>
+                                    {item?.name ?? '-'}{' '}
+                                    {item?.is_customer === true
+                                      ? '( Disediakan oleh customer )'
+                                      : ''}
+                                  </td>
+                                  <td>{item?.quantity ?? 0}</td>
+                                  <td>{item?.unit}</td>
+                                  <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <>
+                          <div className='fs-6 fw-bold mb-2'>Jasa Pemasangan Tahap 1</div>
+
+                          {order?.quotation[0]?.quotation_receipt[0]?.receipt_quotation &&
+                            order?.quotation[0]?.quotation_special === 1 && (
+                              <div className='fs-6 fw-bold'>
+                                Receipt Quotation Tahap 1 :{' '}
+                                <span className='fs-6 fw-semibold'>
+                                  {order?.quotation[0]?.quotation_receipt[0]?.receipt_quotation ??
+                                    '-'}
+                                </span>
+                              </div>
+                            )}
+
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Final Price
+                                </th>
                               </tr>
-                            ))}
-                        </tbody>
-                      </table>
+                            </thead>
+
+                            <tbody>
+                              {order?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2 && x.work_step === 1)
+                                .map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                    <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                      'id'
+                                    )}`}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
+
+                          {order?.quotation[0]?.quotation_receipt[1]?.receipt_quotation &&
+                            order?.quotation[0]?.quotation_special === 1 && (
+                              <div className='fs-6 fw-bold'>
+                                Receipt Quotation Tahap 1 :{' '}
+                                <span className='fs-6 fw-semibold'>
+                                  {order?.quotation[0]?.quotation_receipt[1]?.receipt_quotation ??
+                                    '-'}
+                                </span>
+                              </div>
+                            )}
+
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Final Price
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {order?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2 && x.work_step === 2)
+                                .map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                    <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                      'id'
+                                    )}`}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
+
+                          {order?.quotation[0]?.quotation_receipt[2]?.receipt_quotation &&
+                            order?.quotation[0]?.quotation_special === 1 && (
+                              <div className='fs-6 fw-bold'>
+                                Receipt Quotation Tahap 1 :{' '}
+                                <span className='fs-6 fw-semibold'>
+                                  {order?.quotation[0]?.quotation_receipt[2]?.receipt_quotation ??
+                                    '-'}
+                                </span>
+                              </div>
+                            )}
+
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Final Price
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {order?.quotation[0]?.quotation_details
+                                .filter((x: any) => x.item_type === 2 && x.work_step === 3)
+                                .map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                    <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                      'id'
+                                    )}`}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </>
+                      )}
 
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
@@ -821,24 +1033,22 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         </thead>
                         <tbody>
                           {order?.order_details.map((item: any, index: any) => (
-                            <>
-                              <tr key={`${index} - order_detail`}>
-                                <td>{item?.item_code}</td>
-                                <td>{item?.item_name}</td>
-                                <td>{item?.item?.service_name}</td>
-                                <td>{item?.quantity ?? 0}</td>
-                                {!(order?.payment_type === 'gratis') && (
-                                  <>
-                                    <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                      'id'
-                                    )}`}</td>
-                                    <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                      'id'
-                                    )}`}</td>
-                                  </>
-                                )}
-                              </tr>
-                            </>
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item?.service_name}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                              {!(order?.payment_type === 'gratis') && (
+                                <>
+                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
+                                    'id'
+                                  )}`}</td>
+                                </>
+                              )}
+                            </tr>
                           ))}
 
                           {order?.is_overdistance === 1 && (
@@ -879,25 +1089,39 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
             </Skeleton>
           </Row>
 
-          <Row>
-            <Col>
-              <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
-                <Row className='information-detail'>
-                  <div className='fs-3 fw-bold'>Catatan Toko</div>
+          {order?.quotation?.[0]?.quotation_special === 1 && (
+            <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+              <Row className='information-detail mb-3'>
+                <Col>
+                  <div className='fs-3 fw-bold'>Preview Pembayaran</div>
 
-                  <div className='detail-info mb-3'>
-                    <p className='fs-7 p-0'>
-                      {order?.notes !== '' ? (
-                        <p className='fs-7'>{order?.notes}</p>
-                      ) : (
-                        <p className='fs-7'>Toko tidak memberikan catatan</p>
-                      )}
-                    </p>
-                  </div>
-                </Row>
-              </Skeleton>
-            </Col>
-          </Row>
+                  <table className='table hover responsive'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th>Tahap Pembayaran</th>
+                        <th>Persentase</th>
+                        <th>Nominal Pembayaran</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {paymentStages.map((stage, index) => (
+                        <tr key={index}>
+                          <td>{stage.stage}</td>
+                          <td>{stage.percentage}</td>
+                          <td>{`${stage.amount.toLocaleString('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR',
+                            minimumFractionDigits: 0,
+                          })}`}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
+            </Skeleton>
+          )}
 
           <Row>
             <Col>
@@ -960,24 +1184,20 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     <div className='detail-info mb-3'>
                       <p className='fs-5 fw-bold'>Sesi:</p>
 
-                      {order?.payment_type === 'survey' ? (
-                        <>
-                          {order?.work_orders?.work_order_status.length ? (
-                            <p className='fs-7'>
-                              {order?.work_orders?.session === 1
-                                ? 'Sesi Pagi'
-                                : order?.work_orders?.session === 2
-                                ? 'Sesi Siang'
-                                : order?.work_orders?.session === 3
-                                ? 'Sesi Sore'
-                                : 'Sesi belum ditentukan oleh vendor'}
-                            </p>
-                          ) : (
-                            <p className='fs-7'>Sesi belum ditentukan oleh vendor</p>
-                          )}
-                        </>
+                      {order?.work_orders?.work_order_status.length ? (
+                        <p className='fs-7'>
+                          {order?.work_orders?.session === 1
+                            ? 'Sesi Pagi'
+                            : order?.work_orders?.session === 2
+                            ? 'Sesi Siang'
+                            : order?.work_orders?.session === 3
+                            ? 'Sesi Sore'
+                            : order?.work_orders?.session === 4
+                            ? 'Sesi Malam'
+                            : 'Sesi belum ditentukan oleh vendor'}
+                        </p>
                       ) : (
-                        <p className='fs-7'>Order ini tanpa survey</p>
+                        <p className='fs-7'>Sesi belum ditentukan oleh vendor</p>
                       )}
                     </div>
                   </div>
@@ -1055,26 +1275,60 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                     <div className='detail-info mb-3'>
                       <p className='fs-5 fw-bold'>Sesi:</p>
 
-                      {order?.payment_type === 'survey' ? (
-                        <>
-                          {order?.work_orders?.work_order_status.length ? (
-                            <p className='fs-7'>
-                              {order?.work_orders?.session === 1
-                                ? 'Sesi Pagi'
-                                : order?.work_orders?.session === 2
-                                ? 'Sesi Siang'
-                                : order?.work_orders?.session === 3
-                                ? 'Sesi Sore'
-                                : 'Sesi belum ditentukan oleh vendor'}
-                            </p>
-                          ) : (
-                            <p className='fs-7'>Sesi belum ditentukan oleh vendor</p>
-                          )}
-                        </>
+                      {order?.work_orders?.work_order_status.length ? (
+                        <p className='fs-7'>
+                          {order?.work_orders?.session === 1
+                            ? 'Sesi Pagi'
+                            : order?.work_orders?.session === 2
+                            ? 'Sesi Siang'
+                            : order?.work_orders?.session === 3
+                            ? 'Sesi Sore'
+                            : order?.work_orders?.session === 4
+                            ? 'Sesi Malam'
+                            : 'Sesi belum ditentukan oleh vendor'}
+                        </p>
                       ) : (
-                        <p className='fs-7'>Order ini tanpa survey</p>
+                        <p className='fs-7'>Sesi belum ditentukan oleh vendor</p>
                       )}
                     </div>
+                  </div>
+                </Row>
+              </Skeleton>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+                <Row className='information-detail'>
+                  <div className='fs-3 fw-bold'>Catatan Order</div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Catatan Toko :</p>
+
+                    <p className='fs-7'>
+                      {order.notes ? order.notes : 'Toko tidak memberikan catatan'}
+                    </p>
+                  </div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Catatan Tukang :</p>
+
+                    <p className='fs-7'>
+                      {order?.work_orders?.work_order_status[0]?.description
+                        ? order?.work_orders?.work_order_status[0]?.description
+                        : 'Tukang tidak memberikan catatan'}
+                    </p>
+                  </div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Intruksi Spesial :</p>
+
+                    <p className='fs-7'>
+                      {order?.quotation[0]?.description
+                        ? order?.quotation[0]?.description
+                        : 'Vendor tidak memberikan catatan'}
+                    </p>
                   </div>
                 </Row>
               </Skeleton>
@@ -1198,7 +1452,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 <Form.Label className='mt-3'>Bukti Transfer Quotation :</Form.Label>
                 <ListGroup>
                   {order?.quotation[0]?.quotation_files
-                    .filter((x: any) => x.type === 1)
+                    .filter((x: any) => x.type === 1 || x.type === 3)
                     .map((item: any) => (
                       <ListGroup.Item
                         key={item.id}
@@ -1210,6 +1464,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         }}
                       >
                         {item.path}
+                        {item.type === 3 ? ' ( Bukti transfer dikirim oleh customer)' : ''}
                       </ListGroup.Item>
                     ))}
                 </ListGroup>
@@ -1383,7 +1638,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       {order?.complaints && order?.complaints?.length > 0 && (
         <Card className='mt-5'>
           <Card.Header>
-            <Card.Title>Complaint History</Card.Title>
+            <Card.Title className='fw-bold'>Complaint History</Card.Title>
           </Card.Header>
 
           <Card.Body>
@@ -1473,167 +1728,194 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
       {order?.reschedule && order?.reschedule?.length > 0 && (
         <Card className='mt-5'>
           <Card.Header>
-            <Card.Title>Reschedule History</Card.Title>
+            <Card.Title className='fw-bold'>Reschedule History</Card.Title>
           </Card.Header>
 
           <Card.Body>
-            <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-              <Row className='mb-5'>
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Tanggal Konfirmasi Awal Vendor :</Form.Label>
+            {order.reschedule.map((item: any, index: number) => (
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                <Card className='mb-5'>
+                  <Card.Header>
+                    <Card.Title className='fs-5'>Reschedule History #{index + 1}</Card.Title>
+                  </Card.Header>
 
-                    <p className='fs-6'>
-                      {order?.work_orders
-                        ? order.work_orders.work_start_date && order.work_orders.work_end_date
-                          ? `${new Date(order.work_orders.work_start_date).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric',
-                                hour: 'numeric',
-                                minute: 'numeric',
-                              }
-                            )} sampai ${new Date(
-                              order.work_orders.work_end_date
-                            ).toLocaleDateString('id-ID', {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
-                              hour: 'numeric',
-                              minute: 'numeric',
-                            })}`
-                          : order.work_orders.survey_date
-                          ? new Date(order.work_orders.survey_date).toLocaleDateString('id-ID', {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
-                              hour: 'numeric',
-                              minute: 'numeric',
-                            })
-                          : 'Tanggal belum dikonfirmasi vendor'
-                        : 'Tanggal belum dikonfirmasi vendor'}
-                    </p>
-                  </Form.Group>
-                </Col>
+                  <Card.Body>
+                    <Row className='mb-5'>
+                      <Col>
+                        <Form.Group>
+                          <Form.Label>Tanggal Konfirmasi Awal Vendor :</Form.Label>
 
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
+                          <p className='fs-6'>
+                            {order?.work_orders
+                              ? order.work_orders.work_start_date && order.work_orders.work_end_date
+                                ? `${new Date(order.work_orders.work_start_date).toLocaleDateString(
+                                    'id-ID',
+                                    {
+                                      day: '2-digit',
+                                      month: 'long',
+                                      year: 'numeric',
+                                      hour: 'numeric',
+                                      minute: 'numeric',
+                                    }
+                                  )} sampai ${new Date(
+                                    order.work_orders.work_end_date
+                                  ).toLocaleDateString('id-ID', {
+                                    day: '2-digit',
+                                    month: 'long',
+                                    year: 'numeric',
+                                    hour: 'numeric',
+                                    minute: 'numeric',
+                                  })}`
+                                : order.work_orders.survey_date
+                                ? new Date(order.work_orders.survey_date).toLocaleDateString(
+                                    'id-ID',
+                                    {
+                                      day: '2-digit',
+                                      month: 'long',
+                                      year: 'numeric',
+                                      hour: 'numeric',
+                                      minute: 'numeric',
+                                    }
+                                  )
+                                : 'Tanggal belum dikonfirmasi vendor'
+                              : 'Tanggal belum dikonfirmasi vendor'}
+                          </p>
+                        </Form.Group>
+                      </Col>
 
-                    <p className='fs-6'>
-                      {order?.reschedule[0]?.reschedule_date
-                        ? `${new Date(order?.reschedule[0]?.reschedule_date).toLocaleDateString(
-                            'id-ID',
-                            {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
-                            }
-                          )}`
-                        : 'Tanggal belum ditentukan vendor'}
-                    </p>
-                  </Form.Group>
-                </Col>
+                      <Col>
+                        <Form.Group>
+                          <Form.Label>Tanggal Pengajuan Reschedule :</Form.Label>
 
-                <Col>
-                  <Form.Group>
-                    <Form.Label>Tanggal Konfirmasi Vendor :</Form.Label>
+                          <p className='fs-6'>
+                            {item?.reschedule_date
+                              ? `${new Date(item?.reschedule_date).toLocaleDateString('id-ID', {
+                                  day: '2-digit',
+                                  month: 'long',
+                                  year: 'numeric',
+                                  hour: 'numeric',
+                                  minute: 'numeric',
+                                })}`
+                              : 'Tanggal belum ditentukan vendor'}
+                          </p>
+                        </Form.Group>
+                      </Col>
 
-                    <p className='fs-6'>
-                      {order?.reschedule[0]?.confirm_date
-                        ? `${new Date(order?.reschedule[0]?.confirm_date).toLocaleDateString(
-                            'id-ID',
-                            {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
-                              hour: 'numeric',
-                              minute: 'numeric',
-                            }
-                          )}`
-                        : 'Tanggal belum ditentukan vendor'}
-                    </p>
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Skeleton>
+                      <Col>
+                        <Form.Group>
+                          <Form.Label>Tanggal Konfirmasi Vendor :</Form.Label>
 
-            <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-              <Row className='mb-5'>
-                <Col>
-                  <Form.Label className='mt-3'>Bukti File :</Form.Label>
-                  <ListGroup>
-                    {order?.reschedule?.[0]?.reschedule_evidences?.map((item: any) => (
-                      <ListGroup.Item
-                        key={item.id}
-                        action
-                        style={{cursor: 'pointer'}}
-                        onClick={() => {
-                          setPreviewImage(item.evidence_location)
-                          setVisibleReschedule(true)
-                        }}
-                      >
-                        {item.evidence_location}
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
+                          <p className='fs-6'>
+                            {item?.confirm_date
+                              ? `${new Date(item?.confirm_date).toLocaleDateString('id-ID', {
+                                  day: '2-digit',
+                                  month: 'long',
+                                  year: 'numeric',
+                                  hour: 'numeric',
+                                  minute: 'numeric',
+                                })}`
+                              : 'Tanggal belum ditentukan vendor'}
+                          </p>
+                        </Form.Group>
+                      </Col>
+                    </Row>
 
-                  {previewImage && (
-                    <div>
-                      {previewImage.endsWith('.pdf') ? (
-                        <>
-                          <Modal
-                            dialogClassName='modal-show-pdf'
-                            centered
-                            show={visible}
-                            onHide={handleClose}
-                          >
-                            <Modal.Header closeButton>
-                              <Modal.Title>File - {previewImage}</Modal.Title>
-                            </Modal.Header>
+                    <Row className='mb-5'>
+                      <Col>
+                        <Form.Group>
+                          <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
 
-                            <Modal.Body>
-                              <iframe
+                          <p className='fs-6'>
+                            {item?.reschedule_date
+                              ? `${new Date(item?.reschedule_date).toLocaleDateString('id-ID', {
+                                  day: '2-digit',
+                                  month: 'long',
+                                  year: 'numeric',
+                                })}`
+                              : 'Tanggal belum ditentukan vendor'}
+                          </p>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+
+                    <Row className='mb-5'>
+                      <Col>
+                        <Form.Label className='mt-3'>Bukti File :</Form.Label>
+                        <ListGroup>
+                          {item?.reschedule_evidences?.map((item: any) => (
+                            <ListGroup.Item
+                              key={item.id}
+                              action
+                              style={{cursor: 'pointer'}}
+                              onClick={() => {
+                                setPreviewImage(item.evidence_location)
+                                setVisibleReschedule(true)
+                              }}
+                            >
+                              {item.evidence_location}
+                            </ListGroup.Item>
+                          ))}
+                        </ListGroup>
+
+                        {previewImage && (
+                          <div>
+                            {previewImage.endsWith('.pdf') ? (
+                              <>
+                                <Modal
+                                  dialogClassName='modal-show-pdf'
+                                  centered
+                                  show={visible}
+                                  onHide={handleClose}
+                                >
+                                  <Modal.Header closeButton>
+                                    <Modal.Title>File - {previewImage}</Modal.Title>
+                                  </Modal.Header>
+
+                                  <Modal.Body>
+                                    <iframe
+                                      key={previewImage}
+                                      width='100%'
+                                      height='100%'
+                                      src={`${apiUrl}/public/reschedule/${previewImage}`}
+                                      style={{border: 'none'}}
+                                    />
+                                  </Modal.Body>
+                                </Modal>
+                              </>
+                            ) : (
+                              <Image
                                 key={previewImage}
-                                width='100%'
-                                height='100%'
+                                width={200}
+                                style={{display: 'none'}}
                                 src={`${apiUrl}/public/reschedule/${previewImage}`}
-                                style={{border: 'none'}}
+                                preview={{
+                                  visible: visibleReschedule,
+                                  src: `${apiUrl}/public/reschedule/${previewImage}`,
+                                  onVisibleChange: (value) => {
+                                    setVisibleReschedule(value)
+                                  },
+                                }}
                               />
-                            </Modal.Body>
-                          </Modal>
-                        </>
-                      ) : (
-                        <Image
-                          key={previewImage}
-                          width={200}
-                          style={{display: 'none'}}
-                          src={`${apiUrl}/public/reschedule/${previewImage}`}
-                          preview={{
-                            visible: visibleReschedule,
-                            src: `${apiUrl}/public/reschedule/${previewImage}`,
-                            onVisibleChange: (value) => {
-                              setVisibleReschedule(value)
-                            },
-                          }}
-                        />
-                      )}
-                    </div>
-                  )}
-                </Col>
-              </Row>
-            </Skeleton>
+                            )}
+                          </div>
+                        )}
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
+              </Skeleton>
+            ))}
           </Card.Body>
         </Card>
       )}
 
       <Card className='mt-5'>
+        <Card.Header>
+          <Card.Title className='fw-bold'>Order History</Card.Title>
+        </Card.Header>
+
         <Card.Body>
           <div className='work-order-history'>
-            <h1 className='title fw-bold mb-5'>Order History</h1>
-
             <Steps
               progressDot
               current={orderHistorical.length - 1}

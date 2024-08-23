@@ -45,6 +45,7 @@ const {RangePicker} = DatePicker
 
 interface DataType {
   order_id: number
+  store_id: number
   date_order: Date
   assign_from: string
   vendor_name: string
@@ -72,6 +73,10 @@ interface VendorItem {
 interface Order {
   id: number | null
   project_status_id: number | null
+  store_id: number | null
+  request_survey: string
+  request_work: string
+  notes: string
   order_details: Array<{
     id: number | null
     item_id: number | null
@@ -94,6 +99,7 @@ interface Quotation {
   order_id: number | null
   store_id: number | null
   quotation_status: number | null
+  quotation_special: number
   description: string
   quotation_number: string
   quotation_date: string
@@ -103,6 +109,11 @@ interface Quotation {
   quotation_grand_total: number
   readiness: number
   receipt_quotation: string
+  receipts_quotation: Array<{
+    index: number
+    receipt_quotation: string
+    quotation_step: number
+  }>
   quotation_details: Array<{
     id: number | null
     index: string
@@ -120,6 +131,7 @@ interface Quotation {
     margin_type: number
     quantity: number
     is_user: number
+    work_step?: number
   }>
 }
 
@@ -142,6 +154,7 @@ const ViewOrders: FC = () => {
   const [mailLogs, setMailLogs] = useState<any>()
   const [orderDetail, setOrderDetail] = useState<any>()
   const [orderData, setOrderData] = useState<DataType[]>([])
+  const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(50)
@@ -170,8 +183,9 @@ const ViewOrders: FC = () => {
     label: 'All Store',
   })
 
-  const [vendor, setVendor] = useState<VendorItem[]>([])
-  const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendor]
+  const [vendor, setVendor] = useState<any[]>([])
+  const [vendorSelect, setVendorSelect] = useState<VendorItem[]>([])
+  const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendorSelect]
   const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorItem>>({
     value: null,
     label: 'All Vendor',
@@ -196,6 +210,10 @@ const ViewOrders: FC = () => {
   const [orderForm, setOrderForm] = useState<Order>({
     id: null,
     project_status_id: null,
+    store_id: null,
+    request_survey: '',
+    request_work: '',
+    notes: '',
     order_details: [
       {
         id: null,
@@ -238,7 +256,19 @@ const ViewOrders: FC = () => {
               ...prev,
               id: data?.id ?? null,
               project_status_id: data?.project_status_id ?? null,
+              store_id: data?.store?.id ?? null,
+              notes: data?.notes ?? '',
+              request_survey: new Date(data.request_survey).toISOString().split('T')[0] ?? '',
             }))
+          }
+
+          if (data?.order_files) {
+            const initialOrderFilesValues = data.order_files.map((item: any) => ({
+              id: item.id,
+              name: item.path,
+            }))
+
+            setReceiptFiles(initialOrderFilesValues)
           }
 
           if (data?.order_details) {
@@ -251,17 +281,18 @@ const ViewOrders: FC = () => {
                   item_name: item?.item_name ?? '',
                   category_id: item?.item?.category.id,
                   default_price: item?.item?.default_price,
-                  prices: [
-                    {
-                      id: item?.item?.prices[0].id,
-                      item_id: item?.item?.prices[0]?.item_id,
-                      store_id: item?.item?.prices[0]?.store_id,
-                      periodic_start: item?.item?.prices[0]?.periodic_start,
-                      periodic_end: item?.item?.prices[0]?.periodic_end,
-                      price: item?.item?.prices[0]?.price,
-                      min_order: item?.item?.prices[0]?.min_order,
-                    },
-                  ],
+                  prices:
+                    item?.item?.prices?.length > 0
+                      ? item?.item?.prices.map((price: any) => ({
+                          id: price?.id,
+                          item_id: price?.item_id,
+                          store_id: price?.store_id,
+                          periodic_start: price?.periodic_start,
+                          periodic_end: price?.periodic_end,
+                          price: price?.price,
+                          min_order: price?.min_order,
+                        }))
+                      : [],
                 }
 
                 return {
@@ -302,6 +333,7 @@ const ViewOrders: FC = () => {
                 margin_type: item?.margin_type ?? 1,
                 quantity: item?.quantity ?? 0,
                 is_user: item?.is_customer === true ? 1 : 0,
+                work_step: item?.work_step ?? 0,
               })
             )
 
@@ -311,6 +343,7 @@ const ViewOrders: FC = () => {
               order_id: data?.quotation[0]?.order_id,
               store_id: data?.quotation[0]?.store_id,
               quotation_status: data?.quotation[0]?.quotation_status,
+              quotation_special: data?.quotation[0]?.quotation_special,
               description: data?.quotation[0]?.description,
               quotation_number: data?.quotation[0]?.quotation_number,
               quotation_date: data?.quotation[0]?.quotation_date,
@@ -321,6 +354,26 @@ const ViewOrders: FC = () => {
               readiness: data?.quotation[0]?.readiness,
               receipt_quotation: data?.quotation[0]?.receipt_quotation,
               quotation_details: quotationDetails,
+              receipts_quotation: [
+                {
+                  index: 123,
+                  receipt_quotation:
+                    data?.quotation[0]?.quotation_receipt[0]?.receipt_quotation ?? '',
+                  quotation_step: 1,
+                },
+                {
+                  index: 345,
+                  receipt_quotation:
+                    data?.quotation[0]?.quotation_receipt[1]?.receipt_quotation ?? '',
+                  quotation_step: 2,
+                },
+                {
+                  index: 678,
+                  receipt_quotation:
+                    data?.quotation[0]?.quotation_receipt[2]?.receipt_quotation ?? '',
+                  quotation_step: 3,
+                },
+              ],
             }))
           }
 
@@ -375,9 +428,11 @@ const ViewOrders: FC = () => {
     }
   }
 
-  const getVendor = async () => {
+  const getVendor = async (store_id?: number | null) => {
+    const storeId = store_id !== null ? `&store_id=${store_id}` : ''
+
     try {
-      const response = await axios.get(`${apiUrl}/vendor?take=0`, {
+      const response = await axios.get(`${apiUrl}/vendor?take=0${storeId}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -392,7 +447,8 @@ const ViewOrders: FC = () => {
           label: item.company_name,
         }))
 
-        setVendor(tempVendor)
+        setVendor(response.data.data)
+        setVendorSelect(tempVendor)
       } else {
         console.error('API response data is not an array:', response.data)
       }
@@ -430,7 +486,7 @@ const ViewOrders: FC = () => {
   useEffect(() => {
     fetchOrderData(null)
     getStore()
-    getVendor()
+    getVendor(null)
     getCSI()
   }, [])
 
@@ -456,6 +512,7 @@ const ViewOrders: FC = () => {
     order_id: null,
     store_id: null,
     quotation_status: null,
+    quotation_special: 0,
     description: '',
     quotation_number: '',
     quotation_date: '',
@@ -465,6 +522,11 @@ const ViewOrders: FC = () => {
     quotation_grand_total: 0,
     readiness: 1,
     receipt_quotation: '',
+    receipts_quotation: [
+      {index: 123, receipt_quotation: '', quotation_step: 1},
+      {index: 345, receipt_quotation: '', quotation_step: 2},
+      {index: 678, receipt_quotation: '', quotation_step: 3},
+    ],
     quotation_details: [
       {
         id: null,
@@ -505,6 +567,25 @@ const ViewOrders: FC = () => {
     ],
   })
 
+  const quotationSpecialStatus = (() => {
+    if (quotation.quotation_special === 1) {
+      const receipts =
+        quotation?.receipts_quotation?.map((receipt: any) => receipt?.receipt_quotation) || []
+
+      switch (true) {
+        case receipts[0] !== null && receipts[1] === null && receipts[2] === null:
+          return statusData.find((status: any) => status.category === 'QUOTATIONPAIDSTEPONE')
+        case receipts[0] !== null && receipts[1] !== null && receipts[2] === null:
+          return statusData.find((status: any) => status.category === 'QUOTATIONPAIDSTEPTWO')
+        case receipts[0] !== null && receipts[1] !== null && receipts[2] !== null:
+          return statusData.find((status: any) => status.category === 'QUOTATIONPAIDSTEPTHREE')
+        default:
+          return null
+      }
+    }
+    return null
+  })()
+
   // Quotation Files
   const [receiptQuotation, setReceiptQuotation] = useState<Array<File | null>>([])
   const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
@@ -520,13 +601,41 @@ const ViewOrders: FC = () => {
   const [visible, setVisible] = useState(false)
 
   // Upload Order File Handler
-  const inputRef = useRef<HTMLInputElement>(null)
+  const singleReceipt = useRef<HTMLInputElement>(null)
+  const notes = useRef<HTMLInputElement>(null)
+  const receiptRefs = useRef<{[key: number]: HTMLInputElement | null}>({})
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus()
+    if (focusedIndex !== null) {
+      const focusedElement = receiptRefs.current[focusedIndex]
+      if (focusedElement) {
+        focusedElement.focus()
+      }
+    }
+  }, [focusedIndex, quotation.receipts_quotation])
+
+  useEffect(() => {
+    if (notes.current) {
+      notes.current.focus()
+    }
+  }, [orderForm.notes])
+
+  useEffect(() => {
+    if (singleReceipt.current) {
+      singleReceipt.current.focus()
     }
   }, [quotation.receipt_quotation])
+
+  const handleMultiReceiptChange = (index: number, value: string) => {
+    setQuotation((prev) => {
+      const updatedReceipts = prev.receipts_quotation.map((receipt) =>
+        receipt.index === index ? {...receipt, receipt_quotation: value} : receipt
+      )
+      return {...prev, receipts_quotation: updatedReceipts}
+    })
+    setFocusedIndex(index)
+  }
 
   const handleReceiptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
@@ -679,9 +788,16 @@ const ViewOrders: FC = () => {
           if (item?.quotation?.length) {
             if (
               item?.quotation[0]?.receipt_quotation !== null &&
-              item?.quotation[0]?.quotation_files.length
+              item?.quotation[0]?.quotation_files.length &&
+              item?.quotation[0].quotation_files.find((x: any) => x.type === 2)
             ) {
-              return 'PAID'
+              return 'PAID (RECEIPT DI UPLOAD OLEH TOKO)'
+            } else if (
+              item?.quotation[0]?.receipt_quotation !== null &&
+              item?.quotation[0]?.quotation_files.length &&
+              item?.quotation[0].quotation_files.find((x: any) => x.type === 3)
+            ) {
+              return 'BUKTI TRANSFER SUDAH DI UPLOAD OLEH KONSUMEN'
             } else {
               return 'UNPAID'
             }
@@ -690,72 +806,9 @@ const ViewOrders: FC = () => {
           }
         })()
 
-        // const orderStatus = (() => {
-        //   if (item?.work_orders?.work_order_status?.length >= 0) {
-        //     if (
-        //       [
-        //         'QUOTEIN',
-        //         'QUOTEOUT',
-        //         'CANCEL',
-        //         'WARRANTYCLAIM',
-        //         'INVESTIGATED',
-        //         'COMPLAINTAPPROVEDBYHO',
-        //         'COMPLAINTREJECTEDBYHO',
-        //         'RESCHEDULE',
-        //         'RESURVEYREQ',
-        //         'REWORKREQ',
-        //       ].includes(item?.status?.category)
-        //     ) {
-        //       return item?.status?.category
-        //     } else if (
-        //       ['WORKREQ'].includes(item?.status?.category) &&
-        //       item?.payment_type === 'survey' &&
-        //       !['WORKSTART', 'WORKEND'].includes(
-        //         item?.work_orders?.work_order_status[0]?.status?.category
-        //       )
-        //     ) {
-        //       return item?.status?.category
-        //     } else {
-        //       return item?.work_orders?.work_order_status[0]?.status?.category
-        //     }
-        //   } else {
-        //     return item?.status?.category
-        //   }
-        // })()
-
-        // const orderStatusLabel = (() => {
-        //   if (item?.work_orders?.work_order_status?.length >= 0) {
-        //     if (
-        //       [
-        //         'QUOTEIN',
-        //         'QUOTEOUT',
-        //         'CANCEL',
-        //         'WARRANTYCLAIM',
-        //         'INVESTIGATED',
-        //         'RESCHEDULE',
-        //         'RESURVEYREQ',
-        //         'REWORKREQ',
-        //       ].includes(item?.status?.category)
-        //     ) {
-        //       return item?.status?.description
-        //     } else if (
-        //       ['WORKREQ'].includes(item?.status?.category) &&
-        //       item?.payment_type === 'survey' &&
-        //       !['WORKSTART', 'WORKEND'].includes(
-        //         item?.work_orders?.work_order_status[0]?.status?.category
-        //       )
-        //     ) {
-        //       return item?.status?.description
-        //     } else {
-        //       return item?.work_orders?.work_order_status[0]?.status?.description
-        //     }
-        //   } else {
-        //     return item?.status?.description
-        //   }
-        // })()
-
         data = {
           order_id: item.id,
+          store_id: item?.store?.id,
           assign_from: item?.store?.store_name,
           date_order: orderDate,
           vendor_name: item?.vendor?.company_name ?? 'Vendor Belum Ditugaskan',
@@ -796,7 +849,7 @@ const ViewOrders: FC = () => {
 
   useEffect(() => {
     fetchData(currentPage, pageSize, queryParams)
-  }, [queryParams])
+  }, [currentPage, queryParams])
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
@@ -888,14 +941,119 @@ const ViewOrders: FC = () => {
     }
   }
 
+  // Quotation Payment
+  const [paymentStages, setPaymentStages] = useState([
+    {stage: 'Tahap 1', percentage: '25%', amount: 0},
+    {stage: 'Tahap 2', percentage: '50%', amount: 0},
+    {stage: 'Tahap 3', percentage: '25%', amount: 0},
+  ])
+
+  const calculatePaymentStages = (grandTotal: number) => {
+    const stage1 = grandTotal * 0.25
+    const stage2 = grandTotal * 0.5
+    const stage3 = grandTotal * 0.25
+
+    setPaymentStages([
+      {stage: 'Tahap 1', percentage: '25%', amount: stage1},
+      {stage: 'Tahap 2', percentage: '50%', amount: stage2},
+      {stage: 'Tahap 3', percentage: '25%', amount: stage3},
+    ])
+  }
+
+  useEffect(() => {
+    calculatePaymentStages(quotation?.quotation_grand_total)
+  }, [quotation?.quotation_grand_total])
+
+  // Update Request Survey
+  const OrderValidation = () => {
+    let valid = true
+
+    if (orderForm.request_survey === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi tanggal request pengerjaan',
+        icon: 'warning',
+      })
+      valid = false
+    }
+    return valid
+  }
+
+  const handleUpdateRequestSurvey = async () => {
+    if (!OrderValidation()) {
+      return false
+    }
+
+    const formData = new FormData()
+
+    const appendIfNotDefault = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        formData.append(key, String(value))
+      }
+    }
+
+    formData.append('order_id', String(orderForm?.id))
+    formData.append('request_work', orderForm.request_work)
+    formData.append('notes', orderForm.notes)
+
+    if (quotation.quotation_special === 1 && quotationSpecialStatus?.value !== null) {
+      formData.append('project_status_id', quotationSpecialStatus.value)
+    }
+
+    if (receiptFiles?.length) {
+      receiptFiles.forEach((item: any, index: number) => {
+        if (item.id) {
+          formData.append(`existing_order_files[${index}][order_file_id]`, item.id)
+        }
+      })
+    }
+
+    orderForm.order_details.forEach((item, index) => {
+      if (item) {
+        appendIfNotDefault(`order_details[${index}][id]`, item.id)
+        appendIfNotDefault(`order_details[${index}][item_id]`, item.item_id)
+        appendIfNotDefault(`order_details[${index}][item_code]`, item.item_code)
+        appendIfNotDefault(`order_details[${index}][item_name]`, item.item_name)
+        appendIfNotDefault(`order_details[${index}][item_notes]`, item.item_notes)
+        appendIfNotDefault(`order_details[${index}][quantity]`, item.quantity)
+      }
+    })
+
+    try {
+      await axios
+        .post(`${apiUrl}/orders/${orderForm?.id}`, formData, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then(() => {
+          setTimeout(() => {
+            window.location.reload()
+          }, 1000)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   // Quotation Validation
   const QuotationValidation = () => {
     let valid = true
 
-    if (quotation.receipt_quotation === '') {
+    if (quotation.receipt_quotation === '' && quotation.quotation_special !== 1) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please fill receipt quotation form',
+        text: 'Tolong isi formulir receipt quotation',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (quotation.receipts_quotation.length === 0 && quotation.quotation_special === 1) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Mohon untuk mengisi formulir receipt quotation tahap 1',
         icon: 'warning',
       })
       valid = false
@@ -936,6 +1094,7 @@ const ViewOrders: FC = () => {
     formData.append('description', quotation.description)
     formData.append('quotation_status', verificationStatus?.value)
     formData.append('quotation_number', String(quotation.quotation_number))
+    formData.append('quotation_special', String(quotation.quotation_special))
     formData.append('quotation_date', quotation.quotation_date)
     formData.append('quotation_validity', quotation.quotation_validity)
     formData.append('quotation_disc', String(quotation.quotation_disc))
@@ -955,6 +1114,7 @@ const ViewOrders: FC = () => {
       appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
       appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
       appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
+      appendIfNotDefault(formData, `quotation_details[${index}][work_step]`, quotation.work_step)
       formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
       formData.append(`quotation_details[${index}][margin_type]`, String(quotation.margin_type))
       formData.append(`quotation_details[${index}][is_customer]`, String(quotation.is_user))
@@ -969,6 +1129,21 @@ const ViewOrders: FC = () => {
         quotation.category_id
       )
     })
+
+    if (quotation?.quotation_special === 1) {
+      quotation.receipts_quotation.forEach((receipt, index) => {
+        appendIfNotDefault(
+          formData,
+          `receipts_quotation[${index}][receipt_quotation]`,
+          receipt.receipt_quotation
+        )
+        appendIfNotDefault(
+          formData,
+          `receipts_quotation[${index}][quotation_step]`,
+          receipt.quotation_step
+        )
+      })
+    }
 
     if (receiptQuotation?.length) {
       receiptQuotation.forEach((item) => {
@@ -1011,6 +1186,8 @@ const ViewOrders: FC = () => {
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
+          }).then(() => {
+            handleUpdateRequestSurvey()
           })
 
           setLoadingUpdate(false)
@@ -1023,10 +1200,6 @@ const ViewOrders: FC = () => {
 
           setLoadingUpdate(false)
         }
-
-        setTimeout(() => {
-          window.location.reload()
-        }, 2000)
       })
       .catch((error) => {
         setLoadingUpdate(false)
@@ -1151,10 +1324,10 @@ const ViewOrders: FC = () => {
                   </thead>
 
                   <tbody>
-                    {mailLogs?.map((item: any, index: any) => (
-                      <>
+                    {mailLogs && mailLogs.length > 0 ? (
+                      mailLogs.map((item: any, index: number) => (
                         <tr key={`${index} - email_log`}>
-                          <td>{item?.emailMessages?.title}</td>
+                          <td>{item?.emailMessages?.title || 'No Title'}</td>
                           <td>
                             {new Date(item?.createdAt).toLocaleDateString('id-ID', {
                               day: '2-digit',
@@ -1165,8 +1338,13 @@ const ViewOrders: FC = () => {
                             })}
                           </td>
                         </tr>
-                      </>
-                    ))}
+                      ))
+                    ) : (
+                      <tr>
+                        <td>-</td>
+                        <td>Belum ada email yang dikirim oleh sistem</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </Tab.Pane>
@@ -1734,33 +1912,25 @@ const ViewOrders: FC = () => {
                   Receipt Number :
                   <span className='fs-6 ms-2 fw-normal'>{orderDetail?.receipt_number ?? '-'}</span>
                 </Form.Label>
-                <br></br>
-                {orderDetail?.quotation[0]?.receipt_quotation && (
-                  <>
-                    <Form.Label className='fs-6 fw-bold'>
-                      Receipt Quotation :
-                      <span className='fs-6 ms-2 fw-normal'>
-                        {orderDetail?.quotation[0]?.receipt_quotation}
-                      </span>
-                    </Form.Label>
-                    <br></br>
-                  </>
-                )}
+
+                {orderDetail?.quotation[0]?.receipt_quotation &&
+                  orderDetail?.quotation[0]?.quotation_special === 0 && (
+                    <>
+                      <br></br>
+                      <Form.Label className='fs-6 fw-bold'>
+                        Receipt Quotation :
+                        <span className='fs-6 ms-2 fw-normal'>
+                          {orderDetail?.quotation[0]?.receipt_quotation}
+                        </span>
+                      </Form.Label>
+                      <br></br>
+                    </>
+                  )}
+
                 <Form.Label className='fs-6 fw-bold'>
                   Order Status :
                   <span className='fs-6 ms-2 fw-bold text-success'>
-                    {(() => {
-                      if (
-                        orderDetail?.status?.category === 'QUOTEIN' ||
-                        orderDetail?.status?.category === 'QUOTEOUT'
-                      ) {
-                        return orderDetail?.status?.description
-                      } else if (orderDetail?.work_orders?.work_order_status?.length > 0) {
-                        return orderDetail?.work_orders?.work_order_status[0]?.status?.description
-                      } else {
-                        return orderDetail?.status?.description
-                      }
-                    })()}
+                    {orderDetail?.status?.description}
                   </span>
                 </Form.Label>
               </Skeleton>
@@ -1810,45 +1980,218 @@ const ViewOrders: FC = () => {
             {orderDetail?.quotation?.length && (
               <Row className='information-detail'>
                 <div className='table-warranty-content'>
-                  <table className='table hover responsive'>
-                    <thead className='table-warranty-head'>
-                      <tr>
-                        <th className='text-center' style={{width: '355px'}}>
-                          Jenis Jasa
-                        </th>
+                  {orderDetail?.quotation[0]?.quotation_special === 0 ? (
+                    <table className='table hover responsive'>
+                      <thead className='table-warranty-head'>
+                        <tr>
+                          <th className='text-center' style={{width: '355px'}}>
+                            Jenis Jasa
+                          </th>
 
-                        <th className='text-center' style={{width: '80px'}}>
-                          QTY
-                        </th>
+                          <th className='text-center' style={{width: '80px'}}>
+                            QTY
+                          </th>
 
-                        <th className='text-center' style={{width: '150px'}}>
-                          Satuan
-                        </th>
+                          <th className='text-center' style={{width: '150px'}}>
+                            Satuan
+                          </th>
 
-                        <th className='text-center' style={{width: '250px'}}>
-                          Final Price
-                        </th>
-                      </tr>
-                    </thead>
+                          <th className='text-center' style={{width: '250px'}}>
+                            Final Price
+                          </th>
+                        </tr>
+                      </thead>
 
-                    <tbody>
-                      {orderDetail?.quotation[0]?.quotation_details
-                        .filter((x: any) => x.item_type === 2)
-                        .map((item: any, index: any) => (
-                          <tr key={`${index}-quotation`}>
-                            <td>
-                              {item?.name ?? '-'}{' '}
-                              {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                            </td>
-                            <td>{item?.quantity ?? 0}</td>
-                            <td>{item?.unit}</td>
-                            <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
-                              'id'
-                            )}`}</td>
+                      <tbody>
+                        {orderDetail?.quotation[0]?.quotation_details
+                          .filter((x: any) => x.item_type === 2)
+                          .map((item: any, index: any) => (
+                            <tr key={`${index}-quotation`}>
+                              <td>
+                                {item?.name ?? '-'}{' '}
+                                {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                              </td>
+                              <td>{item?.quantity ?? 0}</td>
+                              <td>{item?.unit}</td>
+                              <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                'id'
+                              )}`}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <>
+                      <div className='mt-2 mb-2'>
+                        <p className='fs-6 text-black'>Keterangan : </p>
+                        <p className='fs-6 fw-semibold text-black'>
+                          *Quotation ini menggunakan quotation tipe spesial
+                        </p>
+                        <p className='fs-6 fw-semibold text-black'>
+                          *Quotation spesial merupakan quotation yang nominalnya diatas 20.000.000
+                        </p>
+                      </div>
+
+                      <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
+
+                      {orderDetail?.quotation[0]?.quotation_receipt[0]?.receipt_quotation &&
+                        orderDetail?.quotation[0]?.quotation_special === 1 && (
+                          <div className='fs-6 fw-bold'>
+                            Receipt Quotation Tahap 1 :{' '}
+                            <span className='fs-6 fw-semibold'>
+                              {orderDetail?.quotation[0]?.quotation_receipt[0]?.receipt_quotation ??
+                                '-'}
+                            </span>
+                          </div>
+                        )}
+
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Jenis Jasa
+                            </th>
+
+                            <th className='text-center' style={{width: '80px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '150px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Final Price
+                            </th>
                           </tr>
-                        ))}
-                    </tbody>
-                  </table>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 2 && x.work_step === 1)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+
+                      <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
+
+                      {orderDetail?.quotation[0]?.quotation_receipt[1]?.receipt_quotation &&
+                        orderDetail?.quotation[0]?.quotation_special === 1 && (
+                          <div className='fs-6 fw-bold'>
+                            Receipt Quotation Tahap 1 :{' '}
+                            <span className='fs-6 fw-semibold'>
+                              {orderDetail?.quotation[0]?.quotation_receipt[1]?.receipt_quotation ??
+                                '-'}
+                            </span>
+                          </div>
+                        )}
+
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Jenis Jasa
+                            </th>
+
+                            <th className='text-center' style={{width: '80px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '150px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Final Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 2 && x.work_step === 2)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+
+                      <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
+
+                      {orderDetail?.quotation[0]?.quotation_receipt[2]?.receipt_quotation &&
+                        orderDetail?.quotation[0]?.quotation_special === 1 && (
+                          <div className='fs-6 fw-bold'>
+                            Receipt Quotation Tahap 1 :{' '}
+                            <span className='fs-6 fw-semibold'>
+                              {orderDetail?.quotation[0]?.quotation_receipt[2]?.receipt_quotation ??
+                                '-'}
+                            </span>
+                          </div>
+                        )}
+
+                      <table className='table hover responsive'>
+                        <thead className='table-warranty-head'>
+                          <tr>
+                            <th className='text-center' style={{width: '355px'}}>
+                              Jenis Jasa
+                            </th>
+
+                            <th className='text-center' style={{width: '80px'}}>
+                              QTY
+                            </th>
+
+                            <th className='text-center' style={{width: '150px'}}>
+                              Satuan
+                            </th>
+
+                            <th className='text-center' style={{width: '250px'}}>
+                              Final Price
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {orderDetail?.quotation[0]?.quotation_details
+                            .filter((x: any) => x.item_type === 2 && x.work_step === 3)
+                            .map((item: any, index: any) => (
+                              <tr key={`${index}-quotation`}>
+                                <td>
+                                  {item?.name ?? '-'}{' '}
+                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
+                                </td>
+                                <td>{item?.quantity ?? 0}</td>
+                                <td>{item?.unit}</td>
+                                <td>{`Rp. ${parseInt(item?.final_price ?? 0).toLocaleString(
+                                  'id'
+                                )}`}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </>
+                  )}
 
                   <table className='table hover responsive'>
                     <thead className='table-warranty-head'>
@@ -1963,24 +2306,74 @@ const ViewOrders: FC = () => {
             )}
           </Skeleton>
 
+          {orderDetail?.quotation[0]?.quotation_special === 1 && (
+            <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
+              <hr />
+
+              <div className='fs-6 fw-semibold p-0 mb-2'>Preview Pembayaran</div>
+
+              <table className='table hover responsive'>
+                <thead className='table-warranty-head'>
+                  <tr>
+                    <th>Tahap Pembayaran</th>
+                    <th>Persentase</th>
+                    <th>Nominal Pembayaran</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {paymentStages.map((stage, index) => (
+                    <tr key={index}>
+                      <td>{stage.stage}</td>
+                      <td>{stage.percentage}</td>
+                      <td>{`${stage.amount.toLocaleString('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0,
+                      })}`}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Skeleton>
+          )}
+
           <Skeleton active loading={loadingModal} paragraph={{rows: 1}}>
-            <Row>
-              <Form.Group className='mb-5'>
-                <Form.Label className='title'>Receipt Quotation</Form.Label>
-                <Form.Control
-                  ref={inputRef}
-                  type='text'
-                  placeholder='Isi nomor receipt transaksi..'
-                  value={quotation.receipt_quotation}
-                  onChange={(e) =>
-                    setQuotation((prev) => ({
-                      ...prev,
-                      receipt_quotation: e.target.value,
-                    }))
-                  }
-                />
-              </Form.Group>
-            </Row>
+            {orderDetail?.quotation[0]?.quotation_special === 0 ? (
+              <Row>
+                <Form.Group className='mb-5'>
+                  <Form.Label className='title'>Receipt Quotation</Form.Label>
+                  <Form.Control
+                    ref={singleReceipt}
+                    type='text'
+                    placeholder='Isi nomor receipt transaksi..'
+                    value={quotation.receipt_quotation}
+                    onChange={(e) =>
+                      setQuotation((prev) => ({
+                        ...prev,
+                        receipt_quotation: e.target.value,
+                      }))
+                    }
+                  />
+                </Form.Group>
+              </Row>
+            ) : (
+              <>
+                {quotation.receipts_quotation.map((receipt, index) => (
+                  <Form.Group className='mb-5' key={`receipt-${index}`}>
+                    <Form.Label className='title'>Receipt Quotation Tahap {index + 1}</Form.Label>
+                    <Form.Control
+                      type='text'
+                      placeholder={`Isi nomor receipt transaksi tahap ${index + 1}`}
+                      value={receipt.receipt_quotation}
+                      onChange={(e) => handleMultiReceiptChange(receipt.index, e.target.value)}
+                      ref={(el: any) => (receiptRefs.current[receipt.index] = el)}
+                      onFocus={() => setFocusedIndex(receipt.index)}
+                    />
+                  </Form.Group>
+                ))}
+              </>
+            )}
 
             <Row>
               <Col md={6}>
@@ -2149,6 +2542,69 @@ const ViewOrders: FC = () => {
                     </ListGroup>
                   </Form.Group>
                 </Row>
+              </Col>
+            </Row>
+
+            <hr />
+
+            <Row>
+              <Col>
+                <Form.Group className='mb-5'>
+                  <Form.Label className='title'>Tanggal Request Pengerjaan</Form.Label>
+                  <Form.Control
+                    name='request_work'
+                    type='date'
+                    placeholder='Isi tanggal request pengerjaan..'
+                    value={orderForm?.request_work ?? ''}
+                    onChange={(e) => setOrderForm({...orderForm, request_work: e.target.value})}
+                  />
+                </Form.Group>
+
+                <Form.Group className='mb-5'>
+                  <Form.Label className='title'>Catatan</Form.Label>
+                  <Form.Control
+                    name='notes'
+                    type='text'
+                    placeholder='Isi catatan toko..'
+                    value={orderForm?.notes ?? ''}
+                    ref={notes}
+                    onChange={(e) => setOrderForm({...orderForm, notes: e.target.value})}
+                  />
+                </Form.Group>
+
+                <div className='description fs-7 mb-5'>
+                  Informasi mengenai ketersediaan dari Vendor
+                </div>
+
+                <div className='vendor-avail'>
+                  <table className='table hover responsive'>
+                    <thead className='table-warranty-head'>
+                      <tr>
+                        <th>Nama Vendor</th>
+                        <th>Service Type</th>
+                        <th>Ketersediaan Vendor</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {vendor.map((item: any) => (
+                        <tr key={item?.id}>
+                          <td>{item?.company_name ?? '-'}</td>
+                          <td>
+                            {Array.from(
+                              new Set(
+                                item?.vendor_service?.map(
+                                  (item: any) => item?.service_type?.service_type
+                                )
+                              )
+                            ).join(', ')}
+                          </td>
+                          <td>{vendorAvailbility(item)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </Col>
             </Row>
 
@@ -2650,6 +3106,66 @@ const ViewOrders: FC = () => {
     )
   }
 
+  // Vendor Availbility
+  const vendorAvailbility = (data: any) => {
+    const requestSurvey = orderForm.request_survey
+    const maxOrder = data.max_order
+
+    // Detect Request Survey Date Only
+    const orderVendor = data.orders.filter((x: any) => {
+      const surveyDate = new Date(x.request_survey).toISOString().split('T')[0]
+      return surveyDate === requestSurvey
+    })
+
+    // Detect Survey Date and Work Date
+    const workOrderVendor = data.work_orders.filter((x: any) => {
+      const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
+
+      const workStartDate = x.work_start_date
+        ? new Date(x.work_start_date).toISOString().split('T')[0]
+        : null
+
+      const workEndDate = x.work_end_date
+        ? new Date(x.work_end_date).toISOString().split('T')[0]
+        : null
+
+      if (surveyDate && !workStartDate && !workEndDate) {
+        return surveyDate === requestSurvey
+      } else if (surveyDate && workStartDate && workEndDate) {
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
+      } else if (!surveyDate && workStartDate && workEndDate) {
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
+      } else {
+        return surveyDate === requestSurvey
+      }
+    })
+
+    // Tukang Active
+    const tukangActive = data.tukang.filter((x: any) => {
+      const isActive = x.is_active === true && x.deleted_at === null
+      return isActive
+    }).length
+
+    // Tukang Availbility
+    const tukangActiveAvailability = data.tukang.filter((x: any) => {
+      const isAvailable =
+        x.is_active === true &&
+        x.deleted_at === null &&
+        maxOrder > x.slot_order &&
+        x.slot_order < orderVendor.length
+      return isAvailable
+    }).length
+
+    // Vendor Availbility Based On Tukang Active
+    if (tukangActive === 0 && orderVendor.length >= 0) {
+      return <p className='text-danger'>UNAVAILABLE</p>
+    } else if (tukangActiveAvailability === 0 && orderVendor.length > 0) {
+      return <p className='text-danger'>FULL BOOKED</p>
+    } else {
+      return <p className='text-black'>AVAILABLE</p>
+    }
+  }
+
   // Export PDF Quotation
   const exportToPDF = (order_id: number, receipt_quotation: string, customer_name: string) => {
     axios
@@ -2679,7 +3195,6 @@ const ViewOrders: FC = () => {
   }
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
-
   const columns: ColumnsType<DataType> = [
     {
       title: 'Order ID',
@@ -2823,6 +3338,7 @@ const ViewOrders: FC = () => {
 
           if (selected) {
             fetchOrderData(selected.order_id)
+            getVendor(selected.store_id)
             setShowModal(true)
             setModalType(type)
           }
@@ -2898,9 +3414,18 @@ const ViewOrders: FC = () => {
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Detail Order')}
             >
-              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+              <a
+                href={`/order/detail-order/${id}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='btn btn-primary button-detail'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleDetailId()
+                }}
+              >
                 <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
-              </Button>
+              </a>
             </OverlayTrigger>
 
             {!['Sales'].includes(userRole) && (
@@ -2911,24 +3436,60 @@ const ViewOrders: FC = () => {
                     delay={{show: 250, hide: 400}}
                     overlay={renderTooltip('Update Order')}
                   >
-                    <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                    {/* <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
                       <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                    </Button>
+                    </Button> */}
+
+                    <a
+                      href={`/order/update-order/${id}`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='btn btn-primary button-edit'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleUpdateId()
+                      }}
+                    >
+                      <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                    </a>
                   </OverlayTrigger>
                 )}
               </>
             )}
 
-            {['WORKREQ', 'SURVEYREQ', 'QUOTEOUT', 'QUOTATIONPAID'].includes(record.order_status) &&
-            ['Super User', 'Admin HO'].includes(userRole) ? (
+            {[
+              'WORKREQ',
+              'SURVEYREQ',
+              'QUOTEOUT',
+              'QUOTATIONPAID',
+              'QUOTATIONPAIDSTEPONE',
+              'QUOTATIONPAIDSTEPTWO',
+              'QUOTATIONPAIDSTEPTHREE',
+              'WORKENDSTEPONE',
+              'WORKENDSTEPTWO',
+              'WORKENDSTEPTHREE',
+            ].includes(record.order_status) && ['Super User', 'Admin HO'].includes(userRole) ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
                 overlay={renderTooltip('Update Order')}
               >
-                <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+                {/* <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
                   <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                </Button>
+                </Button> */}
+
+                <a
+                  href={`/order/update-order/${id}`}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='btn btn-primary button-edit'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleUpdateId()
+                  }}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </a>
               </OverlayTrigger>
             ) : (
               <></>
@@ -2955,7 +3516,13 @@ const ViewOrders: FC = () => {
               </Button>
             </OverlayTrigger>
 
-            {['QUOTEOUT'].includes(record.order_status) && userRole === 'Store CS' ? (
+            {[
+              'QUOTATIONPAID',
+              'QUOTEOUT',
+              'WORKENDSTEPONE',
+              'WORKENDSTEPTWO',
+              'WORKENDSTEPTHREE',
+            ].includes(record.order_status) && userRole === 'Store CS' ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -3085,7 +3652,7 @@ const ViewOrders: FC = () => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table

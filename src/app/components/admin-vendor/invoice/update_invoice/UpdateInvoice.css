@@ -12,7 +12,7 @@
 }
 
 #update-invoice .card .card-body .invoice-information {
-  padding: 0 9.75px 0 200px;
+  padding: 0 0 0 200px;
 }
 
 #update-invoice .card .card-body .notes {
@@ -31,84 +31,60 @@
   padding: 0 0 10px 0;
 }
 
+/* Custom Input */
+
+#update-invoice .form-control {
+  padding: 0.3rem 2.5rem 0.3rem 0.3rem !important;
+}
+
+.custom-input {
+  max-width: 200px;
+  margin: auto;
+  position: relative;
+  display: inline-block;
+}
+
+#percentage {
+  padding-right: 35px;
+}
+
+.percentage {
+  position: absolute;
+  top: 0;
+  right: 10px;
+}
+
 /* Table */
-#update-invoice .ant-table-wrapper .ant-table-thead > tr > th {
-  color: #ffff;
-  font-weight: 500;
-  background-color: #398318;
+
+#update-invoice .table-responsive {
+  padding: 0 !important;
+}
+
+#update-invoice .detail-table {
+  margin: 0 0 30px 0;
+}
+
+#update-invoice .detail-table table tr th {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #555555;
 }
 
 #update-invoice
-  .ant-table-wrapper
-  .ant-table-container
-  table
-  > thead
-  > tr:first-child
-  > *:first-child {
-  border-start-start-radius: 0;
-}
-
-#update-invoice
-  .ant-table-wrapper
-  .ant-table-container
-  table
-  > thead
-  > tr:first-child
-  > *:last-child {
-  border-start-end-radius: 0;
-}
-
-#update-invoice .table-head-wrapper {
-  margin-bottom: 20px;
-}
-
-#update-invoice .ant-table-fixed {
-  table-layout: fixed;
-}
-
-#update-invoice .ant-table-tbody > tr.ant-table-row:hover > td {
-  background-color: #dcdcdc;
-}
-
-#update-invoice .ant-table-tbody > tr > td {
-  word-wrap: break-word;
-  word-break: break-word;
-}
-
-#update-invoice .table-striped-rows tr:nth-child(even) td {
-  background-color: #ffff;
-}
-
-#update-invoice .table-striped-rows tr:nth-child(odd) td {
+  .detail-table
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(even)
+  td {
   background-color: #e4e9f7;
 }
 
-#update-invoice .ant-table-thead > tr > th.col-work-status {
-  background-color: #a30014 !important;
-}
-
-#update-invoice .ant-table-thead > tr > th.col-complaint-date {
-  background-color: #a30014 !important;
-}
-
-#update-invoice .ant-table-thead > tr > th.col-complaint-status {
-  background-color: #a30014 !important;
-}
-
-/* Button */
-
-#update-invoice .btn.btn-dark-success {
-  width: fit-content;
-  height: 40px;
-  margin: 0 10px 0 10px;
-  color: white !important;
-  border-color: transparent !important;
-  background-color: #6b9230 !important;
-  transition: 0.3s ease-in-out;
-}
-
-#update-invoice .btn.btn-dark-success:hover:not(.btn-active) {
-  background-color: #7cb920 !important;
+#update-invoice
+  .detail-table
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(odd)
+  td {
+  background-color: #ffff;
 }
 
 /* Footer */
@@ -119,4 +95,32 @@
 
 #update-invoice .payment-information .payment-evidence {
   margin: 10px 0;
+}
+
+#update-invoice .signature-label {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+#update-invoice .signature-name {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.signature-line {
+  width: 200px;
+  margin: 150px 0 10px 0;
+  border-bottom: 1px solid #000;
+}
+
+/* Button */
+#update-invoice .btn.btn-dark-primary {
+  width: 100% !important;
+  height: 40px;
+  margin: 0;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
 }

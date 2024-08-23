@@ -128,6 +128,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
+      width: 120,
       sorter: (a: DataType, b: DataType) => a.store_name.length - b.store_name.length,
     },
     {
@@ -135,6 +136,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
+      width: 120,
       sorter: (a: DataType, b: DataType) =>
         new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
@@ -143,6 +145,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'no_member',
       key: 'no_member',
       align: 'center',
+      width: 120,
       sorter: (a: DataType, b: DataType) => a.no_member - b.no_member,
     },
     {
@@ -150,6 +153,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'left',
+      width: 120,
       sorter: (a: DataType, b: DataType) => a.costumer_name.length - b.costumer_name.length,
     },
     {
@@ -157,6 +161,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
+      width: 120,
       sorter: (a: DataType, b: DataType) => a.phone_number - b.phone_number,
     },
     {
@@ -164,6 +169,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'status_order',
       key: 'status_order',
       align: 'left',
+      width: 120,
       render: (status_order: string) => {
         const orderStatus = status_order
         let color = ''
@@ -185,6 +191,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'period_active',
       key: 'period_active',
       align: 'left',
+      width: 120,
       sorter: (a: DataType, b: DataType) =>
         new Date(a.period_active).getTime() - new Date(b.period_active).getTime(),
     },
@@ -193,6 +200,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'countdown_to_expired',
       key: 'countdown_to_expired',
       align: 'left',
+      width: 120,
       sorter: (a: DataType, b: DataType) =>
         new Date(a.countdown_to_expired).getTime() - new Date(b.countdown_to_expired).getTime(),
     },
@@ -201,6 +209,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       dataIndex: 'period_expired',
       key: 'period_expired',
       align: 'left',
+      width: 120,
       sorter: (a: DataType, b: DataType) =>
         new Date(a.period_expired).getTime() - new Date(b.period_expired).getTime(),
     },
@@ -219,7 +228,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       title: 'Action',
       key: 'action',
       align: 'center',
-      width: 100,
+      width: 120,
       render: (record: DataType) => {
         const handleDetailId = () => {
           const id = record.order_id
@@ -498,7 +507,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table

@@ -18,12 +18,6 @@ interface StatusStorage {
   description: string
 }
 
-interface Tukang {
-  value: number | null
-  label: string
-  type: number
-}
-
 interface WorkOrders {
   id: number | null
   work_order_status: number | null
@@ -73,9 +67,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   // Work Order History
   const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
-
-  // Work Order Tukang
-  const [tukang, setTukang] = useState<Tukang[]>([])
 
   // Update Work Order
   const [workOrder, setWorkOrder] = useState<WorkOrders>({
@@ -355,35 +346,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     }
   }
 
-  const getTukang = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/tukang`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempTukang = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.full_name,
-        }))
-
-        setTukang(tempTukang)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   useEffect(() => {
     getWorkOrderData()
-    getTukang()
   }, [])
 
   // Format Date
@@ -645,6 +609,18 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           return 'REWORKEND'
         case 'REWORKEND':
           return 'REWORKEND'
+        case 'TUKANGWORKSTEPONE':
+          return 'WORKSTARTSTEPONE'
+        case 'WORKSTARTSTEPONE':
+          return 'WORKENDSTEPONE'
+        case 'TUKANGWORKSTEPTWO':
+          return 'WORKSTARTSTEPTWO'
+        case 'WORKSTARTSTEPTWO':
+          return 'WORKENDSTEPTWO'
+        case 'TUKANGWORKSTEPTHREE':
+          return 'WORKSTARTSTEPTHREE'
+        case 'WORKSTARTSTEPTHREE':
+          return 'WORKENDSTEPTHREE'
         default:
           return null
       }
@@ -924,7 +900,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       <Col md={8} className='mt-5'>
                         <div className='detail-info'>
                           <p className='fs-7 fw-normal '>
-                            {workOrderDetail?.notes ?? 'Toko tidak memberikan catatan'}
+                            {workOrderDetail?.order?.notes ?? 'Toko tidak memberikan catatan'}
                           </p>
                         </div>
                       </Col>
@@ -982,6 +958,18 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             'REWORKEND',
                             'WORKDONE',
                             'DONE',
+                            'WORKREQSTEPONE',
+                            'WORKREQSTEPTWO',
+                            'WORKREQSTEPTHREE',
+                            'WORKSTARTSTEPONE',
+                            'WORKSTARTSTEPTWO',
+                            'WORKSTARTSTEPTHREE',
+                            'WORKENDSTEPONE',
+                            'WORKENDSTEPTWO',
+                            'WORKENDSTEPTHREE',
+                            'TUKANGWORKSTEPONE',
+                            'TUKANGWORKSTEPTWO',
+                            'TUKANGWORKSTEPTHREE',
                           ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
                             <>
                               {workOrderDetail?.work_order_status[0]?.work_order_items.map(
@@ -1104,6 +1092,12 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         'REWORKEND',
                         'WORKDONE',
                         'DONE',
+                        'WORKSTARTSTEPONE',
+                        'WORKSTARTSTEPTWO',
+                        'WORKSTARTSTEPTHREE',
+                        'WORKENDSTEPONE',
+                        'WORKENDSTEPTWO',
+                        'WORKENDSTEPTHREE',
                       ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
                         <Form.Group className='detail-info' as={Row}>
                           <Form.Label
@@ -1234,10 +1228,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 <Form.Group as={Row} className='detail-info'>
                   <Form.Label className='pt-3 fs-5 fw-semibold'>
                     WORK ORDER STATUS :
-                    <span className='fw-bold'>
-                      {' '}
-                      {workOrderDetail?.work_order_status[0].status?.description}
-                    </span>
+                    <span className='fw-bold'> {workOrderDetail?.order?.status?.description}</span>
                   </Form.Label>
                 </Form.Group>
 
@@ -1249,7 +1240,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   'RESURVEYREQ',
                   'RESURVEYSTART',
                   'RESURVEYDONE',
-                ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
+                ].includes(workOrderDetail?.order?.status?.category) && (
                   <Row className='detail-info'>
                     <div className='title'>
                       <h1 className='fs-6'>Survey</h1>
@@ -1317,7 +1308,19 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   'REWORKEND',
                   'RESCHEDULE',
                   'DONE',
-                ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
+                  'WORKREQSTEPONE',
+                  'WORKREQSTEPTWO',
+                  'WORKREQSTEPTHREE',
+                  'WORKSTARTSTEPONE',
+                  'WORKSTARTSTEPTWO',
+                  'WORKSTARTSTEPTHREE',
+                  'WORKENDSTEPONE',
+                  'WORKENDSTEPTWO',
+                  'WORKENDSTEPTHREE',
+                  'TUKANGWORKSTEPONE',
+                  'TUKANGWORKSTEPTWO',
+                  'TUKANGWORKSTEPTHREE',
+                ].includes(workOrderDetail?.order?.status?.category) && (
                   <Row className='detail-info'>
                     <div className='title'>
                       <h1 className='fs-6'>Pengerjaan</h1>
@@ -1582,38 +1585,154 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                   <>
                     <div className='fs-5 text-dark fw-bold mb-2'>Jasa Pemasangan</div>
                     <div className='table-warranty-content'>
-                      <table className='table hover responsive'>
-                        <thead className='table-warranty-head'>
-                          <tr>
-                            <th className='text-center' style={{width: '355px'}}>
-                              Jenis Jasa
-                            </th>
+                      {workOrderDetail?.order?.quotation[0]?.quotation_special === 0 ? (
+                        <>
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
 
-                            <th className='text-center' style={{width: '100px'}}>
-                              QTY
-                            </th>
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
 
-                            <th className='text-center' style={{width: '250px'}}>
-                              Satuan
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {workOrderDetail?.order?.quotation[0]?.quotation_details
-                            ?.filter((x: any) => x.item_type === 2)
-                            ?.map((item: any, index: any) => (
-                              <tr key={`${index}-quotation`}>
-                                <td>
-                                  {item?.name ?? '-'}{' '}
-                                  {item?.is_customer === true ? '( Disediakan oleh customer )' : ''}
-                                </td>
-                                <td>{item?.quantity ?? 0}</td>
-                                <td>{item?.unit}</td>
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
                               </tr>
-                            ))}
-                        </tbody>
-                      </table>
+                            </thead>
+
+                            <tbody>
+                              {workOrderDetail?.order?.quotation[0]?.quotation_details
+                                ?.filter((x: any) => x.item_type === 2)
+                                ?.map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </>
+                      ) : (
+                        <>
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {workOrderDetail?.order?.quotation[0]?.quotation_details
+                                ?.filter((x: any) => x.item_type === 2 && x.work_step === 1)
+                                ?.map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {workOrderDetail?.order?.quotation[0]?.quotation_details
+                                ?.filter((x: any) => x.item_type === 2 && x.work_step === 2)
+                                ?.map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+
+                          <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
+                          <table className='table hover responsive'>
+                            <thead className='table-warranty-head'>
+                              <tr>
+                                <th className='text-center' style={{width: '355px'}}>
+                                  Jenis Jasa
+                                </th>
+
+                                <th className='text-center' style={{width: '100px'}}>
+                                  QTY
+                                </th>
+
+                                <th className='text-center' style={{width: '250px'}}>
+                                  Satuan
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {workOrderDetail?.order?.quotation[0]?.quotation_details
+                                ?.filter((x: any) => x.item_type === 2 && x.work_step === 3)
+                                ?.map((item: any, index: any) => (
+                                  <tr key={`${index}-quotation`}>
+                                    <td>
+                                      {item?.name ?? '-'}{' '}
+                                      {item?.is_customer === true
+                                        ? '( Disediakan oleh customer )'
+                                        : ''}
+                                    </td>
+                                    <td>{item?.quantity ?? 0}</td>
+                                    <td>{item?.unit}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </>
+                      )}
 
                       {workOrderDetail?.order?.quotation[0]?.quotation_details?.filter(
                         (x: any) => x.item_type === 1
@@ -1749,9 +1868,17 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       <Row>
                         <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                           <Form.Label column>
-                            {workOrderDetail?.order?.payment_type !== 'survey'
-                              ? 'Tanggal request pemasangan'
-                              : 'Tanggal request survey'}
+                            {(() => {
+                              if (workOrderDetail?.order?.payment_type === 'survey') {
+                                if (workOrderDetail?.order?.quotation?.length === 0) {
+                                  return `Tanggal request survey`
+                                } else {
+                                  return `Tanggal request pemasangan`
+                                }
+                              } else {
+                                return `Tanggal request pemasangan`
+                              }
+                            })()}
                           </Form.Label>
                           <Col>
                             <p className='fs-7 p-0'>

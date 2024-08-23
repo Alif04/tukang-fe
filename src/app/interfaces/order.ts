@@ -79,6 +79,7 @@ export interface Orders {
   receipt_number: string
   receipt_path: string
   request_survey: string
+  request_work: string
   total_estimate_workdays: number | null
   payment_type: string
   grand_total: string
@@ -107,4 +108,13 @@ export interface Orders {
   order_files: OrderFiles[]
   quotation: any[]
   order_history: any
+}
+
+export interface DailyOrder {
+  order_follow_up: Array<{
+    order_id: number | null
+    csi_survey: number
+    csi_work: number
+    description: string
+  }>
 }

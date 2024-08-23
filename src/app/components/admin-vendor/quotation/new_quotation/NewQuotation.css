@@ -102,6 +102,38 @@
   background-color: #ffff;
 }
 
+/* Table Bordered */
+
+#quotation-vendor table.table.table-bordered th {
+  border: 1px solid black !important;
+}
+
+#quotation-vendor table.table.table-bordered tr {
+  border: 1px solid black !important;
+}
+
+#quotation-vendor table.table.table-bordered td {
+  border: 1px solid black !important;
+}
+
+/* Table Borderless */
+
+#quotation-vendor td.total-content {
+  min-width: 110px !important;
+}
+
+#quotation-vendor .item-total table.table.table-borderless th {
+  border: solid #ffff !important;
+}
+
+#quotation-vendor .item-total table.table.table-borderless tr {
+  border: solid #ffff !important;
+}
+
+#quotation-vendor .item-total table.table.table-borderless td {
+  border: solid #ffff !important;
+}
+
 /* Button Action */
 
 #quotation-vendor button.btn.add-jasa.btn-button-dark-success {

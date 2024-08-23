@@ -67,7 +67,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(10)
+  const [pageSize, setPageSize] = useState<number>(50)
   const [totalData, setTotalData] = useState<number>(0)
 
   const [dateFrom, setDateFrom] = useState<any>(
@@ -90,6 +90,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       align: 'center',
       className: 'col_order_id',
       defaultSortOrder: 'descend',
+      width: 100,
       sorter: (a, b) => a.order_id - b.order_id,
     },
 
@@ -98,6 +99,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
+      width: 140,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -106,6 +108,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
+      width: 140,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -116,6 +119,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       align: 'center',
       className: 'col_order_id',
       defaultSortOrder: 'descend',
+      width: 140,
       sorter: (a, b) => a.costumer_id - b.costumer_id,
     },
     {
@@ -123,6 +127,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
+      width: 140,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -131,6 +136,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
+      width: 140,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
 
@@ -139,6 +145,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
+      width: 140,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -178,6 +185,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_quotation',
       key: 'payment_quotation',
       align: 'left',
+      width: 180,
       onFilter: (value, record) => record.payment_quotation.includes(String(value)),
       sorter: (a, b) => a.payment_quotation.length - b.payment_quotation.length,
     },
@@ -186,6 +194,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       key: 'action',
       align: 'center',
       fixed: 'right',
+      width: 140,
       render: (record) => {
         const id = record.order_id
 
@@ -242,6 +251,9 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               'COMPLAINTREJECTEDBYHO',
               'SURVEYDONE',
               'WORKEND',
+              'WORKENDSTEPONE',
+              'WORKENDSTEPTWO',
+              'WORKENDSTEPTHREE',
             ].includes(record.order_status) ? (
               <OverlayTrigger
                 placement='bottom'
@@ -256,7 +268,14 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               <></>
             )}
 
-            {['QUOTEIN', 'QUOTEOUT'].includes(record.order_status) && (
+            {[
+              'QUOTEIN',
+              'QUOTEOUT',
+              'QUOTATIONPAID',
+              'QUOTATIONPAIDSTEPONE',
+              'QUOTATIONPAIDSTEPTWO',
+              'QUOTATIONPAIDSTEPTHREE',
+            ].includes(record.order_status) && (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -382,72 +401,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           }
         })()
 
-        const orderStatus = (() => {
-          if (item?.work_orders?.work_order_status?.length >= 0) {
-            if (
-              [
-                'QUOTEIN',
-                'QUOTEOUT',
-                'CANCEL',
-                'WARRANTYCLAIM',
-                'INVESTIGATED',
-                'COMPLAINTAPPROVEDBYHO',
-                'COMPLAINTREJECTEDBYHO',
-                'RESCHEDULE',
-                'RESURVEYREQ',
-                'REWORKREQ',
-              ].includes(item?.status?.category)
-            ) {
-              return item?.status?.category
-            } else if (
-              ['WORKREQ'].includes(item?.status?.category) &&
-              item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(
-                item?.work_orders?.work_order_status[0]?.status?.category
-              )
-            ) {
-              return item?.status?.category
-            } else {
-              return item?.work_orders?.work_order_status[0]?.status?.category
-            }
-          } else {
-            return item?.status?.category
-          }
-        })()
-
-        const orderStatusLabel = (() => {
-          if (item?.work_orders?.work_order_status?.length >= 0) {
-            if (
-              [
-                'QUOTEIN',
-                'QUOTEOUT',
-                'CANCEL',
-                'WARRANTYCLAIM',
-                'INVESTIGATED',
-                'COMPLAINTAPPROVEDBYHO',
-                'COMPLAINTREJECTEDBYHO',
-                'RESCHEDULE',
-                'RESURVEYREQ',
-                'REWORKREQ',
-              ].includes(item?.status?.category ?? '')
-            ) {
-              return item?.status?.description
-            } else if (
-              ['WORKREQ'].includes(item?.status?.category) &&
-              item?.payment_type === 'survey' &&
-              !['WORKSTART', 'WORKEND'].includes(
-                item?.work_orders?.work_order_status[0]?.status?.category
-              )
-            ) {
-              return item?.status?.description
-            } else {
-              return item?.work_orders?.work_order_status[0]?.status?.description
-            }
-          } else {
-            return item?.status?.description
-          }
-        })()
-
         data = {
           order_id: item?.id,
           work_order_id: item?.work_orders?.id,
@@ -458,8 +411,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           phone_number: phoneNumber,
           item_name: item?.m_order_details[0]?.item_name ?? '-',
           payment_quotation: paymentQuotation,
-          order_status: orderStatus,
-          order_status_label: orderStatusLabel,
+          order_status: item?.status?.category,
+          order_status_label: item?.status?.description,
           existing_tukang: item?.work_orders?.request_tukang ?? [],
         }
 
@@ -535,7 +488,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
     valueCheck(`&search=`, searchFilter)
 
-    const data = await ViewOrder(1, 10, queryparams)
+    const data = await ViewOrder(1, pageSize, queryparams)
     setOrderData(data)
 
     setLoadingButton(false)
@@ -561,8 +514,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     tukang_id: null,
     notes: '',
   })
-
-  console.log('tukang request', tukangRequest)
 
   // File
   const [files, setFiles] = useState<Array<File | null>>([])
@@ -795,7 +746,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table
@@ -823,6 +774,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               current={currentPage}
               total={totalData}
               showSizeChanger
+              defaultPageSize={pageSize}
               pageSizeOptions={[5, 10, 20, 50, 100]}
               itemRender={itemRender}
               onShowSizeChange={(current, size) => {

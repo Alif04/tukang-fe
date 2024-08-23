@@ -16,9 +16,9 @@ const TotalComplaint: React.FC<Props> = ({className, loadingPage, chartOrder, or
   }
 
   // Sum Total From API
-  // const sumTotal = (data: any, key: string) =>
-  //   data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
-  // const waitingQuotations = sumTotal(chartOrder, 'totalWaitingQuotation')
+  const sumTotal = (data: any, key: string) =>
+    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
+  const waitingQuotations = sumTotal(chartOrder, 'totalWaitingQuotationCustomer')
 
   return (
     <div className={`card ${className}`}>
@@ -27,7 +27,7 @@ const TotalComplaint: React.FC<Props> = ({className, loadingPage, chartOrder, or
           <Skeleton active loading={loadingPage}>
             <div className='d-flex flex-column gap-4'>
               <div className='fs-5 text-center fw-bold text-muted'>Quotation</div>
-              <div className='fs-1 d-block m-auto'>{getStatusCount(orderData)}</div>
+              <div className='fs-1 d-block m-auto'>{waitingQuotations}</div>
               <div className='fs-5 text-center d-block m-auto text-muted'>
                 Quotation Dikirim Ke Konsumen
               </div>

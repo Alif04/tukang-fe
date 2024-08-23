@@ -40,6 +40,7 @@ interface QuotationDetail {
   quantity: number
   is_user: number
   description: string
+  work_step?: number
 }
 
 const UpdateQuotationHO: FC = () => {
@@ -58,6 +59,7 @@ const UpdateQuotationHO: FC = () => {
   const [quotationDescription, setQuotationDescription] = useState<string>('')
   const [quotationDate, setQuotationDate] = useState<string>('')
   const [quotationValidity, setQuotationValidity] = useState<any>()
+  const [quotationSpecial, setQuotationSpecial] = useState<number>(0)
   const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
 
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
@@ -140,34 +142,21 @@ const UpdateQuotationHO: FC = () => {
         .then((response) => {
           const data = response.data.data
 
-          setQuotationData(data)
-
-          if (data?.order_id) {
+          if (data) {
+            setQuotationData(data)
             setOrderId(data.order_id)
-          }
-
-          if (data?.store) {
             setStoreId(data.store.id)
-          }
-
-          if (data?.id) {
             setQuotationNumber(data.id)
-          }
-
-          if (data?.store) {
-            setStoreId(data.store.id)
-          }
-
-          if (data?.quotation_date) {
             setQuotationDate(new Date(data.quotation_date).toISOString().split('T')[0])
-          }
-
-          if (data?.quotation_validity) {
-            setQuotationValidity(new Date(data.quotation_validity).toISOString().split('T')[0])
-          }
-
-          if (data?.description) {
+            setQuotationValidity(
+              data.quotation_validity
+                ? new Date(data.quotation_validity).toISOString().split('T')[0]
+                : ''
+            )
             setQuotationDescription(data.description)
+            setQuotationSpecial(data.quotation_special)
+            setGrandTotalBeforePromotion(data?.quotation_grand_total)
+            setGrandTotal(data.quotation_grand_total)
           }
 
           if (data?.quotation_disc) {
@@ -178,11 +167,6 @@ const UpdateQuotationHO: FC = () => {
             setPromotionId(data?.promotion?.id)
             setPromotionName(data?.promotion?.name)
             setAdditionalPromosi(data?.promotion?.promotion)
-          }
-
-          if (data?.quotation_grand_total) {
-            setGrandTotalBeforePromotion(data?.quotation_grand_total)
-            setGrandTotal(data.quotation_grand_total)
           }
 
           if (data?.quotation_details) {
@@ -202,6 +186,7 @@ const UpdateQuotationHO: FC = () => {
               final_price: parseInt(item.final_price),
               margin: parseInt(item.margin),
               margin_type: item?.margin_type ?? 1,
+              work_step: item?.work_step ?? 0,
             }))
 
             setQuotationDetail(workOrderItem)
@@ -442,6 +427,25 @@ const UpdateQuotationHO: FC = () => {
     }
   }, [promotion, grandTotalBeforePromotion])
 
+  // Payment Stage
+  const [paymentStages, setPaymentStages] = useState([
+    {stage: 'Tahap 1', percentage: '25%', amount: 0},
+    {stage: 'Tahap 2', percentage: '50%', amount: 0},
+    {stage: 'Tahap 3', percentage: '25%', amount: 0},
+  ])
+
+  const calculatePaymentStages = (grandTotal: number) => {
+    const stage1 = grandTotal * 0.25
+    const stage2 = grandTotal * 0.5
+    const stage3 = grandTotal * 0.25
+
+    setPaymentStages([
+      {stage: 'Tahap 1', percentage: '25%', amount: stage1},
+      {stage: 'Tahap 2', percentage: '50%', amount: stage2},
+      {stage: 'Tahap 3', percentage: '25%', amount: stage3},
+    ])
+  }
+
   // Grand Total
   const calculatedGrandTotal = () => {
     const grandTotal =
@@ -458,6 +462,7 @@ const UpdateQuotationHO: FC = () => {
     setGrandTotal(grandTotal)
     setGrandTotalRounded(formatter.format(roundedValue))
     setGrandTotalDiff(roundedValue - grandTotal)
+    calculatePaymentStages(grandTotal)
   }
 
   useEffect(() => {
@@ -470,38 +475,10 @@ const UpdateQuotationHO: FC = () => {
   const QuotationValidation = () => {
     let valid = true
 
-    if (!storeId) {
+    if (quotationDetail.filter((x) => x.type === 2).some((x) => x.category_id === null)) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please select store',
-        icon: 'warning',
-      })
-      valid = false
-    } else if (!quotationDate) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill tanggal form',
-        icon: 'warning',
-      })
-      valid = false
-    } else if (!quotationValidity) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill quotation valid until form',
-        icon: 'warning',
-      })
-      valid = false
-    } else if (!promosiDiscount) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill promotion form',
-        icon: 'warning',
-      })
-      valid = false
-    } else if (quotationDetail.filter((x) => x.type === 2).some((x) => x.category_id === null)) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill quotation category form',
+        text: 'Tolong isi item kategori',
         icon: 'warning',
       })
       valid = false
@@ -526,11 +503,12 @@ const UpdateQuotationHO: FC = () => {
 
     formData.append('order_id', orderId)
     formData.append('store_id', storeId)
-    appendIfNotDefault(formData, 'description', quotationDescription)
     formData.append('quotation_number', quotationNumber.toString())
+    formData.append('quotation_special', quotationSpecial.toString())
     formData.append('quotation_date', quotationDate)
     formData.append('quotation_validity', formatForFormData(new Date(quotationValidity)))
     formData.append('quotation_disc', promosiDiscount.toString())
+    appendIfNotDefault(formData, 'description', quotationDescription)
 
     if (promotionId !== null) {
       formData.append('promotion_id', String(promotionId))
@@ -543,6 +521,7 @@ const UpdateQuotationHO: FC = () => {
       appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
       appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
       appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
+      appendIfNotDefault(formData, `quotation_details[${index}][work_step]`, quotation.work_step)
 
       formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
       formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
@@ -813,105 +792,418 @@ const UpdateQuotationHO: FC = () => {
             </Col>
           </Row>
 
-          <hr />
+          {quotationData?.quotation_special === 0 && (
+            <>
+              <hr />
 
-          <div className='item-jasa'>
-            <h4 className='fs-4 fw-semibold mb-5'>Item Jasa Pemasangan</h4>
+              <div className='item-jasa'>
+                <h4 className='fs-5 fw-semibold mb-5'>Item Jasa Pemasangan</h4>
 
-            {quotationDetail
-              .filter((x) => x.type === 2)
-              .map((element, index) => (
-                <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
-                  <div className='d-flex border-rounded-3'>
-                    <Card.Body>
-                      <Row>
-                        <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
-                            <Form.Control readOnly value={element?.item_name ?? '-'} />
-                          </Form.Group>
-                        </Col>
+                {quotationDetail
+                  .filter((x) => x.type === 2)
+                  .map((element, index) => (
+                    <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
+                      <div className='d-flex border-rounded-3'>
+                        <Card.Body>
+                          <Row>
+                            <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
+                                <Form.Control readOnly value={element?.item_name ?? '-'} />
+                              </Form.Group>
+                            </Col>
 
-                        <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
-                            <Form.Control readOnly value={element?.quantity ?? 0} />
-                          </Form.Group>
-                        </Col>
+                            <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                                <Form.Control readOnly value={element?.quantity ?? 0} />
+                              </Form.Group>
+                            </Col>
 
-                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
-                            <Form.Control
-                              readOnly
-                              value={
-                                element.margin_type === 1
-                                  ? `${element.margin}%`
-                                  : `Rp. ${element?.margin?.toLocaleString('id')}`
-                              }
-                            />
-                          </Form.Group>
-                        </Col>
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  value={
+                                    element.margin_type === 1
+                                      ? `${element.margin}%`
+                                      : `Rp. ${element?.margin?.toLocaleString('id')}`
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
 
-                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
-                            <Form.Control
-                              readOnly
-                              value={`Rp. ${element?.unit_price?.toLocaleString('id')}`}
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  value={`Rp. ${element?.unit_price?.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
 
-                      <Row>
-                        <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
-                            <Form.Control readOnly value={element?.unit ?? '-'} />
-                          </Form.Group>
-                        </Col>
+                          <Row>
+                            <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
+                                <Form.Control readOnly value={element?.unit ?? '-'} />
+                              </Form.Group>
+                            </Col>
 
-                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Category</Form.Label>
-                            <Select
-                              name='category_id'
-                              className='form-control p-0'
-                              classNamePrefix='select'
-                              placeholder='Pilih Kategori'
-                              isSearchable={true}
-                              options={categories}
-                              value={{
-                                value: element.category_id ?? null,
-                                label: element.category_name ?? 'Pilih Category',
-                              }}
-                              onChange={(newValue) => handleCategoryChange(element.index, newValue)}
-                            />
-                          </Form.Group>
-                        </Col>
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Category</Form.Label>
+                                <Select
+                                  name='category_id'
+                                  className='form-control p-0'
+                                  classNamePrefix='select'
+                                  placeholder='Pilih Kategori'
+                                  isSearchable={true}
+                                  options={categories}
+                                  value={{
+                                    value: element.category_id ?? null,
+                                    label: element.category_name ?? 'Pilih Category',
+                                  }}
+                                  onChange={(newValue) =>
+                                    handleCategoryChange(element.index, newValue)
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
 
-                        <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
-                          <Form.Group className='mb-3'>
-                            <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
 
-                            <Form.Control
-                              readOnly
-                              value={`Rp. ${element.final_price.toLocaleString('id')}`}
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                    </Card.Body>
-                  </div>
-                </Card>
-              ))}
-          </div>
+                                <Form.Control
+                                  readOnly
+                                  value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+                      </div>
+                    </Card>
+                  ))}
+              </div>
+            </>
+          )}
+
+          {quotationData?.quotation_special === 1 && (
+            <>
+              <hr />
+
+              <div className='p-0'>
+                <p className='fs-7 text-black'>Keterangan : </p>
+                <p className='fs-7 fw-semibold text-black'>
+                  *Quotation ini menggunakan quotation tipe spesial
+                </p>
+                <p className='fs-7 fw-semibold text-black'>
+                  *Quotation spesial merupakan quotation yang nominalnya diatas 20.000.000
+                </p>
+              </div>
+
+              <hr />
+
+              <div className='item-jasa'>
+                <h4 className='fs-5 fw-semibold mb-5'>Jasa Pemasangan Tahap 1</h4>
+
+                {quotationDetail
+                  .filter((x) => x.type === 2 && x.work_step === 1)
+                  .map((element, index) => (
+                    <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
+                      <div className='d-flex border-rounded-3'>
+                        <Card.Body>
+                          <Row>
+                            <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
+                                <Form.Control readOnly value={element?.item_name ?? '-'} />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                                <Form.Control readOnly value={element?.quantity ?? 0} />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  value={
+                                    element.margin_type === 1
+                                      ? `${element.margin}%`
+                                      : `Rp. ${element?.margin?.toLocaleString('id')}`
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  value={`Rp. ${element?.unit_price?.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+
+                          <Row>
+                            <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
+                                <Form.Control readOnly value={element?.unit ?? '-'} />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Category</Form.Label>
+                                <Select
+                                  name='category_id'
+                                  className='form-control p-0'
+                                  classNamePrefix='select'
+                                  placeholder='Pilih Kategori'
+                                  isSearchable={true}
+                                  options={categories}
+                                  value={{
+                                    value: element.category_id ?? null,
+                                    label: element.category_name ?? 'Pilih Category',
+                                  }}
+                                  onChange={(newValue) =>
+                                    handleCategoryChange(element.index, newValue)
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                                <Form.Control
+                                  readOnly
+                                  value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+                      </div>
+                    </Card>
+                  ))}
+              </div>
+
+              <hr />
+
+              <div className='item-jasa'>
+                <h4 className='fs-5 fw-semibold mb-5'>Jasa Pemasangan Tahap 2</h4>
+
+                {quotationDetail
+                  .filter((x) => x.type === 2 && x.work_step === 2)
+                  .map((element, index) => (
+                    <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
+                      <div className='d-flex border-rounded-3'>
+                        <Card.Body>
+                          <Row>
+                            <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
+                                <Form.Control readOnly value={element?.item_name ?? '-'} />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                                <Form.Control readOnly value={element?.quantity ?? 0} />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  value={
+                                    element.margin_type === 1
+                                      ? `${element.margin}%`
+                                      : `Rp. ${element?.margin?.toLocaleString('id')}`
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  value={`Rp. ${element?.unit_price?.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+
+                          <Row>
+                            <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
+                                <Form.Control readOnly value={element?.unit ?? '-'} />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Category</Form.Label>
+                                <Select
+                                  name='category_id'
+                                  className='form-control p-0'
+                                  classNamePrefix='select'
+                                  placeholder='Pilih Kategori'
+                                  isSearchable={true}
+                                  options={categories}
+                                  value={{
+                                    value: element.category_id ?? null,
+                                    label: element.category_name ?? 'Pilih Category',
+                                  }}
+                                  onChange={(newValue) =>
+                                    handleCategoryChange(element.index, newValue)
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                                <Form.Control
+                                  readOnly
+                                  value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+                      </div>
+                    </Card>
+                  ))}
+              </div>
+
+              <hr />
+
+              <div className='item-jasa'>
+                <h4 className='fs-5 fw-semibold mb-5'>Jasa Pemasangan Tahap 3</h4>
+
+                {quotationDetail
+                  .filter((x) => x.type === 2 && x.work_step === 3)
+                  .map((element, index) => (
+                    <Card key={`${element.index}-service`} className='card-item-jasa mb-5'>
+                      <div className='d-flex border-rounded-3'>
+                        <Card.Body>
+                          <Row>
+                            <Col xxl={4} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Jenis Jasa</Form.Label>
+                                <Form.Control readOnly value={element?.item_name ?? '-'} />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={2} xl={2} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>QTY</Form.Label>
+                                <Form.Control readOnly value={element?.quantity ?? 0} />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Profit</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  value={
+                                    element.margin_type === 1
+                                      ? `${element.margin}%`
+                                      : `Rp. ${element?.margin?.toLocaleString('id')}`
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Total</Form.Label>
+                                <Form.Control
+                                  readOnly
+                                  value={`Rp. ${element?.unit_price?.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+
+                          <Row>
+                            <Col xxl={6} xl={6} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Satuan</Form.Label>
+                                <Form.Control readOnly value={element?.unit ?? '-'} />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Category</Form.Label>
+                                <Select
+                                  name='category_id'
+                                  className='form-control p-0'
+                                  classNamePrefix='select'
+                                  placeholder='Pilih Kategori'
+                                  isSearchable={true}
+                                  options={categories}
+                                  value={{
+                                    value: element.category_id ?? null,
+                                    label: element.category_name ?? 'Pilih Category',
+                                  }}
+                                  onChange={(newValue) =>
+                                    handleCategoryChange(element.index, newValue)
+                                  }
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xxl={3} xl={3} lg={12} md={12} sm={12}>
+                              <Form.Group className='mb-3'>
+                                <Form.Label className='fs-5 fw-bold'>Final Price</Form.Label>
+
+                                <Form.Control
+                                  readOnly
+                                  value={`Rp. ${element.final_price.toLocaleString('id')}`}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Card.Body>
+                      </div>
+                    </Card>
+                  ))}
+              </div>
+            </>
+          )}
 
           <hr />
 
           <div className='item-material'>
-            <h4 className='fs-4 fw-semibold mb-5'>Item Material</h4>
+            <h4 className='fs-5 fw-semibold mb-5'>Item Material</h4>
 
             {quotationDetail.filter((x) => x.type === 1).length ? (
               <>
@@ -1124,6 +1416,38 @@ const UpdateQuotationHO: FC = () => {
               </tr>
             </table>
           </div>
+
+          {quotationData?.quotation_special === 1 && (
+            <>
+              <hr />
+
+              <div className='fs-6 fw-semibold p-0 mb-2'>Preview Pembayaran</div>
+
+              <Table bordered responsive>
+                <thead>
+                  <tr>
+                    <th>Tahap Pembayaran</th>
+                    <th>Persentase</th>
+                    <th>Nominal Pembayaran</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {paymentStages.map((stage, index) => (
+                    <tr key={index}>
+                      <td>{stage.stage}</td>
+                      <td>{stage.percentage}</td>
+                      <td>{`${stage.amount.toLocaleString('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0,
+                      })}`}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </>
+          )}
 
           <div className='payment-detail'>
             <div className='payment-method mb-2'>

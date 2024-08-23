@@ -39,7 +39,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
   const userStore = localStorage.getItem('storeId')
   const userStoreName = localStorage.getItem('storeName')
-  const storeId = userStore ? `store_id=${userStore}` : ''
+  const storeId = userStore ? `&store_id=${userStore}` : ''
   const storeName = userStoreName ? `${userStoreName}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
@@ -172,7 +172,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
   ]
 
   const fetchMemberList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/member?order_by=desc&page=${page}&take=${pageSize}${queryparams}&${storeId}`
+    let apiUrlWithParams = `${apiUrl}/member?order_by=desc&page=${page}&take=${pageSize}${queryparams}${storeId}`
 
     try {
       const response = await axiosInstance.get(apiUrlWithParams, {
@@ -385,7 +385,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table

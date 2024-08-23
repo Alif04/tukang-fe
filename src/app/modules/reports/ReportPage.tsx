@@ -4,8 +4,13 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 
-import {ReportTukang, ReportVendor, TotalOrderReportStore} from '../../components'
-import {ReportHO} from '../../components'
+import {
+  ReportHO,
+  ReportVendor,
+  TotalOrderReportStore,
+  DailyFollowUpQuotation,
+  DailyFollowUpCSI,
+} from '../../components'
 
 import {PrintReport} from './components/PrintReport'
 import {ViewReport} from './components/ViewReport'
@@ -336,6 +341,56 @@ const RefundPage: React.FC = () => {
       />
 
       <Route
+        path='ho-report-followup-quotation'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN FOLLOW UP QUOTAITON</PageTitle>
+
+            <DailyFollowUpQuotation
+              endpoint='quotation'
+              headerColor='success'
+              title='Laporan Follow Up Quotation'
+              params=''
+              statusName={['QUOTEOUT', 'QUOTEIN']}
+            />
+          </>
+        }
+      />
+
+      <Route
+        path='ho-report-followup-csi'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN FOLLOW UP CSI</PageTitle>
+
+            <DailyFollowUpCSI
+              endpoint='orders'
+              headerColor='success'
+              title='Laporan Follow Up CSI'
+              params=''
+              statusName=''
+            />
+          </>
+        }
+      />
+
+      <Route
         path='ho-report-pending-payment'
         element={
           <>
@@ -475,11 +530,11 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN EXPENSE PROMOSI</PageTitle>
 
             <ReportHO
-              endpoint='quotation'
-              statusName=''
+              endpoint='orders'
+              statusName='WORKEND'
               headerColor='danger'
               title='Laporan Expense Promosi '
-              params=''
+              params='&is_promotion=1'
             />
           </>
         }

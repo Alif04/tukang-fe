@@ -30,6 +30,7 @@ interface SalesItem {
 }
 
 interface DataType {
+  incentive_id: number
   order_id: number
   date_order: Date
   costumer_name: string
@@ -212,6 +213,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
         }
 
         data = {
+          incentive_id: item?.id,
           order_id: item?.quotation?.order_id,
           date_order: orderDate,
           costumer_name: item?.quotation?.order?.members?.full_name,
@@ -477,7 +479,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table
@@ -485,7 +487,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
                 bordered
                 columns={columns}
                 dataSource={orderData}
-                rowKey={(record) => record.order_id}
+                rowKey={(record) => record.incentive_id}
                 pagination={false}
                 sticky={true}
                 tableLayout='auto'

@@ -5,7 +5,7 @@ import './NewRefund.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import {Row, Col, Form, Button, ListGroup} from 'react-bootstrap'
+import {Card, Row, Col, Form, Button, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
@@ -272,8 +272,8 @@ const NewRefundCS: FC = () => {
 
   return (
     <section id='new-refund'>
-      <div className='card'>
-        <div className='card-body'>
+      <Card>
+        <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -443,7 +443,6 @@ const NewRefundCS: FC = () => {
               </Row>
             </div>
 
-            {/* Detail Order */}
             {(() => {
               if (
                 (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
@@ -936,8 +935,8 @@ const NewRefundCS: FC = () => {
               {isLoading ? 'Submitting..' : 'Submit Refund'}
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }
