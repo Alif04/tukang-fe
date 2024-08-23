@@ -64,8 +64,6 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [quotationData, setQuotationData] = useState<DataType[]>([])
-  const [quotationStatusFilter, setQuotationStatusFilter] = useState<any>()
-
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
@@ -229,13 +227,13 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       key: 'action',
       fixed: 'right',
       render: (record) => {
+        const id = record.quotation_id
+
         const handleDetail = () => {
-          const id = record.quotation_id
           navigate(`/quotation/detail-quotation/${id}`)
         }
 
         const handleEdit = () => {
-          const id = record.quotation_id
           navigate(`/quotation/update-quotation/${id}`)
         }
 
@@ -246,9 +244,22 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Detail Quotation')}
             >
-              <Button variant='primary' className='button-detail' onClick={handleDetail}>
+              {/* <Button variant='primary' className='button-detail' onClick={handleDetail}>
                 <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
-              </Button>
+              </Button> */}
+
+              <a
+                href={`/quotation/detail-quotation/${id}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='btn btn-primary button-detail'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleDetail()
+                }}
+              >
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </a>
             </OverlayTrigger>
 
             {['QUOTEIN', 'UNPAID', 'PAID', 'QUOTEOUT', 'QUOTATIONPAID', 'APPROVED'].includes(
@@ -259,9 +270,22 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
                 delay={{show: 250, hide: 400}}
                 overlay={renderTooltip('Edit Quotation')}
               >
-                <Button variant='primary' className='button-edit' onClick={handleEdit}>
+                {/* <Button variant='primary' className='button-edit' onClick={handleEdit}>
                   <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                </Button>
+                </Button> */}
+
+                <a
+                  href={`/quotation/update-quotation/${id}`}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='btn btn-primary button-edit'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleEdit()
+                  }}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </a>
               </OverlayTrigger>
             )}
 
@@ -337,20 +361,24 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           }
         })()
 
-        const createdAt = item?.created_at ? new Date(item.created_at) : null
-        const quotationCreatedAt = createdAt
-          ? createdAt.toLocaleDateString('id-ID', {
+        const createdAt = item?.quotation_validity ? new Date(item.quotation_validity) : null
+        const createdAtMinus = createdAt
+          ? new Date(createdAt.getTime() - 6 * 24 * 60 * 60 * 1000)
+          : null
+
+        const quotationCreatedAt = createdAtMinus
+          ? createdAtMinus.toLocaleDateString('id-ID', {
               day: '2-digit',
               month: 'long',
               year: 'numeric',
             })
-          : '-'
+          : 'Quotation belum aktif'
 
         let quotationEndDate = '-'
         let cooldownQuotation = 0
 
-        if (createdAt) {
-          const quotationEnd = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000)
+        if (createdAtMinus) {
+          const quotationEnd = new Date(createdAtMinus.getTime() + 7 * 24 * 60 * 60 * 1000)
           quotationEndDate = quotationEnd.toLocaleDateString('id-ID', {
             day: '2-digit',
             month: 'long',
@@ -385,16 +413,20 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
         const quotationCountdown = calculateTimeLeft(cooldownQuotation)
         const quotationCountdownText =
-          quotationCountdown.days === 0 &&
-          quotationCountdown.hours === 0 &&
-          quotationCountdown.minutes === 0
+          item?.quotation_validity === null
+            ? 'Quotation Belum Aktif'
+            : quotationCountdown.days === 0 &&
+              quotationCountdown.hours === 0 &&
+              quotationCountdown.minutes === 0
             ? 'Quotation Expired'
             : `${quotationCountdown.days} Hari ${quotationCountdown.hours} Jam ${quotationCountdown.minutes} Menit`
 
         const quotationStatus =
-          quotationCountdown.days === 0 &&
-          quotationCountdown.hours === 0 &&
-          quotationCountdown.minutes === 0
+          item?.quotation_validity === null
+            ? 'Quotation Belum Aktif'
+            : quotationCountdown.days === 0 &&
+              quotationCountdown.hours === 0 &&
+              quotationCountdown.minutes === 0
             ? 'Quotation Expired'
             : 'Quotation Aktif'
 
@@ -436,7 +468,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   }
 
   useEffect(() => {
-    fetchData(1, 10, '')
+    fetchData(1, 50, '')
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -500,7 +532,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     valueCheck(`&search=`, searchFilter)
     valueCheck(`&vendor_id=`, selectedVendor?.value)
 
-    const data = await ViewQuotation(1, 10, queryparams)
+    const data = await ViewQuotation(1, 50, queryparams)
     setQuotationData(data)
 
     setLoadingButton(false)
@@ -602,7 +634,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table
@@ -625,6 +657,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
             current={currentPage}
             total={totalData}
             showSizeChanger
+            defaultPageSize={50}
             pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
             itemRender={itemRender}
             onChange={(page, pageSize) => {

@@ -2,8 +2,6 @@
 import React, {FC, useEffect, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 
-import './FormatEmailList.css'
-
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
@@ -439,7 +437,7 @@ const FormatEmailList: FC = () => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table

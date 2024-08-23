@@ -205,8 +205,27 @@ const ViewCalendarVendor: React.FC = () => {
     'QUOTEIN',
     'QUOTEOUT',
   ])
-  const workStatuses = getStatuses(['WORKREQ', 'TUKANGWORK', 'WORKSTART'])
-  const workDoneStatuses = getStatuses(['WORKEND', 'DONE'])
+  const workStatuses = getStatuses([
+    'WORKREQ',
+    'TUKANGWORK',
+    'WORKSTART',
+    'WORKREQSTEPONE',
+    'WORKREQSTEPTWO',
+    'WORKREQSTEPTHREE',
+    'WORKSTARTSTEPONE',
+    'WORKSTARTSTEPTWO',
+    'WORKSTARTSTEPTHREE',
+    'TUKANGWORKSTEPONE',
+    'TUKANGWORKSTEPTWO',
+    'TUKANGWORKSTEPTHREE',
+  ])
+  const workDoneStatuses = getStatuses([
+    'WORKEND',
+    'DONE',
+    'WORKENDSTEPONE',
+    'WORKENDSTEPTWO',
+    'WORKENDSTEPTHREE',
+  ])
 
   const orderHistory = [
     {title: 'Booking Process', value: bookStatuses},
@@ -318,7 +337,7 @@ const ViewCalendarVendor: React.FC = () => {
         spinning={isLoadingPage}
         size='large'
         tip='Loading..'
-        indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+        indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
       >
         <FullCalendar
           plugins={[dayGridPlugin, listPlugin, interactionPlugin]}

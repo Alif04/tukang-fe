@@ -5,6 +5,7 @@ import {useNavigate} from 'react-router-dom'
 import './ViewInvoice.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination, Upload, Image} from 'antd'
@@ -25,7 +26,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
   faBook,
   faSearch,
-  faXmarkCircle,
+  faPen,
   faImage,
   faFileImage,
   faTrash,
@@ -71,8 +72,10 @@ const ViewInvoiceHO: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  )
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
 
   // Status
@@ -81,7 +84,6 @@ const ViewInvoiceHO: FC = () => {
 
   // Update Invoice
   const [invoiceId, setInvoiceId] = useState<any>()
-  console.log('invoice', invoiceId)
   const [invoiceNotes, setInvoiceNotes] = useState<any>()
   const [invoices, setInvoices] = useState<Invoices>({
     status: 2,
@@ -178,7 +180,11 @@ const ViewInvoiceHO: FC = () => {
       render: (record) => {
         const id = record.invoice_id
 
-        const handleDetailInvoice = () => {
+        const handleUpdateInvoicePage = () => {
+          navigate(`/invoice/update-invoice/${id}`)
+        }
+
+        const handleDetailInvoicePage = () => {
           navigate(`/invoice/detail-invoice/${id}`)
         }
 
@@ -199,12 +205,26 @@ const ViewInvoiceHO: FC = () => {
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Detail Invoice')}
             >
-              <Button variant='primary' className='button-detail' onClick={handleDetailInvoice}>
+              <Button variant='primary' className='button-detail' onClick={handleDetailInvoicePage}>
                 <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
               </Button>
             </OverlayTrigger>
 
             {[1].includes(record.status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Edit Invoice')}
+              >
+                <Button variant='primary' className='button-edit' onClick={handleUpdateInvoicePage}>
+                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )}
+
+            {/* {[1].includes(record.status) ? (
               <>
                 <OverlayTrigger
                   placement='bottom'
@@ -244,7 +264,25 @@ const ViewInvoiceHO: FC = () => {
               </>
             ) : (
               <></>
-            )}
+            )} */}
+
+            {/* {[2].includes(record.status) ? (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Tolak Dokumen Tagihan')}
+              >
+                <Button
+                  className='button-cancel'
+                  variant='danger'
+                  onClick={() => handleShowModal(id, 3)}
+                >
+                  <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            ) : (
+              <></>
+            )} */}
 
             {[2, 4].includes(record.status) ? (
               <OverlayTrigger
@@ -346,17 +384,19 @@ const ViewInvoiceHO: FC = () => {
         const invoiceStatus = (status: number) => {
           switch (status) {
             case 1:
-              return 'Pengecekan Invoice'
+              return 'Pengecekan invoice'
             case 2:
-              return 'Invoice Disetujui'
+              return 'Invoice disetujui'
             case 3:
-              return 'Invoice Ditolak'
+              return 'Invoice ditolak'
             case 4:
-              return 'Menunggu Dokumen Tagihan'
+              return 'Menunggu dokumen tagihan'
             case 5:
-              return 'Invoice Diberikan Kepada Finance'
+              return 'Invoice diberikan kepada finance'
             case 6:
-              return 'Invoice Sudah Dibayarkan'
+              return 'Invoice sudah dibayarkan'
+            case 7:
+              return 'Dokumen ditolak'
             default:
               return ''
           }
@@ -411,8 +451,6 @@ const ViewInvoiceHO: FC = () => {
       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
     },
   }
-
-  console.log('invoices', invoices)
 
   // Handle Approve Invoice
   const handleApproveInvoice = async () => {
@@ -576,12 +614,12 @@ const ViewInvoiceHO: FC = () => {
     setExcel(null)
   }
 
-  const handleDeclineInvoice = async () => {
+  const handleDeclineInvoice = async (statusInvoice: number) => {
     const formData = new FormData()
 
     formData.append(`invoice_id`, invoiceId)
     formData.append(`notes`, invoiceNotes)
-    formData.append(`status`, String(3))
+    formData.append(`status`, String(statusInvoice))
 
     if (invoiceEvidence?.length) {
       invoiceEvidence.forEach((item) => {
@@ -604,7 +642,11 @@ const ViewInvoiceHO: FC = () => {
         if (response.data.status === 201 || response.data.status === 200) {
           Swal.fire({
             title: 'Success',
-            text: 'Berhasil Membatalkan Pembayaran',
+            text: `${
+              statusInvoice === 3
+                ? 'Berhasil menolak invoice yang akan ditagihkan'
+                : 'Berhasil menolak dokumen tagihan'
+            }`,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -844,6 +886,7 @@ const ViewInvoiceHO: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range ms-3'
+                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -890,7 +933,7 @@ const ViewInvoiceHO: FC = () => {
             tip='Loading...'
             spinning={loadData}
             size='large'
-            indicator={<LoadingOutlined style={{fontSize: 24}} spin rev />}
+            indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
           >
             <div className='table-custom-wrapper'>
               <Table
@@ -964,7 +1007,7 @@ const ViewInvoiceHO: FC = () => {
             onRemove={handleFileRemove}
           >
             <p className='ant-upload-drag-icon'>
-              <InboxOutlined style={{fontSize: 32}} rev />
+              <InboxOutlined style={{fontSize: 32}} />
             </p>
 
             <p className='ant-upload-text'>Klik atau seret file ke area ini untuk mengunggah</p>
@@ -1092,7 +1135,7 @@ const ViewInvoiceHO: FC = () => {
 
               <Button
                 className='d-flex justify-content-center align-items-center w-100 mt-5'
-                onClick={handleDeclineInvoice}
+                onClick={() => handleDeclineInvoice(3)}
                 variant='primary'
               >
                 Submit
@@ -1193,6 +1236,36 @@ const ViewInvoiceHO: FC = () => {
               <Button
                 className='d-flex justify-content-center align-items-center w-100 mt-5'
                 onClick={handleUploadInvoiceFile}
+                variant='primary'
+              >
+                Submit
+              </Button>
+            </Modal.Body>
+          </>
+        )}
+
+        {modalType === 3 && (
+          <>
+            <Modal.Header closeButton>
+              <Modal.Title>Formulir Alasan Penolakan Dokumen Tagihan</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+              <Row className='notes mb-5'>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Alasan Ditolak :</Form.Label>
+                  <Form.Control
+                    style={{minHeight: '140px'}}
+                    as='textarea'
+                    onChange={(e) => setInvoiceNotes(e.target.value)}
+                    value={invoiceNotes}
+                  />
+                </Form.Group>
+              </Row>
+
+              <Button
+                className='d-flex justify-content-center align-items-center w-100 mt-5'
+                onClick={() => handleDeclineInvoice(7)}
                 variant='primary'
               >
                 Submit

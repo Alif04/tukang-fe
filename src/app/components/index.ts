@@ -182,10 +182,10 @@ export * from './admin-ho/csi/report_csi/ReportCSI'
 export * from './admin-ho/format_email/FormatEmailHO'
 
 // Update Format Email
-export * from './admin-ho/format_email_update/UpdateFormatEmailHO'
+export * from './admin-ho/format_email/UpdateFormatEmailHO'
 
 // List Format Email
-export * from './admin-ho/format_email_list/FormatEmailList'
+export * from './admin-ho/format_email/FormatEmailList'
 
 // User Management
 // New User
@@ -295,6 +295,12 @@ export * from './admin-ho/reports/report/ReportHO'
 
 // Report Insentif HO
 export * from './admin-ho/reports/report_insentif/ReportInsentifHo'
+
+// Report Daily Follow Up Quotation
+export * from './admin-ho/reports/daily-followup/Quotation'
+
+// Report Daily Follow Up CSI
+export * from './admin-ho/reports/daily-followup/CSI'
 
 // CLAIM WARRANTY
 // List Claim Warranty

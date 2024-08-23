@@ -14,6 +14,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
   const params = useParams()
 
   const [orderDetail, setOrderDetail] = useState<any>()
+  const [emailDetail, setEmailDetail] = useState<any>()
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
 
   const fetchOrderData = async () => {
@@ -39,8 +40,29 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
     }
   }
 
+  const fetchEmailData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/mails/1`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setEmailDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     fetchOrderData()
+    fetchEmailData()
   }, [])
 
   return (
@@ -109,11 +131,11 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
           </Row>
 
           <Skeleton active loading={isLoadingPage}>
-            <h3 className='fs-4 fw-normal mb-1'>Hi, {orderDetail?.members?.full_name}</h3>
-
-            <h3 className='fs-4 fw-bold mb-5'>
-              Terima kasih telah melakukan order Layanan Jasa Instalasi & Service Mitra10
+            <h3 className='fs-4 fw-normal mb-1'>
+              {emailDetail?.welcome_header} {orderDetail?.members?.full_name}
             </h3>
+
+            <h3 className='fs-4 fw-bold mb-5'>{emailDetail?.greetings}</h3>
 
             <h3 className='fs-3 fw-bold mb-1'>Detail Pemesanan</h3>
 
@@ -266,44 +288,11 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
               <Col>
                 <h3 className='fs-3 fw-bold mb-1'>Syarat & Ketentuan</h3>
 
-                <ol>
-                  <li className='fw-normal'>
-                    Jadwal survey/pengerjaan akan ditentukan oleh teknisi, setelah material tersedia
-                    dan barang diterima customer, serta barang yang akan dikerjakan jasa instalasi
-                    adalah barang dari Mitra10.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Penjadwalan ulang pada H-1 tidak dikenakan biaya, penjadwalan ulang pada hari H
-                    akan dikenakan biaya tambahan minimal sebesar Rp 75.000.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Pekerjaan tambahan (Pekerjaan diluar yang sudah diajukan & di transaksikan) akan
-                    dikenakan biaya tambahan.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Semua jasa pemasangan wajib dilakukan survey. Biaya survey akan dikembalikan
-                    apabila biaya jasa instalasi/service minimal Rp 500.000.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Quotation diberikan kepada customer maksimal H+2 hari kerja setelah survey
-                    selesai.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Garansi 7 (Tujuh) hari untuk instalasi/service terhitung sejak tanggal serah
-                    terima pekerjaan dan hanya 1x kunjungan. Kerusakan produk yang terpasang, tidak
-                    menjadi bagian garansi dan proses instalasi/service.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Biaya transportasi, jarak dari toko Mitra10 lokasi pengerjaan kurang dari 10KM
-                    adalah FREE : Lebih dari 10KM dikenakan biaya transportasi Rp 25.000 Max 40KM
-                  </li>
-                </ol>
+                {emailDetail?.terms_detail?.map((item: any, index: number) => (
+                  <ol key={index} className='fw-normal' start={index + 1}>
+                    <li className='fw-normal'>{item.terms}</li>
+                  </ol>
+                ))}
               </Col>
             </Row>
 
@@ -311,20 +300,11 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
               <Col>
                 <h3 className='fs-3 fw-bold mb-1'>Informasi</h3>
 
-                <ol>
-                  <li className='fw-normal'>
-                    Kontak layanan pelanggan Instalasi/Service (WA Only) : 0878-8482-1089.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Operasional hari senin s/d jumat - Office hour 09:00 s/d 16:00.
-                  </li>
-
-                  <li className='fw-normal'>
-                    Orderan instalasi/service yang masuk diluar jam operasional akan diproses pada
-                    jam operasional.
-                  </li>
-                </ol>
+                {emailDetail?.information_detail?.map((item: any, index: number) => (
+                  <ol key={index} className='fw-normal' start={index + 1}>
+                    <li className='fw-normal'>{item.information}</li>
+                  </ol>
+                ))}
               </Col>
             </Row>
 
@@ -355,11 +335,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
 
             <div className='footer-card'>
               <h1 className='fs-3 fw-semibold'>Hormat Kami, Mitra10</h1>
-              <h3 className='fs-5 fw-normal'>
-                Ini adalah email yang dikirimkan oleh sistem. Mohon untuk tidak membalas email ini.
-                Kunjungi Help Centre kami untuk informasi lebih lanjut :
-                customer.relation@mitra10.com
-              </h3>
+              <h3 className='fs-5 fw-normal'>{emailDetail?.footer}</h3>
             </div>
           </Skeleton>
         </Card.Body>

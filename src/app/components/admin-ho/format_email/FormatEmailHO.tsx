@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
+import {toAbsoluteUrl} from '../../../../_metronic/helpers'
 import {useNavigate} from 'react-router-dom'
 
 import './FormatEmailHO.css'
@@ -7,8 +8,9 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import {Form, Button, Row, Col, Card} from 'react-bootstrap'
+import {Form, Button, Row, Col, Card, Accordion} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faCircleInfo} from '@fortawesome/free-solid-svg-icons'
 import {faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 interface CSI {
@@ -352,7 +354,7 @@ const FormatEmailHO: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Create Template',
+            text: 'Berhasil Membuat Template Email',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -388,6 +390,23 @@ const FormatEmailHO: FC = () => {
 
   return (
     <section id='format-email'>
+      <Accordion className='mb-5'>
+        <Accordion.Item eventKey='0'>
+          <Accordion.Header>
+            <FontAwesomeIcon icon={faCircleInfo} size='lg' className='me-2' />
+            <p className='fs-7 fw-bold'>Preview Email</p>
+          </Accordion.Header>
+
+          <Accordion.Body>
+            <div className='description fs-7 mb-5'>
+              Disajikan informasi berupa gambar yang akan ditampilkankan melalui email
+            </div>
+
+            <img src={toAbsoluteUrl('/media/tukangin/format-email.png')} alt='Mitra110 Vector' />
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
+
       <Card className='mb-5'>
         <Card.Body>
           <Row>

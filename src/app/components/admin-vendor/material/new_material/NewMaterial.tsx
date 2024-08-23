@@ -143,8 +143,6 @@ const NewMaterialVendor: FC = () => {
     },
   ])
 
-  console.log('work order item', workOrderItem)
-
   // Fetch Work Order Data
   const getWorkOrder = async () => {
     try {
@@ -465,6 +463,18 @@ const NewMaterialVendor: FC = () => {
           return 'REWORKEND'
         case 'REWORKEND':
           return 'REWORKEND'
+        case 'TUKANGWORKSTEPONE':
+          return 'WORKSTARTSTEPONE'
+        case 'WORKSTARTSTEPONE':
+          return 'WORKENDSTEPONE'
+        case 'TUKANGWORKSTEPTWO':
+          return 'WORKSTARTSTEPTWO'
+        case 'WORKSTARTSTEPTWO':
+          return 'WORKENDSTEPTWO'
+        case 'TUKANGWORKSTEPTHREE':
+          return 'WORKSTARTSTEPTHREE'
+        case 'WORKSTARTSTEPTHREE':
+          return 'WORKENDSTEPTHREE'
         default:
           return null
       }
@@ -959,7 +969,7 @@ const NewMaterialVendor: FC = () => {
                     <Col md={8} className='mt-5'>
                       <div className='detail-info'>
                         <p className='fs-7 fw-normal '>
-                          {workOrderDetail?.notes ?? 'Toko tidak memberikan catatan'}
+                          {workOrderDetail?.order?.notes ?? 'Toko tidak memberikan catatan'}
                         </p>
                       </div>
                     </Col>
@@ -1024,6 +1034,18 @@ const NewMaterialVendor: FC = () => {
                           'REWORKEND',
                           'WORKDONE',
                           'DONE',
+                          'WORKREQSTEPONE',
+                          'WORKREQSTEPTWO',
+                          'WORKREQSTEPTHREE',
+                          'WORKSTARTSTEPONE',
+                          'WORKSTARTSTEPTWO',
+                          'WORKSTARTSTEPTHREE',
+                          'WORKENDSTEPONE',
+                          'WORKENDSTEPTWO',
+                          'WORKENDSTEPTHREE',
+                          'TUKANGWORKSTEPONE',
+                          'TUKANGWORKSTEPTWO',
+                          'TUKANGWORKSTEPTHREE',
                         ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
                           <>
                             {workOrderDetail?.work_order_status[0]?.work_order_items.map(
@@ -1143,6 +1165,12 @@ const NewMaterialVendor: FC = () => {
                       'REWORKEND',
                       'WORKDONE',
                       'DONE',
+                      'WORKSTARTSTEPONE',
+                      'WORKSTARTSTEPTWO',
+                      'WORKSTARTSTEPTHREE',
+                      'WORKENDSTEPONE',
+                      'WORKENDSTEPTWO',
+                      'WORKENDSTEPTHREE',
                     ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
                       <Form.Group className='detail-info' as={Row}>
                         <Form.Label
@@ -1262,10 +1290,7 @@ const NewMaterialVendor: FC = () => {
               <Form.Group as={Row} className='detail-info'>
                 <Form.Label className='pt-3 fs-5 fw-semibold'>
                   WORK ORDER STATUS :
-                  <span className='fw-bold'>
-                    {' '}
-                    {workOrderDetail?.work_order_status[0].status?.description}
-                  </span>
+                  <span className='fw-bold'> {workOrderDetail?.order?.status?.description}</span>
                 </Form.Label>
               </Form.Group>
 
@@ -1345,6 +1370,18 @@ const NewMaterialVendor: FC = () => {
                 'REWORKEND',
                 'RESCHEDULE',
                 'DONE',
+                'WORKREQSTEPONE',
+                'WORKREQSTEPTWO',
+                'WORKREQSTEPTHREE',
+                'WORKSTARTSTEPONE',
+                'WORKSTARTSTEPTWO',
+                'WORKSTARTSTEPTHREE',
+                'WORKENDSTEPONE',
+                'WORKENDSTEPTWO',
+                'WORKENDSTEPTHREE',
+                'TUKANGWORKSTEPONE',
+                'TUKANGWORKSTEPTWO',
+                'TUKANGWORKSTEPTHREE',
               ].includes(workOrderDetail?.work_order_status[0]?.status?.category) && (
                 <Row className='detail-info'>
                   <div className='title'>

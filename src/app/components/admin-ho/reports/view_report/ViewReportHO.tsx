@@ -413,6 +413,54 @@ const ViewReportHO = () => {
             </Row>
           </div>
 
+          <div className='sales-reports mb-5'>
+            <div className='title'>
+              <hr />
+
+              <h1 className='fs-1 fw-bolder text-uppercase text-dark'>Daily Follow Up Reports</h1>
+            </div>
+
+            <Row>
+              <Col md={4}>
+                <Link to={`/reports/ho-report-followup-quotation`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
+
+                      {newTabs('followup-quotation', 'Laporan Follow Up Quotation')}
+                    </Card.Body>
+                  </Card>
+                </Link>
+              </Col>
+
+              <Col md={4}>
+                <Link to={`/reports/ho-report-followup-csi`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
+
+                      {newTabs('followup-csi', 'Laporan Follow Up CSI')}
+                    </Card.Body>
+                  </Card>
+                </Link>
+              </Col>
+
+              <Col md={4}></Col>
+            </Row>
+          </div>
+
           <div className='tagihan-reports mb-5'>
             <div className='title'>
               <hr />
