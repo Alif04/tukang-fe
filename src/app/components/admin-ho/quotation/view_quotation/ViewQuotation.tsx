@@ -262,7 +262,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               </a>
             </OverlayTrigger>
 
-            {['QUOTEIN', 'UNPAID', 'PAID', 'QUOTEOUT', 'QUOTATIONPAID', 'APPROVED'].includes(
+            {['QUOTATIONDRAFT', 'QUOTEIN', 'QUOTEOUT', 'UNPAID', 'REJECTED', 'APPROVED'].includes(
               record.order_status
             ) && (
               <OverlayTrigger
