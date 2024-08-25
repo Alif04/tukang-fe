@@ -9,3 +9,10 @@
 #update-tukang textarea.form-control {
   min-height: 115px;
 }
+
+@media screen and (max-width: 576px) {
+  #update-tukang .button-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+}

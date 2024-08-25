@@ -676,8 +676,9 @@ const NewTukangVendor: FC = () => {
         </Card.Body>
       </Card>
 
-      <div className='d-flex justify-content-center'>
+      <div className='button-wrapper d-flex justify-content-center align-items-center gap-3'>
         <Button
+          className='d-flex justify-content-center align-items-center m-0'
           variant='dark-danger'
           disabled={isLoading}
           type='submit'
@@ -687,7 +688,7 @@ const NewTukangVendor: FC = () => {
         </Button>
 
         <Button
-          className='d-flex justify-content-center align-items-center'
+          className='d-flex justify-content-center align-items-center m-0'
           variant='dark-primary'
           type='submit'
           disabled={isLoading}

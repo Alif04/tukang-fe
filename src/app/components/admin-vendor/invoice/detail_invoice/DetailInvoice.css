@@ -101,3 +101,13 @@
   background-color: #020080 !important;
   transition: 0.3s ease-in-out;
 }
+
+@media screen and (max-width: 576px) {
+  #detail-invoice .card .card-body .invoice-information {
+    padding: 10px 9.75px 10px 9.75px;
+  }
+
+  #detail-invoice .card .card-body .vendor-information {
+    padding: 10px 9.75px 10px 9.75px;
+  }
+}

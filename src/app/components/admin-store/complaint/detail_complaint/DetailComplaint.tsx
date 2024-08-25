@@ -1542,7 +1542,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                   </Button>
 
                   {['WARRANTYCLAIM', 'WORKREQ', 'TUKANGWORK', 'WORKSTART', 'WORKEND'].includes(
-                    complaintDetail?.order?.status?.category
+                    complaintDetail?.orders?.status?.category
                   ) ? (
                     <Button
                       variant='dark-primary'

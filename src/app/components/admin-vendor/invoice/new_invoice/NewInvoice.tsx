@@ -57,7 +57,7 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'date_order',
     key: 'date_order',
     align: 'center',
-    width: 130,
+    width: 200,
     onFilter: (value, record) => record.date_order.includes(String(value)),
     sorter: (a, b) => a.date_order.length - b.date_order.length,
   },
@@ -66,7 +66,7 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'member_name',
     key: 'member_name',
     align: 'center',
-    width: 150,
+    width: 180,
     onFilter: (value, record) => record.member_name.includes(String(value)),
     sorter: (a, b) => a.member_name.length - b.member_name.length,
   },
@@ -75,16 +75,15 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'order_type',
     key: 'order_type',
     align: 'left',
-    width: 140,
+    width: 180,
     onFilter: (value, record) => record.order_type.includes(String(value)),
     sorter: (a, b) => a.order_type.length - b.order_type.length,
   },
   {
-    title: 'Order Status',
+    title: 'Status Order',
     dataIndex: 'order_status_label',
     key: 'order_status_label',
     align: 'left',
-    width: 140,
     onFilter: (value, record) => record.order_status_label.includes(String(value)),
     sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     render: (order_status_label) => {
@@ -245,7 +244,7 @@ const NewInvoiceVendor: FC = () => {
       const surveyOrderData = surveyOrders
         .filter(
           (x) =>
-            x.order_history.length !== 0 &&
+            x.invoice_details.length === 0 ||
             x.invoice_details.find((x: any) => x.type === 1)?.length === 0
         )
         .map((item: any, index: number) => {
@@ -517,7 +516,7 @@ const NewInvoiceVendor: FC = () => {
                 pagination={false}
                 sticky={true}
                 tableLayout='auto'
-                scroll={{x: 'max-content'}}
+                scroll={{x: 1000}}
               />
             </div>
           </Spin>
@@ -544,9 +543,9 @@ const NewInvoiceVendor: FC = () => {
             />
           </div>
 
-          <div className='d-flex justify-content-center align-items-center gap-3'>
+          <div className='d-flex justify-content-center align-items-center mt-5'>
             <Button
-              className='d-flex justify-content-center align-items-center'
+              className='d-flex justify-content-center align-items-center m-0'
               variant='dark-success'
               type='submit'
               disabled={isLoading}

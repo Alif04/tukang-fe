@@ -9,6 +9,8 @@ import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import {Image} from 'antd'
 import {Form, ListGroup, Table, Row, Col, Card, Button} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faDownload} from '@fortawesome/free-solid-svg-icons'
 
 interface Store {
   store_id: number
@@ -44,6 +46,8 @@ const UpdateInvoiceVendor: FC = () => {
   const userRole = localStorage.getItem('userRole') as string
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [loadingPDF, setLoadingPDF] = useState<boolean>(false)
+  const [loadingTemplate, setLoadingTemplate] = useState<boolean>(false)
 
   // Store
   const [store, setStore] = useState<Store[]>([])
@@ -245,6 +249,56 @@ const UpdateInvoiceVendor: FC = () => {
     }
   }
 
+  const generatePdf = async () => {
+    setLoadingPDF(true)
+    const input = pdfRef.current
+    if (input) {
+      const canvas = await html2canvas(input)
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const imgProps = pdf.getImageProperties(imgData)
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      pdf.save(
+        `Invoice - ${invoiceDetail?.id} - ${new Date(invoiceDetail?.created_at).toLocaleDateString(
+          'id-ID',
+          {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }
+        )}.pdf`
+      )
+    }
+    setLoadingPDF(false)
+  }
+
+  // Export Template Excel
+  const exportTemplate = () => {
+    setLoadingTemplate(true)
+
+    axios
+      .get(`${apiUrl}/invoices/export-excel?invoce_id=${params.id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Invoice.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingTemplate(false)
+      })
+  }
+
   return (
     <section id='update-invoice'>
       <Card ref={pdfRef}>
@@ -384,7 +438,7 @@ const UpdateInvoiceVendor: FC = () => {
 
                 <tr>
                   <td colSpan={7} className='text-end fw-bolder'>
-                    PPn
+                    PPn {invoiceDetail?.vendor?.type === 1 ? '( Vendor PKP )' : ''}
                   </td>
 
                   <td className='fw-bolder'>
@@ -422,7 +476,7 @@ const UpdateInvoiceVendor: FC = () => {
                   </td>
                 </tr>
 
-                <tr>
+                {/* <tr>
                   <td colSpan={7} className='text-end fw-bolder'>
                     PKP ( 1, 11 %)
                   </td>
@@ -430,7 +484,7 @@ const UpdateInvoiceVendor: FC = () => {
                   <td className='fw-bolder'>{`Rp. ${parseInt(
                     invoices.pkp_nominal.toString() ?? 0
                   ).toLocaleString('id')}`}</td>
-                </tr>
+                </tr> */}
 
                 <tr>
                   <td colSpan={7} className='text-end fw-bolder'>
@@ -553,6 +607,37 @@ const UpdateInvoiceVendor: FC = () => {
           </Row>
         </Card.Body>
       </Card>
+
+      <div className='button-wrapper d-flex justify-content-center align-items-center gap-3 mt-3'>
+        <Button
+          className='btn-dark-success d-flex justify-content-center align-items-center w-100 gap-3 m-0'
+          disabled={loadingPDF}
+          onClick={() => exportTemplate()}
+        >
+          {loadingTemplate === false ? (
+            <>
+              <FontAwesomeIcon icon={faDownload} size='lg' />
+              Export Excel
+            </>
+          ) : (
+            'Exporting...'
+          )}
+        </Button>
+
+        <Button
+          className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3 m-0'
+          onClick={generatePdf}
+        >
+          {loadingPDF === false ? (
+            <>
+              <FontAwesomeIcon icon={faDownload} size='lg' />
+              Download PDF
+            </>
+          ) : (
+            'Generating PDF...'
+          )}
+        </Button>
+      </div>
     </section>
   )
 }

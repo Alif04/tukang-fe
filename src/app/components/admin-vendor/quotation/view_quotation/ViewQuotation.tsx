@@ -10,7 +10,7 @@ import dayjs from 'dayjs'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
-import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {Row, Form, FormGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -31,6 +31,7 @@ interface DataType {
   service_name: string
   payment_status: string
   order_status: string
+  order_status_label: string
   quotation_status: string
 }
 
@@ -109,8 +110,8 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
     },
     {
       title: 'Status Order',
-      dataIndex: 'order_status',
-      key: 'order_status',
+      dataIndex: 'order_status_label',
+      key: 'order_status_label',
       align: 'left',
       width: 120,
       render: (order_status) => {
@@ -129,8 +130,8 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      onFilter: (value, record) => record.order_status.includes(String(value)),
-      sorter: (a, b) => a.order_status.length - b.order_status.length,
+      onFilter: (value, record) => record.order_status_label.includes(String(value)),
+      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     },
     {
       title: 'Status Pembayaran Quotation',
@@ -171,7 +172,9 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
             </OverlayTrigger>
 
             {['Owner Vendor', 'Admin Vendor'].includes(userRole ?? '') &&
-              ![4].includes(record.readiness) && (
+              ['SURVEYDONE', 'QUOTEIN', 'QUOTATIONDRAFT', 'REJECTED'].includes(
+                record.order_status
+              ) && (
                 <OverlayTrigger
                   placement='bottom'
                   delay={{show: 250, hide: 400}}
@@ -254,7 +257,8 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
           costumer_name: item?.order.members.full_name,
           service_name: workOrderItems,
           payment_status: paymentStatus,
-          order_status: item?.order?.status?.description,
+          order_status: item?.order?.status?.category,
+          order_status_label: item?.order?.status?.description,
         }
 
         return data
@@ -314,23 +318,16 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
     <section id='view-quotation'>
       <div className={`card ${className}`}>
         <div className='card-body'>
-          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
-            <Col
-              xxl={4}
-              xl={4}
-              lg={4}
-              md={4}
-              sm={12}
-              className='d-flex mb-2'
+          <Row className='table-head-wrapper'>
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
               onKeyDown={handleKeyPress}
             >
-              <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-3 fw-normal'>Date : </h3>
-              </div>
+              <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
 
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range ms-3'
+                className='date-range'
                 defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
@@ -345,33 +342,29 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
                   }
                 }}
               />
-            </Col>
 
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
               <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-
+                <FormGroup>
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
-                </InputGroup>
-              </div>
-            </Col>
 
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                  <span className='search-icon'>
+                    <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
+                  </span>
+                </FormGroup>
+              </div>
+
               <Button
-                className='btn-dark-primary button-submit'
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-            </Col>
+            </div>
           </Row>
 
           <Spin

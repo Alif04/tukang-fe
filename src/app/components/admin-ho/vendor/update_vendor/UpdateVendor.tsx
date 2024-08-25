@@ -1687,7 +1687,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
         <div className='d-flex justify-content-center mt-5'>
           <Button
-            className='d-flex justify-content-center align-items-center'
+            className='d-flex justify-content-center align-items-center m-0'
             variant='dark-primary'
             type='submit'
             disabled={isLoading}

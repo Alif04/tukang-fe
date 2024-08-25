@@ -90,9 +90,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-
       className: 'col_order_id',
-      defaultSortOrder: 'descend',
+      width: 90,
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
@@ -100,7 +99,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-
+      width: 110,
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -109,7 +108,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-
+      width: 100,
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -118,7 +117,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_id',
       key: 'costumer_id',
       align: 'center',
-
+      width: 110,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.costumer_id - b.costumer_id,
@@ -128,7 +127,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
-
+      width: 110,
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -137,7 +136,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
-
+      width: 120,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
@@ -145,7 +144,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
-
+      width: 120,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -185,6 +184,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       key: 'action',
       fixed: 'right',
       align: 'center',
+      width: 110,
       render: (record) => {
         const id = record.work_order_id
 
@@ -228,18 +228,25 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            {![
-              'QUOTEIN',
-              'QUOTEOUT',
-              'CANCEL',
-              'WARRANTYCLAIM',
-              'INVESTIGATED',
-              'COMPLAINTAPPROVEDBYHO',
-              'COMPLAINTREJECTEDBYHO',
+            {[
+              'TUKANGSURVEY',
+              'SURVEYSTART',
               'SURVEYDONE',
-              'SURVEYREQ',
-              'WORKREQ',
+              'RESURVEYREQ',
+              'RESURVEYSTART',
+              'RESURVEYDONE',
+              'TUKANGWORK',
+              'TUKANGWORKSTEPONE',
+              'TUKANGWORKSTEPTWO',
+              'TUKANGWORKSTEPTHREE',
+              'WORKSTART',
+              'WORKSTARTSTEPONE',
+              'WORKSTARTSTEPTWO',
+              'WORKSTARTSTEPTHREE',
               'WORKEND',
+              'WORKENDSTEPONE',
+              'WORKENDSTEPTWO',
+              'WORKENDSTEPTHREE',
             ].includes(record.order_status) ? (
               <OverlayTrigger
                 placement='bottom'
@@ -425,8 +432,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     notes: '',
   })
 
-  console.log('tukang request', tukangRequest)
-
   // File
   const [files, setFiles] = useState<Array<File | null>>([])
   const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
@@ -604,7 +609,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
                 rowKey={(record) => record.work_order_id}
                 tableLayout='auto'
                 sticky={true}
-                scroll={{x: 'max-content'}}
+                scroll={{x: 1200}}
                 pagination={false}
               />
             </div>

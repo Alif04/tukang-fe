@@ -37,6 +37,7 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'order_date',
     key: 'order_date',
     align: 'left',
+    width: 'fit-content',
     sorter: (a: DataType, b: DataType) =>
       new Date(a.order_date).getTime() - new Date(b.order_date).getTime(),
   },
@@ -46,6 +47,7 @@ const columns: ColumnsType<DataType> = [
     key: 'store_name',
     align: 'left',
     className: 'col_order_id',
+    width: 'fit-content',
     onFilter: (value, record) => record.store_name.includes(String(value)),
     sorter: (a, b) => a.store_name.length - b.store_name.length,
   },
@@ -54,6 +56,7 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'costumer_name',
     key: 'costumer_name',
     align: 'left',
+    width: 'fit-content',
     onFilter: (value, record) => record.costumer_name.includes(String(value)),
     sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
   },
@@ -62,6 +65,7 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'service_name',
     key: 'service_name',
     align: 'left',
+    width: 'fit-content',
     onFilter: (value, record) => record.service_name.includes(String(value)),
     sorter: (a, b) => a.service_name.length - b.service_name.length,
   },
@@ -70,6 +74,7 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'status',
     key: 'status',
     align: 'left',
+    width: 'fit-content',
     onFilter: (value, record) => record.status.includes(String(value)),
     sorter: (a, b) => a.status.length - b.status.length,
   },
@@ -382,7 +387,7 @@ const DashboardTukang: FC = () => {
                       pagination={false}
                       sticky={true}
                       tableLayout='auto'
-                      scroll={{x: 'max-content'}}
+                      scroll={{x: 1200}}
                     />
                   </div>
                 </Spin>
