@@ -299,7 +299,7 @@ const DetailInvoiceVendor: FC = () => {
 
                 <tr>
                   <td colSpan={7} className='text-end fw-bolder'>
-                    PPn
+                    PPn {invoiceDetail?.vendor?.type === 1 ? '( Vendor PKP )' : ''}
                   </td>
 
                   <td className='fw-bolder'>{`Rp. ${parseInt(
@@ -317,7 +317,7 @@ const DetailInvoiceVendor: FC = () => {
                   ).toLocaleString('id')}`}</td>
                 </tr>
 
-                <tr>
+                {/* <tr>
                   <td colSpan={7} className='text-end fw-bolder'>
                     PKP ( 1, 11 %)
                   </td>
@@ -325,7 +325,7 @@ const DetailInvoiceVendor: FC = () => {
                   <td className='fw-bolder'>{`Rp. ${parseInt(
                     invoiceDetail?.pkp_nominal ?? 0
                   ).toLocaleString('id')}`}</td>
-                </tr>
+                </tr> */}
 
                 <tr>
                   <td colSpan={7} className='text-end fw-bolder'>
@@ -448,40 +448,36 @@ const DetailInvoiceVendor: FC = () => {
         </Card.Body>
       </Card>
 
-      <Row className='mt-5'>
-        <Col xxl={6} xl={6} md={6} sm={12}>
-          <Button
-            className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3'
-            disabled={loadingPDF}
-            onClick={() => exportTemplate()}
-          >
-            {loadingTemplate === false ? (
-              <>
-                <FontAwesomeIcon icon={faDownload} size='lg' />
-                Export Invoice
-              </>
-            ) : (
-              'Exporting...'
-            )}
-          </Button>
-        </Col>
+      <div className='button-wrapper d-flex justify-content-center align-items-center gap-3 mt-3'>
+        <Button
+          className='btn-dark-success d-flex justify-content-center align-items-center w-100 gap-3 m-0'
+          disabled={loadingPDF}
+          onClick={() => exportTemplate()}
+        >
+          {loadingTemplate === false ? (
+            <>
+              <FontAwesomeIcon icon={faDownload} size='lg' />
+              Export Excel
+            </>
+          ) : (
+            'Exporting...'
+          )}
+        </Button>
 
-        <Col xxl={6} xl={6} md={6} sm={12}>
-          <Button
-            className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3'
-            onClick={generatePdf}
-          >
-            {loadingPDF === false ? (
-              <>
-                <FontAwesomeIcon icon={faDownload} size='lg' />
-                Download PDF
-              </>
-            ) : (
-              'Generating PDF...'
-            )}
-          </Button>
-        </Col>
-      </Row>
+        <Button
+          className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3 m-0'
+          onClick={generatePdf}
+        >
+          {loadingPDF === false ? (
+            <>
+              <FontAwesomeIcon icon={faDownload} size='lg' />
+              Download PDF
+            </>
+          ) : (
+            'Generating PDF...'
+          )}
+        </Button>
+      </div>
     </section>
   )
 }

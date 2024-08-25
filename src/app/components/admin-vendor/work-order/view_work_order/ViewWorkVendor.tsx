@@ -90,7 +90,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       align: 'center',
       className: 'col_order_id',
       defaultSortOrder: 'descend',
-      width: 100,
+      width: 'fit-content',
       sorter: (a, b) => a.order_id - b.order_id,
     },
 
@@ -99,7 +99,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
-      width: 140,
+      width: 'fit-content',
       onFilter: (value, record) => record.date_order.includes(String(value)),
       sorter: (a, b) => a.date_order.length - b.date_order.length,
     },
@@ -108,7 +108,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
-      width: 140,
+      width: 'fit-content',
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -119,7 +119,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       align: 'center',
       className: 'col_order_id',
       defaultSortOrder: 'descend',
-      width: 140,
+      width: 'fit-content',
       sorter: (a, b) => a.costumer_id - b.costumer_id,
     },
     {
@@ -127,7 +127,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
-      width: 140,
+      width: 'fit-content',
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -136,7 +136,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'center',
-      width: 140,
+      width: 'fit-content',
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
 
@@ -145,7 +145,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
-      width: 140,
+      width: 'fit-content',
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -185,7 +185,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_quotation',
       key: 'payment_quotation',
       align: 'left',
-      width: 180,
+      width: 'fit-content',
       onFilter: (value, record) => record.payment_quotation.includes(String(value)),
       sorter: (a, b) => a.payment_quotation.length - b.payment_quotation.length,
     },
@@ -194,7 +194,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       key: 'action',
       align: 'center',
       fixed: 'right',
-      width: 140,
+      width: 'fit-content',
       render: (record) => {
         const id = record.order_id
 
@@ -758,7 +758,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
                 pagination={false}
                 sticky={true}
                 tableLayout='auto'
-                scroll={{x: 'max-content'}}
+                scroll={{x: 1700}}
               />
             </div>
           </Spin>

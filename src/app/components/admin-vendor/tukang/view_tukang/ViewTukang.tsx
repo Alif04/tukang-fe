@@ -9,7 +9,17 @@ import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, PaginationProps, Pagination, Spin, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip, Card} from 'react-bootstrap'
+import {
+  Form,
+  InputGroup,
+  Row,
+  Col,
+  Button,
+  OverlayTrigger,
+  Tooltip,
+  Card,
+  FormGroup,
+} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
   faBook,
@@ -165,6 +175,7 @@ const ViewTukangVendor: FC = () => {
       dataIndex: 'no',
       key: 'no',
       align: 'center',
+      width: 70,
       sorter: (a, b) => a.no - b.no,
     },
     {
@@ -172,6 +183,7 @@ const ViewTukangVendor: FC = () => {
       dataIndex: 'full_name',
       key: 'full_name',
       align: 'left',
+      width: 150,
       onFilter: (value, record) => record.full_name.includes(String(value)),
       sorter: (a, b) => a.full_name.length - b.full_name.length,
     },
@@ -180,6 +192,7 @@ const ViewTukangVendor: FC = () => {
       dataIndex: 'email',
       key: 'email',
       align: 'left',
+      width: 'fit-content',
       onFilter: (value, record) => record.email.includes(String(value)),
       sorter: (a, b) => a.email.length - b.email.length,
     },
@@ -188,6 +201,7 @@ const ViewTukangVendor: FC = () => {
       dataIndex: 'phone_number',
       key: 'phone_number',
       align: 'left',
+      width: 150,
       sorter: (a, b) => a.phone_number - b.phone_number,
     },
     {
@@ -195,32 +209,35 @@ const ViewTukangVendor: FC = () => {
       dataIndex: 'keahlian',
       key: 'keahlian',
       align: 'left',
-      width: 150,
+      width: 130,
     },
     {
       title: 'Area',
       dataIndex: 'area',
       key: 'area',
       align: 'left',
-      width: 150,
+      width: 'fit-content',
     },
     {
       title: 'Availbility',
       dataIndex: 'is_active_label',
       key: 'is_active_label',
       align: 'left',
+      width: 'fit-content',
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
       align: 'left',
+      width: 'fit-content',
     },
     {
       title: 'Action',
       key: 'action',
       fixed: 'right',
       align: 'center',
+      width: 'fit-content',
       render: (record) => {
         const id = record.tukang_id
         const isAvailable = record.is_active
@@ -536,59 +553,52 @@ const ViewTukangVendor: FC = () => {
             </button>
           </div>
 
-          <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-              <Form.Group as={Row}>
-                <Form.Label className='fs-6' column sm='3'>
-                  Join Date :
-                </Form.Label>
+          <Row className='table-head-wrapper'>
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+              onKeyDown={handleKeyPress}
+            >
+              <h3 className='d-flex align-items-center fs-5 fw-normal'>Join Date</h3>
 
-                <Col sm='9'>
-                  <RangePicker
-                    format={'DD-MM-YYYY'}
-                    className='date-range ms-3'
-                    onChange={(values) => {
-                      if (values && values.length === 2) {
-                        const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                        const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
-                        setDateFrom(dateFromFormatted)
-                        setDateTo(dateToFormatted)
-                      } else {
-                        setDateFrom('')
-                        setDateTo('')
-                      }
-                    }}
-                  />
-                </Col>
-              </Form.Group>
-            </Col>
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
+                  }
+                }}
+              />
 
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-              <div className='filter-search w-100'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-
+              <div className='filter-search'>
+                <FormGroup>
                   <Form.Control
-                    placeholder='Cari Nama Tukang atau Email'
+                    placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
-                </InputGroup>
-              </div>
-            </Col>
 
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
+                  <span className='search-icon'>
+                    <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
+                  </span>
+                </FormGroup>
+              </div>
+
               <Button
-                className='btn-dark-primary button-submit'
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-            </Col>
+            </div>
           </Row>
 
           <Spin

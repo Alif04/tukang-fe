@@ -817,10 +817,10 @@ const UpdateTukangVendor: FC = () => {
         </Card.Body>
       </Card>
 
-      <div className='d-flex justify-content-center'>
+      <div className='button-wrapper d-flex justify-content-center align-items-center gap-3'>
         {!['Tukang'].includes(userRole) && (
           <Button
-            className='d-flex justify-content-center align-items-center'
+            className='d-flex justify-content-center align-items-center m-0'
             variant='dark-danger'
             type='submit'
             disabled={isLoading}

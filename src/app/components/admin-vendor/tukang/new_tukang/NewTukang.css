@@ -5,3 +5,10 @@
 #new-tukang .mb-5 .form-input-image {
   height: 130px;
 }
+
+@media screen and (max-width: 576px) {
+  #new-tukang .button-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+}

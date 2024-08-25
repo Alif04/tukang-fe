@@ -1059,6 +1059,14 @@ svg.svg-inline--fa.fa-trash.fa-sm {
     width: 100% !important;
   }
 
+  button.btn.btn-dark-danger {
+    width: 100% !important;
+  }
+
+  button.btn.btn-dark-success {
+    width: 100% !important;
+  }
+
   .btn.btn-dark-primary {
     width: 100% !important;
   }

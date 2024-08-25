@@ -28,33 +28,36 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'order_id',
     key: 'order_id',
     align: 'center',
+    width: 'fit-content',
     sorter: (a, b) => a.order_id - b.order_id,
-    width: 100,
   },
   {
     title: 'Tanggal Komplain',
     dataIndex: 'complaint_date',
     key: 'complaint_date',
     align: 'left',
+    width: 'fit-content',
   },
   {
     title: 'Nama Customer',
     dataIndex: 'customer_name',
     key: 'customer_name',
     align: 'left',
+    width: 'fit-content',
   },
   {
     title: 'Umur Komplain',
     dataIndex: 'complaint_age',
     key: 'complaint_age',
     align: 'left',
+    width: 'fit-content',
   },
   {
     title: 'Status Komplain',
     dataIndex: 'complaint_status',
     key: 'complaint_status',
     align: 'left',
-    width: 130,
+    width: 'fit-content',
     render: (complaint_status) => {
       const complaintStatus = complaint_status
       let color = ''
@@ -459,7 +462,7 @@ const ReportComplaintPage: FC = () => {
                       pagination={false}
                       sticky={true}
                       tableLayout='auto'
-                      scroll={{x: 'max-content'}}
+                      scroll={{x: 1200}}
                     />
                   </div>
                 </Spin>

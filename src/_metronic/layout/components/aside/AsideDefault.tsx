@@ -45,11 +45,18 @@ const AsideDefault: FC = () => {
             })
             break
           case 'Store Staff':
-          case 'Store CS':
             setUser({
               user_id: data.id,
               username: data?.username ?? '',
               full_name: data?.employee?.full_name ?? '',
+              roles: role,
+            })
+            break
+          case 'Store CS':
+            setUser({
+              user_id: data.id,
+              username: data?.username ?? '',
+              full_name: data?.store[0]?.store_name ?? '',
               roles: role,
             })
             break

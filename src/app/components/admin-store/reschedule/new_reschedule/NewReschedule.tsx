@@ -481,7 +481,15 @@ const NewReschedule: FC = () => {
               <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
 
               <Row>
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                <Form.Group
+                  as={Col}
+                  xxl={4}
+                  xl={4}
+                  md={4}
+                  sm={12}
+                  className='mb-3'
+                  controlId='formPlaintextEmail'
+                >
                   <Form.Label column>
                     {(() => {
                       if (orderDetail?.payment_type === 'survey') {
@@ -491,6 +499,7 @@ const NewReschedule: FC = () => {
                       }
                     })()}
                   </Form.Label>
+
                   <Col>
                     <p className='fs-7 p-0'>
                       {orderDetail?.request_survey
@@ -505,7 +514,15 @@ const NewReschedule: FC = () => {
                 </Form.Group>
 
                 {orderDetail?.payment_type === 'survey' && (
-                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                  <Form.Group
+                    as={Col}
+                    xxl={4}
+                    xl={4}
+                    md={4}
+                    sm={12}
+                    className='mb-3'
+                    controlId='formPlaintextEmail'
+                  >
                     <Form.Label column>Tanggal request pemasangan</Form.Label>
                     <Col>
                       <p className='fs-7 p-0'>
@@ -519,14 +536,30 @@ const NewReschedule: FC = () => {
                   </Form.Group>
                 )}
 
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                <Form.Group
+                  as={Col}
+                  xxl={4}
+                  xl={4}
+                  md={4}
+                  sm={12}
+                  className='mb-3'
+                  controlId='formPlaintextEmail'
+                >
                   <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
                   <Col>
                     <p className='fs-7 p-0'>{orderDetail?.vendor?.company_name ?? '-'}</p>
                   </Col>
                 </Form.Group>
 
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                <Form.Group
+                  as={Col}
+                  xxl={4}
+                  xl={4}
+                  md={4}
+                  sm={12}
+                  className='mb-3'
+                  controlId='formPlaintextEmail'
+                >
                   <Form.Label column>Payment Type:</Form.Label>
                   <Col>
                     <p className='fs-7 p-0'>
@@ -568,7 +601,7 @@ const NewReschedule: FC = () => {
                       </>
                     )}
 
-                    <table className='table hover responsive'>
+                    <Table hover responsive>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item Code</th>
@@ -620,7 +653,7 @@ const NewReschedule: FC = () => {
                           </>
                         )}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 )
               } else if (
@@ -633,7 +666,7 @@ const NewReschedule: FC = () => {
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    <table className='table hover responsive'>
+                    <Table hover responsive>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Nama Pemasangan</th>
@@ -664,7 +697,7 @@ const NewReschedule: FC = () => {
                           </tr>
                         )}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 )
               } else if (
@@ -674,7 +707,7 @@ const NewReschedule: FC = () => {
                 return (
                   <div className='table-warranty-content'>
                     {orderDetail?.quotation?.[0]?.quotation_special === 0 ? (
-                      <table className='table hover responsive'>
+                      <Table hover responsive>
                         <thead className='table-warranty-head'>
                           <tr>
                             <th className='text-center' style={{width: '355px'}}>
@@ -712,12 +745,12 @@ const NewReschedule: FC = () => {
                               </tr>
                             ))}
                         </tbody>
-                      </table>
+                      </Table>
                     ) : (
                       <>
                         <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 1</div>
 
-                        <table className='table hover responsive'>
+                        <Table hover responsive>
                           <thead className='table-warranty-head'>
                             <tr>
                               <th className='text-center' style={{width: '355px'}}>
@@ -757,11 +790,11 @@ const NewReschedule: FC = () => {
                                 </tr>
                               ))}
                           </tbody>
-                        </table>
+                        </Table>
 
                         <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
-                        <table className='table hover responsive'>
+                        <Table hover responsive>
                           <thead className='table-warranty-head'>
                             <tr>
                               <th className='text-center' style={{width: '355px'}}>
@@ -801,11 +834,11 @@ const NewReschedule: FC = () => {
                                 </tr>
                               ))}
                           </tbody>
-                        </table>
+                        </Table>
 
                         <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
 
-                        <table className='table hover responsive'>
+                        <Table hover responsive>
                           <thead className='table-warranty-head'>
                             <tr>
                               <th className='text-center' style={{width: '355px'}}>
@@ -845,11 +878,11 @@ const NewReschedule: FC = () => {
                                 </tr>
                               ))}
                           </tbody>
-                        </table>
+                        </Table>
                       </>
                     )}
 
-                    <table className='table hover responsive'>
+                    <Table hover responsive>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th className='text-center' style={{width: '355px'}}>
@@ -955,7 +988,7 @@ const NewReschedule: FC = () => {
                           </td>
                         </tr>
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 )
               } else if (
@@ -974,7 +1007,7 @@ const NewReschedule: FC = () => {
                       </>
                     )}
 
-                    <table className='table hover responsive'>
+                    <Table hover responsive>
                       <thead className='table-warranty-head'>
                         <tr>
                           <th>Item Code</th>
@@ -1037,7 +1070,7 @@ const NewReschedule: FC = () => {
                           ).toLocaleString('id')}`}</td>
                         </tr>
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 )
               }
@@ -1049,7 +1082,7 @@ const NewReschedule: FC = () => {
               <Col>
                 <div className='fs-3 fw-bold'>Preview Pembayaran</div>
 
-                <table className='table hover responsive'>
+                <Table hover responsive>
                   <thead className='table-warranty-head'>
                     <tr>
                       <th>Tahap Pembayaran</th>
@@ -1071,13 +1104,13 @@ const NewReschedule: FC = () => {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </Table>
               </Col>
             </Row>
           )}
 
           <Row>
-            <Col>
+            <Col xxl={6} xl={6} md={6} sm={12}>
               <Row className='information-detail'>
                 <div className='fs-3 fw-bold'>Informasi Survei Yang Dilakukan Oleh Vendor</div>
 
@@ -1156,7 +1189,7 @@ const NewReschedule: FC = () => {
               </Row>
             </Col>
 
-            <Col>
+            <Col xxl={6} xl={6} md={6} sm={12}>
               <Row className='information-detail'>
                 <div className='fs-3 fw-bold'>Informasi Pengerjaan Yang Dilakukan Oleh Vendor</div>
 
@@ -1448,6 +1481,7 @@ const NewReschedule: FC = () => {
 
           <div className='d-flex justify-content-center mt-5'>
             <Button
+              className='button-submit m-0'
               variant='dark-primary'
               type='submit'
               disabled={isLoading}

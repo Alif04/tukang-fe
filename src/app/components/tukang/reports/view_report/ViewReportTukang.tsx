@@ -205,6 +205,7 @@ const ViewReportTukang = () => {
       key: 'order_id',
       align: 'center',
       className: 'col_order_id',
+      width: 'fit-content',
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
@@ -212,6 +213,7 @@ const ViewReportTukang = () => {
       dataIndex: 'date_order',
       key: 'date_order',
       align: 'center',
+      width: 'fit-content',
       sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
@@ -219,6 +221,7 @@ const ViewReportTukang = () => {
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'center',
+      width: 'fit-content',
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
@@ -227,6 +230,7 @@ const ViewReportTukang = () => {
       dataIndex: 'costumer_name',
       key: 'costumer_name',
       align: 'center',
+      width: 'fit-content',
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
@@ -235,6 +239,7 @@ const ViewReportTukang = () => {
       dataIndex: 'service_name',
       key: 'service_name',
       align: 'center',
+      width: 'fit-content',
       onFilter: (value, record) => record.service_name.includes(String(value)),
       sorter: (a, b) => a.service_name.length - b.service_name.length,
     },
@@ -243,6 +248,7 @@ const ViewReportTukang = () => {
       dataIndex: 'order_status',
       key: 'order_status',
       align: 'left',
+      width: 'fit-content',
       render: (order_status) => {
         const orderStatus = order_status
         return <Tag color='blue'>{orderStatus}</Tag>
@@ -255,10 +261,9 @@ const ViewReportTukang = () => {
       key: 'action',
       fixed: 'right',
       align: 'center',
+      width: 'fit-content',
       render: (record) => {
         const id = record.work_order_id
-
-        console.log('record', record)
 
         const handleDetailId = () => {
           navigate(`/work-order/detail-work-order/${id}`)
@@ -537,8 +542,8 @@ const ViewReportTukang = () => {
                 rowKey={(record) => record.order_id}
                 tableLayout='auto'
                 sticky={true}
-                scroll={{x: 'max-content'}}
                 pagination={false}
+                scroll={{x: 1200}}
               />
             </div>
           </Spin>
