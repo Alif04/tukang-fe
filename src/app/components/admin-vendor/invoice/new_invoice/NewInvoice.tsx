@@ -5,12 +5,11 @@ import './NewInvoice.css'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
-import * as XLSX from 'xlsx'
 import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import {Form, FormGroup, Row, Col, Button, Card} from 'react-bootstrap'
+import {Form, FormGroup, Row, Button, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch} from '@fortawesome/free-solid-svg-icons'
 
@@ -85,7 +84,6 @@ const columns: ColumnsType<DataType> = [
     key: 'order_status_label',
     align: 'left',
     onFilter: (value, record) => record.order_status_label.includes(String(value)),
-    sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     render: (order_status_label) => {
       const orderStatus = order_status_label
       return <Tag color='green'>{orderStatus}</Tag>
@@ -123,7 +121,7 @@ const NewInvoiceVendor: FC = () => {
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const workend = statusData.filter((status: any) => ['WORKEND'].includes(status.category))
-  const surveyend = statusData.filter((status: any) => ['SURVEYDONE'].includes(status.category))
+  const surveyend = statusData.filter((status: any) => ['QUOTEIN'].includes(status.category))
   const workStatuses = workend.map((x) => x.value)
   const surveyStatuses = surveyend.map((x) => x.value)
 
@@ -257,7 +255,7 @@ const NewInvoiceVendor: FC = () => {
           })
 
           const surveyDoneHistory = item?.order_history?.find(
-            (x: any) => x.status.category === 'SURVEYDONE'
+            (x: any) => x.status.category === 'QUOTEIN'
           )
 
           return {
@@ -299,7 +297,7 @@ const NewInvoiceVendor: FC = () => {
       const updatedSelectedRowKeys = selectedRows.map((row) => row.order_id)
       const invoiceType = selectedRows.map((row) => ({
         order_id: row.order_id,
-        type: row.order_status === 'SURVEYDONE' ? 1 : row.order_status === 'WORKEND' ? 2 : 0,
+        type: row.order_status === 'QUOTEIN' ? 1 : row.order_status === 'WORKEND' ? 2 : 0,
       }))
 
       setSelectedRows(selectedRows)
