@@ -9,7 +9,7 @@
 }
 
 #detail-costumer label.form-label.col-form-label {
-  padding: 5px 9.75px;
+  padding: 2px 9.75px;
 }
 
 /* Table */
@@ -104,13 +104,17 @@
   margin-top: 35px;
 }
 
-#detail-costumer .row.row-2 .basic-info p {
+#detail-costumer .row.row-2 .basic-info h1 {
   font-size: 18px;
   background-color: #ffff;
   margin-top: -28px;
   padding-right: 10px;
   width: fit-content;
   position: relative;
+}
+
+#detail-costumer .row.row-2 .basic-info p {
+  word-break: break-word;
 }
 
 #detail-costumer .row.row-2 .basic-info i.bi.bi-person-fill {

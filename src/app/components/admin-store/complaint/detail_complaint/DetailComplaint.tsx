@@ -484,6 +484,35 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     navigate('/complaint/view-complaint')
   }
 
+  // Calculate Warranty Date
+  const calculateWarrantyDays = (warranty: string) => {
+    if (!warranty) return {workEndDate: '-', warrantyEndDate: '-'}
+
+    const createdAt = new Date(warranty)
+
+    const workEndDate = createdAt.toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    })
+
+    const warrantyEnd = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000)
+    const warrantyEndDate = warrantyEnd.toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    })
+
+    const today = new Date()
+    const status = today > warrantyEnd ? 'Garansi Expired' : 'Garansi Aktif'
+
+    return {workEndDate, warrantyEndDate, status}
+  }
+
+  const warrantyData = calculateWarrantyDays(
+    complaintDetail?.orders?.work_orders?.work_order_status[0]?.created_at
+  )
+
   return (
     <section id='detail-complaint'>
       <Card>
@@ -541,46 +570,9 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                 <Col>
                   <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
                     <Form.Label className='fs-4 fw-bold'>
-                      Order Status :
+                      Status Order :
                       <span className='fs-4 ms-2 fw-bold text-success'>
-                        {(() => {
-                          if (
-                            complaintDetail?.orders?.work_orders?.work_order_status?.length >= 0
-                          ) {
-                            if (
-                              [
-                                'QUOTEIN',
-                                'QUOTEOUT',
-                                'CANCEL',
-                                'WARRANTYCLAIM',
-                                'INVESTIGATED',
-                                'COMPLAINTAPPROVEDBYHO',
-                                'COMPLAINTREJECTEDBYHO',
-                                'RESCHEDULE',
-                                'RESURVEYREQ',
-                                'REWORKREQ',
-                              ].includes(complaintDetail?.orders?.status?.category ?? '')
-                            ) {
-                              return complaintDetail?.orders?.status?.description
-                            } else if (
-                              ['WORKREQ'].includes(
-                                complaintDetail?.orders?.status?.category ?? ''
-                              ) &&
-                              complaintDetail?.orders?.payment_type === 'survey' &&
-                              !['WORKSTART', 'WORKEND'].includes(
-                                complaintDetail?.orders?.work_orders?.work_order_status[0]?.status
-                                  ?.category ?? ''
-                              )
-                            ) {
-                              return complaintDetail?.orders?.status?.description
-                            } else {
-                              return complaintDetail?.orders?.work_orders?.work_order_status[0]
-                                ?.status?.description
-                            }
-                          } else {
-                            return complaintDetail?.orders?.status?.description
-                          }
-                        })()}
+                        {complaintDetail?.orders?.status?.description ?? '-'}
                       </span>
                     </Form.Label>
                   </Skeleton>
@@ -1256,6 +1248,72 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
             </Col>
           </Row>
 
+          <Row>
+            <Col>
+              <Row className='information-detail'>
+                <div className='fs-3 fw-bold'>Catatan Order</div>
+
+                <div className='detail-info mb-3'>
+                  <p className='fs-5 fw-bold'>Catatan Toko :</p>
+
+                  <p className='fs-7'>
+                    {complaintDetail?.orders?.notes
+                      ? complaintDetail?.orders?.notes
+                      : 'Toko tidak memberikan catatan'}
+                  </p>
+                </div>
+
+                <div className='detail-info mb-3'>
+                  <p className='fs-5 fw-bold'>Catatan Tukang :</p>
+
+                  <p className='fs-7'>
+                    {complaintDetail?.orders?.work_orders?.work_order_status[0]?.description
+                      ? complaintDetail?.orders?.work_orders?.work_order_status[0]?.description
+                      : 'Tukang tidak memberikan catatan'}
+                  </p>
+                </div>
+
+                <div className='detail-info mb-3'>
+                  <p className='fs-5 fw-bold'>Intruksi Spesial :</p>
+
+                  <p className='fs-7'>
+                    {complaintDetail?.orders?.quotation[0]?.description
+                      ? complaintDetail?.orders?.quotation[0]?.description
+                      : 'Vendor tidak memberikan catatan'}
+                  </p>
+                </div>
+              </Row>
+            </Col>
+
+            {['WORKEND', 'WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(
+              complaintDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
+            ) && (
+              <Col>
+                <Row className='information-detail'>
+                  <div className='fs-3 fw-bold'>Informasi Garansi</div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Tanggal Aktif Garansi :</p>
+
+                    <p className='fs-7'>{warrantyData?.workEndDate}</p>
+                  </div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Tanggal Berakhir Garansi :</p>
+
+                    <p className='fs-7'>{warrantyData?.warrantyEndDate}</p>
+                  </div>
+
+                  <div className='detail-info mb-3'>
+                    <p className='fs-5 fw-bold'>Status Garansi :</p>
+
+                    <p className='fs-7'>{warrantyData?.status}</p>
+                  </div>
+                </Row>
+              </Col>
+            )}
+          </Row>
+
           {complaintDetail?.orders?.order_files.length >= 1 ? (
             <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -1541,8 +1599,14 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                     {isLoading ? 'Rejected..' : 'Rejected'}
                   </Button>
 
-                  {['WARRANTYCLAIM', 'WORKREQ', 'TUKANGWORK', 'WORKSTART', 'WORKEND'].includes(
-                    complaintDetail?.orders?.status?.category
+                  {[
+                    'WARRANTYCLAIM',
+                    'WORKEND',
+                    'WORKENDSTEPONE',
+                    'WORKENDSTEPTWO',
+                    'WORKENDSTEPTHREE',
+                  ].includes(
+                    complaintDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
                   ) ? (
                     <Button
                       variant='dark-primary'
@@ -1954,7 +2018,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
           <>
             <Modal.Body>
               <Form.Group className='mb-3'>
-                <Form.Label>Change Status :</Form.Label>
+                <Form.Label>Pilih status :</Form.Label>
 
                 <Form.Select onChange={(e) => handleInputStatus(e)}>
                   <option selected>Pilih status</option>
@@ -1963,7 +2027,17 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                 </Form.Select>
               </Form.Group>
 
-              <Button variant='dark-primary' onClick={handleChangeStatusComplaint}>
+              <Form.Group className='mb-3'>
+                <Form.Label>Alasan :</Form.Label>
+
+                <Form.Control as='textarea' />
+              </Form.Group>
+
+              <Button
+                className='d-flex justify-content-center align-items-center w-100 m-0'
+                variant='dark-primary'
+                onClick={handleChangeStatusComplaint}
+              >
                 Submit
               </Button>
             </Modal.Body>

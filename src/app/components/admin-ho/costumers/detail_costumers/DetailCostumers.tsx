@@ -216,11 +216,14 @@ const DetailCostumerHO: FC = () => {
 
         <Col xxl={9} xl={9} lg={9} md={9} sm={12}>
           <div className='costumer-profile'>
-            <h1 className='fs-1 mb-3'>{memberDetail?.full_name}</h1>
-            <h3 className='fs-2 fst-3 mb-3 text-muted'>{memberDetail?.id}</h3>
-            {/* <p className='fs-4 mb-1'>Customer of : Mitra 10-BSD</p> */}
-            {/* <p className='fs-4 text-muted mb-1'>Rating</p> */}
-            {/* <Rate disabled defaultValue={memberDetail?.rating} /> */}
+            <h1 className='fs-1 mb-2'>{memberDetail?.full_name}</h1>
+            <p className='fs-4 mb-2'>
+              Customer of :{' '}
+              <span className='fw-semibold'>{memberDetail?.join_location_store?.store_name}</span>
+            </p>
+            <p className='fs-4 mb-2'>
+              Member Number : <span className='fw-semibold'>{memberDetail?.member_number}</span>
+            </p>
           </div>
         </Col>
       </Row>
@@ -232,27 +235,27 @@ const DetailCostumerHO: FC = () => {
 
             <div className='d-flex'>
               <i className='bi bi-person-fill'></i>
-              <p>About </p>
+              <h1>About</h1>
             </div>
 
             <div className='data'>
               <Form.Group as={Row}>
                 <Form.Label column sm='4'>
-                  Nomor Whatsapp :
+                  No. WA :
                 </Form.Label>
 
                 <Col sm='8'>
-                  <p className='fs-6'>{memberDetail?.whatsapp_number} </p>
+                  <p className='fs-6'>{memberDetail?.whatsapp_number}</p>
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row}>
                 <Form.Label column sm='4'>
-                  Nomor Telp :
+                  No. Telp :
                 </Form.Label>
 
                 <Col sm='8'>
-                  <p className='fs-6'>{memberDetail?.phone_number} </p>
+                  <p className='fs-6'>{memberDetail?.phone_number}</p>
                 </Col>
               </Form.Group>
 
@@ -262,7 +265,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <p className='fs-6'>{memberDetail?.email} </p>
+                  <p className='fs-6'>{memberDetail?.email}</p>
                 </Col>
               </Form.Group>
 
@@ -272,7 +275,7 @@ const DetailCostumerHO: FC = () => {
                 </Form.Label>
 
                 <Col sm='8'>
-                  <p className='fs-6'>{memberDetail?.address_1} </p>
+                  <p className='fs-6'>{memberDetail?.address_1}</p>
                 </Col>
               </Form.Group>
             </div>

@@ -90,7 +90,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       align: 'center',
       className: 'col_order_id',
       defaultSortOrder: 'descend',
-      width: 'fit-content',
+      width: 100,
       sorter: (a, b) => a.order_id - b.order_id,
     },
 
@@ -185,7 +185,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       dataIndex: 'payment_quotation',
       key: 'payment_quotation',
       align: 'left',
-      width: 'fit-content',
+      width: 120,
       onFilter: (value, record) => record.payment_quotation.includes(String(value)),
       sorter: (a, b) => a.payment_quotation.length - b.payment_quotation.length,
     },

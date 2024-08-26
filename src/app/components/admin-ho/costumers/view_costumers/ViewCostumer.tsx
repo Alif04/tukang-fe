@@ -12,7 +12,7 @@ import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faSearch, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -96,6 +96,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       title: 'No. Whatsapp',
       dataIndex: 'whatsapp_number',
       key: 'whatsapp_number',
+      width: 130,
       onFilter: (value, record) => record.whatsapp_number.includes(String(value)),
       sorter: (a, b) => a.whatsapp_number.length - b.whatsapp_number.length,
     },
@@ -103,6 +104,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       title: 'No. Telepon',
       dataIndex: 'phone_number',
       key: 'phone_number',
+      width: 130,
       onFilter: (value, record) => record.phone_number.includes(String(value)),
       sorter: (a, b) => a.phone_number.length - b.phone_number.length,
     },
@@ -134,14 +136,62 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       fixed: 'right',
       width: 100,
       render: (record) => {
+        const id = record.costumer_id
+
         const handleDetail = () => {
-          const id = record.costumer_id
           navigate(`/costumers/detail-costumers/${id}`)
         }
 
         const handleUpdate = () => {
-          const id = record.costumer_id
           navigate(`/costumers/update-costumers/${id}`)
+        }
+
+        const handleDelete = () => {
+          Swal.fire({
+            title: `Apakah anda yakin akan menghapus data Member ini ?`,
+            icon: 'warning',
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ya',
+            denyButtonText: 'Cancel',
+          })
+            .then((willDelete) => {
+              if (willDelete.value) {
+                axios
+                  .post(`${apiUrl}/member/${id}`, {
+                    headers: {
+                      Accept: 'application/json',
+                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Access-Control-Allow-Origin': '*',
+                      'ngrok-skip-browser-warning': 'true',
+                    },
+                  })
+                  .then((response) => {
+                    Swal.fire({
+                      title: 'Success',
+                      text: 'Berhasil menghapus data member',
+                      icon: 'success',
+                      showConfirmButton: false,
+                    }).then(() => {
+                      window.location.reload()
+                    })
+                  })
+                  .catch((error) => {
+                    Swal.fire({
+                      title: 'Error',
+                      text: error.response.data.message,
+                      icon: 'error',
+                    })
+                  })
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
         }
 
         return (
@@ -165,6 +215,16 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
                 <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
               </Button>
             </OverlayTrigger>
+
+            {/* <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Hapus Member')}
+            >
+              <Button className='button-delete' variant='danger' onClick={handleDelete}>
+                <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger> */}
           </div>
         )
       },
