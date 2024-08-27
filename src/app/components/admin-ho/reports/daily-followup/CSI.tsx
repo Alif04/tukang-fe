@@ -191,15 +191,31 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
       setCurrentPage(response?.data?.page ?? 1)
       setTotalOrder(response?.data?.total ?? 0)
 
+      // if (data) {
+      //   setDailyOrder((prev: any) => ({
+      //     ...prev,
+      //     order_follow_up: data?.map((item: any) => ({
+      //       order_id: item?.id ?? null,
+      //       csi_survey: item?.order_follow_up[0]?.follow_up_1 === true ? 1 : 0,
+      //       csi_work: item?.order_follow_up[0]?.follow_up_2 === true ? 1 : 0,
+      //       description: item?.order_follow_up[0]?.description ?? '',
+      //     })),
+      //   }))
+      // }
+
       if (data) {
         setDailyOrder((prev: any) => ({
           ...prev,
-          order_follow_up: data?.map((item: any) => ({
-            order_id: item?.id ?? null,
-            csi_survey: item?.order_follow_up[0]?.follow_up_1 === true ? 1 : 0,
-            csi_work: item?.order_follow_up[0]?.follow_up_2 === true ? 1 : 0,
-            description: item?.order_follow_up[0]?.description ?? '',
-          })),
+          order_follow_up: data?.map((item: any) => {
+            const lastFollowUp = item?.order_follow_up.slice(-1)[0] || {}
+
+            return {
+              order_id: item?.id ?? null,
+              csi_survey: lastFollowUp?.csi_survey === true ? 1 : 0,
+              csi_work: lastFollowUp?.csi_work === true ? 1 : 0,
+              description: lastFollowUp?.description ?? '',
+            }
+          }),
         }))
       }
 
@@ -641,7 +657,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
     setIsLoadingSubmit(true)
 
     await axios
-      .post(`${apiUrl}/order/follow-up`, dailyOrder, {
+      .post(`${apiUrl}/orders/follow-up`, dailyOrder, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -857,7 +873,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
             disabled={isLoadingSubmit}
             onClick={handleSubmitFollowUp}
           >
-            Submit Follow Up
+            {isLoadingSubmit ? 'Submitting..' : 'Submit Follow Up'}
           </Button>
         </Col>
       </Row>
