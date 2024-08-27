@@ -85,7 +85,9 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
 
   // Report Data
   const [reportData, setReportData] = useState<DataType[]>([])
-  const [reportGrandTotal, setReportGrandTotal] = useState<number>(0)
+  const [reportGrandTotal, setReportGrandTotal] = useState<any>(0)
+
+  console.log('report grand total', reportGrandTotal)
 
   // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -161,7 +163,7 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
       })
 
       if (response?.data) {
-        setReportGrandTotal(parseInt(response?.data?.quotationGrandTotal) ?? 0)
+        // setReportGrandTotal(parseInt(response?.data?.quotationGrandTotal).toLocaleString('id') ?? 0)
         return response?.data?.quotationGrandTotal ?? 0
       }
     } catch (error) {
@@ -205,16 +207,33 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
       setCurrentPage(response?.data?.page ?? 1)
       setTotalOrder(response?.data?.total ?? 0)
 
+      // if (data) {
+      //   setDailyQuotation((prev: any) => ({
+      //     ...prev,
+      //     quotation_follow_up: data?.map((item: any) => ({
+      //       quotation_id: item?.id ?? null,
+      //       follow_up_1: item?.quotation_follow_up[0]?.follow_up_1 === true ? 1 : 0,
+      //       follow_up_2: item?.quotation_follow_up[0]?.follow_up_2 === true ? 1 : 0,
+      //       follow_up_3: item?.quotation_follow_up[0]?.follow_up_3 === true ? 1 : 0,
+      //       description: item?.quotation_follow_up[0]?.description ?? '',
+      //     })),
+      //   }))
+      // }
+
       if (data) {
         setDailyQuotation((prev: any) => ({
           ...prev,
-          quotation_follow_up: data?.map((item: any) => ({
-            quotation_id: item?.id ?? null,
-            follow_up_1: item?.quotation_follow_up[0]?.follow_up_1 === true ? 1 : 0,
-            follow_up_2: item?.quotation_follow_up[0]?.follow_up_2 === true ? 1 : 0,
-            follow_up_3: item?.quotation_follow_up[0]?.follow_up_3 === true ? 1 : 0,
-            description: item?.quotation_follow_up[0]?.description ?? '',
-          })),
+          quotation_follow_up: data?.map((item: any) => {
+            const lastFollowUp = item?.quotation_follow_up.slice(-1)[0] || {}
+
+            return {
+              quotation_id: item?.id ?? null,
+              follow_up_1: lastFollowUp?.follow_up_1 === true ? 1 : 0,
+              follow_up_2: lastFollowUp?.follow_up_2 === true ? 1 : 0,
+              follow_up_3: lastFollowUp?.follow_up_3 === true ? 1 : 0,
+              description: lastFollowUp?.description ?? '',
+            }
+          }),
         }))
       }
 
@@ -704,7 +723,7 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
     valueCheck(`&store_id=`, selectedStore?.value)
 
     const reportGrandTotal = await fetchAllReportData(endpoint, queryparams)
-    setReportGrandTotal(reportGrandTotal)
+    setReportGrandTotal(parseInt(reportGrandTotal))
 
     const data = await ViewReportData(endpoint, 1, pageSize, queryparams)
     setReportData(data)
