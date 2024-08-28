@@ -112,6 +112,7 @@ export interface Orders {
 
 export interface DailyOrder {
   order_follow_up: Array<{
+    id?: number | null
     order_id: number | null
     csi_survey: number
     csi_work: number
