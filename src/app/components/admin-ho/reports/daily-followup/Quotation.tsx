@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import {DailyQuotation} from '../../../../interfaces/quotation'
+import '../report/ReportHO.css'
 
 import axios from 'axios'
 import dayjs from 'dayjs'

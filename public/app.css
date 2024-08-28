@@ -861,11 +861,6 @@ input.filter-ltr.form-control:focus {
   --bs-border-width: 10px !important;
 }
 
-/* Select Option */
-.form-control.p-0.css-b62m3t-container {
-  z-index: 99 !important;
-}
-
 /* Table Filter */
 
 .ant-table-wrapper .ant-table-column-sorter-inner {
