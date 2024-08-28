@@ -2,6 +2,18 @@
 import React, {FC, useEffect, useState, useRef} from 'react'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
+import {useSelector, useDispatch} from 'react-redux'
+import {RootState} from '../../../../../store'
+import {
+  setQueryParams,
+  setCurrentPage,
+  setPageSize,
+  setDateFrom,
+  setDateTo,
+  setSearchFilter,
+  setSelectedStore,
+  setSelectedVendor,
+} from '../../../../../store/tableSlice'
 
 import './ViewOrder.css'
 
@@ -138,6 +150,7 @@ interface Quotation {
 const ViewOrders: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const salesId = localStorage.getItem('sales_id')
   const userRole = localStorage.getItem('userRole') as string
@@ -156,45 +169,26 @@ const ViewOrders: FC = () => {
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [receiptFiles, setReceiptFiles] = useState<Array<File | null>>([])
 
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(50)
   const [totalData, setTotalData] = useState<number>(0)
-  const [queryParams, setQueryParams] = useState('')
+  const {
+    queryParams,
+    searchFilter,
+    currentPage,
+    pageSize,
+    dateFrom,
+    dateTo,
+    selectedStore,
+    selectedVendor,
+  } = useSelector((state: RootState) => state.table)
 
   const [activeKey, setActiveKey] = useState<number>(1)
 
-  const [dateFrom, setDateFrom] = useState<any>(
-    ['Super User', 'Admin HO'].includes(userRole)
-      ? new Date(new Date().setDate(new Date().getDate() - 14)).toISOString().split('T')[0]
-      : new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
-  )
-  const [dateTo, setDateTo] = useState<any>(
-    ['Super User', 'Admin HO'].includes(userRole)
-      ? new Date().toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0]
-  )
-
-  const [searchFilter, setSearchFilter] = useState<string>('')
-
   const [store, setStore] = useState<StoreItem[]>([])
   const storeOptions = [{value: null, label: 'All Store'}, ...store]
-  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
-    value: null,
-    label: 'All Store',
-  })
 
   const [vendor, setVendor] = useState<any[]>([])
   const [vendorSelect, setVendorSelect] = useState<VendorItem[]>([])
   const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendorSelect]
-  const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorItem>>({
-    value: null,
-    label: 'All Vendor',
-  })
-
-  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchFilter = event.target.value
-    setSearchFilter(updatedSearchFilter)
-  }
 
   // Status
   const storedStatus = sessionStorage.getItem('statusData')
@@ -851,13 +845,36 @@ const ViewOrders: FC = () => {
     fetchData(currentPage, pageSize, queryParams)
   }, [currentPage, queryParams])
 
+  // Table Handler
+  const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchFilter(e.target.value))
+  }
+
+  const handlePageChange = (page: number, size?: number) => {
+    dispatch(setCurrentPage(page))
+    if (size) {
+      dispatch(setPageSize(size))
+    }
+  }
+
+  const handleStoreChange = (newValue: SingleValue<StoreItem>) => {
+    const selectedStore: StoreItem = newValue || {value: null, label: 'All Store'}
+    dispatch(setSelectedStore(selectedStore))
+  }
+
+  const handleVendorChange = (newValue: SingleValue<VendorItem>) => {
+    const selectedVendor: VendorItem = newValue || {value: null, label: 'All Vendor'}
+    dispatch(setSelectedVendor(selectedVendor))
+  }
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
-    let queryparams = ``
+
+    let newQueryParams = ''
 
     const valueCheck = (key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        queryparams += `${key}${value}`
+        newQueryParams += `${key}${value}`
       }
     }
 
@@ -865,8 +882,9 @@ const ViewOrders: FC = () => {
     valueCheck(`&store_id=`, selectedStore?.value)
     valueCheck(`&vendor_id=`, selectedVendor?.value)
 
-    setQueryParams(queryparams)
-    const data = await ViewOrder(currentPage, pageSize, queryparams)
+    dispatch(setQueryParams(newQueryParams))
+
+    const data = await ViewOrder(currentPage, pageSize, newQueryParams)
     setOrderData(data)
 
     setLoadingButton(false)
@@ -3579,21 +3597,20 @@ const ViewOrders: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
-                defaultValue={
-                  ['Super User', 'Admin HO'].includes(userRole)
-                    ? [dayjs().subtract(14, 'day'), dayjs()]
-                    : [dayjs().subtract(7, 'day'), dayjs()]
-                }
+                value={[
+                  dateFrom ? dayjs(dateFrom, 'YYYY-MM-DD') : null,
+                  dateTo ? dayjs(dateTo, 'YYYY-MM-DD') : null,
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
 
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
+                    dispatch(setDateFrom(dateFromFormatted))
+                    dispatch(setDateTo(dateToFormatted))
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    dispatch(setDateFrom(''))
+                    dispatch(setDateTo(''))
                   }
                 }}
               />
@@ -3603,6 +3620,7 @@ const ViewOrders: FC = () => {
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
+                    value={searchFilter ?? ''}
                     onChange={handleChangeSearchFilter}
                   />
 
@@ -3621,7 +3639,7 @@ const ViewOrders: FC = () => {
                   isSearchable={true}
                   options={storeOptions}
                   value={selectedStore}
-                  onChange={(newValue) => setSelectedStore(newValue)}
+                  onChange={handleStoreChange}
                 />
               )}
 
@@ -3634,7 +3652,7 @@ const ViewOrders: FC = () => {
                   isSearchable={true}
                   options={vendorOptions}
                   value={selectedVendor}
-                  onChange={(newValue) => setSelectedVendor(newValue)}
+                  onChange={handleVendorChange}
                 />
               )}
 
@@ -3677,18 +3695,14 @@ const ViewOrders: FC = () => {
 
             <Pagination
               className='pagination'
+              pageSize={pageSize}
               current={currentPage}
               total={totalData}
               showSizeChanger
-              pageSizeOptions={[5, 10, 20, 50, 100]}
+              pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
               itemRender={itemRender}
-              defaultPageSize={pageSize}
-              onShowSizeChange={(current, size) => {
-                setPageSize(size)
-              }}
               onChange={(page, pageSize) => {
-                setCurrentPage(page)
-                fetchData(page, pageSize, queryParams)
+                handlePageChange(page, pageSize)
               }}
             />
           </div>
