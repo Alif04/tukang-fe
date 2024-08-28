@@ -194,15 +194,16 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Fetch API Data
   const getItem = async () => {
+    const storeId = selectedStore && selectedStore.value ? `store_id=${selectedStore.value}` : ``
     const itemFree =
       paymentTypeValue[0] === 'gratis' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
-        ? '&item_type=1'
+        ? `&item_type=1${storeId}`
         : ''
     const itemTanpaSurvey =
       paymentTypeValue[0] === 'berbayar' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
-        ? '&item_type=2'
+        ? `&item_type=2${storeId}`
         : ''
-    const itemSurvey = paymentTypeValue[1] === 'survey' ? '&item_type=3' : ''
+    const itemSurvey = paymentTypeValue[1] === 'survey' ? '&item_type=3&all_store=1' : ''
     const search = searchItem ? `&search=${searchItem}` : ''
 
     try {

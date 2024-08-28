@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import {DailyOrder} from '../../../../interfaces/order'
+import '../report/ReportHO.css'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -197,8 +198,8 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
           ...prev,
           order_follow_up: data?.map((item: any) => ({
             order_id: item?.id ?? null,
-            csi_survey: item?.order_follow_up[0]?.follow_up_1 === true ? 1 : 0,
-            csi_work: item?.order_follow_up[0]?.follow_up_2 === true ? 1 : 0,
+            csi_survey: item?.order_follow_up[0]?.csi_survey === true ? 1 : 0,
+            csi_work: item?.order_follow_up[0]?.csi_work === true ? 1 : 0,
             description: item?.order_follow_up[0]?.description ?? '',
           })),
         }))
