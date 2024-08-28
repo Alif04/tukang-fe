@@ -113,6 +113,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
   const [dailyOrder, setDailyOrder] = useState<DailyOrder>({
     order_follow_up: [
       {
+        id: null,
         order_id: null,
         csi_survey: 0,
         csi_work: 0,
@@ -191,31 +192,15 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
       setCurrentPage(response?.data?.page ?? 1)
       setTotalOrder(response?.data?.total ?? 0)
 
-      // if (data) {
-      //   setDailyOrder((prev: any) => ({
-      //     ...prev,
-      //     order_follow_up: data?.map((item: any) => ({
-      //       order_id: item?.id ?? null,
-      //       csi_survey: item?.order_follow_up[0]?.follow_up_1 === true ? 1 : 0,
-      //       csi_work: item?.order_follow_up[0]?.follow_up_2 === true ? 1 : 0,
-      //       description: item?.order_follow_up[0]?.description ?? '',
-      //     })),
-      //   }))
-      // }
-
       if (data) {
         setDailyOrder((prev: any) => ({
           ...prev,
-          order_follow_up: data?.map((item: any) => {
-            const lastFollowUp = item?.order_follow_up.slice(-1)[0] || {}
-
-            return {
-              order_id: item?.id ?? null,
-              csi_survey: lastFollowUp?.csi_survey === true ? 1 : 0,
-              csi_work: lastFollowUp?.csi_work === true ? 1 : 0,
-              description: lastFollowUp?.description ?? '',
-            }
-          }),
+          order_follow_up: data?.map((item: any) => ({
+            order_id: item?.id ?? null,
+            csi_survey: item?.order_follow_up[0]?.follow_up_1 === true ? 1 : 0,
+            csi_work: item?.order_follow_up[0]?.follow_up_2 === true ? 1 : 0,
+            description: item?.order_follow_up[0]?.description ?? '',
+          })),
         }))
       }
 
@@ -562,7 +547,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
   const exportToPDF = () => {
     setLoadingPdf(true)
 
-    let url = `${apiUrl}/orders/export-follow-up-pdf?order_by=desc`
+    let url = `${apiUrl}/orders/export-pdf-follow-up?order_by=desc`
 
     const valueCheck = (key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
