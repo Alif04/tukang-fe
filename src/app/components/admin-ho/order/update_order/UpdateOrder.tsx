@@ -194,6 +194,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Fetch API Data
   const getItem = async () => {
+    const storeId = selectedStore && selectedStore.value ? `store_id=${selectedStore.value}` : ``
     const itemFree =
       paymentTypeValue[0] === 'gratis' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
         ? '&item_type=1'
@@ -207,7 +208,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
     try {
       const response = await axios.get(
-        `${apiUrl}/items?take=0${search}${itemFree}${itemTanpaSurvey}${itemSurvey}`,
+        `${apiUrl}/items?take=0${search}${itemFree}${itemTanpaSurvey}${itemSurvey}${storeId}`,
         {
           headers: {
             Accept: 'application/json',

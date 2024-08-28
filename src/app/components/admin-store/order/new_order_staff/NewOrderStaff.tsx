@@ -169,7 +169,7 @@ const NewOrderStoreStaff: FC = () => {
 
     try {
       const response = await axios.get(
-        `${apiUrl}/items?take=0${search}${itemFree}${itemTanpaSurvey}${itemSurvey}`,
+        `${apiUrl}/items?take=0&store_id=${staffStoreId}${search}${itemFree}${itemTanpaSurvey}${itemSurvey}`,
         {
           headers: {
             Accept: 'application/json',
