@@ -22,6 +22,7 @@ import {
 } from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faNoteSticky} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -230,11 +231,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
       orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.created_at)
 
         const grandTotal =
           item?.payment_type === 'survey'

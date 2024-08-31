@@ -29,6 +29,7 @@ import {
   faCircleXmark,
   faCircleCheck,
 } from '@fortawesome/free-solid-svg-icons'
+import {formatDate} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -107,11 +108,7 @@ const ViewTukangVendor: FC = () => {
       const tukangData = apiData.map((item: any, index: number) => {
         let data
 
-        const BirthOfDay = new Date(item?.bod).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })
+        const BirthOfDay = formatDate(item?.bod)
 
         const tukangService =
           item?.tukang_service && item.tukang_service.length > 0

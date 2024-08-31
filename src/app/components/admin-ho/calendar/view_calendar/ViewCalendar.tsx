@@ -15,6 +15,7 @@ import {Row, Col, Modal, Form, Table, Accordion} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleInfo} from '@fortawesome/free-solid-svg-icons'
 import {LoadingOutlined} from '@ant-design/icons'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface Order {
   id: any
@@ -586,14 +587,7 @@ const ViewCalendarHO: React.FC = () => {
                   </Form.Label>
                   <Col>
                     <p className='fs-7 p-0'>
-                      {new Date(selectedOrder?.order_detail?.request_survey).toLocaleDateString(
-                        'id-ID',
-                        {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                        }
-                      )}
+                      {formatDate(selectedOrder?.order_detail?.request_survey)}
                     </p>
                   </Col>
                 </Form.Group>
@@ -1029,13 +1023,9 @@ const ViewCalendarHO: React.FC = () => {
                           {selectedOrder?.order_detail?.work_orders?.work_order_status.length ? (
                             <p className='fs-7'>
                               Tanggal :{' '}
-                              {new Date(
+                              {formatDateWithTime(
                                 selectedOrder?.order_detail?.work_orders?.survey_date
-                              ).toLocaleDateString('id-ID', {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                              })}
+                              )}
                             </p>
                           ) : (
                             <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
@@ -1086,26 +1076,18 @@ const ViewCalendarHO: React.FC = () => {
                         <p className='fs-7'>
                           MULAI{' '}
                           <span className='ms-5'>
-                            {new Date(
+                            {formatDateWithTime(
                               selectedOrder?.order_detail?.work_orders?.work_start_date
-                            ).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'long',
-                              year: 'numeric',
-                            })}
+                            )}
                           </span>
                         </p>
 
                         <p className='fs-7'>
                           SELESAI{' '}
                           <span className='ms-3'>
-                            {new Date(
+                            {formatDateWithTime(
                               selectedOrder?.order_detail?.work_orders?.work_end_date
-                            ).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'long',
-                              year: 'numeric',
-                            })}
+                            )}
                           </span>
                         </p>
                       </div>

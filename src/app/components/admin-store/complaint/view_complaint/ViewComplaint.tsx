@@ -13,6 +13,7 @@ import type {ColumnsType} from 'antd/es/table'
 import {Form, FormGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -317,21 +318,9 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       const complaintData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.orders?.created_at)
 
-        const complaintDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const complaintDate = formatDateWithTime(item?.created_at)
 
         const phoneNumber = item?.orders?.project_number.startsWith('0')
           ? item?.orders?.project_number

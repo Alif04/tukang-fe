@@ -10,6 +10,8 @@ import {Image, Skeleton} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {Row, Col, Form, ListGroup, Modal, Button, Card} from 'react-bootstrap'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {formatDate} from '@fullcalendar/core'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface Complaint {
   id: number | null
@@ -695,14 +697,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                     </Form.Label>
                     <Col>
                       <p className='fs-7 p-0'>
-                        {new Date(complaintDetail?.orders?.request_survey).toLocaleDateString(
-                          'id-ID',
-                          {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          }
-                        )}
+                        {formatDate(complaintDetail?.orders?.request_survey)}
                       </p>
                     </Col>
                   </Form.Group>
@@ -1134,13 +1129,9 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                             {complaintDetail?.orders?.work_orders?.work_order_status.length ? (
                               <p className='fs-7'>
                                 Tanggal :{' '}
-                                {new Date(
+                                {formatDateWithTime(
                                   complaintDetail?.orders?.work_orders?.survey_date
-                                ).toLocaleDateString('id-ID', {
-                                  day: 'numeric',
-                                  month: 'long',
-                                  year: 'numeric',
-                                })}
+                                )}
                               </p>
                             ) : (
                               <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
@@ -1194,30 +1185,18 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                           <p className='fs-7'>
                             MULAI{' '}
                             <span className='ms-5'>
-                              {new Date(
+                              {formatDateWithTime(
                                 complaintDetail?.orders?.work_orders?.work_start_date
-                              ).toLocaleDateString('id-ID', {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                                hour: 'numeric',
-                                minute: 'numeric',
-                              })}
+                              )}
                             </span>
                           </p>
 
                           <p className='fs-7'>
                             SELESAI{' '}
                             <span className='ms-3'>
-                              {new Date(
+                              {formatDateWithTime(
                                 complaintDetail?.orders?.work_orders?.work_end_date
-                              ).toLocaleDateString('id-ID', {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                                hour: 'numeric',
-                                minute: 'numeric',
-                              })}
+                              )}
                             </span>
                           </p>
                         </div>
@@ -1656,16 +1635,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                       </Form.Label>
 
                       <Col sm='7'>
-                        <p className='fs-7'>
-                          :{' '}
-                          {new Date(complaintDetail?.created_at).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                          })}
-                        </p>
+                        <p className='fs-7'>: {formatDateWithTime(complaintDetail?.created_at)}</p>
                       </Col>
                     </Form.Group>
 
@@ -1768,16 +1738,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                             </Form.Label>
 
                             <Col sm='7'>
-                              <p className='fs-7'>
-                                :{' '}
-                                {new Date(item?.created_at).toLocaleDateString('id-ID', {
-                                  day: 'numeric',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: 'numeric',
-                                  minute: 'numeric',
-                                })}
-                              </p>
+                              <p className='fs-7'>: {formatDateWithTime(item?.created_at)}</p>
                             </Col>
                           </Form.Group>
 

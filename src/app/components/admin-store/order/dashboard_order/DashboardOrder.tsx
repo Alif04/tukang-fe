@@ -12,6 +12,7 @@ import dayjs from 'dayjs'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, PaginationProps, DatePicker} from 'antd'
 import {Card, Row, Col, Button} from 'react-bootstrap'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -194,13 +195,7 @@ const DashboardOrderStore: FC = () => {
             item?.payment_type === 'survey'
               ? item?.m_order_details[0]?.item_notes ?? '-'
               : item?.m_order_details[0]?.item?.service_name ?? '-',
-          order_date: new Date(item?.created_at).toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-          }),
+          order_date: formatDateWithTime(item?.created_at),
           total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
         }
 

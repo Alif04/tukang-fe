@@ -13,6 +13,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTicket, faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -239,11 +240,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
       const claimWarrantyData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.created_at)
 
         data = {
           order_id: item.id,

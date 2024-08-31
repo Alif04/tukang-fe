@@ -1,9 +1,9 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate, useParams} from 'react-router-dom'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 import axios from 'axios'
-import Select from 'react-select'
 import Swal from 'sweetalert2'
 import {Table, Form, Button, Row, Col, Card, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
@@ -411,11 +411,8 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                   </Form.Label>
                   <Col>
                     <p className='fs-7 p-0'>
-                      {rescheduleDetail?.order?.request_date
-                        ? new Date(rescheduleDetail?.order?.request_date).toLocaleDateString(
-                            'id-ID',
-                            {day: '2-digit', month: 'long', year: 'numeric'}
-                          )
+                      {rescheduleDetail?.order?.request_survey
+                        ? formatDate(rescheduleDetail?.order?.request_survey)
                         : '-'}
                     </p>
                   </Col>
@@ -755,14 +752,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
 
                 <p className='fs-6'>
                   {rescheduleDetail?.order?.request_survey
-                    ? `${new Date(rescheduleDetail?.order?.request_survey).toLocaleDateString(
-                        'id-ID',
-                        {
-                          day: '2-digit',
-                          month: 'long',
-                          year: 'numeric',
-                        }
-                      )}`
+                    ? ` ${formatDate(rescheduleDetail?.order?.request_survey)}`
                     : 'Tanggal belum ditentukan toko'}
                 </p>
               </Form.Group>
@@ -773,34 +763,13 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
                   {rescheduleDetail?.order?.work_orders
                     ? rescheduleDetail.order.work_orders.work_start_date &&
                       rescheduleDetail.order.work_orders.work_end_date
-                      ? `${new Date(
+                      ? ` ${formatDateWithTime(
                           rescheduleDetail.order.work_orders.work_start_date
-                        ).toLocaleDateString('id-ID', {
-                          day: '2-digit',
-                          month: 'long',
-                          year: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                        })} sampai ${new Date(
+                        )} sampai ${formatDateWithTime(
                           rescheduleDetail.order.work_orders.work_end_date
-                        ).toLocaleDateString('id-ID', {
-                          day: '2-digit',
-                          month: 'long',
-                          year: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                        })}`
+                        )} `
                       : rescheduleDetail.order.work_orders.survey_date
-                      ? new Date(rescheduleDetail.order.work_orders.survey_date).toLocaleDateString(
-                          'id-ID',
-                          {
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                          }
-                        )
+                      ? formatDate(rescheduleDetail.order.work_orders.survey_date)
                       : 'Tanggal belum dikonfirmasi vendor'
                     : 'Tanggal belum dikonfirmasi vendor'}
                 </p>
@@ -811,13 +780,7 @@ const UpdateReschedule: FC<{updatePageTitle: (reschedule: any) => void}> = ({upd
 
                 <p className='fs-6'>
                   {rescheduleDetail?.reschedule_date
-                    ? `${new Date(rescheduleDetail?.reschedule_date).toLocaleDateString('id-ID', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                      })}`
+                    ? `${formatDateWithTime(rescheduleDetail?.reschedule_date)}`
                     : 'Tanggal belum ditentukan user'}
                 </p>
               </Form.Group>

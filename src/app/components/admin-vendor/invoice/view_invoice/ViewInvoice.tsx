@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect, FC, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
+import {formatDate} from '../../../../../_metronic/helpers'
 
 import './ViewInvoice.css'
 
@@ -435,13 +436,7 @@ const ViewInvoiceVendor: FC = () => {
           })
           .join(', ')
 
-        const invoiceDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const invoiceDate = formatDate(item?.created_at)
 
         const invoiceStatus = (status: number) => {
           switch (status) {

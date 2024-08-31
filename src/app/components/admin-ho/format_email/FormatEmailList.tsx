@@ -10,6 +10,7 @@ import {Table, PaginationProps, Spin, Pagination} from 'antd'
 import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faPen, faSearch, faCheck} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../_metronic/helpers'
 
 interface DataType {
   numbering: number
@@ -323,11 +324,7 @@ const FormatEmailList: FC = () => {
       const formatEmailData = apiData.map((item: any, index: number) => {
         let data
 
-        const CreatedAt = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })
+        const CreatedAt = formatDateWithTime(item?.created_at)
 
         const emailTypes: any = {
           1: 'ORDER',

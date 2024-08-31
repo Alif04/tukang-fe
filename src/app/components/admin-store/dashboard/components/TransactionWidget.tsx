@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
+import {formatDate} from '@fullcalendar/core'
 import {Skeleton} from 'antd'
 import React from 'react'
 import {Link} from 'react-router-dom'
@@ -59,11 +60,7 @@ const TransactionWidget: React.FC<Props> = ({className, orderData, loadingPage})
                     </div>
 
                     <span className='text-muted fw-semibold d-block'>
-                      {new Date(item?.request_survey).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
+                      {formatDate(item?.request_survey)}
                     </span>
                   </div>
 

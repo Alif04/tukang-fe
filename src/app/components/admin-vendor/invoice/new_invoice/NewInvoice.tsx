@@ -12,6 +12,7 @@ import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {Form, FormGroup, Row, Button, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -219,13 +220,7 @@ const NewInvoiceVendor: FC = () => {
             x.invoice_details.find((x: any) => x.type === 2)?.length === 0
         )
         .map((item: any, index: number) => {
-          const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-          })
+          const orderDate = formatDateWithTime(item?.created_at)
 
           return {
             _key: index + 1,
@@ -246,13 +241,7 @@ const NewInvoiceVendor: FC = () => {
             x.invoice_details.find((x: any) => x.type === 1)?.length === 0
         )
         .map((item: any, index: number) => {
-          const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-          })
+          const orderDate = formatDateWithTime(item?.created_at)
 
           const surveyDoneHistory = item?.order_history?.find(
             (x: any) => x.status.category === 'QUOTEIN'

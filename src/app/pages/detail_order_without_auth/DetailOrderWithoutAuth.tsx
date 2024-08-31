@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react'
 import {KTSVG, toAbsoluteUrl} from '../../../_metronic/helpers'
 import {Topbar} from '../../../_metronic/layout/components/header/Topbar'
 import {useLayout} from '../../../_metronic/layout/core'
+import {formatDate, formatDateWithTime} from '../../../_metronic/helpers'
 
 import {Orders} from '../../interfaces/order'
 import {Quotation} from '../../interfaces/quotation'
@@ -179,13 +180,9 @@ const DetailOrderWithoutAuth = () => {
               order_status: item?.status?.description,
               updated_by: item?.created_at?.username,
               created_at: item?.created_at
-                ? `${new Date(item.created_at).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                  })} ${item.created_by ? `oleh ${item?.created_by?.username}` : ''}`
+                ? `${formatDateWithTime(item?.created_at)} ${
+                    item.created_by ? `oleh ${item?.created_by?.username}` : ''
+                  }`
                 : '-',
             }))
 
@@ -710,13 +707,7 @@ const DetailOrderWithoutAuth = () => {
                           })()}
                         </Form.Label>
                         <Col>
-                          <p className='fs-7 p-0'>
-                            {new Date(order?.request_survey).toLocaleDateString('id-ID', {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
-                            })}
-                          </p>
+                          <p className='fs-7 p-0'>{formatDate(order?.request_survey)}</p>
                         </Col>
                       </Form.Group>
 
@@ -726,11 +717,7 @@ const DetailOrderWithoutAuth = () => {
                           <Col>
                             <p className='fs-7 p-0'>
                               {order?.request_work
-                                ? new Date(order?.request_work).toLocaleDateString('id-ID', {
-                                    day: '2-digit',
-                                    month: 'long',
-                                    year: 'numeric',
-                                  })
+                                ? formatDate(order?.request_work)
                                 : 'Tanggal belum diset oleh toko'}
                             </p>
                           </Col>
@@ -1354,17 +1341,7 @@ const DetailOrderWithoutAuth = () => {
                               <>
                                 {order?.work_orders?.work_order_status.length ? (
                                   <p className='fs-7'>
-                                    Tanggal :{' '}
-                                    {new Date(order?.work_orders?.survey_date).toLocaleDateString(
-                                      'id-ID',
-                                      {
-                                        day: '2-digit',
-                                        month: 'long',
-                                        year: 'numeric',
-                                        hour: 'numeric',
-                                        minute: 'numeric',
-                                      }
-                                    )}
+                                    Tanggal : {formatDateWithTime(order?.work_orders?.survey_date)}
                                   </p>
                                 ) : (
                                   <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
@@ -1438,32 +1415,14 @@ const DetailOrderWithoutAuth = () => {
                               <p className='fs-7'>
                                 MULAI{' '}
                                 <span className='ms-5'>
-                                  {new Date(order?.work_orders?.work_start_date).toLocaleDateString(
-                                    'id-ID',
-                                    {
-                                      day: '2-digit',
-                                      month: 'long',
-                                      year: 'numeric',
-                                      hour: 'numeric',
-                                      minute: 'numeric',
-                                    }
-                                  )}
+                                  {formatDateWithTime(order?.work_orders?.work_start_date)}
                                 </span>
                               </p>
 
                               <p className='fs-7'>
                                 SELESAI{' '}
                                 <span className='ms-3'>
-                                  {new Date(order?.work_orders?.work_end_date).toLocaleDateString(
-                                    'id-ID',
-                                    {
-                                      day: '2-digit',
-                                      month: 'long',
-                                      year: 'numeric',
-                                      hour: 'numeric',
-                                      minute: 'numeric',
-                                    }
-                                  )}
+                                  {formatDateWithTime(order?.work_orders?.work_end_date)}
                                 </span>
                               </p>
                             </div>
@@ -1946,35 +1905,11 @@ const DetailOrderWithoutAuth = () => {
                         <p className='fs-6'>
                           {order?.work_orders
                             ? order.work_orders.work_start_date && order.work_orders.work_end_date
-                              ? `${new Date(order.work_orders.work_start_date).toLocaleDateString(
-                                  'id-ID',
-                                  {
-                                    day: '2-digit',
-                                    month: 'long',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: 'numeric',
-                                  }
-                                )} sampai ${new Date(
-                                  order.work_orders.work_end_date
-                                ).toLocaleDateString('id-ID', {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: 'numeric',
-                                  minute: 'numeric',
-                                })}`
+                              ? `${formatDateWithTime(
+                                  order?.work_orders?.work_start_date
+                                )} sampai ${formatDateWithTime(order?.work_orders?.work_end_date)}`
                               : order.work_orders.survey_date
-                              ? new Date(order.work_orders.survey_date).toLocaleDateString(
-                                  'id-ID',
-                                  {
-                                    day: '2-digit',
-                                    month: 'long',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: 'numeric',
-                                  }
-                                )
+                              ? formatDateWithTime(order?.work_orders?.survey_date)
                               : 'Tanggal belum dikonfirmasi vendor'
                             : 'Tanggal belum dikonfirmasi vendor'}
                         </p>
@@ -1987,14 +1922,7 @@ const DetailOrderWithoutAuth = () => {
 
                         <p className='fs-6'>
                           {order?.reschedule[0]?.reschedule_date
-                            ? `${new Date(order?.reschedule[0]?.reschedule_date).toLocaleDateString(
-                                'id-ID',
-                                {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                }
-                              )}`
+                            ? `${formatDate(order?.reschedule[0]?.reschedule_date)}`
                             : 'Tanggal belum ditentukan vendor'}
                         </p>
                       </Form.Group>
@@ -2006,16 +1934,7 @@ const DetailOrderWithoutAuth = () => {
 
                         <p className='fs-6'>
                           {order?.reschedule[0]?.confirm_date
-                            ? `${new Date(order?.reschedule[0]?.confirm_date).toLocaleDateString(
-                                'id-ID',
-                                {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: 'numeric',
-                                  minute: 'numeric',
-                                }
-                              )}`
+                            ? ` ${formatDate(order?.reschedule[0]?.confirm_date)}`
                             : 'Tanggal belum ditentukan vendor'}
                         </p>
                       </Form.Group>
@@ -2029,14 +1948,7 @@ const DetailOrderWithoutAuth = () => {
 
                         <p className='fs-6'>
                           {order?.reschedule[0]?.reschedule_date
-                            ? `${new Date(order?.reschedule[0]?.reschedule_date).toLocaleDateString(
-                                'id-ID',
-                                {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                }
-                              )}`
+                            ? `${formatDate(order?.reschedule[0]?.reschedule_date)}`
                             : 'Tanggal belum ditentukan vendor'}
                         </p>
                       </Form.Group>

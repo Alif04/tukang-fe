@@ -10,6 +10,7 @@ import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Button} from 'react-bootstrap'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -257,22 +258,10 @@ const TotalOrderReportStore: React.FC<Props> = ({
               ? item?.project_number
               : `+62${item?.project_number}`
 
-            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.created_at)
 
             const complaintDate = item?.complaints?.length
-              ? new Date(item?.complaints[0]?.created_at).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                  hour: 'numeric',
-                  minute: 'numeric',
-                })
+              ? formatDateWithTime(item?.complaints[0]?.created_at)
               : ''
 
             data = {
@@ -300,13 +289,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
               ? item?.order?.project_number
               : `+62${item?.order?.project_number}`
 
-            const orderDate = new Date(item?.orders?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.orders?.created_at)
 
             data = {
               order_id: item?.order_id,
@@ -332,13 +315,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
               ? item?.order?.project_number
               : `+62${item?.order?.project_number}`
 
-            const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.order?.created_at)
 
             data = {
               order_id: item?.order_id,
@@ -364,13 +341,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
               ? item?.order?.project_number
               : `+62${item?.order?.project_number}`
 
-            const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.orders?.created_at)
 
             data = {
               order_id: item?.order?.id,

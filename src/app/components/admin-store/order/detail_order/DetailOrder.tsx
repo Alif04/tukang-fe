@@ -10,6 +10,7 @@ import {Image, Steps, Skeleton} from 'antd'
 import {Row, Col, Form, ListGroup, Button, Card, Modal} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDownload} from '@fortawesome/free-solid-svg-icons'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface Status {
   value: number | null
@@ -92,13 +93,9 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               order_status: item?.status?.description,
               updated_by: item?.created_at?.username,
               created_at: item?.created_at
-                ? `${new Date(item.created_at).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                  })} ${item.created_by ? `oleh ${item?.created_by?.username}` : ''}`
+                ? `${formatDateWithTime(item?.created_at)} ${
+                    item.created_by ? `oleh ${item?.created_by?.username}` : ''
+                  }`
                 : '-',
             }))
 
@@ -498,13 +495,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       })()}
                     </Form.Label>
                     <Col>
-                      <p className='fs-7 p-0'>
-                        {new Date(order?.request_survey).toLocaleDateString('id-ID', {
-                          day: '2-digit',
-                          month: 'long',
-                          year: 'numeric',
-                        })}
-                      </p>
+                      <p className='fs-7 p-0'>{formatDate(order?.request_survey)}</p>
                     </Col>
                   </Form.Group>
 
@@ -514,11 +505,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                       <Col>
                         <p className='fs-7 p-0'>
                           {order?.request_work
-                            ? new Date(order?.request_work).toLocaleDateString('id-ID', {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric',
-                              })
+                            ? formatDate(order?.request_work)
                             : 'Tanggal belum diset oleh toko'}
                         </p>
                       </Col>
@@ -1138,17 +1125,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           <>
                             {order?.work_orders?.work_order_status.length ? (
                               <p className='fs-7'>
-                                Tanggal :{' '}
-                                {new Date(order?.work_orders?.survey_date).toLocaleDateString(
-                                  'id-ID',
-                                  {
-                                    day: '2-digit',
-                                    month: 'long',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: 'numeric',
-                                  }
-                                )}
+                                Tanggal : {formatDateWithTime(order?.work_orders?.survey_date)}
                               </p>
                             ) : (
                               <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
@@ -1222,32 +1199,14 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           <p className='fs-7'>
                             MULAI{' '}
                             <span className='ms-5'>
-                              {new Date(order?.work_orders?.work_start_date).toLocaleDateString(
-                                'id-ID',
-                                {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: 'numeric',
-                                  minute: 'numeric',
-                                }
-                              )}
+                              {formatDateWithTime(order?.work_orders?.work_start_date)}
                             </span>
                           </p>
 
                           <p className='fs-7'>
                             SELESAI{' '}
                             <span className='ms-3'>
-                              {new Date(order?.work_orders?.work_end_date).toLocaleDateString(
-                                'id-ID',
-                                {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: 'numeric',
-                                  minute: 'numeric',
-                                }
-                              )}
+                              {formatDateWithTime(order?.work_orders?.work_end_date)}
                             </span>
                           </p>
                         </div>
@@ -1748,35 +1707,13 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           <p className='fs-6'>
                             {order?.work_orders
                               ? order.work_orders.work_start_date && order.work_orders.work_end_date
-                                ? `${new Date(order.work_orders.work_start_date).toLocaleDateString(
-                                    'id-ID',
-                                    {
-                                      day: '2-digit',
-                                      month: 'long',
-                                      year: 'numeric',
-                                      hour: 'numeric',
-                                      minute: 'numeric',
-                                    }
-                                  )} sampai ${new Date(
-                                    order.work_orders.work_end_date
-                                  ).toLocaleDateString('id-ID', {
-                                    day: '2-digit',
-                                    month: 'long',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: 'numeric',
-                                  })}`
+                                ? `${formatDateWithTime(
+                                    order?.work_orders?.work_start_date
+                                  )} sampai ${formatDateWithTime(
+                                    order?.work_orders?.work_end_date
+                                  )}`
                                 : order.work_orders.survey_date
-                                ? new Date(order.work_orders.survey_date).toLocaleDateString(
-                                    'id-ID',
-                                    {
-                                      day: '2-digit',
-                                      month: 'long',
-                                      year: 'numeric',
-                                      hour: 'numeric',
-                                      minute: 'numeric',
-                                    }
-                                  )
+                                ? formatDateWithTime(order?.work_orders?.survey_date)
                                 : 'Tanggal belum dikonfirmasi vendor'
                               : 'Tanggal belum dikonfirmasi vendor'}
                           </p>
@@ -1789,13 +1726,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
                           <p className='fs-6'>
                             {item?.reschedule_date
-                              ? `${new Date(item?.reschedule_date).toLocaleDateString('id-ID', {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: 'numeric',
-                                  minute: 'numeric',
-                                })}`
+                              ? `${formatDateWithTime(item?.reschedule_date)}`
                               : 'Tanggal belum ditentukan vendor'}
                           </p>
                         </Form.Group>
@@ -1807,13 +1738,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
                           <p className='fs-6'>
                             {item?.confirm_date
-                              ? `${new Date(item?.confirm_date).toLocaleDateString('id-ID', {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: 'numeric',
-                                  minute: 'numeric',
-                                })}`
+                              ? `${formatDateWithTime(item?.confirm_date)}`
                               : 'Tanggal belum ditentukan vendor'}
                           </p>
                         </Form.Group>
@@ -1827,11 +1752,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
                           <p className='fs-6'>
                             {item?.reschedule_date
-                              ? `${new Date(item?.reschedule_date).toLocaleDateString('id-ID', {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                })}`
+                              ? `${formatDateWithTime(item?.reschedule_date)}`
                               : 'Tanggal belum ditentukan vendor'}
                           </p>
                         </Form.Group>

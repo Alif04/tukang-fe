@@ -13,6 +13,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Form, InputGroup, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faSearch, faFileExcel} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -194,11 +195,7 @@ const ViewPaymentHO: FC = () => {
       const paymentRequestData = apiData.map((item: any) => {
         let data
 
-        const invoiceDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })
+        const invoiceDate = formatDateWithTime(item?.created_at)
 
         data = {
           invoice_id: item?.id,

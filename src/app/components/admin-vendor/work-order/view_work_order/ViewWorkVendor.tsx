@@ -34,6 +34,7 @@ import {
   faImage,
   faPrint,
 } from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -243,6 +244,10 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
             {![
               'QUOTEIN',
+              'QUOTATIONPAID',
+              'QUOTATIONPAIDSTEPONE',
+              'QUOTATIONPAIDSTEPTWO',
+              'QUOTATIONPAIDSTEPTHREE',
               'QUOTEOUT',
               'CANCEL',
               'WARRANTYCLAIM',
@@ -378,13 +383,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           ? item.project_number
           : `+62${item.project_number}`
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.created_at)
 
         const paymentQuotation = (() => {
           if (item?.quotation?.length) {

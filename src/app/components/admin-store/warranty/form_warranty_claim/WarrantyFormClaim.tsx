@@ -7,6 +7,7 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
 import {Form, Row, Col, Table, Button, Card} from 'react-bootstrap'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface Warranty {
   order_id: number | null
@@ -351,13 +352,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
                   </Form.Label>
                   <Col>
                     <p className='fs-7 p-0'>
-                      {orderDetail
-                        ? new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })
-                        : '-'}
+                      {orderDetail ? formatDate(orderDetail?.request_survey) : '-'}
                     </p>
                   </Col>
                 </Form.Group>
@@ -751,16 +746,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
                   <Form.Group className='mb-3'>
                     <div className='fs-5 fw-normal'>Tanggal Pengajuan Claim</div>
                     <Form.Control
-                      value={new Date(orderDetail?.complaints[0]?.created_at).toLocaleDateString(
-                        'id-ID',
-                        {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                        }
-                      )}
+                      value={formatDateWithTime(orderDetail?.complaints[0]?.created_at)}
                       readOnly
                     />
                   </Form.Group>

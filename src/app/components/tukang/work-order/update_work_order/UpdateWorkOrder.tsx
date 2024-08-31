@@ -1,6 +1,7 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
 import {WorkOrder} from '../../../../interfaces/work-order'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 import './UpdateWorkOrder.css'
 
@@ -285,56 +286,16 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           }
 
           if (data?.work_order_status) {
-            const workStartDate = new Date(data?.work_start_date).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
+            const workStartDate = formatDateWithTime(data?.work_start_date)
+            const workEndDate = formatDateWithTime(data?.work_end_date)
 
-            const workEndDate = new Date(data?.work_end_date).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
-
-            const workDateTime =
-              data?.work_end_date !== null
-                ? `${workStartDate} - ${workEndDate}`
-                : 'Belum dijadwalkan oleh vendor'
-
-            const surveyDate = data.survey_date
-              ? new Date(data.survey_date).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })
-              : 'Order ini tanpa survey'
-
-            const workOrderHistoryData = data?.order?.order_history.map(
-              (item: any, index: number, array: any[]) => {
-                return {
-                  status: item?.status?.description,
-                  created_at: item?.created_at
-                    ? new Date(item?.created_at).toLocaleDateString('id-ID', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                      })
-                    : item?.created_at
-                    ? new Date(item?.created_at).toLocaleDateString('id-ID', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                      })
-                    : '-',
-                  updated_by: item?.created_by?.username,
-                }
+            const workOrderHistoryData = data?.order?.order_history.map((item: any) => {
+              return {
+                status: item?.status?.description,
+                created_at: item?.created_at ? formatDateWithTime(item?.created_at) : '-',
+                updated_by: item?.created_by?.username,
               }
-            )
+            })
 
             setOrderHistory(workOrderHistoryData)
           }
@@ -1250,15 +1211,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       <Form.Label className='fs-6'>Tanggal Survey</Form.Label>
 
                       <Col sm='8'>
-                        <p className='fs-6'>
-                          {new Date(workOrderDetail?.survey_date).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                          })}
-                        </p>
+                        <p className='fs-6'>{formatDateWithTime(workOrderDetail?.survey_date)}</p>
                       </Col>
                     </Form.Group>
 
@@ -1330,22 +1283,9 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       <Form.Label className='fs-6'>Tanggal Mulai dan Selesai Pekerjaan</Form.Label>
 
                       <Col sm='8'>
-                        <p className='fs-6 fw-bold'>
-                          {new Date(workOrderDetail?.work_start_date).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                          })}{' '}
-                          sampai{' '}
-                          {new Date(workOrderDetail?.work_end_date).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                          })}
+                        <p>
+                          {formatDateWithTime(workOrderDetail.work_start_date)} sampai{' '}
+                          {formatDateWithTime(workOrderDetail.work_end_date)}
                         </p>
                       </Col>
                     </Form.Group>
@@ -1882,14 +1822,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           </Form.Label>
                           <Col>
                             <p className='fs-7 p-0'>
-                              {new Date(workOrderDetail?.order?.request_survey).toLocaleDateString(
-                                'id-ID',
-                                {
-                                  day: 'numeric',
-                                  month: 'long',
-                                  year: 'numeric',
-                                }
-                              )}
+                              {formatDate(workOrderDetail?.order?.request_survey)}
                             </p>
                           </Col>
                         </Form.Group>

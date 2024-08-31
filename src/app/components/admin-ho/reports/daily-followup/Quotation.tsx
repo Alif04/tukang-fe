@@ -22,6 +22,7 @@ import {
 } from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faNoteSticky} from '@fortawesome/free-solid-svg-icons'
+import {formatDate} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -208,35 +209,35 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
       setCurrentPage(response?.data?.page ?? 1)
       setTotalOrder(response?.data?.total ?? 0)
 
-      if (data) {
-        setDailyQuotation((prev: any) => ({
-          ...prev,
-          quotation_follow_up: data?.map((item: any) => ({
-            quotation_id: item?.id ?? null,
-            follow_up_1: item?.quotation_follow_up[0]?.follow_up_1 === true ? 1 : 0,
-            follow_up_2: item?.quotation_follow_up[0]?.follow_up_2 === true ? 1 : 0,
-            follow_up_3: item?.quotation_follow_up[0]?.follow_up_3 === true ? 1 : 0,
-            description: item?.quotation_follow_up[0]?.description ?? '',
-          })),
-        }))
-      }
-
       // if (data) {
       //   setDailyQuotation((prev: any) => ({
       //     ...prev,
-      //     quotation_follow_up: data?.map((item: any) => {
-      //       const lastFollowUp = item?.quotation_follow_up.slice(-1)[0] || {}
-
-      //       return {
-      //         quotation_id: item?.id ?? null,
-      //         follow_up_1: lastFollowUp?.follow_up_1 === true ? 1 : 0,
-      //         follow_up_2: lastFollowUp?.follow_up_2 === true ? 1 : 0,
-      //         follow_up_3: lastFollowUp?.follow_up_3 === true ? 1 : 0,
-      //         description: lastFollowUp?.description ?? '',
-      //       }
-      //     }),
+      //     quotation_follow_up: data?.map((item: any) => ({
+      //       quotation_id: item?.id ?? null,
+      //       follow_up_1: item?.quotation_follow_up[0]?.follow_up_1 === true ? 1 : 0,
+      //       follow_up_2: item?.quotation_follow_up[0]?.follow_up_2 === true ? 1 : 0,
+      //       follow_up_3: item?.quotation_follow_up[0]?.follow_up_3 === true ? 1 : 0,
+      //       description: item?.quotation_follow_up[0]?.description ?? '',
+      //     })),
       //   }))
       // }
+
+      if (data) {
+        setDailyQuotation((prev: any) => ({
+          ...prev,
+          quotation_follow_up: data?.map((item: any) => {
+            const lastFollowUp = item?.quotation_follow_up.slice(-1)[0] || {}
+
+            return {
+              quotation_id: item?.id ?? null,
+              follow_up_1: lastFollowUp?.follow_up_1 === true ? 1 : 0,
+              follow_up_2: lastFollowUp?.follow_up_2 === true ? 1 : 0,
+              follow_up_3: lastFollowUp?.follow_up_3 === true ? 1 : 0,
+              description: lastFollowUp?.description ?? '',
+            }
+          }),
+        }))
+      }
 
       return response.data.data
     } catch (error) {
@@ -261,13 +262,7 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
       const quotationData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDate(item?.order?.created_at)
 
         const createdAt = item?.quotation_validity ? new Date(item.quotation_validity) : null
         const createdAtMinus = createdAt

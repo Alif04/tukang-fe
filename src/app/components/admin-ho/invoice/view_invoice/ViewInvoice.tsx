@@ -33,6 +33,7 @@ import {
   faCheckCircle,
   faFile,
 } from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 const {Dragger} = Upload
@@ -375,11 +376,7 @@ const ViewInvoiceHO: FC = () => {
       const invoiceData = apiData.map((item: any) => {
         let data
 
-        const invoiceDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })
+        const invoiceDate = formatDateWithTime(item?.created_at)
 
         const invoiceStatus = (status: number) => {
           switch (status) {

@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect} from 'react'
+import {formatDate} from '../../../../../_metronic/helpers'
 import {Orders} from '../../../../interfaces/order'
 
 import './PrintoutCS.css'
@@ -138,11 +139,7 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
                   <h1 className='fs-5 fw-bold mb-2 text-black'>
                     Tanggal Order :{' '}
                     <span className='fw-normal text-black'>
-                      {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
+                      {formatDate(orderDetail?.created_at)}
                     </span>
                   </h1>
 
@@ -160,11 +157,7 @@ const PrintoutOrderCS: FC<{updatePageTitle: (order: Orders) => void}> = ({update
                     })()}{' '}
                     :{' '}
                     <span className='fw-normal text-black'>
-                      {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
+                      {formatDate(orderDetail?.request_survey)}
                     </span>
                   </h1>
                 </Skeleton>

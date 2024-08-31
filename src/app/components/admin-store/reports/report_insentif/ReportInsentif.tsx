@@ -14,6 +14,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch} from '@fortawesome/free-solid-svg-icons'
 
 import {DatePicker} from 'antd'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -197,13 +198,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.quotation?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.quotation?.created_at)
 
         const statusIncentive = (status: number) => {
           switch (status) {

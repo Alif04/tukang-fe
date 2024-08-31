@@ -7,7 +7,7 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import {Skeleton} from 'antd'
 import {useNavigate, useParams} from 'react-router-dom'
-import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
+import {formatDate, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {Card, Button, Row} from 'react-bootstrap'
 
 const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
@@ -131,12 +131,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 <h2 className='fw-bold text-center'>Instalasi & Service</h2>
 
                 <h4 className='fw-normal text-center'>
-                  Tanggal :{' '}
-                  {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
+                  Tanggal : {formatDate(orderDetail?.created_at)}
                 </h4>
               </Skeleton>
             </div>
@@ -161,14 +156,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
               </h4>
 
               <h4 className='fw-normal'>
-                Tanggal Order :{' '}
-                <span>
-                  {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </span>
+                Tanggal Order : <span>{formatDate(orderDetail?.created_at)}</span>
               </h4>
 
               <h4 className='fw-normal'>
@@ -176,14 +164,7 @@ const PrintoutOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                 {orderDetail?.payment_type === 'survey'
                   ? 'Request Tanggal Survey :'
                   : 'Request Tanggal Pengerjaan :'}
-                <span>
-                  {' '}
-                  {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </span>
+                <span> {formatDate(orderDetail?.request_survey)}</span>
               </h4>
 
               <h5 className='fw-normal'>

@@ -1122,11 +1122,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           orderData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.created_at)
 
             const grandTotal =
               item?.payment_type === 'survey'
@@ -1153,11 +1149,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           complaintData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item.orders.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.orders?.created_at)
 
             const complaintDate = new Date(item.complaint_date)
             const currentDate = new Date()
@@ -1210,11 +1202,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           quotationData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.order?.created_at)
 
             const workOrderItems = item?.quotation_details
               .map((service: any) => service.name ?? '-')
@@ -1243,13 +1231,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           refundData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.orders?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.orders?.created_at)
 
             let paymentStatus = item.orders.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
 
@@ -1280,11 +1262,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           rescheduleData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.order?.created_at)
 
             let phoneNumber =
               item.order.members.phone_number !== 'null'
@@ -1332,11 +1310,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           salesComissionData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.quotation?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.quotation?.created_at)
 
             data = {
               sales_comission_id: item?.id,
@@ -1359,11 +1333,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           invoicesData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.created_at)
 
             data = {
               order_id: item.id,
