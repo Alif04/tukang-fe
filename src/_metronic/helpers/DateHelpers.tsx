@@ -1,21 +1,25 @@
 // Format Date
 export const formatDate = (date: Date | string) => {
-  return new Date(date).toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  })
+  const newDate = new Date(date)
+
+  const day = newDate.getDate().toString().padStart(2, '0')
+  const month = newDate.toLocaleString('id-ID', {month: 'long'})
+  const year = newDate.getFullYear()
+
+  return `${day} ${month} ${year}`
 }
 
 // Format Date With Time
 export const formatDateWithTime = (date: Date | string) => {
-  return new Date(date).toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-  })
+  const newDate = new Date(date)
+
+  const day = newDate.getDate().toString().padStart(2, '0')
+  const month = newDate.toLocaleString('id-ID', {month: 'long'})
+  const year = newDate.getFullYear()
+  const hours = newDate.getHours().toString().padStart(2, '0')
+  const minutes = newDate.getMinutes().toString().padStart(2, '0')
+
+  return `${day} ${month} ${year} pukul ${hours}:${minutes}`
 }
 
 // Format Date Period

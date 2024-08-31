@@ -8,6 +8,7 @@ import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import {Card, Row, Col, Button} from 'react-bootstrap'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -883,24 +884,12 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           orderData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.created_at)
 
             const invoiceDate = item.invoice_details.length
-              ? new Date(
+              ? formatDateWithTime(
                   item?.invoice_details?.[0]?.invoices?.invoice_logs[0]?.created_at
-                ).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                  hour: 'numeric',
-                  minute: 'numeric',
-                })
+                )
               : 'Order ini belum ada invoice'
 
             const grandTotal =
@@ -943,21 +932,8 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           complaintData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
-
-            const complaintDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.orders?.created_at)
+            const complaintDate = formatDateWithTime(item?.created_at)
 
             const phoneNumber = item?.orders?.project_number.startsWith('0')
               ? item?.orders?.project_number
@@ -1009,13 +985,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           quotationData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.order?.created_at)
 
             const workOrderItems = item?.quotation_details
               .map((service: any) => service.name ?? '-')
@@ -1047,13 +1017,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           refundData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.orders?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.orders?.created_at)
 
             data = {
               refund_id: item?.id,
@@ -1077,56 +1041,21 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           rescheduleData = apiData.map((item: any) => {
             let data
 
-            const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const orderDate = formatDateWithTime(item?.order?.created_at)
 
             const workDate = item?.order?.work_orders
               ? item?.order.work_orders.work_start_date && item?.order.work_orders.work_end_date
-                ? `${new Date(item?.order.work_orders.work_start_date).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                  })} sampai ${new Date(item?.order.work_orders.work_end_date).toLocaleDateString(
-                    'id-ID',
-                    {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric',
-                      hour: 'numeric',
-                      minute: 'numeric',
-                    }
-                  )}`
+                ? `${formatDateWithTime(
+                    item?.order?.work_orders?.work_start_date
+                  )} sampai ${formatDateWithTime(item?.order?.work_orders?.work_end_date)} `
                 : item?.order.work_orders.survey_date
-                ? new Date(item?.order.work_orders.survey_date).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                  })
+                ? formatDateWithTime(item?.order?.work_orders?.survey_date)
                 : 'Tanggal belum dikonfirmasi vendor'
               : 'Tanggal belum dikonfirmasi vendor'
 
-            const rescheduleDate = new Date(item?.reschedule_date).toLocaleDateString('id-ID', {
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-            })
+            const rescheduleDate = formatDate(item?.reschedule_date)
 
-            const confirmDate = new Date(item?.confirm_date).toLocaleDateString('id-ID', {
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const confirmDate = formatDateWithTime(item?.confirm_date)
 
             const phoneNumber = item?.order?.project_number.startsWith('0')
               ? item?.order?.project_number
@@ -1163,13 +1092,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               ?.map((item: any) => `#${item?.order_id}`)
               .join(', ')
 
-            const invoiceDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const invoiceDate = formatDateWithTime(item?.created_at)
 
             const invoiceStatus = (status: number) => {
               switch (status) {

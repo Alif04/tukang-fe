@@ -11,6 +11,7 @@ import Select, {SingleValue} from 'react-select'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {Row, Col, Form, Button, ListGroup, Card} from 'react-bootstrap'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface Complaint {
   order_id: number | null
@@ -650,13 +651,7 @@ const NewComplaintForm: FC = () => {
                     })()}
                   </Form.Label>
                   <Col>
-                    <p className='fs-7 p-0'>
-                      {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </p>
+                    <p className='fs-7 p-0'>{formatDate(orderDetail?.request_survey)}</p>
                   </Col>
                 </Form.Group>
 
@@ -666,11 +661,7 @@ const NewComplaintForm: FC = () => {
                     <Col>
                       <p className='fs-7 p-0'>
                         {orderDetail?.request_work
-                          ? new Date(orderDetail?.request_work).toLocaleDateString('id-ID', {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
-                            })
+                          ? formatDate(orderDetail?.request_work)
                           : 'Tanggal belum diset oleh toko'}
                       </p>
                     </Col>
@@ -1281,17 +1272,7 @@ const NewComplaintForm: FC = () => {
                         <>
                           {orderDetail?.work_orders?.work_order_status.length ? (
                             <p className='fs-7'>
-                              Tanggal :{' '}
-                              {new Date(orderDetail?.work_orders?.survey_date).toLocaleDateString(
-                                'id-ID',
-                                {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: 'numeric',
-                                  minute: 'numeric',
-                                }
-                              )}
+                              Tanggal : {formatDateWithTime(orderDetail?.work_orders?.survey_date)}
                             </p>
                           ) : (
                             <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
@@ -1361,32 +1342,14 @@ const NewComplaintForm: FC = () => {
                         <p className='fs-7'>
                           MULAI{' '}
                           <span className='ms-5'>
-                            {new Date(orderDetail?.work_orders?.work_start_date).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric',
-                                hour: 'numeric',
-                                minute: 'numeric',
-                              }
-                            )}
+                            {formatDateWithTime(orderDetail?.work_orders?.work_start_date)}
                           </span>
                         </p>
 
                         <p className='fs-7'>
                           SELESAI{' '}
                           <span className='ms-3'>
-                            {new Date(orderDetail?.work_orders?.work_end_date).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric',
-                                hour: 'numeric',
-                                minute: 'numeric',
-                              }
-                            )}
+                            {formatDateWithTime(orderDetail?.work_orders?.work_end_date)}
                           </span>
                         </p>
                       </div>

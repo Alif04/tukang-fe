@@ -30,6 +30,7 @@ import {
   faFileImage,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -342,13 +343,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       const workOrderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.order?.created_at)
 
         const phoneNumber = item?.order?.project_number.startsWith('0')
           ? item?.order?.project_number

@@ -12,6 +12,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip, Modal} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface Bank {
   id: number | null
@@ -310,13 +311,7 @@ const ListBankHO: React.FC = () => {
       const bankData = apiData.map((item: any, index: number) => {
         let data
 
-        const joinDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const joinDate = formatDateWithTime(item?.created_at)
 
         data = {
           bank_id: index + 1,

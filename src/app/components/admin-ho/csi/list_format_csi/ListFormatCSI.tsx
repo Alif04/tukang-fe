@@ -1,6 +1,6 @@
 import React, {FC, useState, useEffect} from 'react'
 import {useNavigate} from 'react-router-dom'
-import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
+import {formatDateWithTime, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
@@ -214,16 +214,7 @@ const ListFormatCSI: FC = () => {
 
               <Space>
                 <FontAwesomeIcon icon={faClock} />
-                <div className='fs-5'>
-                  Tanggal dibuat :{' '}
-                  {new Date(item.created_at).toLocaleDateString('id-ID', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                  })}
-                </div>
+                <div className='fs-5'>Tanggal dibuat : {formatDateWithTime(item?.created_at)}</div>
               </Space>
             </List.Item>
           </Card>

@@ -10,6 +10,7 @@ import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, Tabs, Tab} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleUser, faUser} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const DetailCostumerHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -125,13 +126,7 @@ const DetailCostumerHO: FC = () => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.created_at)
 
         data = {
           number: apiData.indexOf(item) + 1,
@@ -163,13 +158,7 @@ const DetailCostumerHO: FC = () => {
 
         const complaintDataArray = apiData.flatMap((orderItem: any) => {
           return orderItem.complaints.map((complaintItem: any) => {
-            const complaintDate = new Date(complaintItem?.created_at).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
+            const complaintDate = formatDateWithTime(complaintItem?.created_at)
 
             const complaintData = {
               number: complaintNumber,
@@ -299,13 +288,7 @@ const DetailCostumerHO: FC = () => {
 
                 <Col sm='8'>
                   <p className='fs-6'>
-                    {memberDetail
-                      ? new Date(memberDetail?.join_date).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                        })
-                      : ''}
+                    {memberDetail ? formatDateWithTime(memberDetail?.created_at) : ''}
                   </p>
                 </Col>
               </Form.Group>

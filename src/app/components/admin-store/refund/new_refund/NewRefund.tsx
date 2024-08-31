@@ -9,6 +9,7 @@ import {Card, Row, Col, Form, Button, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {formatDate} from '@fullcalendar/core'
 
 interface Refund {
   order_id: any
@@ -405,11 +406,7 @@ const NewRefundCS: FC = () => {
                   <Col>
                     <p className='fs-7 p-0'>
                       {orderDetail?.request_survey
-                        ? new Date(orderDetail.request_survey).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })
+                        ? formatDate(orderDetail?.request_survey)
                         : 'Tanggal Request Belum Ditentukan'}
                     </p>
                   </Col>

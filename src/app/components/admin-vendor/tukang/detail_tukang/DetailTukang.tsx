@@ -10,6 +10,7 @@ import {Table, Tag, PaginationProps, Spin, Pagination, Image, Rate} from 'antd'
 import {Form, Row, Col, Tabs, Tab, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleUser, faUser} from '@fortawesome/free-solid-svg-icons'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface DataTypeOrder {
   number: number
@@ -260,11 +261,7 @@ const DetailTukangVendor: FC = () => {
       const workOrderData = apiData.map((item: any, index: number) => {
         let data
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.created_at)
 
         data = {
           number: index + 1,
@@ -393,15 +390,7 @@ const DetailTukangVendor: FC = () => {
                         plaintext
                         readOnly
                         type='text'
-                        value={
-                          tukangDetail
-                            ? new Date(tukangDetail?.bod).toLocaleDateString('id-ID', {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                              })
-                            : ''
-                        }
+                        value={tukangDetail ? formatDate(tukangDetail?.bod) : ''}
                       />
                     </Col>
                   </Form.Group>

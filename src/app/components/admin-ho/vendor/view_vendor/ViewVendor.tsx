@@ -14,6 +14,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {formatDate} from '@fullcalendar/core'
 
 const {RangePicker} = DatePicker
 
@@ -292,11 +293,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       const vendorData = apiData.map((item: any, index: number) => {
         let data
 
-        const joinDate = new Date(item?.join_date).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })
+        const joinDate = formatDate(item?.join_date)
 
         const vendorServiceIds = item?.vendor_service?.map(
           (item: any) => item?.service_type?.service_type

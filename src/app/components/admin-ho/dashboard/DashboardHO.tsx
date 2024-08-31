@@ -14,6 +14,7 @@ import {DatePicker} from 'antd'
 import {Row, Col, Card, Button} from 'react-bootstrap'
 import {Table, PaginationProps} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
+import {formatDateWithTime} from '../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -234,13 +235,7 @@ const DashboardHO: FC = () => {
             item?.payment_type === 'survey'
               ? item?.m_order_details[0]?.item_notes ?? '-'
               : item?.m_order_details[0]?.item?.service_name ?? '-',
-          order_date: new Date(item?.created_at).toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-          }),
+          order_date: formatDateWithTime(item?.created_at),
           total: `Rp. ${Number(totalAmount).toLocaleString('id')}`,
         }
 

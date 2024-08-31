@@ -15,6 +15,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Card, FormGroup, Row, Col, Form, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTicket, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -291,13 +292,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       const claimWarrantyData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.created_at)
 
         const phoneNumber = item?.project_number.startsWith('0')
           ? item.project_number

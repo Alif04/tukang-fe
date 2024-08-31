@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState, useRef} from 'react'
-import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
+import {formatDate, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {useParams} from 'react-router-dom'
 
 import './DetailQuotation.css'
@@ -56,13 +56,9 @@ const DetailQuotationHO: FC = () => {
 
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
       pdf.save(
-        `Quotation - ${quotationDetail?.order?.members?.full_name} - ${new Date(
+        `Quotation - ${quotationDetail?.order?.members?.full_name} - ${formatDate(
           quotationDetail?.quotation_date
-        ).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })}.pdf`
+        )}.pdf`
       )
     }
     setLoadingPDF(false)
@@ -103,11 +99,7 @@ const DetailQuotationHO: FC = () => {
               <div className='fs-4 fw-semibold'>
                 Tanggal :
                 <span className='ms-1 fw-normal'>
-                  {new Date(quotationDetail?.quotation_date).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
+                  {formatDate(quotationDetail?.quotation_date)}
                 </span>
               </div>
 
@@ -137,11 +129,7 @@ const DetailQuotationHO: FC = () => {
                 Quotation Valid Until :
                 <span className='ms-1 fw-normal'>
                   {quotationDetail?.quotation_validity
-                    ? new Date(quotationDetail?.quotation_validity).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })
+                    ? formatDate(quotationDetail?.quotation_validity)
                     : '-'}
                 </span>
               </div>

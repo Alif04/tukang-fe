@@ -6,7 +6,7 @@ import './PreviewEmail.css'
 import axios from 'axios'
 import {Skeleton} from 'antd'
 import {useParams} from 'react-router-dom'
-import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
+import {formatDate, formatDateWithTime, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 import {Table, Row, Col, Card} from 'react-bootstrap'
 
 const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
@@ -91,13 +91,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                 <div className='header-information'>
                   <h1 className='fs-5 fw-bold mb-2'>
                     Tanggal Order :{' '}
-                    <span className='fw-normal'>
-                      {new Date(orderDetail?.created_at).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </span>
+                    <span className='fw-normal'>{formatDateWithTime(orderDetail?.created_at)}</span>
                   </h1>
 
                   <h1 className='fs-5 fw-bold mb-2'>
@@ -112,14 +106,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
                         return ``
                       }
                     })()}{' '}
-                    :{' '}
-                    <span className='fw-normal '>
-                      {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </span>
+                    : <span className='fw-normal '>{formatDate(orderDetail?.request_survey)}</span>
                   </h1>
 
                   <h1 className='fs-5 fw-bold mb-2 '>

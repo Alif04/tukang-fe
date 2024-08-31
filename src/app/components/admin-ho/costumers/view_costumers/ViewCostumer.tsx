@@ -13,6 +13,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faSearch, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -266,11 +267,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
       const memberData = apiData.map((item: any, index: number) => {
         let data
 
-        const joinDate = new Date(item?.join_date).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        })
+        const joinDate = formatDateWithTime(item?.created_at)
 
         data = {
           number: index + 1,

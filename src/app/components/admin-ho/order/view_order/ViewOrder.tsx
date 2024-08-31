@@ -52,6 +52,7 @@ import {
   faEnvelope,
   faPrint,
 } from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -163,6 +164,7 @@ const ViewOrders: FC = () => {
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
+  const today = new Date().toISOString().split('T')[0]
 
   const [mailLogs, setMailLogs] = useState<any>()
   const [orderDetail, setOrderDetail] = useState<any>()
@@ -253,6 +255,9 @@ const ViewOrders: FC = () => {
               store_id: data?.store?.id ?? null,
               notes: data?.notes ?? '',
               request_survey: new Date(data.request_survey).toISOString().split('T')[0] ?? '',
+              request_work: data?.request_work
+                ? new Date(data.request_work).toISOString().split('T')[0]
+                : '',
             }))
           }
 
@@ -561,6 +566,8 @@ const ViewOrders: FC = () => {
     ],
   })
 
+  console.log('quotation', quotation)
+
   const quotationSpecialStatus = (() => {
     if (quotation.quotation_special === 1) {
       const receipts =
@@ -758,13 +765,7 @@ const ViewOrders: FC = () => {
           ? item.project_number
           : `+62${item.project_number}`
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.created_at)
 
         const paymentReceipt = (() => {
           if (item?.payment_type === 'survey') {
@@ -1061,7 +1062,10 @@ const ViewOrders: FC = () => {
   const QuotationValidation = () => {
     let valid = true
 
-    if (quotation.receipt_quotation === '' && quotation.quotation_special !== 1) {
+    if (
+      (quotation.receipt_quotation === null || quotation.receipt_quotation === '') &&
+      quotation.quotation_special === 0
+    ) {
       Swal.fire({
         title: 'Warning',
         text: 'Tolong isi formulir receipt quotation',
@@ -1346,15 +1350,7 @@ const ViewOrders: FC = () => {
                       mailLogs.map((item: any, index: number) => (
                         <tr key={`${index} - email_log`}>
                           <td>{item?.emailMessages?.title || 'No Title'}</td>
-                          <td>
-                            {new Date(item?.createdAt).toLocaleDateString('id-ID', {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
-                              hour: 'numeric',
-                              minute: 'numeric',
-                            })}
-                          </td>
+                          <td>{formatDateWithTime(item?.createdAt)}</td>
                         </tr>
                       ))
                     ) : (
@@ -2573,6 +2569,7 @@ const ViewOrders: FC = () => {
                     name='request_work'
                     type='date'
                     placeholder='Isi tanggal request pengerjaan..'
+                    min={today}
                     value={orderForm?.request_work ?? ''}
                     onChange={(e) => setOrderForm({...orderForm, request_work: e.target.value})}
                   />

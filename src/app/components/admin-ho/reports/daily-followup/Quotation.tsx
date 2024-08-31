@@ -22,6 +22,7 @@ import {
 } from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faNoteSticky} from '@fortawesome/free-solid-svg-icons'
+import {formatDate} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -261,13 +262,7 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
       const quotationData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDate(item?.order?.created_at)
 
         const createdAt = item?.quotation_validity ? new Date(item.quotation_validity) : null
         const createdAtMinus = createdAt

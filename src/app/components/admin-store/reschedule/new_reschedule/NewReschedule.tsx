@@ -1,6 +1,7 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 import './NewReschedule.css'
 
@@ -59,7 +60,15 @@ const NewReschedule: FC = () => {
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status: any) =>
-    ['SURVEYREQ', 'TUKANGSURVEY', 'TUKANGWORK', 'WORKREQ'].includes(status.category)
+    [
+      'SURVEYREQ',
+      'TUKANGSURVEY',
+      'TUKANGWORK',
+      'WORKREQ',
+      'TUKANGWORKSTEPONE',
+      'TUKANGWORKSTEPTWO',
+      'TUKANGWORKSTEPTHREE',
+    ].includes(status.category)
   )
   const statuses = desiredStatus.map((x) => x.value)
 
@@ -152,8 +161,6 @@ const NewReschedule: FC = () => {
   }, [reschedule])
 
   // Reschedule Handler Form
-  const today = new Date().toISOString().split('T')[0]
-
   const RescheduleFormHandler = (e: any) => {
     setReschedule({
       ...reschedule,
@@ -503,11 +510,7 @@ const NewReschedule: FC = () => {
                   <Col>
                     <p className='fs-7 p-0'>
                       {orderDetail?.request_survey
-                        ? new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric',
-                          })
+                        ? formatDate(orderDetail?.request_survey)
                         : 'Tanggal belum ditentukan toko'}
                     </p>
                   </Col>
@@ -525,13 +528,7 @@ const NewReschedule: FC = () => {
                   >
                     <Form.Label column>Tanggal request pemasangan</Form.Label>
                     <Col>
-                      <p className='fs-7 p-0'>
-                        {new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                          day: '2-digit',
-                          month: 'long',
-                          year: 'numeric',
-                        })}
-                      </p>
+                      <p className='fs-7 p-0'>{formatDate(orderDetail?.request_survey)}</p>
                     </Col>
                   </Form.Group>
                 )}
@@ -1123,17 +1120,7 @@ const NewReschedule: FC = () => {
                         <>
                           {orderDetail?.work_orders?.work_order_status.length ? (
                             <p className='fs-7'>
-                              Tanggal :{' '}
-                              {new Date(orderDetail?.work_orders?.survey_date).toLocaleDateString(
-                                'id-ID',
-                                {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: 'numeric',
-                                  minute: 'numeric',
-                                }
-                              )}
+                              Tanggal : {formatDateWithTime(orderDetail?.work_orders?.survey_date)}
                             </p>
                           ) : (
                             <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
@@ -1203,32 +1190,14 @@ const NewReschedule: FC = () => {
                         <p className='fs-7'>
                           MULAI{' '}
                           <span className='ms-5'>
-                            {new Date(orderDetail?.work_orders?.work_start_date).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric',
-                                hour: 'numeric',
-                                minute: 'numeric',
-                              }
-                            )}
+                            {formatDateWithTime(orderDetail?.work_orders?.work_start_date)}
                           </span>
                         </p>
 
                         <p className='fs-7'>
                           SELESAI{' '}
                           <span className='ms-3'>
-                            {new Date(orderDetail?.work_orders?.work_end_date).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric',
-                                hour: 'numeric',
-                                minute: 'numeric',
-                              }
-                            )}
+                            {formatDateWithTime(orderDetail?.work_orders?.work_end_date)}
                           </span>
                         </p>
                       </div>
@@ -1324,11 +1293,7 @@ const NewReschedule: FC = () => {
 
                 <p className='fs-6'>
                   {orderDetail?.request_survey
-                    ? `${new Date(orderDetail?.request_survey).toLocaleDateString('id-ID', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                      })}`
+                    ? `${formatDate(orderDetail?.request_survey)}`
                     : 'Tanggal belum ditentukan toko'}
                 </p>
               </Form.Group>
@@ -1339,32 +1304,11 @@ const NewReschedule: FC = () => {
                   {orderDetail?.work_orders
                     ? orderDetail.work_orders.work_start_date &&
                       orderDetail.work_orders.work_end_date
-                      ? `${new Date(orderDetail.work_orders.work_start_date).toLocaleDateString(
-                          'id-ID',
-                          {
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                          }
-                        )} sampai ${new Date(
-                          orderDetail.work_orders.work_end_date
-                        ).toLocaleDateString('id-ID', {
-                          day: '2-digit',
-                          month: 'long',
-                          year: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                        })}`
+                      ? ` ${formatDateWithTime(
+                          orderDetail.work_orders.work_start_date
+                        )} sampai  ${formatDateWithTime(orderDetail?.work_orders?.work_end_date)}`
                       : orderDetail.work_orders.survey_date
-                      ? new Date(orderDetail.work_orders.survey_date).toLocaleDateString('id-ID', {
-                          day: '2-digit',
-                          month: 'long',
-                          year: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                        })
+                      ? formatDateWithTime(orderDetail?.work_orders?.survey_date)
                       : 'Tanggal belum dikonfirmasi vendor'
                     : 'Tanggal belum dikonfirmasi vendor'}
                 </p>

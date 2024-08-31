@@ -13,6 +13,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, FormGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -276,13 +277,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       const rescheduleData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.created_at)
 
         const phoneNumber = item?.order?.project_number.startsWith('0')
           ? item?.order?.project_number

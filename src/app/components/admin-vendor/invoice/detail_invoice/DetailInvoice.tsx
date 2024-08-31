@@ -1,5 +1,5 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
-import {useParams, useNavigate} from 'react-router-dom'
+import {useParams, useNavigate, Link} from 'react-router-dom'
 
 import './DetailInvoice.css'
 
@@ -10,6 +10,7 @@ import {Image} from 'antd'
 import {ListGroup, Table, Row, Col, Card, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDownload} from '@fortawesome/free-solid-svg-icons'
+import {formatDate} from '../../../../../_metronic/helpers'
 
 interface Store {
   store_id: number
@@ -177,13 +178,7 @@ const DetailInvoiceVendor: FC = () => {
 
               <div className='fs-3 fw-semibold'>
                 Tanggal dibuat :{' '}
-                <span className='fw-normal'>
-                  {new Date(invoiceDetail?.created_at).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </span>
+                <span className='fw-normal'>{formatDate(invoiceDetail?.created_at)}</span>
               </div>
 
               <div className='fs-3 fw-semibold'>
@@ -195,16 +190,7 @@ const DetailInvoiceVendor: FC = () => {
                   Tanggal diberikan kepada Finance :{' '}
                   <span className='fw-normal'>
                     {invoiceDetail?.invoice_to_finance_date ? (
-                      <>
-                        {new Date(invoiceDetail?.invoice_to_finance_date).toLocaleDateString(
-                          'id-ID',
-                          {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          }
-                        )}
-                      </>
+                      <>{formatDate(invoiceDetail?.invoice_to_finance_date)}</>
                     ) : (
                       <>Invoice ini belum dikirimkan kepada finance</>
                     )}
@@ -255,13 +241,7 @@ const DetailInvoiceVendor: FC = () => {
                   <tr key={item?.order?.id}>
                     <td align='center'>{item?.invoice_number}</td>
                     <td align='center'>{item?.order?.id}</td>
-                    <td>
-                      {new Date(item?.order?.request_survey).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </td>
+                    <td>{formatDate(item?.order?.request_survey)}</td>
                     <td>
                       {store.find((x: any) => x.store_id === item?.order?.store_id)?.store_name}
                     </td>
@@ -276,10 +256,12 @@ const DetailInvoiceVendor: FC = () => {
                         : ''}
                     </td>
                     <td>
-                      {item?.order?.quotation?.length > 0 &&
-                      item?.order?.quotation[0]?.receipt_quotation !== null
-                        ? item?.order?.quotation[0]?.receipt_quotation
-                        : item?.order?.receipt_number}
+                      <Link to={`/order/detail-order/${item?.order?.id}`}>
+                        {item?.order?.quotation?.length > 0 &&
+                        item?.order?.quotation[0]?.receipt_quotation !== null
+                          ? item?.order?.quotation[0]?.receipt_quotation
+                          : item?.order?.receipt_number}
+                      </Link>
                     </td>
                     <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
                   </tr>

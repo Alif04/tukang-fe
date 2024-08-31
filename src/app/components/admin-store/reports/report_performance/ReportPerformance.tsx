@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
 import {useNavigate} from 'react-router-dom'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 import './ReportPerformance.css'
 
@@ -171,13 +172,7 @@ const ReportPerformanceStore: React.FC<Props> = ({className}) => {
           totalAmount = item?.grand_total
         }
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.created_at)
 
         data = {
           order_id: item?.id,

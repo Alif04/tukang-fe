@@ -12,6 +12,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPen, faBook, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -254,13 +255,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       const refundData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.created_at).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.created_at)
 
         const paymentStatus = (() => {
           if (item?.orders?.payment_type === 'survey') {

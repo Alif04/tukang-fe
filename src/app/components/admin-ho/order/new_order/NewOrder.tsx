@@ -246,7 +246,7 @@ const NewOrderHO: FC = () => {
   useEffect(() => {
     // eslint-disable-next-line
     getItem()
-  }, [paymentTypeValue, searchItem])
+  }, [paymentTypeValue, searchItem, selectedStore])
 
   useEffect(() => {
     const getMember = async () => {

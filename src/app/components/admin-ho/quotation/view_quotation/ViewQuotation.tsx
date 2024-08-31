@@ -14,6 +14,7 @@ import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
 import {Row, Col, Form, FormGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch, faPrint} from '@fortawesome/free-solid-svg-icons'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -345,13 +346,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       const quotationData = apiData.map((item: any) => {
         let data
 
-        const orderDate = new Date(item?.order?.created_at).toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-        })
+        const orderDate = formatDateWithTime(item?.order?.created_at)
 
         const paymentStatus = (() => {
           if (item?.receipt_quotation !== null && item?.quotation_files.length) {

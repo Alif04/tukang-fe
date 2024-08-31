@@ -1,4 +1,5 @@
 import React, {FC, useState, useEffect} from 'react'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 import './DetailWorkOrder.css'
 
@@ -55,23 +56,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
             const orderHistory = data?.order?.order_history.map((item: any) => {
               return {
                 status: item?.status?.description,
-                created_at: item?.created_at
-                  ? new Date(item?.created_at).toLocaleDateString('id-ID', {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric',
-                      hour: 'numeric',
-                      minute: 'numeric',
-                    })
-                  : item?.created_at
-                  ? new Date(item?.created_at).toLocaleDateString('id-ID', {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric',
-                      hour: 'numeric',
-                      minute: 'numeric',
-                    })
-                  : '-',
+                created_at: item?.created_at ? formatDateWithTime(item?.created_at) : '-',
                 updated_by: item?.created_by?.username,
               }
             })
@@ -333,18 +318,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                               {workOrderDetail?.order?.payment_type === 'survey' ? (
                                 <>
                                   {workOrderDetail?.work_order_status.length ? (
-                                    <>
-                                      {new Date(workOrderDetail?.survey_date).toLocaleDateString(
-                                        'id-ID',
-                                        {
-                                          day: 'numeric',
-                                          month: 'long',
-                                          year: 'numeric',
-                                          hour: 'numeric',
-                                          minute: 'numeric',
-                                        }
-                                      )}
-                                    </>
+                                    <>{formatDateWithTime(workOrderDetail?.survey_date)}</>
                                   ) : (
                                     'Jadwal belum ditentukan oleh vendor'
                                   )}
@@ -443,16 +417,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
 
                             <Col sm='9'>
                               <p className='fs-7'>
-                                {new Date(workOrderDetail?.work_start_date).toLocaleDateString(
-                                  'id-ID',
-                                  {
-                                    day: 'numeric',
-                                    month: 'long',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: 'numeric',
-                                  }
-                                )}
+                                {formatDateWithTime(workOrderDetail?.work_start_date)}
                               </p>
                             </Col>
                           </Form.Group>
@@ -464,16 +429,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
 
                             <Col sm='9'>
                               <p className='fs-7'>
-                                {new Date(workOrderDetail?.work_end_date).toLocaleDateString(
-                                  'id-ID',
-                                  {
-                                    day: 'numeric',
-                                    month: 'long',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: 'numeric',
-                                  }
-                                )}
+                                {formatDateWithTime(workOrderDetail?.work_end_date)}
                               </p>
                             </Col>
                           </Form.Group>
@@ -537,14 +493,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
 
                     <Col>
                       <p className='fs-7 p-0'>
-                        {new Date(workOrderDetail?.order?.request_survey).toLocaleDateString(
-                          'id-ID',
-                          {
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric',
-                          }
-                        )}
+                        {formatDate(workOrderDetail?.order?.request_survey)}
                       </p>
                     </Col>
                   </Skeleton>
@@ -558,14 +507,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                       <Col>
                         <p className='fs-7 p-0'>
                           {workOrderDetail?.order?.request_work
-                            ? new Date(workOrderDetail?.order?.request_work).toLocaleDateString(
-                                'id-ID',
-                                {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                }
-                              )
+                            ? formatDate(workOrderDetail?.order?.request_work)
                             : 'Tanggal belum diset oleh toko'}
                         </p>
                       </Col>
