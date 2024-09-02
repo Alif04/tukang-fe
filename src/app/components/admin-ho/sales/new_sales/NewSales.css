@@ -90,3 +90,7 @@
 #view-sales .table-striped-rows tr:nth-child(odd) td {
   background-color: #e4e9f7;
 }
+
+#view-sales .form-control.p-0.css-b62m3t-container {
+  z-index: 99 !important;
+}
