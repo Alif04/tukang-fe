@@ -35,6 +35,7 @@ interface Sales {
   sales_brand: string
   sales_categories: CategorySelect[]
   password: string
+  is_active: number
 }
 
 const UpdateSales: FC = () => {
@@ -67,6 +68,7 @@ const UpdateSales: FC = () => {
     sales_brand: '',
     sales_categories: [],
     password: '',
+    is_active: 1,
   })
 
   // Bank

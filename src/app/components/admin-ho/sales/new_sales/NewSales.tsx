@@ -14,7 +14,7 @@ import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import {Row, Col, Form, InputGroup, Button, Card, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faPen, faTrash, faSearch, faCircleCheck} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -44,6 +44,7 @@ interface Sales {
   sales_brand: string
   sales_categories: CategorySelect[]
   password: string
+  is_active: number
 }
 
 const NewSales: FC = () => {
@@ -94,6 +95,7 @@ const NewSales: FC = () => {
     sales_brand: '',
     sales_categories: [],
     password: '',
+    is_active: 1,
   })
 
   // Bank
@@ -491,14 +493,14 @@ const NewSales: FC = () => {
       fixed: 'right',
       width: 45,
       render: (record) => {
+        const id = record.sales_id
+        const isActive = record.is_active
+
         const handleUpdateId = () => {
-          const id = record.sales_id
           navigate(`/sales/update-sales/${id}`)
         }
 
         const handleDeleteId = () => {
-          const id = record.sales_id
-
           Swal.fire({
             title: `Apakah anda yakin akan mengubah status Sales ini ?`,
             icon: 'warning',
@@ -546,8 +548,72 @@ const NewSales: FC = () => {
             })
         }
 
+        const handleActive = () => {
+          Swal.fire({
+            title: `Apakah anda yakin akan mengaktifkan sales ini ?`,
+            icon: 'warning',
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ya',
+            denyButtonText: 'Tidak',
+          })
+            .then((willActive) => {
+              const formData = new FormData()
+
+              formData.append('is_active', String(1))
+
+              if (willActive.value) {
+                axios
+                  .post(`${apiUrl}/sales/${id}`, formData, {
+                    headers: {
+                      Accept: 'application/json',
+                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Access-Control-Allow-Origin': '*',
+                      'ngrok-skip-browser-warning': 'true',
+                    },
+                  })
+                  .then((response) => {
+                    Swal.fire({
+                      title: 'Success',
+                      text: 'Berhasil mengaktifkan sales',
+                      icon: 'success',
+                      showConfirmButton: false,
+                    }).then(() => {
+                      window.location.reload()
+                    })
+                  })
+                  .catch((error) => {
+                    Swal.fire({
+                      title: 'Error',
+                      text: error.response.data.message,
+                      icon: 'error',
+                    })
+                  })
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
+        }
+
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>
+            {isActive !== 'ACTIVE' && (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Aktifkan Sales')}
+              >
+                <Button className='button-active' variant='success' onClick={handleActive}>
+                  <FontAwesomeIcon className='text-white' icon={faCircleCheck} fontSize={'13px'} />
+                </Button>
+              </OverlayTrigger>
+            )}
+
             <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
