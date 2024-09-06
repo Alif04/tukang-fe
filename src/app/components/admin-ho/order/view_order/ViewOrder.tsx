@@ -353,6 +353,8 @@ const ViewOrders: FC = () => {
               readiness: data?.quotation[0]?.readiness,
               receipt_quotation: data?.quotation[0]?.receipt_quotation,
               quotation_details: quotationDetails,
+              promotion_id:
+                data?.quotation[0]?.promotion_id === null ? 0 : data?.quotation[0]?.promotion_id,
               receipts_quotation: [
                 {
                   index: 123,
