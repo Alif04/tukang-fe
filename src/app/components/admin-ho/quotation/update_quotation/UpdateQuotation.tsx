@@ -418,6 +418,8 @@ const UpdateQuotationHO: FC = () => {
             promotionName = promo.name
             totalPromotion = (totalQuotation * promo.promotion) / 100
           }
+        } else {
+          promotionId = 0
         }
       })
 
