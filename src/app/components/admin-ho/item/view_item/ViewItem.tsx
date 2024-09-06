@@ -1,24 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useState} from 'react'
-import {useNavigate} from 'react-router-dom'
-import {useSelector, useDispatch} from 'react-redux'
-import {RootState} from '../../../../../store'
-import {
-  setQueryParams,
-  setCurrentPage,
-  setPageSize,
-  setDateFrom,
-  setDateTo,
-  setSearchFilter,
-  setSelectedStore,
-} from '../../../../../store/tableSlice'
 
 import './ViewItem.css'
 
 import axios from 'axios'
-import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
+import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
@@ -46,20 +34,33 @@ interface StoreItem {
 const ViewItemHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const dispatch = useDispatch()
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [itemData, setItemData] = useState<DataType[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
-  const {queryParams, searchFilter, currentPage, pageSize, dateFrom, dateTo, selectedStore} =
-    useSelector((state: RootState) => state.table)
+  const [pageSize, setPageSize] = useState<number>(10)
+
+  const [dateFrom, setDateFrom] = useState<any>('')
+  const [dateTo, setDateTo] = useState<any>('')
+  const [searchFilter, setSearchFilter] = useState<string>('')
 
   const [store, setStore] = useState<StoreItem[]>([])
   const storeOptions = [{value: null, label: 'All Store'}, ...store]
+  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
+    value: null,
+    label: 'All Store',
+  })
+
+  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedSearchFilter = event.target.value
+    setSearchFilter(updatedSearchFilter)
+  }
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
+
   const columns: ColumnsType<DataType> = [
     {
       title: 'No. ',
@@ -241,33 +242,6 @@ const ViewItemHO: React.FC = () => {
     }
   }
 
-  const getStore = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/stores?take=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempStore = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.store_name,
-          city_id: item.city_id,
-        }))
-
-        setStore(tempStore)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   const ViewItem = async (page: number, pageSize: number, queryparams: any) => {
     try {
       const apiData = await getItemList(page, pageSize, queryparams)
@@ -321,38 +295,47 @@ const ViewItemHO: React.FC = () => {
   }
 
   useEffect(() => {
-    fetchData(currentPage, pageSize, queryParams)
-  }, [currentPage, pageSize, queryParams])
+    fetchData(1, 10, '')
+  }, [])
 
   useEffect(() => {
+    const getStore = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/stores?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.store_name,
+            city_id: item.city_id,
+          }))
+
+          setStore(tempStore)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     getStore()
   }, [])
 
-  // Table Handler
-  const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchFilter(e.target.value))
-  }
-
-  const handlePageChange = (page: number, size?: number) => {
-    dispatch(setCurrentPage(page))
-    if (size) {
-      dispatch(setPageSize(size))
-    }
-  }
-
-  const handleStoreChange = (newValue: SingleValue<StoreItem>) => {
-    const selectedStore: StoreItem = newValue || {value: null, label: 'All Store'}
-    dispatch(setSelectedStore(selectedStore))
-  }
-
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
-
-    let newQueryParams = ''
+    let queryparams = ``
 
     const valueCheck = (key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        newQueryParams += `${key}${value}`
+        queryparams += `${key}${value}`
       }
     }
 
@@ -361,9 +344,7 @@ const ViewItemHO: React.FC = () => {
     valueCheck(`&date_to=`, dateTo)
     valueCheck(`&store_id=`, selectedStore?.value)
 
-    dispatch(setQueryParams(newQueryParams))
-
-    const data = await ViewItem(currentPage, pageSize, newQueryParams)
+    const data = await ViewItem(1, 10, queryparams)
     setItemData(data)
 
     setLoadingButton(false)
@@ -384,20 +365,16 @@ const ViewItemHO: React.FC = () => {
                   <RangePicker
                     format={'DD-MM-YYYY'}
                     className='date-range ms-3'
-                    value={[
-                      dateFrom ? dayjs(dateFrom, 'YYYY-MM-DD') : null,
-                      dateTo ? dayjs(dateTo, 'YYYY-MM-DD') : null,
-                    ]}
                     onChange={(values) => {
                       if (values && values.length === 2) {
-                        const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
-                        const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
+                        const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                        const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
-                        dispatch(setDateFrom(dateFromFormatted))
-                        dispatch(setDateTo(dateToFormatted))
+                        setDateFrom(dateFromFormatted)
+                        setDateTo(dateToFormatted)
                       } else {
-                        dispatch(setDateFrom(''))
-                        dispatch(setDateTo(''))
+                        setDateFrom('')
+                        setDateTo('')
                       }
                     }}
                   />
@@ -415,7 +392,6 @@ const ViewItemHO: React.FC = () => {
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
-                    value={searchFilter ?? ''}
                     onChange={handleChangeSearchFilter}
                   />
                 </InputGroup>
@@ -432,7 +408,7 @@ const ViewItemHO: React.FC = () => {
                   isSearchable={true}
                   options={storeOptions}
                   value={selectedStore}
-                  onChange={handleStoreChange}
+                  onChange={(newValue) => setSelectedStore(newValue)}
                 />
 
                 <Button
@@ -470,14 +446,14 @@ const ViewItemHO: React.FC = () => {
           <Pagination
             className='mt-5'
             style={{textAlign: 'right', position: 'relative'}}
-            pageSize={pageSize}
             current={currentPage}
             total={totalData}
             showSizeChanger
             pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
             itemRender={itemRender}
+            onShowSizeChange={(current, size) => setPageSize(size)}
             onChange={(page, pageSize) => {
-              handlePageChange(page, pageSize)
+              fetchData(page, pageSize, '')
             }}
             showTotal={(total, range) => (
               <span style={{left: 0, position: 'absolute'}}>
