@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import {formatDate} from '@fullcalendar/core'
 import {Skeleton} from 'antd'
 import React from 'react'
 import {Link} from 'react-router-dom'
+import {formatDate} from '../../../../../_metronic/helpers'
 
 type Props = {
   className: string
@@ -54,13 +54,13 @@ const TransactionWidget: React.FC<Props> = ({className, orderData, loadingPage})
                     <div className='fw-bold text-gray-800 fs-6'>
                       {item?.m_order_details
                         .map((item: any) =>
-                          item?.item === null ? item?.item_notes : item?.item?.service_name ?? '-'
+                          item?.item_id === null ? item?.item_notes : item?.item?.item_name ?? '-'
                         )
                         .join(', ')}
                     </div>
 
                     <span className='text-muted fw-semibold d-block'>
-                      {formatDate(item?.request_survey)}
+                      {formatDate(item?.created_at)}
                     </span>
                   </div>
 

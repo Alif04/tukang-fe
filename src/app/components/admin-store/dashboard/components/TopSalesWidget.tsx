@@ -21,8 +21,8 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData, loadingPage, tot
 
       <div className='card-body pt-2'>
         {topFive.map((item: any) => (
-          <Skeleton active avatar loading={loadingPage}>
-            <div className='list-item d-flex justify-content-between mb-7' key={item.id}>
+          <Skeleton active avatar loading={loadingPage} key={item.id}>
+            <div className='list-item d-flex justify-content-between mb-7'>
               <div className='d-flex align-items-center'>
                 <div className='symbol symbol-50px me-5'>
                   <img
