@@ -724,35 +724,45 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const determineStatus = () => {
+      const hasQuotation = orderDetail?.quotation?.length > 0
+      const specialQuotation = orderDetail?.quotation?.[0]?.quotation_special === 1
+      const receiptQuotations =
+        orderDetail?.quotation?.[0]?.quotation_receipt?.map(
+          (receipt: any) => receipt?.receipt_quotation || null
+        ) || []
+
       switch (true) {
-        case paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'pemasangan_tanpa_survey':
+        case paymentTypeValue.includes('gratis') ||
+          paymentTypeValue.includes('pemasangan_tanpa_survey'):
           return 'WORKREQ'
 
-        case paymentTypeValue[1] === 'survey': {
-          const hasQuotation = orderDetail?.quotation?.length > 0
-
-          if (!hasQuotation) {
+        case paymentTypeValue.includes('survey'):
+          if (!hasQuotation && !specialQuotation) {
             return 'SURVEYREQ'
-          } else if (hasQuotation) {
+          } else if (hasQuotation && !specialQuotation) {
+            return 'WORKREQ'
+          } else if (hasQuotation && specialQuotation) {
+            if (
+              receiptQuotations[0] !== null &&
+              receiptQuotations[1] === null &&
+              receiptQuotations[2] === null
+            )
+              return 'WORKREQSTEPONE'
+            if (
+              receiptQuotations[0] !== null &&
+              receiptQuotations[1] !== null &&
+              receiptQuotations[2] === null
+            )
+              return 'WORKREQSTEPTWO'
+            if (
+              receiptQuotations[0] !== null &&
+              receiptQuotations[1] !== null &&
+              receiptQuotations[2] !== null
+            )
+              return 'WORKREQSTEPTHREE'
             return 'WORKREQ'
           }
-
-          const receiptQuotations =
-            orderDetail?.quotation[0]?.quotation_receipt?.map(
-              (receipt: any) => receipt?.receipt_quotation
-            ) || []
-
-          switch (true) {
-            case receiptQuotations[2] !== null:
-              return 'WORKREQSTEPTHREE'
-            case receiptQuotations[1] !== null:
-              return 'WORKREQSTEPTWO'
-            case receiptQuotations[0] !== null:
-              return 'WORKREQSTEPONE'
-            default:
-              return 'WORKREQ'
-          }
-        }
+          break
 
         case isCanceledOrder:
           return 'CLOSE'

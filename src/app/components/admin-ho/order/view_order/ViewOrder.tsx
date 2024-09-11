@@ -123,6 +123,7 @@ interface Quotation {
   readiness: number
   receipt_quotation: string
   receipts_quotation: Array<{
+    id: number | null
     index: number
     receipt_quotation: string
     quotation_step: number
@@ -357,18 +358,21 @@ const ViewOrders: FC = () => {
                 data?.quotation[0]?.promotion_id === null ? 0 : data?.quotation[0]?.promotion_id,
               receipts_quotation: [
                 {
+                  id: data?.quotation[0]?.quotation_receipt[0]?.id ?? null,
                   index: 123,
                   receipt_quotation:
                     data?.quotation[0]?.quotation_receipt[0]?.receipt_quotation ?? '',
                   quotation_step: 1,
                 },
                 {
+                  id: data?.quotation[0]?.quotation_receipt[1]?.id ?? null,
                   index: 345,
                   receipt_quotation:
                     data?.quotation[0]?.quotation_receipt[1]?.receipt_quotation ?? '',
                   quotation_step: 2,
                 },
                 {
+                  id: data?.quotation[0]?.quotation_receipt[2]?.id ?? null,
                   index: 678,
                   receipt_quotation:
                     data?.quotation[0]?.quotation_receipt[2]?.receipt_quotation ?? '',
@@ -524,9 +528,9 @@ const ViewOrders: FC = () => {
     readiness: 1,
     receipt_quotation: '',
     receipts_quotation: [
-      {index: 123, receipt_quotation: '', quotation_step: 1},
-      {index: 345, receipt_quotation: '', quotation_step: 2},
-      {index: 678, receipt_quotation: '', quotation_step: 3},
+      {id: null, index: 123, receipt_quotation: '', quotation_step: 1},
+      {id: null, index: 345, receipt_quotation: '', quotation_step: 2},
+      {id: null, index: 678, receipt_quotation: '', quotation_step: 3},
     ],
     quotation_details: [
       {
@@ -568,12 +572,11 @@ const ViewOrders: FC = () => {
     ],
   })
 
-  console.log('quotation', quotation)
-
   const quotationSpecialStatus = (() => {
     if (quotation.quotation_special === 1) {
       const receipts =
-        quotation?.receipts_quotation?.map((receipt: any) => receipt?.receipt_quotation) || []
+        quotation?.receipts_quotation?.map((receipt: any) => receipt?.receipt_quotation || null) ||
+        []
 
       switch (true) {
         case receipts[0] !== null && receipts[1] === null && receipts[2] === null:
@@ -583,7 +586,7 @@ const ViewOrders: FC = () => {
         case receipts[0] !== null && receipts[1] !== null && receipts[2] !== null:
           return statusData.find((status: any) => status.category === 'QUOTATIONPAIDSTEPTHREE')
         default:
-          return null
+          return statusData.find((status: any) => status.category === 'QUOTATIONPAIDSTEPONE')
       }
     }
     return null
@@ -1156,6 +1159,7 @@ const ViewOrders: FC = () => {
 
     if (quotation?.quotation_special === 1) {
       quotation.receipts_quotation.forEach((receipt, index) => {
+        appendIfNotDefault(formData, `receipts_quotation[${index}][id]`, receipt.id)
         appendIfNotDefault(
           formData,
           `receipts_quotation[${index}][receipt_quotation]`,
@@ -3533,13 +3537,9 @@ const ViewOrders: FC = () => {
               </Button>
             </OverlayTrigger>
 
-            {[
-              'QUOTATIONPAID',
-              'QUOTEOUT',
-              'WORKENDSTEPONE',
-              'WORKENDSTEPTWO',
-              'WORKENDSTEPTHREE',
-            ].includes(record.order_status) && userRole === 'Store CS' ? (
+            {['QUOTATIONPAID', 'QUOTEOUT', 'WORKENDSTEPONE', 'WORKENDSTEPTWO'].includes(
+              record.order_status
+            ) && userRole === 'Store CS' ? (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}

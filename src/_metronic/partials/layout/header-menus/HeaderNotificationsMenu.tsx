@@ -13,6 +13,7 @@ type Props = {
   currentPage: number
   pageSize: number
   totalData: number
+  totalUnread: number
   setPageSize: (size: number) => void
   getNotifications: (page: number, pageSize: number) => void
 }
@@ -28,6 +29,7 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
   currentPage,
   pageSize,
   totalData,
+  totalUnread,
   setPageSize,
   getNotifications,
 }) => {
@@ -42,8 +44,6 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
   const checkedCount = checked.filter((item) => item.is_read).length
   const isCheckedAll = checkedCount === notifications.length
   const isIndeterminate = checkedCount > 0 && checkedCount < notifications.length
-
-  console.log('checked', checked)
 
   // Fetching Data
   useEffect(() => {
@@ -150,6 +150,7 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
       .then((response) => {
         if (response.data.status === 200 || response.data.status === 201) {
           setIsLoadingSubmit(false)
+          getNotifications(currentPage, pageSize)
         } else {
           setIsLoadingSubmit(false)
         }
@@ -169,7 +170,7 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
 
         <div className='trigger-read d-flex align-items-center gap-3 '>
           <Tag className='fs-8 opacity-75 ' color='blue'>
-            {`${totalData} Unread`}
+            {`${totalUnread} Unread`}
           </Tag>
         </div>
       </div>
@@ -219,7 +220,11 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
                           {item?.created_by?.username}
                         </h1>
                       ) : (
-                        <a className='fs-7 text-dark fw-bold' href={moduleUrl}>
+                        <a
+                          className='fs-7 text-dark fw-bold'
+                          href={moduleUrl}
+                          style={{maxWidth: '190px'}}
+                        >
                           {actionMap[item.action]?.(module.name) || item.action} oleh{' '}
                           {item?.created_by?.username}
                         </a>

@@ -23,6 +23,7 @@ const Topbar: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(50)
   const [totalData, setTotalData] = useState<number>(0)
+  const [totalUnread, setTotalUnread] = useState<number>(0)
 
   // Fetching Data
   const getNotifications = async (page: number, pageSize: number) => {
@@ -55,6 +56,7 @@ const Topbar: FC = () => {
 
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
+      setTotalUnread(response?.data?.unread ?? 0)
 
       return notificationsData
     } catch (error) {
@@ -67,7 +69,7 @@ const Topbar: FC = () => {
 
     const intervalId = setInterval(() => {
       getNotifications(currentPage, pageSize)
-    }, 5000)
+    }, 30000)
 
     return () => clearInterval(intervalId)
   }, [currentPage, pageSize])
@@ -102,7 +104,7 @@ const Topbar: FC = () => {
             color: 'white',
           }}
         >
-          {totalData}
+          {totalUnread}
         </span>
 
         <HeaderNotificationsMenu
@@ -111,6 +113,7 @@ const Topbar: FC = () => {
           currentPage={currentPage}
           pageSize={pageSize}
           totalData={totalData}
+          totalUnread={totalUnread}
           setPageSize={setPageSize}
           getNotifications={getNotifications}
         />
