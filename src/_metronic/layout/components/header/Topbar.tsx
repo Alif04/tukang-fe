@@ -1,5 +1,10 @@
+import React, {FC, useState, useEffect} from 'react'
 import clsx from 'clsx'
-import React, {FC} from 'react'
+
+// Third Party Components
+import axios from 'axios'
+
+// Internal Components
 import {KTSVG} from '../../../helpers'
 import {HeaderNotificationsMenu} from '../../../partials'
 import {useLayout} from '../../core'
@@ -9,26 +14,68 @@ const toolbarButtonMarginClass = 'ms-1 ms-lg-3',
   toolbarButtonIconSizeClass = 'svg-icon-1'
 
 const Topbar: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const {config} = useLayout()
+
+  // Notification State
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [checked, setChecked] = useState<any[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(50)
+  const [totalData, setTotalData] = useState<number>(0)
+  const [totalUnread, setTotalUnread] = useState<number>(0)
+
+  // Fetching Data
+  const getNotifications = async (page: number, pageSize: number) => {
+    try {
+      const response = await axios.get(`${apiUrl}/notifications?take=${pageSize}&page=${page}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      const notificationsData = response.data.data.map((item: any) => {
+        let parsedData = {}
+        parsedData = JSON.parse(item.data)
+        return {
+          ...item,
+          parsedData,
+        }
+      })
+
+      const checked = notificationsData.map((item: any) => ({
+        id: item.id,
+        is_read: item.is_read,
+      }))
+
+      setNotifications(notificationsData)
+      setChecked(checked)
+
+      setCurrentPage(response.data.page)
+      setTotalData(response?.data?.total ?? 0)
+      setTotalUnread(response?.data?.unread ?? 0)
+
+      return notificationsData
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    getNotifications(currentPage, pageSize)
+
+    const intervalId = setInterval(() => {
+      getNotifications(currentPage, pageSize)
+    }, 30000)
+
+    return () => clearInterval(intervalId)
+  }, [currentPage, pageSize])
 
   return (
     <div className='d-flex align-items-stretch flex-shrink-0' id='topbar'>
-      {/* <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
-        <div
-          className={clsx(
-            'btn btn-icon btn-active-light-primary btn-custom',
-            toolbarButtonHeightClass
-          )}
-          data-kt-menu-trigger='click'
-          data-kt-menu-attach='parent'
-          data-kt-menu-placement='bottom-end'
-          data-kt-menu-flip='bottom'
-        >
-          <KTSVG path='/media/envelope.svg' className={toolbarButtonIconSizeClass} />
-        </div>
-        <QuickLinks />
-      </div> */}
-
       <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
         <div
           className={clsx(
@@ -42,49 +89,35 @@ const Topbar: FC = () => {
         >
           <KTSVG path='/media/bell.svg' className={toolbarButtonIconSizeClass} />
         </div>
-        <HeaderNotificationsMenu />
-      </div>
 
-      {/* <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
-        <div
-          className={clsx(
-            'btn btn-icon btn-active-light-primary btn-custom',
-            toolbarButtonHeightClass
-          )}
-          data-kt-menu-trigger='click'
-          data-kt-menu-attach='parent'
-          data-kt-menu-placement='bottom-end'
-          data-kt-menu-flip='bottom'
+        <span
+          className='badge bg-danger position-absolute translate-middle'
+          style={{
+            top: '20px',
+            right: '19px',
+            width: '20px',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px',
+            color: 'white',
+          }}
         >
-          <KTSVG path='/media/list-ul.svg' className={toolbarButtonIconSizeClass} />
-        </div>
-        <HeaderNotificationsMenu />
-      </div> */}
+          {totalUnread}
+        </span>
 
-      {/* <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
-        <div
-          className={clsx(
-            'btn btn-icon btn-active-light-primary btn-custom position-relative',
-            toolbarButtonHeightClass
-          )}
-          id='kt_drawer_chat_toggle'
-        >
-          <KTSVG
-            path='/media/icons/duotune/communication/com012.svg'
-            className={toolbarButtonIconSizeClass}
-          />
-
-          <span className='bullet bullet-dot bg-success h-6px w-6px position-absolute translate-middle top-0 start-50 animation-blink'></span>
-        </div>
-      </div> */}
-
-      {/* begin::Theme mode */}
-      {/* <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
-        <ThemeModeSwitcher
-          toggleBtnClass={clsx('btn-active-light-primary btn-custom', toolbarButtonHeightClass)}
+        <HeaderNotificationsMenu
+          notificationData={notifications}
+          checkedData={checked}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          totalData={totalData}
+          totalUnread={totalUnread}
+          setPageSize={setPageSize}
+          getNotifications={getNotifications}
         />
-      </div> */}
-      {/* end::Theme mode */}
+      </div>
 
       {/* begin::User */}
       {/* <div
