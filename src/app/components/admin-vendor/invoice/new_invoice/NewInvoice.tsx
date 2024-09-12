@@ -51,6 +51,7 @@ const columns: ColumnsType<DataType> = [
     width: 110,
     className: 'col_order_id',
     sorter: (a, b) => a.order_id - b.order_id,
+    sortOrder: 'descend',
   },
   {
     title: 'Tanggal Order',
@@ -214,11 +215,13 @@ const NewInvoiceVendor: FC = () => {
       }
 
       const workOrderData = workOrders
-        .filter(
-          (x) =>
-            x.invoice_details.length === 0 ||
-            x.invoice_details.find((x: any) => x.type === 2)?.length === 0
-        )
+        .filter((x) => {
+          const noInvoice = x.invoice_details.length === 0
+          const hasInvoiceType2 = x.invoice_details.find((inv: any) => inv.type === 2)
+          const invoiceRejected = x.invoice_details?.[0]?.invoices?.status === 3
+
+          return noInvoice || (hasInvoiceType2 && invoiceRejected)
+        })
         .map((item: any, index: number) => {
           const orderDate = formatDateWithTime(item?.created_at)
 
@@ -229,21 +232,23 @@ const NewInvoiceVendor: FC = () => {
             date_order: orderDate,
             member_name: item?.members?.full_name,
             order_type: 'Pengerjaan',
-            order_status: item?.work_orders?.work_order_status[0]?.status?.category,
-            order_status_label: item?.work_orders?.work_order_status[0]?.status?.description,
+            order_status: item?.status?.category,
+            order_status_label: item?.status?.description,
           }
         })
 
       const surveyOrderData = surveyOrders
-        .filter(
-          (x) =>
-            x.invoice_details.length === 0 ||
-            x.invoice_details.find((x: any) => x.type === 1)?.length === 0
-        )
+        .filter((x) => {
+          const orderHistory = x.order_history.length >= 1
+          const noInvoice = x.invoice_details.length === 0
+          const hasInvoiceType1 = x.invoice_details.find((inv: any) => inv.type === 1)
+          const invoiceRejected = x.invoice_details?.[0]?.invoices?.status === 3
+
+          return (orderHistory && noInvoice) || (hasInvoiceType1 && invoiceRejected)
+        })
         .map((item: any, index: number) => {
           const orderDate = formatDateWithTime(item?.created_at)
-
-          const surveyDoneHistory = item?.order_history?.find(
+          const quoteInHistory = item?.order_history?.find(
             (x: any) => x.status.category === 'QUOTEIN'
           )
 
@@ -254,8 +259,8 @@ const NewInvoiceVendor: FC = () => {
             date_order: orderDate,
             member_name: item?.members?.full_name,
             order_type: 'Survei',
-            order_status: surveyDoneHistory ? surveyDoneHistory.status.category : null,
-            order_status_label: surveyDoneHistory ? surveyDoneHistory.status.description : null,
+            order_status: quoteInHistory ? quoteInHistory.status.category : null,
+            order_status_label: quoteInHistory ? quoteInHistory.status.description : null,
           }
         })
 

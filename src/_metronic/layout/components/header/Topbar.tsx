@@ -8,10 +8,16 @@ import axios from 'axios'
 import {KTSVG} from '../../../helpers'
 import {HeaderNotificationsMenu} from '../../../partials'
 import {useLayout} from '../../core'
+import {formatTotalNumber} from '../../../helpers/NumberHelpers'
 
 const toolbarButtonMarginClass = 'ms-1 ms-lg-3',
   toolbarButtonHeightClass = 'w-30px h-30px w-md-40px h-md-40px',
   toolbarButtonIconSizeClass = 'svg-icon-1'
+
+interface StatusStorage {
+  value: number | null
+  label: string
+}
 
 const Topbar: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -19,23 +25,33 @@ const Topbar: FC = () => {
 
   // Notification State
   const [notifications, setNotifications] = useState<any[]>([])
-  const [checked, setChecked] = useState<any[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(50)
   const [totalData, setTotalData] = useState<number>(0)
   const [totalUnread, setTotalUnread] = useState<number>(0)
 
+  // Loading State
+  const [loadingSearch, setLoadingSearch] = useState<boolean>(false)
+
+  // Status State
+  const [status, setStatus] = useState<StatusStorage[]>([])
+  const [selectedStatus, setSelectedStatus] = useState<StatusStorage[]>([])
+  const statuses = selectedStatus.length > 0 ? `&status=${selectedStatus.map((x) => x.value)}` : ''
+
   // Fetching Data
   const getNotifications = async (page: number, pageSize: number) => {
     try {
-      const response = await axios.get(`${apiUrl}/notifications?take=${pageSize}&page=${page}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/notifications?take=${pageSize}&page=${page}${statuses}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       const notificationsData = response.data.data.map((item: any) => {
         let parsedData = {}
@@ -46,19 +62,37 @@ const Topbar: FC = () => {
         }
       })
 
-      const checked = notificationsData.map((item: any) => ({
-        id: item.id,
-        is_read: item.is_read,
-      }))
-
       setNotifications(notificationsData)
-      setChecked(checked)
-
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.total ?? 0)
       setTotalUnread(response?.data?.unread ?? 0)
 
       return notificationsData
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  const getStatus = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/status?take=0`, {
+        headers: {
+          Accept: 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempStatus = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.description,
+        }))
+
+        setStatus(tempStatus)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -74,9 +108,22 @@ const Topbar: FC = () => {
     return () => clearInterval(intervalId)
   }, [currentPage, pageSize])
 
+  useEffect(() => {
+    getStatus()
+  }, [])
+
+  const handleSearch = async () => {
+    setLoadingSearch(true)
+    const data = await getNotifications(currentPage, pageSize)
+    setNotifications(data)
+    setLoadingSearch(false)
+  }
+
   return (
     <div className='d-flex align-items-stretch flex-shrink-0' id='topbar'>
-      <div className={clsx('d-flex align-items-center', toolbarButtonMarginClass)}>
+      <div
+        className={clsx('d-flex align-items-center position-relative', toolbarButtonMarginClass)}
+      >
         <div
           className={clsx(
             'btn btn-icon btn-active-light-primary btn-custom',
@@ -94,8 +141,8 @@ const Topbar: FC = () => {
           className='badge bg-danger position-absolute translate-middle'
           style={{
             top: '20px',
-            right: '19px',
-            width: '20px',
+            left: '30px',
+            width: 'fit-content',
             height: '20px',
             display: 'flex',
             alignItems: 'center',
@@ -104,16 +151,20 @@ const Topbar: FC = () => {
             color: 'white',
           }}
         >
-          {totalUnread}
+          {formatTotalNumber(totalUnread)}
         </span>
 
         <HeaderNotificationsMenu
           notificationData={notifications}
-          checkedData={checked}
           currentPage={currentPage}
           pageSize={pageSize}
           totalData={totalData}
           totalUnread={totalUnread}
+          status={status}
+          loadingSearch={loadingSearch}
+          handleSearch={handleSearch}
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
           setPageSize={setPageSize}
           getNotifications={getNotifications}
         />

@@ -495,7 +495,7 @@ const UpdateQuotationVendor: FC = () => {
     formData.append('quotation_special', quotation.quotation_special?.toString() ?? '')
     formData.append('description', quotation.description)
     formData.append('quotation_date', quotation.quotation_date)
-    formData.append('quotation_validity', formatForFormData(new Date(quotation.quotation_validity)))
+    // formData.append('quotation_validity', formatForFormData(new Date(quotation.quotation_validity)))
 
     quotation.quotation_details.forEach((quotation, index) => {
       appendIfNotDefault(formData, `quotation_details[${index}][item_id]`, quotation.item_id)

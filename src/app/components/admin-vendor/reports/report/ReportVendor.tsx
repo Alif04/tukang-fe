@@ -46,9 +46,8 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
 
-  const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(
-    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+    new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
   )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 

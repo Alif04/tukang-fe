@@ -4,17 +4,22 @@ import React, {FC, useState, useEffect} from 'react'
 import {formatDateWithTime} from '../../../helpers'
 
 import axios from 'axios'
+import Select, {components} from 'react-select'
 import {Button} from 'react-bootstrap'
 import {Tag, Checkbox, List, Pagination} from 'antd'
 
 type Props = {
   notificationData: any[]
-  checkedData: Notifications[]
   currentPage: number
   pageSize: number
   totalData: number
   totalUnread: number
+  status: StatusStorage[]
+  selectedStatus: any[]
+  loadingSearch: boolean
+  handleSearch: () => void
   setPageSize: (size: number) => void
+  setSelectedStatus: (element: any) => void
   getNotifications: (page: number, pageSize: number) => void
 }
 
@@ -23,33 +28,51 @@ interface Notifications {
   is_read: boolean
 }
 
+interface StatusStorage {
+  value: number | null
+  label: string
+}
+
+const Option = (props: any) => {
+  return (
+    <div>
+      <components.Option {...props}>
+        <input type='checkbox' checked={props.isSelected} onChange={() => null} />{' '}
+        <label>{props.label}</label>
+      </components.Option>
+    </div>
+  )
+}
+
 const HeaderNotificationsMenu: React.FC<Props> = ({
   notificationData,
-  checkedData,
   currentPage,
   pageSize,
   totalData,
   totalUnread,
+  status,
+  loadingSearch,
+  selectedStatus,
+  handleSearch,
   setPageSize,
+  setSelectedStatus,
   getNotifications,
 }) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const role = localStorage.getItem('userRole') as string
+  const customStyles = {multiValueRemove: (base: any) => ({...base, display: 'none'})}
 
   // State
   const [notifications, setNotifications] = useState<any[]>([])
   const [checked, setChecked] = useState<Notifications[]>([])
   const [isLoadingSubmit, setIsLoadingSubmit] = useState<boolean>(false)
-
-  const checkedCount = checked.filter((item) => item.is_read).length
-  const isCheckedAll = checkedCount === notifications.length
-  const isIndeterminate = checkedCount > 0 && checkedCount < notifications.length
+  const [isLoadingSubmitAll, setIsLoadingSubmitAll] = useState<boolean>(false)
 
   // Fetching Data
   useEffect(() => {
     setNotifications(notificationData)
-    setChecked(checkedData)
-  }, [notificationData, checkedData])
+    setChecked(notificationData.map((item: any) => ({id: item.id, is_read: item.is_read})))
+  }, [notificationData])
 
   // Mapping Data
   const moduleTypeMap: {
@@ -115,31 +138,56 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
   }
 
   // Handler
-  const onCheckAllChange = (e: any) => {
-    const checkedStatus = e.target.checked
-
-    setChecked((prevChecked) =>
-      prevChecked.map((item) => ({
-        ...item,
-        is_read: checkedStatus,
-      }))
-    )
-  }
-
   const onCheckItemChange = (id: number | null) => {
     setChecked((prevChecked) =>
       prevChecked.map((item) => (item.id === id ? {...item, is_read: !item.is_read} : item))
     )
   }
 
-  // Handle Submit
+  const handleChangeStatuses = (element: any) => {
+    const selectedStatus = element.map((option: any) => ({
+      value: option.value,
+      label: option.label,
+    }))
+    setSelectedStatus(selectedStatus)
+  }
+
+  // Handle Submit Single Notification
+  const handleSubmitOneData = async (notifId: number, is_read: boolean) => {
+    setIsLoadingSubmit(true)
+
+    await axios
+      .post(
+        `${apiUrl}/notifications`,
+        {id: notifId, is_read: is_read},
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          setIsLoadingSubmit(false)
+          getNotifications(currentPage, pageSize)
+        } else {
+          setIsLoadingSubmit(false)
+        }
+      })
+      .catch((error) => {
+        setIsLoadingSubmit(false)
+      })
+  }
+
+  // Handle Multiple Notification
   const handleSubmit = async () => {
     setIsLoadingSubmit(true)
 
-    const filteredChecked = checked.filter((item) => item.is_read === true)
-
     await axios
-      .post(`${apiUrl}/notifications`, filteredChecked, {
+      .post(`${apiUrl}/notifications`, checked, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -160,6 +208,37 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
       })
   }
 
+  // Handle Submit All Notification
+  const handleSubmitAllData = async () => {
+    setIsLoadingSubmitAll(true)
+
+    const payload = {
+      check_all: 1,
+      is_read: 1,
+    }
+
+    await axios
+      .post(`${apiUrl}/notifications`, payload, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 200 || response.data.status === 201) {
+          setIsLoadingSubmitAll(false)
+          getNotifications(currentPage, pageSize)
+        } else {
+          setIsLoadingSubmitAll(false)
+        }
+      })
+      .catch((error) => {
+        setIsLoadingSubmitAll(false)
+      })
+  }
+
   return (
     <div
       className='menu menu-sub menu-sub-dropdown menu-column w-350px w-lg-450px'
@@ -175,18 +254,35 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className='p-5'>
-        <Checkbox
-          indeterminate={isIndeterminate}
-          onChange={onCheckAllChange}
-          checked={isCheckedAll}
+      <div className='d-flex align-items-center justify-content-between p-5 gap-2'>
+        <Select
+          className='w-100'
+          components={{
+            Option,
+          }}
+          placeholder='Pilih Status'
+          closeMenuOnSelect={false}
+          hideSelectedOptions={false}
+          isMulti
+          options={status}
+          value={selectedStatus}
+          styles={customStyles}
+          onChange={(element) => handleChangeStatuses(element)}
+        />
+
+        <Button
+          className='btn btn-primary button-submit'
+          size='sm'
+          disabled={loadingSearch === true}
+          onClick={handleSearch}
         >
-          Check all
-        </Checkbox>
+          {loadingSearch === true ? 'Filtering..' : 'Filter'}
+        </Button>
       </div>
 
-      <div className='notification-wrapper' style={{maxHeight: '400px', overflowY: 'auto'}}>
+      <div className='notification-wrapper' style={{maxHeight: '325px', overflowY: 'auto'}}>
         <List
+          rowKey={(row) => row.id}
           itemLayout='vertical'
           size='small'
           dataSource={notifications}
@@ -215,15 +311,23 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
                   title={
                     <div className='d-flex justify-content-between align-items-center'>
                       {moduleTypeMap[item.module_type].disabled(role) ? (
-                        <h1 className='fs-7 text-dark fw-bold'>
+                        <a
+                          className='fs-7 text-dark fw-bold'
+                          onClick={() =>
+                            handleSubmitOneData(item.id, item.is_read === false ? true : false)
+                          }
+                        >
                           {actionMap[item.action]?.(module.name) || item.action} oleh{' '}
                           {item?.created_by?.username}
-                        </h1>
+                        </a>
                       ) : (
                         <a
                           className='fs-7 text-dark fw-bold'
                           href={moduleUrl}
                           style={{maxWidth: '190px'}}
+                          onClick={() =>
+                            handleSubmitOneData(item.id, item.is_read === false ? true : false)
+                          }
                         >
                           {actionMap[item.action]?.(module.name) || item.action} oleh{' '}
                           {item?.created_by?.username}
@@ -258,13 +362,13 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
         </span>
 
         <Pagination
-          className='pagination'
+          className='pagination d-flex justify-content-end align-items-center'
           size='small'
           current={currentPage}
           total={totalData}
           defaultPageSize={pageSize}
           showSizeChanger
-          pageSizeOptions={[5, 10, 20, 50, 100]}
+          pageSizeOptions={[5, 10, 20, 50, 100, 500]}
           onShowSizeChange={(current, size) => {
             setPageSize(size)
           }}
@@ -274,13 +378,21 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
         />
       </div>
 
-      <div className='button-wrapper border border-bottom-2 p-5 gap-3'>
+      <div className='border border-bottom-2 p-5'>
         <Button
           size='sm'
-          className='btn btn-primary d-flex justify-content-center align-items-center w-100'
+          className='btn btn-primary d-flex justify-content-center align-items-center w-100 mb-3'
+          onClick={() => handleSubmitAllData()}
+        >
+          <p className='fs-8'>{isLoadingSubmitAll ? 'Loading...' : 'Mark all as read'}</p>
+        </Button>
+
+        <Button
+          size='sm'
+          className='btn btn-primary d-flex justify-content-center align-items-center w-100 mb-3'
           onClick={() => handleSubmit()}
         >
-          <p className='fs-8'>{isLoadingSubmit ? 'Loading...' : 'Mark as read'}</p>
+          <p className='fs-8'>{isLoadingSubmit ? 'Loading...' : 'Mark notification'}</p>
         </Button>
       </div>
     </div>
