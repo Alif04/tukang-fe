@@ -32,6 +32,7 @@ import {
   faTrash,
   faCheckCircle,
   faFile,
+  faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons'
 import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
@@ -225,7 +226,7 @@ const ViewInvoiceHO: FC = () => {
               <></>
             )}
 
-            {/* {[1].includes(record.status) ? (
+            {![3, 6].includes(record.status) ? (
               <>
                 <OverlayTrigger
                   placement='bottom'
@@ -244,28 +245,10 @@ const ViewInvoiceHO: FC = () => {
                     />
                   </Button>
                 </OverlayTrigger>
-
-                <OverlayTrigger
-                  placement='bottom'
-                  delay={{show: 250, hide: 400}}
-                  overlay={renderTooltip('Approve Invoice')}
-                >
-                  <Button
-                    variant='primary'
-                    className='button-verif'
-                    onClick={() => handleUpdateInvoice(id, 2, 'Invoice disetujui')}
-                  >
-                    <FontAwesomeIcon
-                      className='text-white'
-                      icon={faCheckCircle}
-                      fontSize={'13px'}
-                    />
-                  </Button>
-                </OverlayTrigger>
               </>
             ) : (
               <></>
-            )} */}
+            )}
 
             {/* {[2].includes(record.status) ? (
               <OverlayTrigger
@@ -612,6 +595,7 @@ const ViewInvoiceHO: FC = () => {
   }
 
   const handleDeclineInvoice = async (statusInvoice: number) => {
+    setIsLoading(true)
     const formData = new FormData()
 
     formData.append(`invoice_id`, invoiceId)
@@ -656,9 +640,11 @@ const ViewInvoiceHO: FC = () => {
           })
         }
 
+        setIsLoading(false)
         window.location.reload()
       })
       .catch((error) => {
+        setIsLoading(false)
         Swal.fire({
           title: 'Error',
           text: error.response.data.message,
@@ -813,6 +799,7 @@ const ViewInvoiceHO: FC = () => {
       denyButtonText: 'Tidak',
     }).then(async (result) => {
       if (result.isConfirmed) {
+        setIsLoading(true)
         try {
           const response = await axios.post(`${apiUrl}/invoices/${id}`, formData, {
             headers: {
@@ -1135,7 +1122,7 @@ const ViewInvoiceHO: FC = () => {
                 onClick={() => handleDeclineInvoice(3)}
                 variant='primary'
               >
-                Submit
+                {isLoading ? 'Submitting..' : 'Submit'}
               </Button>
             </Modal.Body>
           </>

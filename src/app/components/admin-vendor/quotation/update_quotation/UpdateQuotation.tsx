@@ -483,7 +483,7 @@ const UpdateQuotationVendor: FC = () => {
     setIsLoading(true)
     const formData = new FormData()
     const appendIfNotDefault = (formData: any, key: any, value: any) => {
-      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+      if (value !== null && value !== undefined && value !== '') {
         formData.append(key, String(value))
       }
     }
