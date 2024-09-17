@@ -94,7 +94,14 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setNominalSurvey(data.nominal_survey)
             setMarginNominal(data.margin_nominal)
             setMarginType(data.margin_type)
-            setVendorType(data.vendor_type)
+            setVendorType(data.type ?? 0)
+          }
+
+          if (data.type === 1) {
+            setisActive((prevState) => ({
+              ...prevState,
+              ptkp: true,
+            }))
           }
 
           if (data?.pic_vendor) {
@@ -102,7 +109,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           }
 
           if (data?.bank) {
-            setBankIds(data?.bank?.id ?? null)
             setBankId(data?.bank?.id ?? null)
             setBankName(data?.bank?.bank_name ?? '')
           }
@@ -421,14 +427,12 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
   // Bank Information
   const [bank, setBank] = useState<Bank[]>([])
-  const [bankIds, setBankIds] = useState<any>()
   const [bankId, setBankId] = useState<any>()
   const [bankName, setBankName] = useState<string>('')
   const [accountNumber, setAccountNumber] = useState<any>()
   const [accountName, setAccountName] = useState<string>('')
   const [marginNominal, setMarginNominal] = useState<any>()
   const [marginType, setMarginType] = useState<any>()
-  const [discount, setDiscount] = useState<any>()
 
   // Handle Join Date Change
   const today = new Date().toISOString().split('T')[0]
@@ -545,28 +549,20 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         suip: false,
       }))
     }
-
-    if (imagePtkpEvidence.fileName !== '') {
-      setisActive((prevState) => ({
-        ...prevState,
-        ptkp: true,
-      }))
-    } else {
-      setisActive((prevState) => ({
-        ...prevState,
-        ptkp: false,
-      }))
-    }
   }, [
     imageCompro.fileName,
     imageSuratPermohonan.fileName,
     imagePksEvidence.fileName,
     imageSuipEvidence.fileName,
-    imagePtkpEvidence.fileName,
   ])
 
-  // console.log('isActive Compro', isActive.compro)
-  // console.log('isActive Surat Permohonan', isActive.suratPermohonan)
+  useEffect(() => {
+    if (isActive.ptkp === true) {
+      setVendorType(1)
+    } else {
+      setVendorType(0)
+    }
+  }, [vendorType, isActive.ptkp])
 
   const handleFormCheckbox = (element: keyof CheckStates) => {
     setisActive({...isActive, [element]: !isActive[element]})

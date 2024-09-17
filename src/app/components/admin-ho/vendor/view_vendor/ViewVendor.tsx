@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
+import {formatDate} from '../../../../../_metronic/helpers'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 
 import './ViewVendor.css'
@@ -14,7 +15,6 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
-import {formatDate} from '@fullcalendar/core'
 
 const {RangePicker} = DatePicker
 
@@ -37,7 +37,7 @@ interface DataType {
   date_join: string
   service_type: string
   serving_area: string
-  rating: string
+  vendor_type: string
   vendor_status: string
 }
 
@@ -78,7 +78,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       dataIndex: 'no',
       key: 'no',
       align: 'center',
-      width: 90,
+      width: 60,
       className: 'col_order_id',
       render: (text: any, record: any, index: number) => {
         return (currentPage - 1) * pageSize + index + 1
@@ -135,16 +135,16 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       width: 160,
     },
     {
-      title: 'Date Join',
+      title: 'Tanggal Join',
       dataIndex: 'date_join',
       key: 'date_join',
       align: 'center',
       width: 110,
     },
     {
-      title: 'Rating',
-      dataIndex: 'rating',
-      key: 'rating',
+      title: 'Tipe Vendor',
+      dataIndex: 'vendor_type',
+      key: 'vendor_type',
       align: 'center',
       width: 110,
     },
@@ -315,7 +315,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
           date_join: joinDate,
           service_type: uniqueService,
           serving_area: uniqueArea,
-          rating: '-',
+          vendor_type: item.type === 1 ? 'VENDOR PKP' : 'VENDOR NON PKP',
           vendor_status: item.is_active ? 'ACTIVE' : 'NON ACTIVE',
         }
 

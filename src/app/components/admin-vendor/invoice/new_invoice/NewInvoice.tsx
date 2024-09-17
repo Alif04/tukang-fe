@@ -299,8 +299,6 @@ const NewInvoiceVendor: FC = () => {
         ...prevInvoices,
         invoice_details: invoiceType,
       }))
-
-      console.log(`selectedRowKeys: ${updatedSelectedRowKeys}`, 'selectedRows: ', selectedRows)
     },
   }
 
@@ -319,8 +317,6 @@ const NewInvoiceVendor: FC = () => {
 
     return valid
   }
-
-  console.log('invoices', invoices)
 
   // Handle Submit
   const handleCreateInvoice = async () => {
