@@ -15,27 +15,32 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faUpload, faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 interface StoreSelect {
+  id?: number
   value: number
   label: string
 }
 
 interface ServiceArea {
-  value: BigInteger
+  id?: number
+  value: number
   label: string
 }
 
 interface ServiceAreaValues {
-  value: BigInteger
+  id?: number
+  value: number
   label: string
 }
 
 interface ServiceType {
-  value: BigInteger
+  id?: number
+  value: number
   label: string
 }
 
 interface ServiceTypeValues {
-  value: BigInteger
+  id?: number
+  value: number
   label: string
 }
 
@@ -121,43 +126,49 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setAccountNumber(data.account_number)
           }
 
-          if (data?.vendor_area) {
-            const vendorAreaId = data.vendor_area.map((item: any) => item?.area_id)
-
-            setserviceAreaId(vendorAreaId)
-          }
-
-          if (data?.vendor_store) {
-            const store = data.vendor_store.map((item: any) => ({
-              value: item.store.id,
-              label: item.store.store_name,
-            }))
-
-            const storeId = data.vendor_store.map((item: any) => item.store.id)
-
-            setStoreId(storeId)
-            setStoreValues(store)
-          }
-
-          if (data?.vendor_store) {
-            const vendorArea = data.vendor_store.map((item: any) => ({
-              value: item?.store?.area?.id,
-              label: item?.store?.area?.area,
-            }))
+          if (data?.vendor_area?.length >= 1) {
+            const vendorArea = Array.from(
+              new Set(data.vendor_area.map((item: any) => item.area.id))
+            ).map((id) => {
+              const item = data.vendor_area.find((item: any) => item.area.id === id)
+              return {
+                id: item?.id ?? null,
+                value: item.area.id,
+                label: item.area.area,
+              }
+            })
 
             setServiceAreaValues(vendorArea)
           }
 
-          if (data?.vendor_service) {
-            const service_type = data.vendor_service.map((item: any) => ({
-              value: item?.service_type_id,
-              label: item?.service_type?.service_type,
-            }))
+          if (data?.vendor_store?.length >= 1) {
+            const store = Array.from(
+              new Set(data.vendor_store.map((item: any) => item.store.id))
+            ).map((id) => {
+              const item = data.vendor_store.find((item: any) => item.store.id === id)
+              return {
+                id: item?.id ?? null,
+                value: item.store.id,
+                label: item.store.store_name,
+              }
+            })
 
-            const vendorServiceId = data.vendor_service.map((item: any) => item.service_type_id)
+            setStoreValues(store)
+          }
 
-            setserviceTypeId(vendorServiceId)
-            setServiceTypeValues(service_type)
+          if (data?.vendor_service?.length >= 1) {
+            const serviceType = Array.from(
+              new Set(data.vendor_service.map((item: any) => item.service_type_id))
+            ).map((id) => {
+              const item = data.vendor_service.find((item: any) => item.service_type_id === id)
+              return {
+                id: item?.id ?? null,
+                value: item?.service_type_id,
+                label: item?.service_type?.service_type,
+              }
+            })
+
+            setServiceTypeValues(serviceType)
           }
 
           if (data?.vendor_document) {
@@ -345,17 +356,18 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [ktpNumber, setKtpNumber] = useState<any>('')
   const [npwpNumber, setNpwpNumber] = useState<any>('')
 
-  const [storeId, setStoreId] = useState<any>([])
   const [store, setStore] = useState<StoreSelect[]>([])
   const [storeValues, setStoreValues] = useState<StoreSelect[]>([])
 
-  const [serviceAreaId, setserviceAreaId] = useState<any>([])
   const [serviceArea, setServiceArea] = useState<ServiceArea[]>([])
   const [serviceAreaValues, setServiceAreaValues] = useState<ServiceAreaValues[]>([])
 
-  const [serviceTypeId, setserviceTypeId] = useState<any>([])
   const [serviceType, setServiceType] = useState<ServiceType[]>([])
   const [serviceTypeValues, setServiceTypeValues] = useState<ServiceTypeValues[]>([])
+
+  console.log('service_area', serviceAreaValues)
+  console.log('service_type', serviceTypeValues)
+  console.log('store', storeValues)
 
   // File Upload
   const [ktpEvidence, setKtpEvidence] = useState<FileList | []>()
@@ -786,39 +798,33 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   // Change Select Store Area
   const handleChangeStoreId = (element: any) => {
     const updatedStore = element.map((option: any) => ({
+      id: option?.id ?? null,
       value: option.value,
       label: option.label,
     }))
 
-    const updatedStoreIds = updatedStore.map((option: any) => option.value)
-
-    setStoreId(updatedStoreIds)
     setStoreValues(updatedStore)
   }
 
   // Change Select Service Area
   const handleChangeServiceArea = (element: any) => {
     const updatedServiceArea = element.map((option: any) => ({
+      id: option?.id ?? null,
       value: option.value,
       label: option.label,
     }))
 
-    const updatedServiceAreaIds = updatedServiceArea.map((option: any) => option.value)
-
-    setserviceAreaId(updatedServiceAreaIds)
     setServiceAreaValues(updatedServiceArea)
   }
 
   // Change Select Service Type
   const handleChangeServiceType = (element: any) => {
     const updatedServiceType = element.map((option: any) => ({
+      id: option?.id ?? null,
       value: option.value,
       label: option.label,
     }))
 
-    const updatedServiceTypeIds = updatedServiceType.map((option: any) => option.value)
-
-    setserviceTypeId(updatedServiceTypeIds)
     setServiceTypeValues(updatedServiceType)
   }
 
@@ -875,21 +881,28 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         icon: 'warning',
       })
       valid = false
-    } else if (!serviceAreaId) {
+    } else if (serviceAreaValues.length === 0) {
       Swal.fire({
         title: 'Warning',
         text: 'Please select Service Area form',
         icon: 'warning',
       })
       valid = false
-    } else if (!serviceTypeId) {
+    } else if (serviceTypeValues.length === 0) {
       Swal.fire({
         title: 'Warning',
         text: 'Please select Service Type form',
         icon: 'warning',
       })
       valid = false
-    } else if (!vendorAddress) {
+    } else if (storeValues.length === 0) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please select Assign To Store form',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (vendorAddress === '') {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill Vendor Address form',
@@ -1018,26 +1031,40 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         })
       }
 
-      if (serviceAreaId?.length) {
-        serviceAreaId.forEach((item: any, index: number) => {
+      if (serviceAreaValues?.length) {
+        serviceAreaValues.forEach((item: any, index: number) => {
+          console.log('service area id', item.id)
+
           if (item) {
-            formData.append(`vendor_area[${index}][area_id]`, item)
+            if (item.id !== null) {
+              formData.append(`vendor_area[${index}][id]`, item.id)
+            }
+
+            formData.append(`vendor_area[${index}][area_id]`, item.value)
           }
         })
       }
 
-      if (serviceTypeId?.length) {
-        serviceTypeId.forEach((item: any, index: number) => {
+      if (serviceTypeValues?.length) {
+        serviceTypeValues.forEach((item: any, index: number) => {
+          if (item.id !== null) {
+            formData.append(`vendor_service[${index}][id]`, item.id)
+          }
+
           if (item) {
-            formData.append(`vendor_service[${index}][service_type_id]`, item)
+            formData.append(`vendor_service[${index}][service_type_id]`, item.value)
           }
         })
       }
 
-      if (storeId?.length) {
-        storeId.forEach((item: any, index: number) => {
+      if (storeValues?.length) {
+        storeValues.forEach((item: any, index: number) => {
           if (item) {
-            formData.append(`vendor_store[${index}][store_id]`, item)
+            if (item.id !== null) {
+              formData.append(`vendor_store[${index}][id]`, item.id)
+            }
+
+            formData.append(`vendor_store[${index}][store_id]`, item.value)
           }
         })
       }
