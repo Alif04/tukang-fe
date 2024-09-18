@@ -119,12 +119,17 @@ const NewComplaintForm: FC = () => {
               'PICKLIST',
               'BOOK',
               'BOOKED',
+              'CANCEL',
+              'CANCELREFUND',
               'INVESTIGATE',
               'INVESTIGATED',
               'COMPLAINTAPPROVEDBYHO',
               'COMPLAINTREJECTEDBYHO',
               'SURVEYREQ',
               'WORKREQ',
+              'REFUND',
+              'REFUNDAPPROVEDBYHO',
+              'REFUNDREJECTEDBYHO',
             ].includes(detail.status)
         )
 
