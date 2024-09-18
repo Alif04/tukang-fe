@@ -217,10 +217,12 @@ const NewInvoiceVendor: FC = () => {
       const workOrderData = workOrders
         .filter((x) => {
           const noInvoice = x.invoice_details.length === 0
-          const hasInvoiceType2 = x.invoice_details.find((inv: any) => inv.type === 2)
-          const invoiceRejected = x.invoice_details?.[0]?.invoices?.status === 3
+          const lastInvoice = x.invoice_details.slice(-1)[0]
+          const hasInvoiceRejected = lastInvoice?.type === 2 && lastInvoice?.invoices?.status === 3
+          const hasOtherInvoiceType =
+            x.invoice_details.length >= 1 && x.invoice_details.some((inv: any) => inv.type !== 2)
 
-          return noInvoice || (hasInvoiceType2 && invoiceRejected)
+          return noInvoice || hasInvoiceRejected || hasOtherInvoiceType
         })
         .map((item: any, index: number) => {
           const orderDate = formatDateWithTime(item?.created_at)
@@ -241,10 +243,12 @@ const NewInvoiceVendor: FC = () => {
         .filter((x) => {
           const orderHistory = x.order_history.length >= 1
           const noInvoice = x.invoice_details.length === 0
-          const hasInvoiceType1 = x.invoice_details.find((inv: any) => inv.type === 1)
-          const invoiceRejected = x.invoice_details?.[0]?.invoices?.status === 3
+          const lastInvoice = x.invoice_details.slice(-1)[0]
+          const hasInvoiceRejected = lastInvoice?.type === 1 && lastInvoice?.invoices?.status === 3
+          const hasOtherInvoiceType =
+            x.invoice_details.length >= 1 && x.invoice_details.some((inv: any) => inv.type !== 1)
 
-          return (orderHistory && noInvoice) || (hasInvoiceType1 && invoiceRejected)
+          return (orderHistory && noInvoice) || hasInvoiceRejected || hasOtherInvoiceType
         })
         .map((item: any, index: number) => {
           const orderDate = formatDateWithTime(item?.created_at)
