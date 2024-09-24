@@ -25,6 +25,8 @@ export function Login() {
   const [status, setStatus] = useState<Status[]>([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+
+  const [showModal, setShowModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [handleTogglePassword, setHandleTogglePassword] = useState(false)
   const togglePasswordVisiblity = () => {
@@ -154,7 +156,6 @@ export function Login() {
       })
       .catch((err) => {
         setIsLoading(false)
-
         Swal.fire({
           title: 'Login Failed',
           text: err.response.data.message,
@@ -258,6 +259,8 @@ export function Login() {
           </div>
         </div>
       </div>
+
+      {showModal && <ModalNotification onClose={() => setShowModal(false)} />}
     </section>
   )
 }
