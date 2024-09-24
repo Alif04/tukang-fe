@@ -444,7 +444,7 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [accountNumber, setAccountNumber] = useState<any>()
   const [accountName, setAccountName] = useState<string>('')
   const [marginNominal, setMarginNominal] = useState<any>()
-  const [marginType, setMarginType] = useState<any>()
+  const [marginType, setMarginType] = useState<number>(1)
 
   // Handle Join Date Change
   const today = new Date().toISOString().split('T')[0]
@@ -499,10 +499,8 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
     const updatedNominalSurvey = event.target.value
     setNominalSurvey(updatedNominalSurvey)
   }
-
-  const handleMarginTypeChange = (isChecked: boolean) => {
-    const updatedMarginType = isChecked === true ? 1 : 2
-    setMarginType(updatedMarginType)
+  const handleMarginTypeChange = (type: number) => {
+    setMarginType(type)
   }
 
   const [isActive, setisActive] = useState<CheckStates>({
@@ -1611,19 +1609,22 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                           <div className='form-check-request'>
                             <Form.Check
                               inline
+                              id='rupiah-percentage'
                               label='Rp'
                               name='margin_type'
                               type='radio'
-                              onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                              checked={marginType === 2}
+                              onChange={() => handleMarginTypeChange(2)}
                             />
 
                             <Form.Check
                               inline
+                              id='radio-percentage'
                               label='%'
                               name='margin_type'
                               type='radio'
                               checked={marginType === 1}
-                              onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                              onChange={() => handleMarginTypeChange(1)}
                             />
                           </div>
                         </div>
