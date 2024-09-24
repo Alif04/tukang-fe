@@ -551,9 +551,8 @@ const NewVendorHO: FC = () => {
     setMarginNominal(updatedMargin)
   }
 
-  const handleMarginTypeChange = (isChecked: boolean) => {
-    const updatedMarginType = isChecked === true ? 1 : 2
-    setMarginType(updatedMarginType)
+  const handleMarginTypeChange = (type: number) => {
+    setMarginType(type)
   }
 
   const handleChangeUsernameVendor = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -1329,19 +1328,22 @@ const NewVendorHO: FC = () => {
                     <div className='form-check-request'>
                       <Form.Check
                         inline
+                        id='rupiah-percentage'
                         label='Rp'
                         name='margin_type'
                         type='radio'
-                        onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                        checked={marginType === 2}
+                        onChange={() => handleMarginTypeChange(2)}
                       />
 
                       <Form.Check
                         inline
+                        id='radio-percentage'
                         label='%'
                         name='margin_type'
                         type='radio'
                         checked={marginType === 1}
-                        onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                        onChange={() => handleMarginTypeChange(1)}
                       />
                     </div>
                   </div>
