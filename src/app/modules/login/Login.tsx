@@ -156,12 +156,11 @@ export function Login() {
       })
       .catch((err) => {
         setIsLoading(false)
-        setShowModal(true)
-        // Swal.fire({
-        //   title: 'Login Failed',
-        //   text: err.response.data.message,
-        //   icon: 'error',
-        // })
+        Swal.fire({
+          title: 'Login Failed',
+          text: err.response.data.message,
+          icon: 'error',
+        })
         console.error(err)
       })
   }
