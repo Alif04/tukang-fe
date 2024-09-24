@@ -45,7 +45,7 @@ interface DataType {
   date_order: string
   costumer_id: number
   costumer_name: string
-  phone_number: number
+  // phone_number: number
   order_status: string
   order_status_label: string
 }
@@ -132,14 +132,14 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
-    {
-      title: 'No. Telp/WA',
-      dataIndex: 'phone_number',
-      key: 'phone_number',
-      align: 'center',
-      width: 120,
-      sorter: (a, b) => a.phone_number - b.phone_number,
-    },
+    // {
+    //   title: 'No. Telp/WA',
+    //   dataIndex: 'phone_number',
+    //   key: 'phone_number',
+    //   align: 'center',
+    //   width: 120,
+    //   sorter: (a, b) => a.phone_number - b.phone_number,
+    // },
     {
       title: 'Status Order',
       dataIndex: 'order_status_label',

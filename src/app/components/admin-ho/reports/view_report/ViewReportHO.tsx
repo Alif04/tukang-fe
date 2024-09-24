@@ -43,22 +43,6 @@ const ViewReportHO = () => {
                     </Card.Body>
                   </Card>
                 </Link>
-
-                {/* <Link to={`/reports/ho-report-claim-voucher`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('claim-voucher', 'Laporan Claim Voucher')}
-                    </Card.Body>
-                  </Card>
-                </Link> */}
               </Col>
 
               <Col md={4}>
@@ -80,22 +64,6 @@ const ViewReportHO = () => {
               </Col>
 
               <Col md={4}>
-                {/* <Link to={`/reports/ho-report-other-income`}>
-                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
-                    <Card.Body className='d-flex justify-content-left align-items-center'>
-                      <img
-                        className='m-2'
-                        alt=''
-                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
-                        width={50}
-                        height={50}
-                      />
-
-                      {newTabs('other-income', 'Laporan Other Income')}
-                    </Card.Body>
-                  </Card>
-                </Link> */}
-
                 <Link to={`/reports/ho-report-total-penalty`}>
                   <Card className='content-card border-red' style={{cursor: 'pointer'}}>
                     <Card.Body className='d-flex justify-content-left align-items-center'>
@@ -410,6 +378,30 @@ const ViewReportHO = () => {
                   </Card>
                 </Link>
               </Col>
+            </Row>
+
+            <Row>
+              <Col md={4}>
+                <Link to={`/reports/ho-report-general-report`}>
+                  <Card className='content-card border-green' style={{cursor: 'pointer'}}>
+                    <Card.Body className='d-flex justify-content-left align-items-center'>
+                      <img
+                        className='m-2'
+                        alt=''
+                        src={toAbsoluteUrl('/media/tukangin/folder-icon.png')}
+                        width={50}
+                        height={50}
+                      />
+
+                      {newTabs('general-report', 'Laporan General Report')}
+                    </Card.Body>
+                  </Card>
+                </Link>
+              </Col>
+
+              <Col md={4}></Col>
+
+              <Col md={4}></Col>
             </Row>
           </div>
 

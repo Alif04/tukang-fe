@@ -258,8 +258,6 @@ export function Login() {
           </div>
         </div>
       </div>
-
-      <ModalNotification />
     </section>
   )
 }
