@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 
 import './ReportHO.css'
 
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -688,65 +688,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
       ]
       break
 
-    case 'csi':
-      columns = [
-        {
-          title: 'Order ID',
-          dataIndex: 'order_id',
-          key: 'order_id',
-          align: 'center',
-          width: 90,
-          className: 'col_order_id',
-          defaultSortOrder: 'descend',
-          sorter: (a, b) => a.order_id - b.order_id,
-        },
-        {
-          title: 'Nama Toko',
-          dataIndex: 'store_name',
-          key: 'store_name',
-          align: 'center',
-          width: 110,
-          onFilter: (value, record) => record.store_name.includes(String(value)),
-          sorter: (a, b) => a.store_name.length - b.store_name.length,
-        },
-        {
-          title: 'Nama Vendor',
-          dataIndex: 'vendor_name',
-          key: 'vendor_name',
-          align: 'center',
-          width: 120,
-          onFilter: (value, record) => record.vendor_name.includes(String(value)),
-          sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
-        },
-        {
-          title: 'No Member',
-          dataIndex: 'member_id',
-          key: 'member_id',
-          align: 'center',
-          width: 110,
-          sorter: (a, b) => a.member_id - b.member_id,
-        },
-        {
-          title: 'Nama Member',
-          dataIndex: 'member_name',
-          key: 'member_name',
-          align: 'left',
-          width: 130,
-          onFilter: (value, record) => record.member_name.includes(String(value)),
-          sorter: (a, b) => a.member_name.length - b.member_name.length,
-        },
-        {
-          title: 'Email Member',
-          dataIndex: 'member_email',
-          key: 'member_email',
-          align: 'left',
-          width: 140,
-          onFilter: (value, record) => record.member_email.includes(String(value)),
-          sorter: (a, b) => a.member_email.length - b.member_email.length,
-        },
-      ]
-      break
-
     case 'sales-comission':
       columns = [
         {
@@ -1074,13 +1015,8 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           setTotalOrder(response?.data?.takeTotal ?? 0)
         }
       } else if (endpoint === 'orders') {
-        if (['Laporan CSI Terkirim', 'Laporan CSI Belum Terkirim'].includes(title)) {
-          setCurrentPage(response?.data?.page ?? 1)
-          setTotalOrder(response?.data?.takeTotal ?? 0)
-        } else {
-          setCurrentPage(response?.data?.page ?? 1)
-          setTotalOrder(response?.data?.total ?? 0)
-        }
+        setCurrentPage(response?.data?.page ?? 1)
+        setTotalOrder(response?.data?.total ?? 0)
       } else {
         if (response?.data) {
           setCurrentPage(response?.data?.page ?? 1)
@@ -1289,23 +1225,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           })
           break
 
-        case 'csi':
-          csiData = apiData.map((item: any) => {
-            let data
-
-            data = {
-              order_id: item.id,
-              store_name: item?.store_name,
-              vendor_name: item?.vendor_name,
-              member_id: item?.member_id,
-              member_name: item?.member_name,
-              member_email: item?.email_address,
-            }
-
-            return data
-          })
-          break
-
         case 'sales-comission':
           salesComissionData = apiData.map((item: any) => {
             let data
@@ -1360,8 +1279,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         ? refundData
         : endpoint === 'reschedule'
         ? rescheduleData
-        : endpoint === 'csi'
-        ? csiData
         : endpoint === 'sales-comission'
         ? salesComissionData
         : endpoint === 'invoices'
@@ -1467,14 +1384,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
     return originalElement
   }
 
-  // Format Date
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
   // Upload Excel
   const [excel, setExcel] = useState<File | null>(null)
   const [showModal, setShowModal] = useState(false)
@@ -1554,7 +1463,13 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
   const exportToExcel = () => {
     setLoadingExport(true)
 
-    let url = `${apiUrl}/${endpoint}/export-excel?take=0${params}`
+    let url = ''
+
+    if (title === 'Laporan General Report') {
+      url = `${apiUrl}/reports/export-excel?take=0${params}`
+    } else {
+      url = `${apiUrl}/${endpoint}/export-excel?take=0${params}`
+    }
 
     const valueCheck = (key: any, value: any) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
@@ -1779,25 +1694,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
                 </div>
               </div>
 
-              {/* {!['csi', 'complaints', 'reschedule'].includes(endpoint) ? (
-                <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
-                  'id'
-                )}`}</h1>
-              ) : (
-                <></>
-              )} */}
-
-              {![
-                'Laporan Claim Voucher',
-                'Laporan CSI Belum Terkirim',
-                'Laporan CSI Terkirim',
-              ].includes(title) ? (
-                <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
-                  'id'
-                )}`}</h1>
-              ) : (
-                <></>
-              )}
+              <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
+                'id'
+              )}`}</h1>
             </Card.Body>
           </Card>
         </Col>

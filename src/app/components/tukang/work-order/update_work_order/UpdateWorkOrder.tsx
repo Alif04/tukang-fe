@@ -844,9 +844,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                           <p className='fs-7 fw-bold '>
                             {workOrderDetail?.order?.members?.full_name ?? ''}
                           </p>
-                          <p className='fs-7'> {workOrderDetail?.order?.project_number ?? ''}</p>
                           <p className='fs-7'>{workOrderDetail?.order?.members?.email ?? ''}</p>
-                          <p className='fs-7'>{workOrderDetail?.order?.project_address ?? ''}</p>
                         </div>
                       </Col>
                     </Row>

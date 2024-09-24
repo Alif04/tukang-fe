@@ -459,32 +459,9 @@ const ViewCalendarTukang: React.FC = () => {
                       </p>
                     </Col>
                   </Form.Group>
-
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      Alamat Pemasangan
-                    </Form.Label>
-                    <Col sm='6'>
-                      <p className='fs-7'>
-                        {selectedWorkOrder?.work_order_detail?.order?.project_address ?? ''}
-                      </p>
-                    </Col>
-                  </Form.Group>
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='4'>
-                      Nomor Telp/WA :
-                    </Form.Label>
-
-                    <Col sm='8'>
-                      <p className='fs-7'>
-                        {selectedWorkOrder?.work_order_detail?.order?.project_number ?? ''}
-                      </p>
-                    </Col>
-                  </Form.Group>
-
                   <Form.Group as={Row} className='detail-info'>
                     <Form.Label column sm='4'>
                       Alamat Email
