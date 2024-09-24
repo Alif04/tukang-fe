@@ -1,18 +1,19 @@
-import React, {useState} from 'react'
+// ModalNotification.tsx
+import React from 'react'
+import {Modal, Button} from 'react-bootstrap'
 import {toAbsoluteUrl} from '../../../_metronic/helpers'
 
-// Modal Notification
-import {Modal, Button} from 'react-bootstrap'
+interface ModalNotificationProps {
+  onClose: () => void
+}
 
-const ModalNotification = () => {
-  const [show, setShow] = useState(true)
-  const handleClose = () => setShow(false)
+const ModalNotification: React.FC<ModalNotificationProps> = ({onClose}) => {
   const handleClick = () => {
     window.open('https://instalasi.mitra10.com', '_blank')
   }
 
   return (
-    <Modal show={show} onHide={handleClose} centered>
+    <Modal show={true} onHide={onClose} centered>
       <Modal.Header closeButton>
         <Modal.Title>Pemberitahuan Penting</Modal.Title>
       </Modal.Header>
@@ -24,14 +25,11 @@ const ModalNotification = () => {
             alt='Mitra110 Vector'
             className='mw-100 mb-10 h-lg-150px'
           />
-
           <h1 className='fs-1 fw-bold mb-5'>Website Khusus Training</h1>
-
           <h1 className='fs-5 fw-normal text-center mb-10'>
             Website ini dibuat khusus untuk keperluan training toko. Klik tombol di bawah ini jika
             ingin pergi ke Website Instalasi.
           </h1>
-
           <Button onClick={handleClick} variant='primary' className='btn btn-primary'>
             Silahkan klik link disini
           </Button>
