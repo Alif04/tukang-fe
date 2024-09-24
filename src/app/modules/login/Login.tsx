@@ -9,6 +9,8 @@ import {toAbsoluteUrl} from '../../../_metronic/helpers'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons'
 
+import ModalNotification from './ModalNotification'
+
 interface Status {
   value: number
   description: string
@@ -256,6 +258,8 @@ export function Login() {
           </div>
         </div>
       </div>
+
+      <ModalNotification />
     </section>
   )
 }
