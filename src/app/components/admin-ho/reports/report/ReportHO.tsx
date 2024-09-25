@@ -1466,7 +1466,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
     let url = ''
 
     if (title === 'Laporan General Report') {
-      url = `${apiUrl}/reports/export-excel?take=0${params}`
+      url = `${apiUrl}/reports/general-report?take=0${params}`
     } else {
       url = `${apiUrl}/${endpoint}/export-excel?take=0${params}`
     }
