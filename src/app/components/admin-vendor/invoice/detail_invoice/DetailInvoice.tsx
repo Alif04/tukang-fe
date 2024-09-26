@@ -10,7 +10,7 @@ import {Image} from 'antd'
 import {ListGroup, Table, Row, Col, Card, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDownload} from '@fortawesome/free-solid-svg-icons'
-import {formatDate} from '../../../../../_metronic/helpers'
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface Store {
   store_id: number
@@ -135,6 +135,29 @@ const DetailInvoiceVendor: FC = () => {
     setLoadingPDF(false)
   }
 
+  const generatePDFHO = () => {
+    setLoadingPDF(true)
+
+    axios
+      .get(`${apiUrl}/invoices/pdf/${params.id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Invoice PDF.pdf`)
+        document.body.appendChild(link)
+        link.click()
+      })
+
+    setLoadingPDF(false)
+  }
+
   // Export Template Excel
   const exportTemplate = () => {
     setLoadingTemplate(true)
@@ -152,6 +175,32 @@ const DetailInvoiceVendor: FC = () => {
         const link = document.createElement('a')
         link.href = url
         link.setAttribute('download', `Invoice.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingTemplate(false)
+      })
+  }
+
+  const exportTemplateRekonsel = () => {
+    setLoadingTemplate(true)
+
+    axios
+      .get(`${apiUrl}/invoices/${params.id}/rekonsel/export-excel`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute(
+          'download',
+          `Rekonsel Invoice ID ${params.id} ${formatDateWithTime(new Date())}.xlsx`
+        )
         document.body.appendChild(link)
         link.click()
 
@@ -299,16 +348,6 @@ const DetailInvoiceVendor: FC = () => {
                   ).toLocaleString('id')}`}</td>
                 </tr>
 
-                {/* <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
-                    PKP ( 1, 11 %)
-                  </td>
-
-                  <td className='fw-bolder'>{`Rp. ${parseInt(
-                    invoiceDetail?.pkp_nominal ?? 0
-                  ).toLocaleString('id')}`}</td>
-                </tr> */}
-
                 <tr>
                   <td colSpan={7} className='text-end fw-bolder'>
                     Penalty
@@ -434,7 +473,11 @@ const DetailInvoiceVendor: FC = () => {
         <Button
           className='btn-dark-success d-flex justify-content-center align-items-center w-100 gap-3 m-0'
           disabled={loadingPDF}
-          onClick={() => exportTemplate()}
+          onClick={() =>
+            ['Owner Vendor', 'Admin Vendor'].includes(userRole)
+              ? exportTemplate()
+              : exportTemplateRekonsel()
+          }
         >
           {loadingTemplate === false ? (
             <>
@@ -448,7 +491,9 @@ const DetailInvoiceVendor: FC = () => {
 
         <Button
           className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3 m-0'
-          onClick={generatePdf}
+          onClick={() =>
+            ['Owner Vendor', 'Admin Vendor'].includes(userRole) ? generatePdf() : generatePDFHO()
+          }
         >
           {loadingPDF === false ? (
             <>
