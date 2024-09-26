@@ -330,12 +330,12 @@ export function AsideMenuMain() {
         title='Invoice'
         icon='/media/icons/duotune/finance/fin004.svg'
         fontIcon='bi-person'
-        role={['Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor']}
+        role={['Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Finance']}
       >
         <AsideMenuItem
           to='/invoice/view-invoice'
           title='List Invoice'
-          role={['Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor']}
+          role={['Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Finance']}
           hasBullet={true}
         />
         <AsideMenuItem

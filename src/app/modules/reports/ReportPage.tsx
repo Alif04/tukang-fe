@@ -266,6 +266,31 @@ const RefundPage: React.FC = () => {
 
       {/* HO REPORT */}
       <Route
+        path='ho-report-general-report'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN GENERAL REPORT</PageTitle>
+
+            <ReportHO
+              endpoint='orders'
+              statusName=''
+              headerColor='success'
+              title='Laporan General Report'
+              params=''
+            />
+          </>
+        }
+      />
+
+      <Route
         path='ho-report-transaksi-all'
         element={
           <>
