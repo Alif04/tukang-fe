@@ -93,6 +93,15 @@ const AsideDefault: FC = () => {
               roles: role,
             })
             break
+          case 'Finance':
+          case 'Payroll':
+            setUser({
+              user_id: data.id,
+              username: data?.username ?? '',
+              full_name: data?.username ?? '',
+              roles: role,
+            })
+            break
           default:
             console.log('user not found!:')
         }

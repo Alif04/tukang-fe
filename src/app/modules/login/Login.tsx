@@ -90,6 +90,8 @@ export function Login() {
           const isAdminHO = ['Admin Ho', 'Super User'].includes(res.data.data.user.roles.name)
           const isVendor = ['Owner Vendor', 'Admin Vendor'].includes(res.data.data.user.roles.name)
           const isTukang = user.roles.name === 'Tukang'
+          const isFinance = user.roles.name === 'Finance'
+          const isPayroll = user.roles.name === 'Payroll'
           const isEmployee = user.employee !== null && !isStore && !isSales && !isVendor
 
           localStorage.setItem('user_id', res.data.data.user.id)
@@ -130,6 +132,12 @@ export function Login() {
           } else if (isTukang) {
             localStorage.setItem('tukang_id', user?.tukang[0]?.id)
             localStorage.setItem('tukangName', user?.tukang[0]?.full_name)
+          } else if (isFinance) {
+            localStorage.setItem('finance_id', user?.id)
+            localStorage.setItem('financeName', user?.username)
+          } else if (isPayroll) {
+            localStorage.setItem('payrollid', user?.id)
+            localStorage.setItem('financeName', user?.username)
           } else if (!isSales && !isAdminHO && !isEmployee && !isVendor) {
             window.location.reload()
           }

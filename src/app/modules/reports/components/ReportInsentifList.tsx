@@ -5,15 +5,15 @@ import {ReportInsentifStore} from '../../../components'
 import {ReportInsentifHO} from '../../../components'
 
 const ReportInsentifList: React.FC = () => {
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
 
   return (
     <>
-      {userRole === 'Admin HO' || userRole === 'Super User' ? (
+      {['Admin HO', 'Super User', 'Payroll'].includes(userRole) ? (
         <>
           <ReportInsentifHO className='' />
         </>
-      ) : userRole === 'Store Staff' || userRole === 'Store CS' || userRole === 'Sales' ? (
+      ) : ['Store Staff', 'Store CS', 'Sales'].includes(userRole) ? (
         <>
           <ReportInsentifStore className='' />
         </>

@@ -7,7 +7,7 @@ import {AsideMenuItem} from './AsideMenuItem'
 import Swal from 'sweetalert2'
 
 export function AsideMenuMain() {
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
   const userVendor = localStorage.getItem('vendor_id')
   const userTukang = localStorage.getItem('tukang_id')
 
@@ -43,6 +43,8 @@ export function AsideMenuMain() {
           'Admin Vendor',
           'Owner Vendor',
           'Tukang',
+          'Finance',
+          'Payroll',
         ]}
       />
 
@@ -346,6 +348,22 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
 
+      {/* Halaman Insentif Sales */}
+      <AsideMenuItemWithSub
+        to='/reports'
+        title='Insentif Sales'
+        icon='/media/icons/duotune/graphs/gra001.svg'
+        fontIcon='bi-person'
+        role={['Payroll']}
+      >
+        <AsideMenuItem
+          to='/reports/report-insentif'
+          title='List Insentif Sales'
+          role={['Payroll']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
+
       {/* Halaman Reports */}
       <AsideMenuItemWithSub
         to='/reports'
@@ -369,9 +387,7 @@ export function AsideMenuMain() {
       >
         <AsideMenuItem
           to='/reports/report-insentif'
-          title={
-            userRole === 'Admin HO' || userRole === 'Super User' ? 'Insentif Sales' : 'Insentif'
-          }
+          title={['Super User', 'Admin HO'].includes(userRole) ? 'Insentif Sales' : 'Insentif'}
           role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Super User']}
           hasBullet={true}
         />

@@ -5,15 +5,15 @@ import {ViewInvoiceHO} from '../../../components'
 import {ViewInvoiceVendor} from '../../../components'
 
 const ViewInvoice: React.FC = () => {
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
 
   return (
     <>
-      {userRole === 'Admin HO' || userRole === 'Super User' ? (
+      {['Admin HO', 'Super User', 'Finance'].includes(userRole) ? (
         <>
           <ViewInvoiceHO />
         </>
-      ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
+      ) : ['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
         <>
           <ViewInvoiceVendor />
         </>

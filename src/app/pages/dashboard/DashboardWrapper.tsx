@@ -16,7 +16,7 @@ interface Status {
 }
 
 const DashboardWrapper: FC = () => {
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
   const [status, setStatus] = useState<Status[]>([])
 
   // Get Status
@@ -57,18 +57,18 @@ const DashboardWrapper: FC = () => {
 
   return (
     <>
-      {userRole === 'Store CS' || userRole === 'Store Staff' || userRole === 'Sales' ? (
+      {['Store Staff', 'Store CS', 'Sales'].includes(userRole) ? (
         <>
           <PageTitle>Instalasi & Service Mitra 10 Performance Report</PageTitle>
           <DashboardStore />
         </>
-      ) : userRole === 'Admin HO' || userRole === 'Super User' ? (
+      ) : ['Admin HO', 'Super User', 'Finance', 'Payroll'].includes(userRole) ? (
         <>
           <HeaderWrapper className='bg-header-ho' />
           <PageTitle>Installasi & Service Mitra10 Dashboard</PageTitle>
           <DashboardHO />
         </>
-      ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
+      ) : ['Owner Vendor', 'Admin Vendor'].includes(userRole) ? (
         <>
           <HeaderWrapper className='bg-header-vendor' />
           <PageTitle>VENDOR DASHBOARD</PageTitle>
