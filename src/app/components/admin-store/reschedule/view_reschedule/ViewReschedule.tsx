@@ -82,7 +82,7 @@ const ViewRescheduleCS: React.FC<Props> = ({className}) => {
       dataIndex: 'reschedule_id',
       key: 'reschedule_id',
       align: 'center',
-      width: 'fit-content',
+      width: 110,
       sorter: (a, b) => a.reschedule_id - b.reschedule_id,
     },
     {
