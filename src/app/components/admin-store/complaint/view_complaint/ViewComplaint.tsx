@@ -84,7 +84,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'complaint_id',
       align: 'center',
       className: 'text-start',
-      width: 'fit-content',
+      width: 110,
       sorter: (a, b) => a.complaint_id - b.complaint_id,
     },
     {

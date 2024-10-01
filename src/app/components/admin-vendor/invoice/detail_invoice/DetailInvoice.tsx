@@ -137,7 +137,6 @@ const DetailInvoiceVendor: FC = () => {
 
   const generatePDFHO = () => {
     setLoadingPDF(true)
-
     axios
       .get(`${apiUrl}/invoices/pdf/${params.id}`, {
         method: 'GET',
@@ -154,8 +153,9 @@ const DetailInvoiceVendor: FC = () => {
         document.body.appendChild(link)
         link.click()
       })
-
-    setLoadingPDF(false)
+      .finally(() => {
+        setLoadingPDF(false)
+      })
   }
 
   // Export Template Excel

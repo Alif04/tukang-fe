@@ -440,17 +440,6 @@ const ViewCalendarTukang: React.FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Group as={Row} className='detail-info'>
                     <Form.Label column sm='6'>
-                      No Member :
-                    </Form.Label>
-                    <Col sm='6'>
-                      <p className='fs-7'>
-                        {selectedWorkOrder?.work_order_detail?.order?.members?.member_number ?? ''}
-                      </p>
-                    </Col>
-                  </Form.Group>
-
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
                       Customer Name :
                     </Form.Label>
                     <Col sm='6'>

@@ -19,7 +19,7 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const InvoicePage: React.FC = () => {
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
 
   return (
     <Routes>
@@ -27,7 +27,7 @@ const InvoicePage: React.FC = () => {
         path='view-invoice'
         element={
           <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+            {['Admin HO', 'Super User', 'Finance'].includes(userRole) ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -49,7 +49,7 @@ const InvoicePage: React.FC = () => {
         path='new-invoice'
         element={
           <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+            {['Admin HO', 'Super User', 'Finance'].includes(userRole) ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -71,7 +71,7 @@ const InvoicePage: React.FC = () => {
         path='update-invoice/:id'
         element={
           <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+            {['Admin HO', 'Super User', 'Finance'].includes(userRole) ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -93,7 +93,7 @@ const InvoicePage: React.FC = () => {
         path='detail-invoice/:id'
         element={
           <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+            {['Admin HO', 'Super User', 'Finance'].includes(userRole) ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
