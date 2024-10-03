@@ -227,8 +227,17 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
           updatePageTitle(data)
         })
-    } catch (error) {
-      console.error(error)
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        Swal.fire({
+          title: 'Sesi Anda Telah Berakhir',
+          text: 'Silahkan Logout dan Login Ulang Kembali',
+          icon: 'warning',
+          confirmButtonText: 'Ok',
+        })
+      } else {
+        console.log('error when fetching data', error)
+      }
     }
   }
 
@@ -1456,18 +1465,30 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             </Col>
           </Row>
 
-          {orderDetail?.work_orders?.work_order_status.length > 1 &&
-          orderDetail?.work_orders?.work_order_status[0]?.status?.category === 'WORKEND' &&
-          !['RESURVEYREQ', 'REWORKREQ'].includes(orderDetail?.status?.category) ? (
+          {[
+            'SURVEYDONE',
+            'WORKEND',
+            'WORKENDSTEPONE',
+            'WORKENDSTEPTWO',
+            'WORKENDSTEPTHREE',
+          ].includes(orderDetail?.status?.category) ? (
             <div className='d-flex justify-content-center'>
               <Button
                 className='btn-done d-flex justify-content-center align-items-center'
                 type='submit'
                 disabled
               >
-                Order Ini Pengerjaannya Telah Selesai
+                Order Selesai
               </Button>
             </div>
+          ) : [
+              'QUOTEOUT',
+              'QUOTEPAID',
+              'QUOTEPAIDSTEPONE',
+              'QUOTEPAIDSTEPTWO',
+              'QUOTEPAIDSTEPTHREE',
+            ].includes(orderDetail?.status?.category) ? (
+            <></>
           ) : (
             <div className='d-flex justify-content-center'>
               <Button
