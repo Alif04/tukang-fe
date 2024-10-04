@@ -125,8 +125,12 @@ const NewInvoiceVendor: FC = () => {
   const workend = statusData.filter((status: any) =>
     ['WORKEND', 'WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(status.category)
   )
+  const workstep = statusData.filter((status: any) =>
+    ['WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(status.category)
+  )
   const surveyend = statusData.filter((status: any) => ['QUOTEIN'].includes(status.category))
   const workStatuses = workend.map((x) => x.value)
+  const workStepStatuses = workstep.map((x) => x.value)
   const surveyStatuses = surveyend.map((x) => x.value)
 
   // Create Invoice
@@ -183,6 +187,7 @@ const NewInvoiceVendor: FC = () => {
 
   const getOrders = async (queryparams: any) => {
     const urlWork = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&status=${workStatuses}${queryparams}`
+    const urlWorkStep = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${workStepStatuses}${queryparams}`
     const urlSurvey = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${surveyStatuses}${queryparams}`
 
     try {
@@ -193,14 +198,15 @@ const NewInvoiceVendor: FC = () => {
         'ngrok-skip-browser-warning': 'true',
       }
 
-      const [workOrders, surveyOrders] = await Promise.all([
+      const [workOrders, workStepOrders, surveyOrders] = await Promise.all([
         getAllData(urlWork, headers),
+        getAllData(urlWorkStep, headers),
         getAllData(urlSurvey, headers),
       ])
 
       setLoadData(false)
 
-      return {workOrders, surveyOrders}
+      return {workOrders, workStepOrders, surveyOrders}
     } catch (error) {
       console.error('Error fetching orders:', error)
       throw error
@@ -209,9 +215,9 @@ const NewInvoiceVendor: FC = () => {
 
   const ViewWorkOrder = async (queryparams: any) => {
     try {
-      const {workOrders, surveyOrders} = await getOrders(queryparams)
+      const {workOrders, workStepOrders, surveyOrders} = await getOrders(queryparams)
 
-      if (!workOrders && !surveyOrders) {
+      if (!workOrders && !surveyOrders && !workStepOrders) {
         console.error('No data received from getOrders')
         return []
       }
@@ -238,6 +244,35 @@ const NewInvoiceVendor: FC = () => {
             order_type: 'Pengerjaan',
             order_status: item?.status?.category,
             order_status_label: item?.status?.description,
+          }
+        })
+
+      const workStepData = workStepOrders
+        .filter((x) => {
+          const orderHistory = x.order_history.length >= 1
+          const noInvoice = x.invoice_details.length === 0
+          const lastInvoice = x.invoice_details.slice(-1)[0]
+          const hasInvoiceRejected = lastInvoice?.type === 1 && lastInvoice?.invoices?.status === 3
+          const hasOtherInvoiceType =
+            x.invoice_details.length >= 1 && x.invoice_details.some((inv: any) => inv.type !== 2)
+
+          return (orderHistory && noInvoice) || hasInvoiceRejected || hasOtherInvoiceType
+        })
+        .map((item: any, index: number) => {
+          const orderDate = formatDateWithTime(item?.created_at)
+          const workStepHistory = item?.order_history?.find((x: any) =>
+            ['WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(x.status.category)
+          )
+
+          return {
+            _key: index + workOrders.length + 1,
+            order_id: item?.id,
+            store_name: item?.store?.store_name,
+            date_order: orderDate,
+            member_name: item?.members?.full_name,
+            order_type: 'Pengerjaan',
+            order_status: workStepHistory ? workStepHistory.status.category : null,
+            order_status_label: workStepHistory ? workStepHistory.status.description : null,
           }
         })
 
@@ -270,7 +305,7 @@ const NewInvoiceVendor: FC = () => {
           }
         })
 
-      const data = [...workOrderData, ...surveyOrderData]
+      const data = [...workOrderData, ...workStepData, ...surveyOrderData]
       return data
     } catch (error) {
       console.error('Error getting work order list data:', error)
