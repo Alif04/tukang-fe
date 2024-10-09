@@ -332,7 +332,14 @@ const NewInvoiceVendor: FC = () => {
       const updatedSelectedRowKeys = selectedRows.map((row) => row.order_id)
       const invoiceType = selectedRows.map((row) => ({
         order_id: row.order_id,
-        type: row.order_status === 'QUOTEIN' ? 1 : row.order_status === 'WORKEND' ? 2 : 0,
+        type:
+          row.order_status === 'QUOTEIN'
+            ? 1
+            : ['WORKEND', 'WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(
+                row.order_status
+              )
+            ? 2
+            : 0,
       }))
 
       setSelectedRows(selectedRows)
