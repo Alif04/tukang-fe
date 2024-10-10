@@ -1126,8 +1126,11 @@ const ViewOrders: FC = () => {
     formData.append('quotation_validity', quotation.quotation_validity)
     formData.append('quotation_disc', String(quotation.quotation_disc))
     formData.append('readiness', String(4))
-    formData.append('receipt_quotation', quotation.receipt_quotation)
     // formData.append('quotation_promotion', String(quotation.quotation_promotion))
+
+    if (quotation.receipt_quotation !== null) {
+      formData.append('receipt_quotation', quotation.receipt_quotation)
+    }
 
     if (quotation.quotation_promotion !== null) {
       formData.append('promotion_id', String(quotation.quotation_promotion))

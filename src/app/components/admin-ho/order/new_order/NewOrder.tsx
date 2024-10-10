@@ -864,9 +864,9 @@ const NewOrderHO: FC = () => {
           setIsLoading(false)
         } else {
           Swal.fire({
-            title: 'Error',
-            text: 'Order Created',
-            icon: 'error',
+            title: 'Warning',
+            text: response.data.message,
+            icon: 'warning',
           })
 
           setIsLoading(false)
@@ -876,9 +876,9 @@ const NewOrderHO: FC = () => {
         setIsLoading(false)
 
         Swal.fire({
-          title: 'Error',
-          text: error.response.data.messages,
-          icon: 'error',
+          title: 'Warning',
+          text: error.response.data.message,
+          icon: 'warning',
         })
       })
   }
