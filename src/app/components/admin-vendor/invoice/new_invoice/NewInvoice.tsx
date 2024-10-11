@@ -122,9 +122,7 @@ const NewInvoiceVendor: FC = () => {
   // Status
   const storedStatus = sessionStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const workend = statusData.filter((status: any) =>
-    ['WORKEND', 'WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(status.category)
-  )
+  const workend = statusData.filter((status: any) => ['WORKEND'].includes(status.category))
   const workstep = statusData.filter((status: any) =>
     ['WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(status.category)
   )
@@ -265,12 +263,12 @@ const NewInvoiceVendor: FC = () => {
           )
 
           return {
-            _key: index + workOrders.length + 1,
+            _key: workOrders.length + index + 1,
             order_id: item?.id,
             store_name: item?.store?.store_name,
             date_order: orderDate,
             member_name: item?.members?.full_name,
-            order_type: 'Pengerjaan',
+            order_type: 'Pengerjaan Tahapan',
             order_status: workStepHistory ? workStepHistory.status.category : null,
             order_status_label: workStepHistory ? workStepHistory.status.description : null,
           }
@@ -294,7 +292,7 @@ const NewInvoiceVendor: FC = () => {
           )
 
           return {
-            _key: index + workOrders.length + 1,
+            _key: workOrders.length + workStepOrders.length + index + 1,
             order_id: item?.id,
             store_name: item?.store?.store_name,
             date_order: orderDate,
@@ -335,10 +333,14 @@ const NewInvoiceVendor: FC = () => {
         type:
           row.order_status === 'QUOTEIN'
             ? 1
-            : ['WORKEND', 'WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(
-                row.order_status
-              )
+            : row.order_status === 'WORKEND'
             ? 2
+            : row.order_status === 'WORKENDSTEPONE'
+            ? 3
+            : row.order_status === 'WORKENDSTEPTWO'
+            ? 4
+            : row.order_status === 'WORKENDSTEPTHREE'
+            ? 5
             : 0,
       }))
 

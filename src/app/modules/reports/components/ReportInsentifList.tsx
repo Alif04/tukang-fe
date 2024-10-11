@@ -9,7 +9,7 @@ const ReportInsentifList: React.FC = () => {
 
   return (
     <>
-      {['Admin HO', 'Super User', 'Payroll'].includes(userRole) ? (
+      {['Admin HO', 'Super User'].includes(userRole) ? (
         <>
           <ReportInsentifHO className='' />
         </>

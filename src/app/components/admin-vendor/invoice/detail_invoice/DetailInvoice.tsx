@@ -7,7 +7,7 @@ import axios from 'axios'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import {Image} from 'antd'
-import {ListGroup, Table, Row, Col, Card, Button} from 'react-bootstrap'
+import {Modal, ListGroup, Table, Row, Col, Card, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDownload} from '@fortawesome/free-solid-svg-icons'
 import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
@@ -37,6 +37,7 @@ const DetailInvoiceVendor: FC = () => {
 
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
+  const handleClose = () => setVisible(false)
 
   const getInvoiceData = async () => {
     try {
@@ -386,7 +387,7 @@ const DetailInvoiceVendor: FC = () => {
             </div>
 
             <div className='payment-evidence'>
-              <div className='fs-3 fw-semibold mb-1'>Silahkan kirim bukti bayar anda melalui:</div>
+              <div className='fs-3 fw-semibold mb-1'>Silahkan kirim bukti bayar anda melalui :</div>
 
               <div className='fs-4 fw-normal'>WA : {invoiceDetail?.vendor?.phone_number}</div>
               <div className='fs-4 fw-normal'>Email : {invoiceDetail?.vendor?.email_address}</div>
@@ -443,19 +444,44 @@ const DetailInvoiceVendor: FC = () => {
                 <>
                   {previewImage && (
                     <div>
-                      <Image
-                        key={previewImage}
-                        width={200}
-                        style={{display: 'none'}}
-                        src={`${apiUrl}/public/invoices/${previewImage}`}
-                        preview={{
-                          visible: visible,
-                          src: `${apiUrl}/public/invoices/${previewImage}`,
-                          onVisibleChange: (value) => {
-                            setVisible(value)
-                          },
-                        }}
-                      />
+                      {previewImage.endsWith('.pdf') ? (
+                        <div>
+                          <Modal
+                            dialogClassName='modal-show-pdf'
+                            centered
+                            show={visible}
+                            onHide={handleClose}
+                          >
+                            <Modal.Header closeButton>
+                              <Modal.Title>File - {previewImage}</Modal.Title>
+                            </Modal.Header>
+
+                            <Modal.Body>
+                              <iframe
+                                key={previewImage}
+                                width='100%'
+                                height='100%'
+                                src={`${apiUrl}/public/invoices/${previewImage}`}
+                                style={{border: 'none'}}
+                              />
+                            </Modal.Body>
+                          </Modal>
+                        </div>
+                      ) : (
+                        <Image
+                          key={previewImage}
+                          width={200}
+                          style={{display: 'none'}}
+                          src={`${apiUrl}/public/invoices/${previewImage}`}
+                          preview={{
+                            visible: visible,
+                            src: `${apiUrl}/public/invoices/${previewImage}`,
+                            onVisibleChange: (value) => {
+                              setVisible(value)
+                            },
+                          }}
+                        />
+                      )}
                     </div>
                   )}
                 </>
@@ -489,21 +515,23 @@ const DetailInvoiceVendor: FC = () => {
           )}
         </Button>
 
-        <Button
-          className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3 m-0'
-          onClick={() =>
-            ['Owner Vendor', 'Admin Vendor'].includes(userRole) ? generatePdf() : generatePDFHO()
-          }
-        >
-          {loadingPDF === false ? (
-            <>
-              <FontAwesomeIcon icon={faDownload} size='lg' />
-              Download PDF
-            </>
-          ) : (
-            'Generating PDF...'
-          )}
-        </Button>
+        {!['Finance'].includes(userRole) && (
+          <Button
+            className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3 m-0'
+            onClick={() =>
+              ['Owner Vendor', 'Admin Vendor'].includes(userRole) ? generatePdf() : generatePDFHO()
+            }
+          >
+            {loadingPDF === false ? (
+              <>
+                <FontAwesomeIcon icon={faDownload} size='lg' />
+                Download PDF
+              </>
+            ) : (
+              'Generating PDF...'
+            )}
+          </Button>
+        )}
       </div>
     </section>
   )
