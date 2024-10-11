@@ -27,6 +27,17 @@ const AppRoutes: FC = () => {
   const userRole = localStorage.getItem('userRole')
   const accessToken = localStorage.getItem('accessToken')
 
+  const navigateUrl = () => {
+    switch (userRole) {
+      case 'Finance':
+        return '/invoice/view-invoice'
+      case 'Payroll':
+        return '/incentive-sales/request-incentive'
+      default:
+        return '/home'
+    }
+  }
+
   return (
     <BrowserRouter>
       <Routes>
@@ -45,9 +56,9 @@ const AppRoutes: FC = () => {
             </>
           ) : (
             <>
-              <Route index element={<Navigate to='/home' />} />
+              <Route index element={<Navigate to={navigateUrl()} />} />
               <Route path='/*' element={<PrivateRoutes />} />
-              <Route path='login' element={<Navigate to='/home' />} />
+              <Route path='login' element={<Navigate to={navigateUrl()} />} />
             </>
           )}
         </Route>

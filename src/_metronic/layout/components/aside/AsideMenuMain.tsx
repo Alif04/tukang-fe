@@ -43,8 +43,6 @@ export function AsideMenuMain() {
           'Admin Vendor',
           'Owner Vendor',
           'Tukang',
-          'Finance',
-          'Payroll',
         ]}
       />
 
@@ -326,6 +324,32 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
 
+      {/* Halaman Insentif Sales ( Payroll ) */}
+      <AsideMenuItemWithSub
+        to='/incentive-sales'
+        title='Insentif Sales'
+        icon='/media/icons/duotune/finance/fin004.svg'
+        role={['Super User', 'Admin HO', 'Payroll']}
+      >
+        <AsideMenuItem
+          to='/reports/report-insentif'
+          title={
+            ['Super User', 'Admin HO'].includes(userRole)
+              ? 'Laporan Insentif Sales'
+              : 'Laporan Insentif'
+          }
+          role={['Admin HO', 'Super User']}
+          hasBullet={true}
+        />
+
+        <AsideMenuItem
+          to='/incentive-sales/request-incentive'
+          title='Pengajuan Insentif Sales'
+          role={['Super User', 'Admin HO', 'Payroll']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
+
       {/* Halaman Invoice */}
       <AsideMenuItemWithSub
         to='/invoice'
@@ -344,22 +368,6 @@ export function AsideMenuMain() {
           to='/invoice/new-invoice'
           title='New Invoice'
           role={['Admin Vendor', 'Owner Vendor']}
-          hasBullet={true}
-        />
-      </AsideMenuItemWithSub>
-
-      {/* Halaman Insentif Sales */}
-      <AsideMenuItemWithSub
-        to='/reports'
-        title='Insentif Sales'
-        icon='/media/icons/duotune/graphs/gra001.svg'
-        fontIcon='bi-person'
-        role={['Payroll']}
-      >
-        <AsideMenuItem
-          to='/reports/report-insentif'
-          title='List Insentif Sales'
-          role={['Payroll']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
@@ -387,8 +395,8 @@ export function AsideMenuMain() {
       >
         <AsideMenuItem
           to='/reports/report-insentif'
-          title={['Super User', 'Admin HO'].includes(userRole) ? 'Insentif Sales' : 'Insentif'}
-          role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Super User']}
+          title='Insentif'
+          role={['Store CS', 'Store Staff', 'Sales']}
           hasBullet={true}
         />
         <AsideMenuItem

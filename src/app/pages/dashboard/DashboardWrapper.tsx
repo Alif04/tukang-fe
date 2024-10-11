@@ -62,7 +62,7 @@ const DashboardWrapper: FC = () => {
           <PageTitle>Instalasi & Service Mitra 10 Performance Report</PageTitle>
           <DashboardStore />
         </>
-      ) : ['Admin HO', 'Super User', 'Finance', 'Payroll'].includes(userRole) ? (
+      ) : ['Admin HO', 'Super User'].includes(userRole) ? (
         <>
           <HeaderWrapper className='bg-header-ho' />
           <PageTitle>Installasi & Service Mitra10 Dashboard</PageTitle>

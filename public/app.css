@@ -752,7 +752,7 @@ svg.svg-inline--fa.fa-plus.fa-lg.plus-icon {
 }
 
 .btn.btn-dark-success {
-  width: 130px;
+  width: fit-content;
   height: 40px;
   margin: 0 10px 0 10px;
   color: white !important;

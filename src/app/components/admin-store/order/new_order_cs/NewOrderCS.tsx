@@ -761,7 +761,7 @@ const NewOrderStoreCS: FC = () => {
 
         Swal.fire({
           title: 'Error',
-          text: error.response.data.messages,
+          text: error.response.data.message,
           icon: 'error',
         })
       })

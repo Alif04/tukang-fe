@@ -680,7 +680,7 @@ const ViewInvoiceVendor: FC = () => {
                     <Form className='form-input-image' onClick={handleImageClick}>
                       <Form.Control
                         type='file'
-                        accept='image/jpeg, image/png'
+                        accept='.jpeg, .jpg, .png, .pdf'
                         className='input-field-image'
                         multiple
                         hidden
@@ -730,14 +730,14 @@ const ViewInvoiceVendor: FC = () => {
                                 src={
                                   item instanceof File
                                     ? URL.createObjectURL(item)
-                                    : `${apiUrl}/public/quotation/${previewImage}`
+                                    : `${apiUrl}/public/invoices/${previewImage}`
                                 }
                                 preview={{
                                   visible: visible,
                                   src:
                                     item instanceof File
                                       ? URL.createObjectURL(item)
-                                      : `${apiUrl}/public/quotation/${previewImage}`,
+                                      : `${apiUrl}/public/invoices/${previewImage}`,
                                   onVisibleChange: (value) => {
                                     setVisible(value)
                                   },

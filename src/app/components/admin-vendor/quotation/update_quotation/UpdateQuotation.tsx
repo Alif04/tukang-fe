@@ -32,7 +32,7 @@ interface Quotation {
     category_id: number | null
     type: number
     item_name: string
-    unit_price: number
+    unit_price: number | string
     unit: string
     description: string
     total: number
@@ -464,14 +464,25 @@ const UpdateQuotationVendor: FC = () => {
         icon: 'warning',
       })
       valid = false
-    } else if (quotation.quotation_grand_total >= 20000000 && quotation.quotation_special === 0) {
+    } else if (
+      quotation.quotation_details.some((x) => x.unit_price === null || x.unit_price === '')
+    ) {
       Swal.fire({
         title: 'Warning',
-        text: 'Tolong gunakan tipe quotation spesial',
+        text: 'Tolong Isi Unit Price',
         icon: 'warning',
       })
       valid = false
     }
+
+    // else if (quotation.quotation_grand_total >= 20000000 && quotation.quotation_special === 0) {
+    //   Swal.fire({
+    //     title: 'Warning',
+    //     text: 'Tolong gunakan tipe quotation spesial',
+    //     icon: 'warning',
+    //   })
+    //   valid = false
+    // }
     return valid
   }
 
@@ -506,11 +517,11 @@ const UpdateQuotationVendor: FC = () => {
       )
 
       appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
-      appendIfNotDefault(formData, `quotation_details[${index}][price]`, quotation.unit_price)
       appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
       appendIfNotDefault(formData, `quotation_details[${index}][margin]`, quotation.margin)
       appendIfNotDefault(formData, `quotation_details[${index}][quantity]`, quotation.quantity)
       appendIfNotDefault(formData, `quotation_details[${index}][work_step]`, quotation.work_step)
+      formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
 
       if (quotation.item_name !== '') {
         appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)

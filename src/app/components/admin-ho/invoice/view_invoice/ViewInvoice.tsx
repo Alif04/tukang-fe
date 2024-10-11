@@ -48,11 +48,6 @@ interface DataType {
   invoice_status: string
 }
 
-interface Invoices {
-  status: number | null
-  invoice_id: any[]
-}
-
 interface Status {
   value: any
   category: string
@@ -61,11 +56,11 @@ interface Status {
 
 const ViewInvoiceHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const userRole = localStorage.getItem('userRole') as string
   const navigate = useNavigate()
 
   const [loadingTemplate, setLoadingTemplate] = useState<boolean>(false)
   const [loadingUploadExcel, setLoadingUploadExcel] = useState<boolean>(false)
-  const [loadingExport, setLoadingExport] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadingButton, setLoadingButton] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -87,21 +82,6 @@ const ViewInvoiceHO: FC = () => {
   // Update Invoice
   const [invoiceId, setInvoiceId] = useState<any>()
   const [invoiceNotes, setInvoiceNotes] = useState<any>()
-  const [invoices, setInvoices] = useState<Invoices>({
-    status: 2,
-    invoice_id: [],
-  })
-
-  // Update Status Invoice
-  // useEffect(() => {
-  //   const updatedStatusId = statusData.find((status: any) => status?.category === 'UNPAID')
-  //   const statusId = updatedStatusId?.value
-
-  //   setInvoices((prev) => ({
-  //     ...prev,
-  //     status_id: statusId,
-  //   }))
-  // }, [invoices])
 
   // Filter Table
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,103 +188,11 @@ const ViewInvoiceHO: FC = () => {
               overlay={renderTooltip('Detail Invoice')}
             >
               <Button variant='primary' className='button-detail' onClick={handleDetailInvoicePage}>
-                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize='13px' />
               </Button>
             </OverlayTrigger>
 
-            {[1].includes(record.status) ? (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Edit Invoice')}
-              >
-                <Button variant='primary' className='button-edit' onClick={handleUpdateInvoicePage}>
-                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
-            ) : (
-              <></>
-            )}
-
-            {![3, 6].includes(record.status) ? (
-              <>
-                <OverlayTrigger
-                  placement='bottom'
-                  delay={{show: 250, hide: 400}}
-                  overlay={renderTooltip('Tolak Invoice')}
-                >
-                  <Button
-                    className='button-cancel'
-                    variant='danger'
-                    onClick={() => handleShowModal(id, 1)}
-                  >
-                    <FontAwesomeIcon
-                      className='text-white'
-                      icon={faXmarkCircle}
-                      fontSize={'13px'}
-                    />
-                  </Button>
-                </OverlayTrigger>
-              </>
-            ) : (
-              <></>
-            )}
-
-            {/* {[2].includes(record.status) ? (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Tolak Dokumen Tagihan')}
-              >
-                <Button
-                  className='button-cancel'
-                  variant='danger'
-                  onClick={() => handleShowModal(id, 3)}
-                >
-                  <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
-            ) : (
-              <></>
-            )} */}
-
-            {[2, 4].includes(record.status) ? (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Kirim Invoice ke Finance')}
-              >
-                <Button
-                  variant='primary'
-                  className='button-verif'
-                  onClick={() => handleUpdateInvoice(id, 5, 'Invoice diberikan kepada Finance')}
-                >
-                  <FontAwesomeIcon className='text-white' icon={faCheckCircle} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
-            ) : (
-              <></>
-            )}
-
-            {[5].includes(record.status) ? (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Sudah dibayarkan')}
-              >
-                <Button
-                  variant='primary'
-                  className='button-verif'
-                  onClick={() => handleUpdateInvoice(id, 6, 'Invoice sudah dibayarkan')}
-                >
-                  <FontAwesomeIcon className='text-white' icon={faCheckCircle} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
-            ) : (
-              <></>
-            )}
-
-            {[6].includes(record.status) ? (
+            {[6].includes(record.status) && (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -315,11 +203,93 @@ const ViewInvoiceHO: FC = () => {
                   className='button-verif'
                   onClick={() => handleShowModal(id, 2)}
                 >
-                  <FontAwesomeIcon className='text-white' icon={faFile} fontSize={'13px'} />
+                  <FontAwesomeIcon className='text-white' icon={faFile} fontSize='13px' />
                 </Button>
               </OverlayTrigger>
-            ) : (
-              <></>
+            )}
+
+            {['Super User', 'Admin HO'].includes(userRole) && (
+              <>
+                {record.status === 1 && (
+                  <OverlayTrigger
+                    placement='bottom'
+                    delay={{show: 250, hide: 400}}
+                    overlay={renderTooltip('Edit Invoice')}
+                  >
+                    <Button
+                      variant='primary'
+                      className='button-edit'
+                      onClick={handleUpdateInvoicePage}
+                    >
+                      <FontAwesomeIcon className='text-white' icon={faPen} fontSize='13px' />
+                    </Button>
+                  </OverlayTrigger>
+                )}
+
+                {![3, 6].includes(record.status) && (
+                  <OverlayTrigger
+                    placement='bottom'
+                    delay={{show: 250, hide: 400}}
+                    overlay={renderTooltip('Tolak Invoice')}
+                  >
+                    <Button
+                      className='button-cancel'
+                      variant='danger'
+                      onClick={() => handleShowModal(id, 1)}
+                    >
+                      <FontAwesomeIcon
+                        className='text-white'
+                        icon={faXmarkCircle}
+                        fontSize='13px'
+                      />
+                    </Button>
+                  </OverlayTrigger>
+                )}
+
+                {[2, 4].includes(record.status) && (
+                  <OverlayTrigger
+                    placement='bottom'
+                    delay={{show: 250, hide: 400}}
+                    overlay={renderTooltip('Kirim Invoice ke Finance')}
+                  >
+                    <Button
+                      variant='primary'
+                      className='button-verif'
+                      onClick={() => handleUpdateInvoice(id, 5, 'Invoice diberikan kepada Finance')}
+                    >
+                      <FontAwesomeIcon
+                        className='text-white'
+                        icon={faCheckCircle}
+                        fontSize='13px'
+                      />
+                    </Button>
+                  </OverlayTrigger>
+                )}
+              </>
+            )}
+
+            {['Finance'].includes(userRole) && (
+              <>
+                {record.status === 5 && (
+                  <OverlayTrigger
+                    placement='bottom'
+                    delay={{show: 250, hide: 400}}
+                    overlay={renderTooltip('Sudah dibayarkan')}
+                  >
+                    <Button
+                      variant='primary'
+                      className='button-verif'
+                      onClick={() => handleUpdateInvoice(id, 6, 'Invoice sudah dibayarkan')}
+                    >
+                      <FontAwesomeIcon
+                        className='text-white'
+                        icon={faCheckCircle}
+                        fontSize='13px'
+                      />
+                    </Button>
+                  </OverlayTrigger>
+                )}
+              </>
             )}
           </div>
         )
@@ -328,17 +298,17 @@ const ViewInvoiceHO: FC = () => {
   ]
 
   const getInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
-    const response = await axios.get(
-      `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}${queryparams}`,
-      {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      }
-    )
+    const statuses = ['Finance'].includes(userRole) ? '&invoice_status=5,6' : ''
+    const url = `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}${queryparams}${statuses}`
+
+    const response = await axios.get(url, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
 
     setLoadData(false)
     setCurrentPage(response?.data?.page ?? 1)
@@ -418,83 +388,6 @@ const ViewInvoiceHO: FC = () => {
       return <a>Next</a>
     }
     return originalElement
-  }
-
-  // Selected Row
-  const rowSelection = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-      setInvoices((prevInvoices) => ({
-        ...prevInvoices,
-        invoice_id: selectedRowKeys.map((key) => key),
-      }))
-
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
-    },
-  }
-
-  // Handle Approve Invoice
-  const handleApproveInvoice = async () => {
-    setIsLoading(true)
-    const formData = new FormData()
-
-    formData.append('status', String(2))
-    invoices.invoice_id.forEach((invoice) => {
-      if (invoice !== null) {
-        formData.append('invoice_id', invoice)
-      }
-    })
-
-    Swal.fire({
-      title: 'Apakah anda yakin akan menyetujui daftar invoice ini?',
-      icon: 'question',
-      showConfirmButton: true,
-      confirmButtonColor: '#6b9230',
-      showDenyButton: true,
-      confirmButtonText: 'Ya',
-      denyButtonText: 'Tidak',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const response = await axios.post(`${apiUrl}/invoices/payment`, formData, {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          })
-          if (response.data.status === 200 || response.data.status === 201) {
-            setIsLoading(false)
-            Swal.fire({
-              title: 'Success',
-              text: 'Success Update Invoice',
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 1500,
-            })
-          } else {
-            setIsLoading(false)
-            Swal.fire({
-              title: 'Error',
-              text: response.data.message,
-              icon: 'error',
-            })
-          }
-
-          window.location.reload()
-        } catch (error: any) {
-          console.error(error)
-          setIsLoading(false)
-          Swal.fire({
-            title: 'Error',
-            text: error.response.data.message,
-            icon: 'error',
-          })
-        }
-      } else if (result.isDenied) {
-        setIsLoading(false)
-      }
-    })
   }
 
   // Filter
@@ -848,12 +741,6 @@ const ViewInvoiceHO: FC = () => {
       <div className='card'>
         <div className='card-body table-view-order'>
           <div className='d-flex justify-content-end align-items-center gap-3 mb-5'>
-            {/* <button className='button-export' onClick={handleUploadExcel}>
-              <h3 className='fs-5 fw-semibold'>
-                {loadingUploadExcel ? 'Uploading..' : 'Import Excel'}
-              </h3>
-            </button> */}
-
             <button className='button-export' onClick={exportTemplate}>
               <h3 className='fs-5 fw-semibold'>
                 {loadingTemplate ? 'Exporting..' : 'Export Excel'}
@@ -925,8 +812,6 @@ const ViewInvoiceHO: FC = () => {
                 bordered
                 columns={columns}
                 dataSource={invoiceData}
-                // rowSelection={rowSelection}
-                // rowKey={(record) => record.invoice_id}
                 pagination={false}
                 sticky={true}
                 tableLayout='auto'
@@ -952,20 +837,6 @@ const ViewInvoiceHO: FC = () => {
               </span>
             )}
           />
-
-          {/* 
-          <div className='d-flex justify-content-center align-items-center mt-3'>
-            <Button
-              className='d-flex justify-content-center align-items-center'
-              variant='dark-success'
-              type='submit'
-              disabled={isLoading}
-              onClick={() => handleApproveInvoice()}
-            >
-              {isLoading ? 'Approve..' : 'Approve'}
-            </Button>
-          </div>
-          */}
         </div>
       </div>
 
@@ -1142,7 +1013,7 @@ const ViewInvoiceHO: FC = () => {
                   <Form className='form-input-image' onClick={handleInvoiceClick}>
                     <Form.Control
                       type='file'
-                      accept='image/jpeg, image/png'
+                      accept='.jpg, .jpeg, .png, .pdf'
                       className='input-field-invoice'
                       multiple
                       hidden
