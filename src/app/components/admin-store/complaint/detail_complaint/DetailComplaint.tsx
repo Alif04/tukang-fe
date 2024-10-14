@@ -265,6 +265,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     formData.append('complaint_channel', String(complaintForm.complaint_channel))
     formData.append('complaint_date', complaintForm.complaint_date)
     formData.append('type', String(complaintForm.complaint_type))
+    formData.append('complaint_status', complaintStatusApprove)
     formData.append('work_status_update', String(complaintForm.work_status_update))
 
     await axios
