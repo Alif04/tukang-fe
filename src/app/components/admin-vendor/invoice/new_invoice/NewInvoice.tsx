@@ -145,6 +145,8 @@ const NewInvoiceVendor: FC = () => {
     ],
   })
 
+  console.log('invoices', invoices)
+
   // Fetch Data
   const getCode = async () => {
     try {
@@ -247,14 +249,21 @@ const NewInvoiceVendor: FC = () => {
 
       const workStepData = workStepOrders
         .filter((x) => {
-          const orderHistory = x.order_history.length >= 1
-          const noInvoice = x.invoice_details.length === 0
+          const orderHistoryExists = x.order_history.length >= 1
+          const noInvoiceExists = x.invoice_details.length === 0
           const lastInvoice = x.invoice_details.slice(-1)[0]
-          const hasInvoiceRejected = lastInvoice?.type === 1 && lastInvoice?.invoices?.status === 3
-          const hasOtherInvoiceType =
-            x.invoice_details.length >= 1 && x.invoice_details.some((inv: any) => inv.type !== 2)
+          const invoiceTypes = [3, 4, 5]
 
-          return (orderHistory && noInvoice) || hasInvoiceRejected || hasOtherInvoiceType
+          const hasInvoiceType = (type: number) =>
+            x.invoice_details.some((invoice: any) => invoice.type !== type)
+
+          const hasInvoiceRejected = (type: number) =>
+            lastInvoice?.type === type && lastInvoice?.invoices?.status === 3
+
+          const hasAnyInvoiceRejected = invoiceTypes.some(hasInvoiceRejected)
+          const hasAnyInvoiceType = invoiceTypes.some(hasInvoiceType)
+
+          return (orderHistoryExists && noInvoiceExists) || hasAnyInvoiceRejected
         })
         .map((item: any, index: number) => {
           const orderDate = formatDateWithTime(item?.created_at)
@@ -303,7 +312,7 @@ const NewInvoiceVendor: FC = () => {
           }
         })
 
-      const data = [...workOrderData, ...workStepData, ...surveyOrderData]
+      const data = [...workOrderData, ...surveyOrderData, ...workStepData]
       return data
     } catch (error) {
       console.error('Error getting work order list data:', error)
