@@ -5,8 +5,7 @@ import {useParams} from 'react-router-dom'
 import './DetailQuotation.css'
 
 import axios from 'axios'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
+import Swal from 'sweetalert2'
 import {Table, Row, Col, Card, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDownload} from '@fortawesome/free-solid-svg-icons'
@@ -45,25 +44,27 @@ const DetailQuotationVendor: FC = () => {
     fetchQuotationData()
   }, [])
 
-  const generatePdf = async () => {
-    setLoadingPDF(true)
-    const input = pdfRef.current
-    if (input) {
-      const canvas = await html2canvas(input)
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF('p', 'mm', 'a4')
-      const imgProps = pdf.getImageProperties(imgData)
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
-
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(
-        `Quotation - ${quotationDetail?.order?.members?.full_name} - ${formatDate(
-          quotationDetail?.quotation_date
-        )}.pdf`
-      )
-    }
-    setLoadingPDF(false)
+  // Export PDF Quotation
+  const generatePdf = (order_id: number, customer_name: string) => {
+    axios
+      .get(`${apiUrl}/orders/quotation-pdf/${order_id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Quotation - ${customer_name} - Order ID ${order_id}.pdf`)
+        document.body.appendChild(link)
+        link.click()
+      })
+      .catch((error: any) => {
+        Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
+      })
   }
 
   // Payment Stage
@@ -645,7 +646,9 @@ const DetailQuotationVendor: FC = () => {
 
       <Button
         className='btn-dark-primary d-flex justify-content-center align-items-center mt-5 w-100 gap-3'
-        onClick={generatePdf}
+        onClick={() =>
+          generatePdf(quotationDetail?.order?.id, quotationDetail?.order?.members?.full_name)
+        }
       >
         {loadingPDF === false ? (
           <>
