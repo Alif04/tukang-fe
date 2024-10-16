@@ -11,6 +11,7 @@ import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface Warranty {
   order_id: number | null
+  pic_name: string
   description: string
   complaint_date: string
   complaint_channel: number | null
@@ -27,6 +28,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
   const navigate = useNavigate()
+  const username = localStorage.getItem('username') as string
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -96,6 +98,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
   // Warrany Form
   const [warrantyForm, setWarrantyForm] = useState<Warranty>({
     order_id: null,
+    pic_name: username,
     description: '',
     complaint_date: new Date().toISOString().split('T')[0],
     complaint_channel: null,
@@ -165,6 +168,7 @@ const WarrantyFormClaim: FC<{updatePageTitle: (warranty: any) => void}> = ({upda
       const formData = new FormData()
 
       formData.append('order_id', String(warrantyForm.order_id))
+      formData.append('pic_name', warrantyForm.pic_name)
       formData.append('description', warrantyForm.description)
       formData.append('complaint_date', warrantyForm.complaint_date)
       formData.append('complaint_channel', String(warrantyForm.complaint_channel))

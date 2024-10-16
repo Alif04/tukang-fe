@@ -53,6 +53,10 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
   const userRole = localStorage.getItem('userRole') as string
   const username = localStorage.getItem('username') as string
 
+  // Status
+  const storedStatus = sessionStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
+
   // Complaint Detail
   const [complaintDetail, setComplaintDetail] = useState<any>()
   const [complaintForm, setComplaintForm] = useState<Complaint>({
@@ -84,6 +88,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Complaint Approval
+  const [complaintStatusDone, setComplaintStatusDone] = useState<any>()
   const [complaintStatusApprove, setComplaintStatusApprove] = useState<any>()
   const [complaintStatusCancel, setComplaintStatusCancel] = useState<any>()
 
@@ -153,8 +158,8 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
   // Complaint Status Approve
   useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
-    const statusData = storedStatus ? JSON.parse(storedStatus) : []
+    const desiredStatusDone = statusData.find((status: any) => status.category === 'DONE')
+    const statusDoneId = desiredStatusDone?.value
 
     const desiredStatusApprove = statusData.find(
       (status: any) => status.category === 'COMPLAINTAPPROVEDBYHO'
@@ -166,6 +171,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     )
     const statusCancelId = desiredStatusCancel?.value
 
+    setComplaintStatusDone(statusDoneId)
     setComplaintStatusApprove(statusApproveId)
     setComplaintStatusCancel(statusCancelId)
   }, [complaintStatusApprove, complaintStatusCancel])
@@ -1565,7 +1571,14 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
             )}
           </Skeleton>
 
-          {!['COMPLAINTREJECTEDBYHO'].includes(complaintDetail?.status?.category) && (
+          {![
+            'COMPLAINTREJECTEDBYHO',
+            'DONE',
+            'RESURVEYSTART',
+            'REWORKSTART',
+            'REWORKEND',
+            'RESURVEYDONE',
+          ].includes(complaintDetail?.orders?.status?.category) && (
             <>
               {['Admin HO', 'Super User'].includes(userRole) && (
                 <div className='d-flex justify-content-end align-items-center'>
@@ -1816,7 +1829,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
           {!['Tukang'].includes(userRole) && (
             <>
-              {!['COMPLAINTREJECTEDBYHO'].includes(complaintDetail?.status?.category) && (
+              {!['COMPLAINTREJECTEDBYHO', 'DONE'].includes(complaintDetail?.status?.category) && (
                 <>
                   <hr />
 
@@ -1923,27 +1936,41 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                     </Row>
                   )}
 
-                  <div className='d-flex justify-content-center align-items-center mt-5'>
-                    <Button
-                      variant='dark-danger'
-                      className='d-flex justify-content-center align-items-center'
-                      type='submit'
-                      onClick={handleCancel}
-                      disabled={isLoading}
-                    >
-                      Cancel
-                    </Button>
+                  {['REWORKEND', 'RESURVEYDONE'].includes(
+                    complaintDetail?.orders?.status?.category
+                  ) ? (
+                    <div className='d-flex justify-content-center align-items-center mt-5'>
+                      <Button
+                        className='d-flex justify-content-center align-items-center'
+                        variant='dark-primary'
+                        onClick={() => handleApprovalComplaint(complaintStatusDone)}
+                      >
+                        Selesaikan Komplain
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className='d-flex justify-content-center align-items-center mt-5'>
+                      <Button
+                        variant='dark-danger'
+                        className='d-flex justify-content-center align-items-center'
+                        type='submit'
+                        onClick={handleCancel}
+                        disabled={isLoading}
+                      >
+                        Cancel
+                      </Button>
 
-                    <Button
-                      variant='dark-primary'
-                      className='d-flex justify-content-center align-items-center'
-                      type='submit'
-                      disabled={isLoading}
-                      onClick={handleSubmitNewFeedback}
-                    >
-                      {isLoading ? 'Submitting...' : 'Submit'}
-                    </Button>
-                  </div>
+                      <Button
+                        variant='dark-primary'
+                        className='d-flex justify-content-center align-items-center'
+                        type='submit'
+                        disabled={isLoading}
+                        onClick={handleSubmitNewFeedback}
+                      >
+                        {isLoading ? 'Submitting...' : 'Submit'}
+                      </Button>
+                    </div>
+                  )}
                 </>
               )}
             </>
@@ -1967,6 +1994,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
               </Button>
 
               <Button
+                className='d-flex justify-content-center align-items-center'
                 variant='dark-primary'
                 onClick={() => handleApprovalComplaint(complaintStatusCancel)}
               >
@@ -1984,8 +2012,18 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
                 <Form.Select onChange={(e) => handleInputStatus(e)}>
                   <option selected>Pilih status</option>
-                  <option value='17'>Permintaan Pengerjaan Ulang</option>
-                  <option value='8'>Permintaan Survei Ulang </option>
+
+                  {statusData
+                    .filter((status: any) =>
+                      ['RESURVEYREQ', 'REWORKREQ', 'RESURVEYDONE', 'REWORKEND'].includes(
+                        status.category
+                      )
+                    )
+                    .map((status: any) => (
+                      <option key={status.value} value={status.value}>
+                        {status.description}
+                      </option>
+                    ))}
                 </Form.Select>
               </Form.Group>
 
