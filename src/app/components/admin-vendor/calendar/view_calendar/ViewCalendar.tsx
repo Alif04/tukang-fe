@@ -201,6 +201,7 @@ const ViewCalendarVendor: React.FC = () => {
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses([
     'SURVEYREQ',
+    'TUKANGSURVEY',
     'SURVEYSTART',
     'SURVEYDONE',
     'QUOTEIN',

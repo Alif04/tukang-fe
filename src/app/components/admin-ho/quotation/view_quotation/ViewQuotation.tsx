@@ -439,9 +439,9 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           period_expired: quotationEndDate,
           countdown_to_expired: quotationCountdownText,
           quotation_status: quotationStatus,
-          grand_total: `Rp. ${
-            [parseInt(item?.quotation_grand_total).toLocaleString('id-ID')] ?? 0
-          }`,
+          grand_total: `Rp. ${[
+            parseInt(item?.quotation_grand_total ?? 0).toLocaleString('id-ID'),
+          ]}`,
           receipt_quotation: item.receipt_quotation
             ? item.receipt_quotation
             : 'Quotation belum dibayar',
@@ -547,12 +547,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute(
-          'download',
-          `Quotation ${
-            receipt_quotation === 'UNPAID' ? 'Belum Dibayar' : 'Sudah Dibayar'
-          } - ${customer_name} - Order ID ${order_id}.pdf`
-        )
+        link.setAttribute('download', `Quotation - ${customer_name} - Order ID ${order_id}.pdf`)
         document.body.appendChild(link)
         link.click()
       })

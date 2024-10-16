@@ -1224,9 +1224,9 @@ const ViewOrders: FC = () => {
           setLoadingUpdate(false)
         } else {
           Swal.fire({
-            title: 'Error',
+            title: 'Warning',
             text: response.data.message,
-            icon: 'error',
+            icon: 'warning',
           })
 
           setLoadingUpdate(false)

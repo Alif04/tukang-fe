@@ -139,6 +139,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
   const surveyStatuses = getStatuses([
     'SURVEYREQ',
+    'TUKANGSURVEY',
     'SURVEYSTART',
     'SURVEYDONE',
     'QUOTEIN',

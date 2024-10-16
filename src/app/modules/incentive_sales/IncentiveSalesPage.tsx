@@ -7,6 +7,9 @@ import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderW
 import {CreateIncentive} from './components/CreateIncentive'
 import {UpdateIncentive} from './components/UpdateIncentive'
 import {ListIncentive} from './components/ListIncentive'
+import {ListRequestIncentive} from './components/ListRequestIncentive'
+import {RequestIncentive} from './components/RequestIncentive'
+import {DetailRequestIncentive} from './components/DetailRequestIncentive'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -49,6 +52,39 @@ const IncentiveSalesPage: React.FC = () => {
             <HeaderWrapper className='bg-header-ho' />
             <PageTitle breadcrumbs={orderBreadCrumbs}>DAFTAR INSENTIF SALES</PageTitle>
             <ListIncentive />
+          </>
+        }
+      />
+
+      <Route
+        path='list-request-incentive'
+        element={
+          <>
+            <HeaderWrapper className='bg-header-ho' />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DAFTAR PENGAJUAN INSENTIF SALES</PageTitle>
+            <ListRequestIncentive />
+          </>
+        }
+      />
+
+      <Route
+        path='request-incentive'
+        element={
+          <>
+            <HeaderWrapper className='bg-header-ho' />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>HALAMAN PENGAJUAN INSENTIF SALES</PageTitle>
+            <RequestIncentive />
+          </>
+        }
+      />
+
+      <Route
+        path='detail-request-incentive/:id'
+        element={
+          <>
+            <HeaderWrapper className='bg-header-ho' />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL PENGAJUAN INSENTIF SALES</PageTitle>
+            <DetailRequestIncentive />
           </>
         }
       />

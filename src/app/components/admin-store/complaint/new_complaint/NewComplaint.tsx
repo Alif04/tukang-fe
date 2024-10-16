@@ -585,7 +585,11 @@ const NewComplaintForm: FC = () => {
                       <Col sm='7'>
                         <p className='fs-7'>
                           {!orderDetail?.project_number.startsWith('0')
-                            ? `+62${orderDetail?.members?.whatsapp_number}`
+                            ? `${
+                                orderDetail?.members?.whatsapp_number
+                                  ? `+62 ${orderDetail?.members?.whatsapp_number}`
+                                  : '-'
+                              }`
                             : '-'}
                         </p>
                       </Col>
