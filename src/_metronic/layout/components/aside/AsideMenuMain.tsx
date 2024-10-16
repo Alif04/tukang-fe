@@ -343,8 +343,15 @@ export function AsideMenuMain() {
         />
 
         <AsideMenuItem
+          to='/incentive-sales/list-request-incentive'
+          title='Daftar Pengajuan Insentif'
+          role={['Super User', 'Admin HO', 'Payroll']}
+          hasBullet={true}
+        />
+
+        <AsideMenuItem
           to='/incentive-sales/request-incentive'
-          title='Pengajuan Insentif Sales'
+          title='Pengajuan Insentif'
           role={['Super User', 'Admin HO', 'Payroll']}
           hasBullet={true}
         />

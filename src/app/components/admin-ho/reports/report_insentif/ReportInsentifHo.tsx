@@ -32,6 +32,7 @@ interface SalesItem {
 
 interface DataType {
   incentive_id: number
+  incentive_type: string
   order_id: number
   date_order: Date
   costumer_name: string
@@ -145,6 +146,15 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.sales_comission - b.sales_comission,
     },
     {
+      title: 'Tipe Insentif',
+      dataIndex: 'incentive_type',
+      key: 'incentive_type',
+      align: 'center',
+      width: 135,
+      onFilter: (value, record) => record.incentive_type.includes(String(value)),
+      sorter: (a, b) => a.incentive_type.length - b.incentive_type.length,
+    },
+    {
       title: 'Status Insentif',
       dataIndex: 'status',
       key: 'status',
@@ -211,6 +221,8 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
 
         data = {
           incentive_id: item?.id,
+          incentive_type:
+            item?.quotation?.quotation_special === 0 ? 'Insentif Biasa' : 'Insentif Tahapan',
           order_id: item?.quotation?.order_id,
           date_order: orderDate,
           costumer_name: item?.quotation?.order?.members?.full_name,
