@@ -248,6 +248,9 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               'WORKENDSTEPONE',
               'WORKENDSTEPTWO',
               'WORKENDSTEPTHREE',
+              'REWORKREQ',
+              'REWORKSTART',
+              'REWORKEND',
             ].includes(record.order_status) ? (
               <OverlayTrigger
                 placement='bottom'
