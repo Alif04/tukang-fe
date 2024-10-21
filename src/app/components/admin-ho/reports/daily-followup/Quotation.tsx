@@ -89,8 +89,6 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
   const [reportData, setReportData] = useState<DataType[]>([])
   const [reportGrandTotal, setReportGrandTotal] = useState<any>(0)
 
-  console.log('report grand total', reportGrandTotal)
-
   // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(50)
@@ -209,33 +207,16 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
       setCurrentPage(response?.data?.page ?? 1)
       setTotalOrder(response?.data?.total ?? 0)
 
-      // if (data) {
-      //   setDailyQuotation((prev: any) => ({
-      //     ...prev,
-      //     quotation_follow_up: data?.map((item: any) => ({
-      //       quotation_id: item?.id ?? null,
-      //       follow_up_1: item?.quotation_follow_up[0]?.follow_up_1 === true ? 1 : 0,
-      //       follow_up_2: item?.quotation_follow_up[0]?.follow_up_2 === true ? 1 : 0,
-      //       follow_up_3: item?.quotation_follow_up[0]?.follow_up_3 === true ? 1 : 0,
-      //       description: item?.quotation_follow_up[0]?.description ?? '',
-      //     })),
-      //   }))
-      // }
-
       if (data) {
         setDailyQuotation((prev: any) => ({
           ...prev,
-          quotation_follow_up: data?.map((item: any) => {
-            const lastFollowUp = item?.quotation_follow_up.slice(-1)[0] || {}
-
-            return {
-              quotation_id: item?.id ?? null,
-              follow_up_1: lastFollowUp?.follow_up_1 === true ? 1 : 0,
-              follow_up_2: lastFollowUp?.follow_up_2 === true ? 1 : 0,
-              follow_up_3: lastFollowUp?.follow_up_3 === true ? 1 : 0,
-              description: lastFollowUp?.description ?? '',
-            }
-          }),
+          quotation_follow_up: data?.map((item: any) => ({
+            quotation_id: item?.id ?? null,
+            follow_up_1: item?.quotation_follow_up[0]?.follow_up_1 === true ? 1 : 0,
+            follow_up_2: item?.quotation_follow_up[0]?.follow_up_2 === true ? 1 : 0,
+            follow_up_3: item?.quotation_follow_up[0]?.follow_up_3 === true ? 1 : 0,
+            description: item?.quotation_follow_up[0]?.description ?? '',
+          })),
         }))
       }
 
@@ -330,9 +311,9 @@ const DailyFollowUpQuotation: React.FC<Props> = ({
           follow_up_3: item?.follow_up_3 ?? 0,
           description: item?.description ?? '',
           quotation_status: item?.status?.category ?? '',
-          grand_total: `Rp. ${
-            [parseInt(item?.quotation_grand_total).toLocaleString('id-ID')] ?? 0
-          }`,
+          grand_total: `Rp. ${[
+            parseInt(item?.quotation_grand_total ?? 0).toLocaleString('id-ID'),
+          ]}`,
         }
 
         return data

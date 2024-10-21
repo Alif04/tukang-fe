@@ -889,6 +889,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         'quotation',
         'claim garansi',
         'invoices',
+        'complaints',
       ]
       const urlBase = nonReportEndpoints.includes(endpoint)
         ? `${apiUrl}/${endpoint}`
@@ -945,9 +946,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
             setReportGrandTotal(response?.data?.totalIncentive?._sum?.nominal ?? 0)
             return response?.data?.totalIncentive?._sum?.nominal ?? 0
 
-          // case 'invoices':
-          //   setReportGrandTotal(response?.data?.grandTotalAmount ?? 0)
-          //   return response?.data?.grandTotalAmount ?? 0
+          case 'reschedule':
+            setReportGrandTotal(response?.data?.rescheduleGrandTotal ?? 0)
+            return response?.data?.rescheduleGrandTotal ?? 0
 
           default:
             setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
@@ -973,6 +974,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         'quotation',
         'claim garansi',
         'invoices',
+        'complaints',
       ]
 
       let urlBase = nonReportEndpoints.includes(endpoint)
@@ -1009,7 +1011,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
       setLoadData(false)
 
-      if (endpoint === 'refund') {
+      if (['refund', 'reschedule'].includes(endpoint)) {
         if (response?.data) {
           setCurrentPage(response?.data?.page ?? 1)
           setTotalOrder(response?.data?.takeTotal ?? 0)
@@ -1066,12 +1068,16 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
                   Number(item?.quotation?.[0]?.quotation_grand_total ?? 0)
                 : Number(item?.grand_total ?? 0)
 
+            const phoneNumber = item?.project_number.startsWith('0')
+              ? item?.project_number
+              : `+62${item?.project_number}`
+
             data = {
               order_id: item.id,
               store_name: item?.store?.store_name,
               member_number: item?.members?.whatsapp_number,
               costumer_name: item?.members?.full_name,
-              phone_number: item?.project_number,
+              phone_number: phoneNumber,
               vendor_name: item?.vendor?.company_name ?? '-',
               grand_total: `Rp. ${grandTotal.toLocaleString('id')}`,
               date_order: orderDate,
@@ -1109,10 +1115,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               complaintAge = `${timeDifferenceInMinutes} Menit`
             }
 
-            let phoneNumber =
-              item.orders.members.phone_number !== 'null'
-                ? item.orders.members.phone_number
-                : item.orders.members.whatsapp_number
+            const phoneNumber = item?.orders?.project_number.startsWith('0')
+              ? item.orders?.project_number
+              : `+62${item.orders?.project_number}`
 
             data = {
               complaint_id: item.id,
@@ -1123,11 +1128,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               costumer_name: item.orders.members.full_name,
               phone_number: phoneNumber,
               service_name: item.orders.m_order_details[0].item_name ?? '-',
-              order_status: item.orders.status.category,
-              work_status: item.orders.status.category,
+              order_status: item.orders.status.description,
+              work_status: item.orders.status.description,
               complaint_date: formatDate(complaintDate),
               complaint_age: complaintAge,
-              complaint_status: item.status.category,
+              complaint_status: item.status.description,
             }
 
             return data
@@ -1200,10 +1205,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
             const orderDate = formatDateWithTime(item?.order?.created_at)
 
-            let phoneNumber =
-              item.order.members.phone_number !== 'null'
-                ? item.order.members.phone_number
-                : item.order.members.whatsapp_number
+            const phoneNumber = item?.order?.project_number.startsWith('0')
+              ? item.order?.project_number
+              : `+62${item.order?.project_number}`
 
             let paymentStatus = item.order.receipt_path !== 'null' ? 'PAID' : 'UNPAID'
 
