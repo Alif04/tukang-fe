@@ -530,7 +530,7 @@ const RefundPage: React.FC = () => {
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN GARANSI</PageTitle>
 
             <ReportHO
-              endpoint='complaints'
+              endpoint='orders'
               statusName='WARRANTYCLAIM'
               headerColor='primary'
               title='Laporan Garansi '

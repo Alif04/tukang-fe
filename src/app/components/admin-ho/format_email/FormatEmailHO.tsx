@@ -10,7 +10,7 @@ import Select, {SingleValue} from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import {Form, Button, Row, Col, Card, Accordion} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faCircleInfo} from '@fortawesome/free-solid-svg-icons'
+import {faCircleInfo, faFileImage, faImage} from '@fortawesome/free-solid-svg-icons'
 import {faPlus, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 interface CSI {
@@ -62,7 +62,7 @@ const FormatEmailHO: FC = () => {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  // Emai Type
+  // Email Type
   const getEmailType = async () => {
     try {
       const response = await axios.get(`${apiUrl}/mails/types`, {
@@ -185,6 +185,60 @@ const FormatEmailHO: FC = () => {
       },
     ],
   })
+
+  // File Header & Footer
+  const [headerImage, setHeaderImage] = useState<File | null>(null)
+  const [footerImage, setFooterImage] = useState<File | null>(null)
+  const [images, setImages] = useState<{
+    header: {blob: string; fileName: string}
+    footer: {blob: string; fileName: string}
+  }>({
+    header: {blob: '', fileName: ''},
+    footer: {blob: '', fileName: ''},
+  })
+
+  // Handler File
+  const handleFileChange = (event: any, type: 'header' | 'footer') => {
+    const files = event.target.files
+
+    if (files && files[0]) {
+      if (type === 'header') {
+        setHeaderImage(files[0])
+      } else if (type === 'footer') {
+        setFooterImage(files[0])
+      }
+
+      setImages((prevImages) => ({
+        ...prevImages,
+        [type]: {
+          blob: URL.createObjectURL(files[0]),
+          fileName: files[0].name,
+        },
+      }))
+    }
+  }
+
+  const handleImageHeader = (type: 'header' | 'footer') => {
+    const inputClass = type === 'header' ? '.input-header-image' : '.input-footer-image'
+    const inputField = document.querySelector(inputClass) as HTMLInputElement | null
+
+    if (inputField) {
+      inputField.click()
+    }
+  }
+
+  const handleRemoveFile = (type: 'header' | 'footer') => {
+    setImages((prevImages) => ({
+      ...prevImages,
+      [type]: {blob: '', fileName: ''},
+    }))
+
+    if (type === 'header') {
+      setHeaderImage(null)
+    } else if (type === 'footer') {
+      setFooterImage(null)
+    }
+  }
 
   // Change Select CSI
   useEffect(() => {
@@ -323,26 +377,47 @@ const FormatEmailHO: FC = () => {
     }))
   }, [valueCC, valueBCC])
 
-  // Desctructure Object if the value null or empty string
-  const objectValueCheck = (data: emailLayout) => {
-    let cleanedData: Partial<emailLayout> = {}
-
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        cleanedData[key as keyof emailLayout] = value
-      }
-    })
-
-    return cleanedData
-  }
-
   // Handle Create Email
   const handleCreateEmailMessages = async () => {
     setIsLoading(true)
-    const emailBody = objectValueCheck(emailForm)
+
+    const formData = new FormData()
+
+    formData.append('email_type', String(emailForm.email_type))
+    formData.append('title', emailForm.title)
+    formData.append('trigger_id', String(emailForm.trigger_id))
+    formData.append('cc', emailForm.cc)
+    formData.append('bcc', emailForm.bcc)
+    formData.append('welcome_header', emailForm.welcome_header)
+    formData.append('greetings', emailForm.greetings)
+    formData.append('footer', emailForm.footer)
+    formData.append('is_active', String(emailForm.is_active))
+
+    if (headerImage !== null) {
+      formData.append('header_files', headerImage)
+    }
+
+    if (footerImage !== null) {
+      formData.append('footer_files', footerImage)
+    }
+
+    emailForm.terms_detail.forEach((terms, index) => {
+      if (terms.term !== '') {
+        formData.append(`terms_detail[${index}][term]`, String(terms.term))
+      }
+    })
+
+    emailForm.information_detail.forEach((informations, index) => {
+      if (informations.information !== '') {
+        formData.append(
+          `information_detail[${index}][information]`,
+          String(informations.information)
+        )
+      }
+    })
 
     await axios
-      .post(`${apiUrl}/mails`, emailBody, {
+      .post(`${apiUrl}/mails`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -562,7 +637,7 @@ const FormatEmailHO: FC = () => {
               ))}
             </Form.Group>
 
-            <Form.Group className='header-template mb-4'>
+            <Form.Group className='header-template'>
               <Form.Label className='fs-5'>Detail Informasi :</Form.Label>
 
               {emailForm.information_detail.map((element, index) => (
@@ -603,6 +678,90 @@ const FormatEmailHO: FC = () => {
                   </Col>
                 </Row>
               ))}
+            </Form.Group>
+
+            <Form.Group controlId='formFile'>
+              <Form.Label className='fs-5'>Gambar Header</Form.Label>
+              <Form className='form-input-image' onClick={() => handleImageHeader('header')}>
+                <Form.Control
+                  type='file'
+                  accept='image/*'
+                  className='input-header-image'
+                  hidden
+                  onChange={(e) => handleFileChange(e, 'header')}
+                />
+
+                {images.header.blob ? (
+                  <img
+                    src={images.header.blob}
+                    alt={images.header.fileName}
+                    className='image-preview'
+                  />
+                ) : (
+                  <div className='input-image-text'>
+                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                    <p>Add File</p>
+                  </div>
+                )}
+              </Form>
+
+              <div className='uploaded-row'>
+                <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                <span className='upload-content'>
+                  {images.header.fileName ? images.header.fileName : ''}
+                </span>
+
+                <FontAwesomeIcon
+                  icon={faTrash}
+                  size='sm'
+                  color='#ed2b2a'
+                  style={{cursor: 'pointer'}}
+                  onClick={() => handleRemoveFile('header')}
+                />
+              </div>
+            </Form.Group>
+
+            <Form.Group controlId='formFile'>
+              <Form.Label className='fs-5'>Gambar Footer</Form.Label>
+              <Form className='form-input-image' onClick={() => handleImageHeader('footer')}>
+                <Form.Control
+                  type='file'
+                  accept='image/*'
+                  className='input-footer-image'
+                  hidden
+                  onChange={(e) => handleFileChange(e, 'footer')}
+                />
+
+                {images.footer.blob ? (
+                  <img
+                    src={images.footer.blob}
+                    alt={images.footer.fileName}
+                    className='image-preview'
+                  />
+                ) : (
+                  <div className='input-image-text'>
+                    <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                    <p>Add File</p>
+                  </div>
+                )}
+              </Form>
+
+              <div className='uploaded-row'>
+                <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                <span className='upload-content'>
+                  {images.footer.fileName ? images.footer.fileName : ''}
+                </span>
+
+                <FontAwesomeIcon
+                  icon={faTrash}
+                  size='sm'
+                  color='#ed2b2a'
+                  style={{cursor: 'pointer'}}
+                  onClick={() => handleRemoveFile('footer')}
+                />
+              </div>
             </Form.Group>
 
             <Form.Group className='header-template mb-4'>

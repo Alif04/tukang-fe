@@ -298,7 +298,7 @@ const ViewInvoiceHO: FC = () => {
   ]
 
   const getInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
-    const statuses = ['Finance'].includes(userRole) ? '&invoice_status=5,6' : ''
+    const statuses = ['Finance'].includes(userRole) ? '&status=5,6' : ''
     const url = `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}${queryparams}${statuses}`
 
     const response = await axios.get(url, {

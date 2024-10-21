@@ -165,6 +165,9 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
     'WORKENDSTEPONE',
     'WORKENDSTEPTWO',
     'WORKENDSTEPTHREE',
+    'REWORKREQ',
+    'REWORKSTART',
+    'REWORKEND',
   ])
 
   const orderHistory = [
@@ -1673,7 +1676,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                   <Steps
                     className='complaint-history-timeline'
                     current={complaintHistory.findIndex((step) =>
-                      step.value.includes(order?.complaints?.[0]?.complaint_status ?? 0)
+                      step.value.includes(
+                        order?.work_orders?.work_order_status.length > 0
+                          ? order?.work_orders?.work_order_status[0]?.status?.id
+                          : order?.project_status_id
+                      )
                     )}
                     labelPlacement='vertical'
                     items={complaintHistory}

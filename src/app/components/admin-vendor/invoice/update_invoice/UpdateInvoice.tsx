@@ -1,12 +1,11 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
 import {useParams, useNavigate} from 'react-router-dom'
+import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 import './UpdateInvoice.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 import {Image} from 'antd'
 import {Form, ListGroup, Table, Row, Col, Card, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -250,30 +249,50 @@ const UpdateInvoiceVendor: FC = () => {
     }
   }
 
-  const generatePdf = async () => {
+  const generatePDFVendor = () => {
     setLoadingPDF(true)
-    const input = pdfRef.current
-    if (input) {
-      const canvas = await html2canvas(input)
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF('p', 'mm', 'a4')
-      const imgProps = pdf.getImageProperties(imgData)
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+    axios
+      .get(`${apiUrl}/invoices/pdf/${params.id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Invoice PDF.pdf`)
+        document.body.appendChild(link)
+        link.click()
+      })
+      .finally(() => {
+        setLoadingPDF(false)
+      })
+  }
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(
-        `Invoice - ${invoiceDetail?.id} - ${new Date(invoiceDetail?.created_at).toLocaleDateString(
-          'id-ID',
-          {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }
-        )}.pdf`
-      )
-    }
-    setLoadingPDF(false)
+  const generatePDFHO = () => {
+    setLoadingPDF(true)
+    axios
+      .get(`${apiUrl}/invoices/rekonsel-pdf/${params.id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Invoice PDF.pdf`)
+        document.body.appendChild(link)
+        link.click()
+      })
+      .finally(() => {
+        setLoadingPDF(false)
+      })
   }
 
   // Export Template Excel
@@ -293,6 +312,32 @@ const UpdateInvoiceVendor: FC = () => {
         const link = document.createElement('a')
         link.href = url
         link.setAttribute('download', `Invoice.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        setLoadingTemplate(false)
+      })
+  }
+
+  const exportTemplateRekonsel = () => {
+    setLoadingTemplate(true)
+
+    axios
+      .get(`${apiUrl}/invoices/${params.id}/rekonsel/export-excel`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute(
+          'download',
+          `Rekonsel Invoice ID ${params.id} ${formatDateWithTime(new Date())}.xlsx`
+        )
         document.body.appendChild(link)
         link.click()
 
@@ -585,7 +630,11 @@ const UpdateInvoiceVendor: FC = () => {
         <Button
           className='btn-dark-success d-flex justify-content-center align-items-center w-100 gap-3 m-0'
           disabled={loadingPDF}
-          onClick={() => exportTemplate()}
+          onClick={() =>
+            ['Owner Vendor', 'Admin Vendor'].includes(userRole)
+              ? exportTemplate()
+              : exportTemplateRekonsel()
+          }
         >
           {loadingTemplate === false ? (
             <>
@@ -597,19 +646,25 @@ const UpdateInvoiceVendor: FC = () => {
           )}
         </Button>
 
-        <Button
-          className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3 m-0'
-          onClick={generatePdf}
-        >
-          {loadingPDF === false ? (
-            <>
-              <FontAwesomeIcon icon={faDownload} size='lg' />
-              Download PDF
-            </>
-          ) : (
-            'Generating PDF...'
-          )}
-        </Button>
+        {!['Finance'].includes(userRole) && (
+          <Button
+            className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3 m-0'
+            onClick={() =>
+              ['Owner Vendor', 'Admin Vendor'].includes(userRole)
+                ? generatePDFVendor()
+                : generatePDFHO()
+            }
+          >
+            {loadingPDF === false ? (
+              <>
+                <FontAwesomeIcon icon={faDownload} size='lg' />
+                Download PDF
+              </>
+            ) : (
+              'Generating PDF...'
+            )}
+          </Button>
+        )}
       </div>
     </section>
   )

@@ -1145,7 +1145,10 @@ const ViewCalendarHO: React.FC = () => {
                     className='complaint-history-timeline'
                     current={complaintHistory.findIndex((step) =>
                       step.value.includes(
-                        selectedOrder?.order_detail?.complaints?.[0]?.complaint_status ?? 0
+                        selectedOrder?.order_detail?.work_orders?.work_order_status.length > 0
+                          ? selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.status
+                              ?.id
+                          : selectedOrder?.order_detail?.project_status_id
                       )
                     )}
                     labelPlacement='vertical'
