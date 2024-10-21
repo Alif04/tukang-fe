@@ -175,7 +175,7 @@ const DetailOrderWithoutAuth = () => {
           setIsLoadingPage(false)
 
           if (data?.order_history) {
-            const orderHistory = data?.order_history.map((item: any) => ({
+            const orderHistory = data?.order_history?.map((item: any) => ({
               order_id: item.order_id,
               order_status: item?.status?.description,
               updated_by: item?.created_at?.username,
@@ -287,6 +287,9 @@ const DetailOrderWithoutAuth = () => {
     'WORKENDSTEPONE',
     'WORKENDSTEPTWO',
     'WORKENDSTEPTHREE',
+    'REWORKREQ',
+    'REWORKSTART',
+    'REWORKEND',
   ])
 
   const orderHistory = [
@@ -502,9 +505,7 @@ const DetailOrderWithoutAuth = () => {
               </div>
             )}
 
-            <div className='d-flex align-items-stretch flex-shrink-0'>
-              <Topbar />
-            </div>
+            <div className='d-flex align-items-stretch flex-shrink-0'>{/* <Topbar /> */}</div>
           </div>
         </div>
       </div>
@@ -1810,7 +1811,7 @@ const DetailOrderWithoutAuth = () => {
                 <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
                   <Form.Label className='mt-3'>Bukti Komplain :</Form.Label>
                   <ListGroup>
-                    {order?.complaints?.[0]?.complaint_histories[0]?.complaint_evidence?.map(
+                    {order?.complaints?.[0]?.complaint_histories?.[0]?.complaint_evidence?.map(
                       (item: any) => (
                         <ListGroup.Item
                           key={item.id}
@@ -1878,7 +1879,11 @@ const DetailOrderWithoutAuth = () => {
                       <Steps
                         className='complaint-history-timeline'
                         current={complaintHistory.findIndex((step) =>
-                          step.value.includes(order?.complaints?.[0]?.complaint_status ?? 0)
+                          step.value.includes(
+                            order?.work_orders?.work_order_status.length > 0
+                              ? order?.work_orders?.work_order_status[0]?.status?.id
+                              : order?.project_status_id
+                          )
                         )}
                         labelPlacement='vertical'
                         items={complaintHistory}
