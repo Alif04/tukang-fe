@@ -187,7 +187,7 @@ const NewInvoiceVendor: FC = () => {
 
   const getOrders = async (queryparams: any) => {
     const urlWork = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&status=${workStatuses}${queryparams}`
-    const urlWorkStep = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${workStepStatuses}${queryparams}`
+    // const urlWorkStep = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${workStepStatuses}${queryparams}`
     const urlSurvey = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${surveyStatuses}${queryparams}`
 
     try {
@@ -198,15 +198,15 @@ const NewInvoiceVendor: FC = () => {
         'ngrok-skip-browser-warning': 'true',
       }
 
-      const [workOrders, workStepOrders, surveyOrders] = await Promise.all([
+      const [workOrders, surveyOrders] = await Promise.all([
         getAllData(urlWork, headers),
-        getAllData(urlWorkStep, headers),
+        // getAllData(urlWorkStep, headers),
         getAllData(urlSurvey, headers),
       ])
 
       setLoadData(false)
 
-      return {workOrders, workStepOrders, surveyOrders}
+      return {workOrders, surveyOrders}
     } catch (error) {
       console.error('Error fetching orders:', error)
       throw error
@@ -215,9 +215,9 @@ const NewInvoiceVendor: FC = () => {
 
   const ViewWorkOrder = async (queryparams: any) => {
     try {
-      const {workOrders, workStepOrders, surveyOrders} = await getOrders(queryparams)
+      const {workOrders, surveyOrders} = await getOrders(queryparams)
 
-      if (!workOrders && !surveyOrders && !workStepOrders) {
+      if (!workOrders && !surveyOrders) {
         console.error('No data received from getOrders')
         return []
       }
@@ -247,41 +247,41 @@ const NewInvoiceVendor: FC = () => {
           }
         })
 
-      const workStepData = workStepOrders
-        .filter((x) => {
-          const orderHistoryExists = x.order_history.length >= 1
-          const noInvoiceExists = x.invoice_details.length === 0
-          const lastInvoice = x.invoice_details.slice(-1)[0]
-          const invoiceTypes = [3, 4, 5]
+      // const workStepData = workStepOrders
+      //   .filter((x) => {
+      //     const orderHistoryExists = x.order_history.length >= 1
+      //     const noInvoiceExists = x.invoice_details.length === 0
+      //     const lastInvoice = x.invoice_details.slice(-1)[0]
+      //     const invoiceTypes = [3, 4, 5]
 
-          const hasInvoiceType = (type: number) =>
-            x.invoice_details.some((invoice: any) => invoice.type !== type)
+      //     const hasInvoiceType = (type: number) =>
+      //       x.invoice_details.some((invoice: any) => invoice.type !== type)
 
-          const hasInvoiceRejected = (type: number) =>
-            lastInvoice?.type === type && lastInvoice?.invoices?.status === 3
+      //     const hasInvoiceRejected = (type: number) =>
+      //       lastInvoice?.type === type && lastInvoice?.invoices?.status === 3
 
-          const hasAnyInvoiceRejected = invoiceTypes.some(hasInvoiceRejected)
-          const hasAnyInvoiceType = invoiceTypes.some(hasInvoiceType)
+      //     const hasAnyInvoiceRejected = invoiceTypes.some(hasInvoiceRejected)
+      //     const hasAnyInvoiceType = invoiceTypes.some(hasInvoiceType)
 
-          return (orderHistoryExists && noInvoiceExists) || hasAnyInvoiceRejected
-        })
-        .map((item: any, index: number) => {
-          const orderDate = formatDateWithTime(item?.created_at)
-          const workStepHistory = item?.order_history?.find((x: any) =>
-            ['WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(x.status.category)
-          )
+      //     return (orderHistoryExists && noInvoiceExists) || hasAnyInvoiceRejected
+      //   })
+      //   .map((item: any, index: number) => {
+      //     const orderDate = formatDateWithTime(item?.created_at)
+      //     const workStepHistory = item?.order_history?.find((x: any) =>
+      //       ['WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(x.status.category)
+      //     )
 
-          return {
-            _key: workOrders.length + index + 1,
-            order_id: item?.id,
-            store_name: item?.store?.store_name,
-            date_order: orderDate,
-            member_name: item?.members?.full_name,
-            order_type: 'Pengerjaan Tahapan',
-            order_status: workStepHistory ? workStepHistory.status.category : null,
-            order_status_label: workStepHistory ? workStepHistory.status.description : null,
-          }
-        })
+      //     return {
+      //       _key: workOrders.length + index + 1,
+      //       order_id: item?.id,
+      //       store_name: item?.store?.store_name,
+      //       date_order: orderDate,
+      //       member_name: item?.members?.full_name,
+      //       order_type: 'Pengerjaan Tahapan',
+      //       order_status: workStepHistory ? workStepHistory.status.category : null,
+      //       order_status_label: workStepHistory ? workStepHistory.status.description : null,
+      //     }
+      //   })
 
       const surveyOrderData = surveyOrders
         .filter((x) => {
@@ -301,7 +301,7 @@ const NewInvoiceVendor: FC = () => {
           )
 
           return {
-            _key: workOrders.length + workStepOrders.length + index + 1,
+            _key: workOrders.length + index + 1,
             order_id: item?.id,
             store_name: item?.store?.store_name,
             date_order: orderDate,
@@ -312,7 +312,7 @@ const NewInvoiceVendor: FC = () => {
           }
         })
 
-      const data = [...workOrderData, ...surveyOrderData, ...workStepData]
+      const data = [...workOrderData, ...surveyOrderData]
       return data
     } catch (error) {
       console.error('Error getting work order list data:', error)

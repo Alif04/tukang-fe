@@ -110,7 +110,7 @@ const DetailRequestIncentiveHO: FC = () => {
   const generatePDF = () => {
     setLoadingPDF(true)
     axios
-      .get(`${apiUrl}/invoices/pdf/${params.id}`, {
+      .get(`${apiUrl}/comission-sales-incentive/${params.id}/pdf`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -123,7 +123,7 @@ const DetailRequestIncentiveHO: FC = () => {
         link.href = url
         link.setAttribute(
           'download',
-          `Insentif ID ${params.id} ${formatDateWithTime(new Date())}.pdf`
+          `Insentif ID ${params.id} - ${formatDateWithTime(new Date())}.pdf`
         )
         document.body.appendChild(link)
         link.click()
@@ -138,7 +138,7 @@ const DetailRequestIncentiveHO: FC = () => {
     setLoadingTemplate(true)
 
     axios
-      .get(`${apiUrl}/invoices/${params.id}/rekonsel/export-excel`, {
+      .get(`${apiUrl}/comission-sales-incentive/${params.id}/export-excel`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -151,7 +151,7 @@ const DetailRequestIncentiveHO: FC = () => {
         link.href = url
         link.setAttribute(
           'download',
-          `Pengajuan Insentif ID ${params.id} ${formatDateWithTime(new Date())}.xlsx`
+          `Pengajuan Insentif ID ${params.id} - ${formatDateWithTime(new Date())}.xlsx`
         )
         document.body.appendChild(link)
         link.click()
@@ -193,7 +193,7 @@ const DetailRequestIncentiveHO: FC = () => {
                   <th className='text-center'>Nomor Receipt</th>
                   <th className='text-center'>Nama Sales</th>
                   <th className='text-center'>Nama Bank</th>
-                  <th className='text-center'>Nama Akun</th>
+                  <th className='text-center'>Nomor Akun</th>
                   <th className='text-center'>Total Insentif</th>
                 </tr>
               </thead>
@@ -216,7 +216,7 @@ const DetailRequestIncentiveHO: FC = () => {
                     </td>
                     <td>{item?.sales?.full_name}</td>
                     <td>{item?.sales?.bank?.bank_name}</td>
-                    <td>{item?.sales?.bank?.account_number}</td>
+                    <td>{item?.sales?.account_number}</td>
                     <td>{`Rp. ${parseInt(item?.nominal).toLocaleString('id')}`}</td>
                   </tr>
                 ))}

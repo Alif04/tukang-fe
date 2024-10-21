@@ -110,36 +110,33 @@ const DetailInvoiceVendor: FC = () => {
     return `${formatDate(lastMonth)} - ${formatDate(now)} ${now.getFullYear()}`
   }
 
-  const generatePdf = async () => {
+  const generatePDFVendor = () => {
     setLoadingPDF(true)
-    const input = pdfRef.current
-    if (input) {
-      const canvas = await html2canvas(input)
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF('p', 'mm', 'a4')
-      const imgProps = pdf.getImageProperties(imgData)
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
-
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(
-        `Invoice - ${invoiceDetail?.id} - ${new Date(invoiceDetail?.created_at).toLocaleDateString(
-          'id-ID',
-          {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }
-        )}.pdf`
-      )
-    }
-    setLoadingPDF(false)
+    axios
+      .get(`${apiUrl}/invoices/pdf/${params.id}`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Invoice PDF.pdf`)
+        document.body.appendChild(link)
+        link.click()
+      })
+      .finally(() => {
+        setLoadingPDF(false)
+      })
   }
 
   const generatePDFHO = () => {
     setLoadingPDF(true)
     axios
-      .get(`${apiUrl}/invoices/pdf/${params.id}`, {
+      .get(`${apiUrl}/invoices/rekonsel-pdf/${params.id}`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -519,7 +516,9 @@ const DetailInvoiceVendor: FC = () => {
           <Button
             className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3 m-0'
             onClick={() =>
-              ['Owner Vendor', 'Admin Vendor'].includes(userRole) ? generatePdf() : generatePDFHO()
+              ['Owner Vendor', 'Admin Vendor'].includes(userRole)
+                ? generatePDFVendor()
+                : generatePDFHO()
             }
           >
             {loadingPDF === false ? (
