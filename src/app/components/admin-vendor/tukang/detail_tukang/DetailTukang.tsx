@@ -10,7 +10,7 @@ import {Table, Tag, PaginationProps, Spin, Pagination, Image, Rate} from 'antd'
 import {Form, Row, Col, Tabs, Tab, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleUser, faUser} from '@fortawesome/free-solid-svg-icons'
-import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDate, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 interface DataTypeOrder {
   number: number
@@ -261,7 +261,7 @@ const DetailTukangVendor: FC = () => {
       const workOrderData = apiData.map((item: any, index: number) => {
         let data
 
-        const orderDate = formatDateWithTime(item?.created_at)
+        const orderDate = formatDateWithTimeZone(item?.created_at)
 
         data = {
           number: index + 1,

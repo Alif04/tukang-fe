@@ -4,7 +4,6 @@ import {useNavigate} from 'react-router-dom'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import Select from 'react-select'
 import {Table, DatePicker, PaginationProps, Spin, Pagination, Skeleton, Image} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {
@@ -89,17 +88,6 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
         id: null,
       },
     ],
-  })
-
-  console.log('incentiveGroup', incentiveGroup)
-
-  // Store
-  const [store, setStore] = useState<StoreItem[]>([])
-  const storeOptions = [{value: null, label: 'All Store', area_id: null}, ...store]
-  const [selectedStore, setSelectedStore] = useState<any>({
-    value: null,
-    label: 'All Store',
-    area_id: null,
   })
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -364,39 +352,8 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
     setIncentiveData(data)
   }
 
-  const getStore = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/stores?take=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempStore = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.store_name,
-          area_id: item.area_id,
-        }))
-
-        setStore(tempStore)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   useEffect(() => {
     fetchData(1, 10, '')
-  }, [])
-
-  useEffect(() => {
-    getStore()
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -414,18 +371,13 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
     setLoadingExport(true)
 
     axios
-      .get(
-        `${apiUrl}/sales/export-excel-template?take=0${
-          selectedStore?.value ? `&store_id=${selectedStore.value}` : ''
-        }`,
-        {
-          method: 'GET',
-          responseType: 'blob',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          },
-        }
-      )
+      .get(`${apiUrl}/comission-sales-incentive/export-excel?take=0`, {
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
@@ -452,7 +404,6 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
     valueCheck(`&date_from=`, dateFrom)
     valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
-    valueCheck(`&store_id=`, selectedStore.value)
 
     const data = await ViewIncentive(1, 10, queryparams)
     setIncentiveData(data)
@@ -852,38 +803,6 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
               </div>
             </Col>
           </Row>
-
-          <Row className='table-head-wrapper-bottom mb-4'>
-            <Col xs={12} md={12} lg={12} xl={2} xxl={2} className='d-flex align-items-center'>
-              <h3 className='fs-3 fw-bold w-100'>Filter By : </h3>
-            </Col>
-
-            <Col
-              xs={12}
-              md={12}
-              lg={12}
-              xl={10}
-              xxl={10}
-              className='d-flex align-items-center gap-2'
-            >
-              <h3 className='fs-5 fw-normal'>Store</h3>
-
-              <Select
-                name='sales_id'
-                className='form-control p-0 w-100'
-                classNamePrefix='select'
-                placeholder='Pilih Sales'
-                isSearchable={true}
-                options={storeOptions}
-                value={selectedStore}
-                onChange={(newValue) => setSelectedStore(newValue)}
-              />
-            </Col>
-          </Row>
-
-          <div className='total-order'>
-            <p className='fs-5'>Total order : {totalData}</p>
-          </div>
 
           <Spin
             tip='Loading...'

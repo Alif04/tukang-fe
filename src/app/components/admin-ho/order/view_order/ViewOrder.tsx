@@ -52,7 +52,7 @@ import {
   faEnvelope,
   faPrint,
 } from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -770,7 +770,7 @@ const ViewOrders: FC = () => {
           ? item.project_number
           : `+62${item.project_number}`
 
-        const orderDate = formatDateWithTime(item?.created_at)
+        const orderDate = formatDateWithTimeZone(item?.created_at)
 
         const paymentReceipt = (() => {
           if (item?.payment_type === 'survey') {
@@ -1359,7 +1359,7 @@ const ViewOrders: FC = () => {
                       mailLogs.map((item: any, index: number) => (
                         <tr key={`${index} - email_log`}>
                           <td>{item?.emailMessages?.title || 'No Title'}</td>
-                          <td>{formatDateWithTime(item?.createdAt)}</td>
+                          <td>{formatDateWithTimeZone(item?.createdAt)}</td>
                         </tr>
                       ))
                     ) : (

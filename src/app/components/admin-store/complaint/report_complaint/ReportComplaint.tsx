@@ -11,7 +11,7 @@ import {Card, Row, Col, Button} from 'react-bootstrap'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -158,9 +158,9 @@ const ReportComplaintPage: FC = () => {
       const complaintData = apiData.map((item: any) => {
         let data
 
-        const orderDate = formatDateWithTime(item?.orders?.created_at)
+        const orderDate = formatDateWithTimeZone(item?.orders?.created_at)
 
-        const complaintDate = formatDateWithTime(item?.created_at)
+        const complaintDate = formatDateWithTimeZone(item?.created_at)
 
         const phoneNumber = item?.orders?.project_number.startsWith('0')
           ? item?.orders?.project_number

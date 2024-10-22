@@ -12,7 +12,7 @@ import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {Form, FormGroup, Row, Button, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch} from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDate, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -233,7 +233,7 @@ const NewInvoiceVendor: FC = () => {
           return noInvoice || hasInvoiceRejected || hasOtherInvoiceType
         })
         .map((item: any, index: number) => {
-          const orderDate = formatDateWithTime(item?.created_at)
+          const orderDate = formatDateWithTimeZone(item?.created_at)
 
           return {
             _key: index + 1,
@@ -266,7 +266,7 @@ const NewInvoiceVendor: FC = () => {
       //     return (orderHistoryExists && noInvoiceExists) || hasAnyInvoiceRejected
       //   })
       //   .map((item: any, index: number) => {
-      //     const orderDate = formatDateWithTime(item?.created_at)
+      //     const orderDate = formatDateWithTimeZone(item?.created_at)
       //     const workStepHistory = item?.order_history?.find((x: any) =>
       //       ['WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(x.status.category)
       //     )
@@ -295,7 +295,7 @@ const NewInvoiceVendor: FC = () => {
           return (orderHistory && noInvoice) || hasInvoiceRejected || hasOtherInvoiceType
         })
         .map((item: any, index: number) => {
-          const orderDate = formatDateWithTime(item?.created_at)
+          const orderDate = formatDateWithTimeZone(item?.created_at)
           const quoteInHistory = item?.order_history?.find(
             (x: any) => x.status.category === 'QUOTEIN'
           )

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {FC, useState, useEffect} from 'react'
 
-import {formatDateWithTime} from '../../../helpers'
+import {formatDateWithTimeZone} from '../../../helpers'
 
 import axios from 'axios'
 import Select, {components} from 'react-select'
@@ -344,7 +344,7 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
                       </div>
 
                       <div className='fs-7 text-dark opacity-75'>
-                        Pada : {formatDateWithTime(item?.created_at)}
+                        Pada : {formatDateWithTimeZone(item?.created_at)}
                       </div>
                     </div>
                   }

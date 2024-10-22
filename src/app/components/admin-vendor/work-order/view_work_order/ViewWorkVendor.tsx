@@ -34,7 +34,7 @@ import {
   faImage,
   faPrint,
 } from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -383,7 +383,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           ? item.project_number
           : `+62${item.project_number}`
 
-        const orderDate = formatDateWithTime(item?.created_at)
+        const orderDate = formatDateWithTimeZone(item?.created_at)
 
         const paymentQuotation = (() => {
           if (item?.quotation?.length) {
