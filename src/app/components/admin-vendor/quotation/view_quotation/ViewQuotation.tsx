@@ -13,7 +13,7 @@ import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
 import {Row, Form, FormGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDate, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -229,7 +229,7 @@ const ViewQuotationVendor: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = formatDateWithTime(item?.order?.created_at)
+        const orderDate = formatDateWithTimeZone(item?.order?.created_at)
 
         const workOrderItems = item?.quotation_details
           .map((service: any) => service.name ?? '-')

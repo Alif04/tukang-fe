@@ -10,7 +10,11 @@ import {Image, Steps, Skeleton} from 'antd'
 import {Row, Col, Form, ListGroup, Button, Card, Modal} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDownload} from '@fortawesome/free-solid-svg-icons'
-import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
+import {
+  formatDate,
+  formatDateWithTime,
+  formatDateWithTimeZone,
+} from '../../../../../_metronic/helpers'
 
 interface Status {
   value: number | null
@@ -93,7 +97,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
               order_status: item?.status?.description,
               updated_by: item?.created_at?.username,
               created_at: item?.created_at
-                ? `${formatDateWithTime(item?.created_at)} ${
+                ? `${formatDateWithTimeZone(item?.created_at)} ${
                     item.created_by ? `oleh ${item?.created_by?.username}` : ''
                   }`
                 : '-',

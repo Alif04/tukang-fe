@@ -10,7 +10,7 @@ import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, Tabs, Tab} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleUser, faUser} from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const DetailCostumerHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -126,7 +126,7 @@ const DetailCostumerHO: FC = () => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = formatDateWithTime(item?.created_at)
+        const orderDate = formatDateWithTimeZone(item?.created_at)
 
         data = {
           number: apiData.indexOf(item) + 1,

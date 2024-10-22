@@ -12,7 +12,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPen, faBook, faSearch} from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -255,7 +255,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       const refundData = apiData.map((item: any) => {
         let data
 
-        const orderDate = formatDateWithTime(item?.created_at)
+        const orderDate = formatDateWithTimeZone(item?.created_at)
 
         const paymentStatus = (() => {
           if (item?.orders?.payment_type === 'survey') {

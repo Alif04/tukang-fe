@@ -11,7 +11,7 @@ import {Row, Col, Form, InputGroup, Button} from 'react-bootstrap'
 import {LoadingOutlined} from '@ant-design/icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch} from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -200,7 +200,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       const orderData = apiData.map((item: any) => {
         let data
 
-        const orderDate = formatDateWithTime(item?.quotation?.created_at)
+        const orderDate = formatDateWithTimeZone(item?.quotation?.created_at)
 
         const statusIncentive = (status: number) => {
           switch (status) {

@@ -8,7 +8,7 @@ import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import {Card, Row, Col, Button} from 'react-bootstrap'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDateTimeZone, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -883,10 +883,10 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           orderData = apiData.map((item: any) => {
             let data
 
-            const orderDate = formatDateWithTime(item?.created_at)
+            const orderDate = formatDateWithTimeZone(item?.created_at)
 
             const invoiceDate = item.invoice_details.length
-              ? formatDateWithTime(
+              ? formatDateWithTimeZone(
                   item?.invoice_details?.[0]?.invoices?.invoice_logs[0]?.created_at
                 )
               : 'Order ini belum ada invoice'
@@ -931,8 +931,8 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           complaintData = apiData.map((item: any) => {
             let data
 
-            const orderDate = formatDateWithTime(item?.orders?.created_at)
-            const complaintDate = formatDateWithTime(item?.created_at)
+            const orderDate = formatDateWithTimeZone(item?.orders?.created_at)
+            const complaintDate = formatDateWithTimeZone(item?.created_at)
 
             const phoneNumber = item?.orders?.project_number.startsWith('0')
               ? item?.orders?.project_number
@@ -984,7 +984,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           quotationData = apiData.map((item: any) => {
             let data
 
-            const orderDate = formatDateWithTime(item?.order?.created_at)
+            const orderDate = formatDateWithTimeZone(item?.order?.created_at)
 
             const workOrderItems = item?.quotation_details
               .map((service: any) => service.name ?? '-')
@@ -1016,7 +1016,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           refundData = apiData.map((item: any) => {
             let data
 
-            const orderDate = formatDateWithTime(item?.orders?.created_at)
+            const orderDate = formatDateWithTimeZone(item?.orders?.created_at)
 
             data = {
               refund_id: item?.id,
@@ -1027,7 +1027,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               member_name: item?.orders?.members?.full_name,
               phone_number: item?.orders?.project_number,
               voucher: item?.voucher ?? '-',
-              penalty_vendor: `Rp. ${parseInt(item?.penalty_nominal).toLocaleString('id')}` ?? 0,
+              penalty_vendor: `Rp. ${parseInt(item?.penalty_nominal ?? 0).toLocaleString('id')}`,
               payment_status_penalty: item?.paid_status === 1 ? 'PAID' : 'UNPAID',
               order_status: item?.status?.description,
             }
@@ -1040,21 +1040,21 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
           rescheduleData = apiData.map((item: any) => {
             let data
 
-            const orderDate = formatDateWithTime(item?.order?.created_at)
+            const orderDate = formatDateWithTimeZone(item?.order?.created_at)
 
             const workDate = item?.order?.work_orders
               ? item?.order.work_orders.work_start_date && item?.order.work_orders.work_end_date
-                ? `${formatDateWithTime(
+                ? `${formatDateWithTimeZone(
                     item?.order?.work_orders?.work_start_date
-                  )} sampai ${formatDateWithTime(item?.order?.work_orders?.work_end_date)} `
+                  )} sampai ${formatDateWithTimeZone(item?.order?.work_orders?.work_end_date)} `
                 : item?.order.work_orders.survey_date
-                ? formatDateWithTime(item?.order?.work_orders?.survey_date)
+                ? formatDateWithTimeZone(item?.order?.work_orders?.survey_date)
                 : 'Tanggal belum dikonfirmasi vendor'
               : 'Tanggal belum dikonfirmasi vendor'
 
             const rescheduleDate = formatDate(item?.reschedule_date)
 
-            const confirmDate = formatDateWithTime(item?.confirm_date)
+            const confirmDate = formatDateWithTimeZone(item?.confirm_date)
 
             const phoneNumber = item?.order?.project_number.startsWith('0')
               ? item?.order?.project_number
@@ -1091,7 +1091,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               ?.map((item: any) => `#${item?.order_id}`)
               .join(', ')
 
-            const invoiceDate = formatDateWithTime(item?.created_at)
+            const invoiceDate = formatDateTimeZone(item?.created_at)
 
             const invoiceStatus = (status: number) => {
               switch (status) {

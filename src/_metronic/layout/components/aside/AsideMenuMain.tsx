@@ -352,7 +352,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/incentive-sales/request-incentive'
           title='Pengajuan Insentif'
-          role={['Super User', 'Admin HO', 'Payroll']}
+          role={['Super User', 'Admin HO']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
