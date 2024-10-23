@@ -371,13 +371,18 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
     setLoadingExport(true)
 
     axios
-      .get(`${apiUrl}/comission-sales-incentive/export-excel?take=0`, {
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      })
+      .get(
+        `${apiUrl}/comission-sales-incentive/export-excel?take=0${
+          dateFrom && dateTo ? `&date_from=${dateFrom}&date_to=${dateTo}` : ''
+        }`,
+        {
+          method: 'GET',
+          responseType: 'blob',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        }
+      )
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')

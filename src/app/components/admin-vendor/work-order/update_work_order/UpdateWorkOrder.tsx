@@ -323,6 +323,10 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           return 'TUKANGWORKSTEPTWO'
         case 'WORKREQSTEPTHREE':
           return 'TUKANGWORKSTEPTHREE'
+        case 'RESURVEYREQ':
+          return 'RETUKANGSURVEY'
+        case 'REWORKREQ':
+          return 'RETUKANGWORK'
         default:
           return null
       }

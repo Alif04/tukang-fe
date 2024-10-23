@@ -32,7 +32,7 @@ const AppRoutes: FC = () => {
       case 'Finance':
         return '/invoice/view-invoice'
       case 'Payroll':
-        return '/incentive-sales/request-incentive'
+        return '/incentive-sales/list-request-incentive'
       default:
         return '/home'
     }
