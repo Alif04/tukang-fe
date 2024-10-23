@@ -553,6 +553,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         case 'SURVEYDONE':
           return 'SURVEYDONE'
         case 'RESURVEYREQ':
+          return 'RETUKANGSURVEY'
+        case 'RETUKANGSURVEY':
           return 'RESURVEYSTART'
         case 'RESURVEYSTART':
           return 'RESURVEYDONE'
@@ -565,6 +567,8 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         case 'WORKSTART':
           return 'WORKEND'
         case 'REWORKREQ':
+          return 'RETUKANGWORK'
+        case 'RETUKANGWORK':
           return 'REWORKSTART'
         case 'REWORKSTART':
           return 'REWORKEND'
