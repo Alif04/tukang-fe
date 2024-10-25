@@ -151,6 +151,12 @@ export function AsideMenuMain() {
           role={['Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor']}
           hasBullet={true}
         />
+        <AsideMenuItem
+          to='/quotation/view-request-discount'
+          title='Daftar Pengajuan Diskon'
+          role={['Admin HO', 'Super User']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
 
       {/* Halaman Pengaduan */}

@@ -494,5 +494,12 @@ export * from './admin-ho/promotion-quotation/update_promotion_quotation/UpdateP
 // List Promotion Quotation
 export * from './admin-ho/promotion-quotation/list_promotion/ListPromotion'
 
+// DISCOUNT QUOTATION
+// Detail Discount Quotation
+export * from './admin-ho/request-discount/detail/DetailRequestDiscount'
+
+// List Discount Quotation
+export * from './admin-ho/request-discount/list/ListRequestDiscount'
+
 // Profile
 export * from './profile/update_profile/UpdateProfile'

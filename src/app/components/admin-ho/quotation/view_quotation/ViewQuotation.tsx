@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 
@@ -10,10 +10,29 @@ import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
-import {Row, Col, Form, FormGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination, Image} from 'antd'
+import {
+  Row,
+  Col,
+  Form,
+  FormGroup,
+  Button,
+  OverlayTrigger,
+  Tooltip,
+  Modal,
+  ListGroup,
+} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faSearch, faPrint} from '@fortawesome/free-solid-svg-icons'
+import {
+  faBook,
+  faPen,
+  faSearch,
+  faPrint,
+  faImage,
+  faFileImage,
+  faTrash,
+  faTicket,
+} from '@fortawesome/free-solid-svg-icons'
 import {
   formatDateTimeZone,
   formatDateWithTime,
@@ -65,6 +84,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadingButton, setLoadingButton] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
@@ -242,6 +262,16 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           navigate(`/quotation/update-quotation/${id}`)
         }
 
+        const handleShowModal = (id: number, type: number) => {
+          const selected = quotationData.find((quotation) => quotation.quotation_id === id)
+
+          if (selected) {
+            setQuotationId(selected.quotation_id)
+            setModalInvoice(true)
+            setModalType(type)
+          }
+        }
+
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>
             <OverlayTrigger
@@ -307,6 +337,20 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
                 }
               >
                 <FontAwesomeIcon className='text-white' icon={faPrint} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
+
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Pengajuan Diskon')}
+            >
+              <Button
+                variant='primary'
+                className='button-verif'
+                onClick={() => handleShowModal(id, 1)}
+              >
+                <FontAwesomeIcon className='text-white' icon={faTicket} fontSize='13px' />
               </Button>
             </OverlayTrigger>
           </div>
@@ -560,6 +604,122 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       })
   }
 
+  // Update Invoice
+  const [quotationId, setQuotationId] = useState<any>()
+  const [invoiceNotes, setInvoiceNotes] = useState<any>()
+  const [discountNominal, setDiscountNominal] = useState<any>()
+
+  // Request Discount
+  const [showModalInvoice, setModalInvoice] = useState(false)
+  const [modalType, setModalType] = useState<number | null>(null)
+  const handleCloseModalInvoice = () => {
+    setModalInvoice(false)
+  }
+
+  const [invoiceEvidence, setInvoiceEvidence] = useState<Array<File | null>>([])
+  const [selectedInvoiceIndex, setSelectedInvoiceIndex] = useState<number | null>(null)
+  const [previewInvoice, setPreviewInvoice] = useState<any>()
+  const [visibleInvoice, setVisibleInvoice] = useState(false)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  // Upload Order File Handler
+  const handleInvoiceEvidenceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const existingFiles = [...invoiceEvidence]
+      const mergedFiles = existingFiles.concat(file)
+
+      const {length: existingFilesLength} = existingFiles
+      const {length: fileListLength} = fileList
+
+      for (let i = 0; i < fileListLength; i++) {
+        mergedFiles[existingFilesLength + i] = fileList.item(i)
+      }
+
+      setInvoiceEvidence(mergedFiles)
+    }
+  }
+
+  // Click Image
+  const handleInvoiceClick = () => {
+    const inputField = document.querySelector('.input-field-invoice') as HTMLInputElement
+    inputField.click()
+  }
+
+  // Handle Remove File
+  const handleRemoveFiles = (index: number) => {
+    const newEvidances = [...invoiceEvidence]
+    newEvidances.splice(index, 1)
+    setInvoiceEvidence(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  // File Click
+  const handleFileInvoice = (index: number) => {
+    setPreviewInvoice(invoiceEvidence[index]?.name)
+    setVisibleInvoice(true)
+    setSelectedInvoiceIndex(index)
+  }
+
+  const handleCreateRequest = async () => {
+    const formData = new FormData()
+
+    formData.append(`quotation_id`, quotationId)
+    formData.append(`status`, String(1))
+    formData.append(`description`, invoiceNotes)
+    formData.append(`promotion_nominal`, discountNominal)
+
+    if (invoiceEvidence?.length) {
+      invoiceEvidence.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`quotation_promotion_evidences`, item, item.name)
+        }
+      })
+    }
+
+    await axios
+      .post(`${apiUrl}/quotation-promotion`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        if (response.data.status === 201 || response.data.status === 200) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Berhasil Melakukan Pengajuan',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            navigate('/quotation/view-request-discount')
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+      })
+      .catch((error) => {
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
+  }
+
   return (
     <section id='view-quotation'>
       <div className={`card ${className}`}>
@@ -665,6 +825,137 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           />
         </div>
       </div>
+
+      {/* Modal Invoice */}
+      <Modal
+        dialogClassName='modal-upload-excel'
+        centered
+        show={showModalInvoice}
+        onHide={handleCloseModalInvoice}
+      >
+        {modalType === 1 && (
+          <>
+            <Modal.Header closeButton>
+              <Modal.Title>Formulir Pengajuan Diskon Konsumen</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+              <Row className='notes mb-5'>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Alasan pengajuan :</Form.Label>
+                  <Form.Control
+                    style={{minHeight: '140px'}}
+                    as='textarea'
+                    onChange={(e) => setInvoiceNotes(e.target.value)}
+                    value={invoiceNotes}
+                  />
+                </Form.Group>
+              </Row>
+
+              <Row className='notes mb-5'>
+                <Form.Group>
+                  <Form.Label className='fs-5 fw-bold'>Nominal Pengajuan Diskon :</Form.Label>
+                  <Form.Control
+                    type='number'
+                    onChange={(e) => setDiscountNominal(e.target.value)}
+                    value={discountNominal}
+                  />
+                </Form.Group>
+              </Row>
+
+              <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
+                <Form.Group>
+                  <Form.Label>Upload File</Form.Label>
+
+                  <Form className='form-input-image' onClick={handleInvoiceClick}>
+                    <Form.Control
+                      type='file'
+                      accept='image/jpeg, image/png'
+                      className='input-field-invoice'
+                      multiple
+                      hidden
+                      id='file-input'
+                      ref={evidenceRef}
+                      onChange={handleInvoiceEvidenceChange}
+                    />
+
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
+                  </Form>
+
+                  <ListGroup className='pt-3'>
+                    {invoiceEvidence.length ? (
+                      invoiceEvidence.map((item: any, index: number) => (
+                        <ListGroup>
+                          <ListGroup.Item
+                            className='d-flex justify-content-between align-items-center'
+                            key={`${item?.name}-${index}-${item?.type}`}
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                            <span
+                              className='upload-content'
+                              style={{cursor: 'pointer'}}
+                              onClick={() => handleFileInvoice(index)}
+                            >
+                              {item?.name}
+                            </span>
+
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleRemoveFiles(index)}
+                            />
+                          </ListGroup.Item>
+
+                          {selectedInvoiceIndex === index && item && (
+                            <Image
+                              key={`${previewInvoice} - ${index}`}
+                              width={200}
+                              style={{display: 'none'}}
+                              src={
+                                item instanceof File
+                                  ? URL.createObjectURL(item)
+                                  : `${apiUrl}/public/quotation-promotion/${previewInvoice}`
+                              }
+                              preview={{
+                                visible: visibleInvoice,
+                                src:
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/quotation-promotion/${previewInvoice}`,
+                                onVisibleChange: (value) => {
+                                  setVisibleInvoice(value)
+                                },
+                              }}
+                            />
+                          )}
+                        </ListGroup>
+                      ))
+                    ) : (
+                      <ListGroup.Item className='d-flex justify-content-center'>
+                        Tidak ada file yang dipilih
+                      </ListGroup.Item>
+                    )}
+                  </ListGroup>
+                </Form.Group>
+              </Row>
+
+              <Button
+                className='d-flex justify-content-center align-items-center w-100 mt-5'
+                onClick={() => handleCreateRequest()}
+                variant='primary'
+              >
+                {isLoading ? 'Submitting..' : 'Submit'}
+              </Button>
+            </Modal.Body>
+          </>
+        )}
+      </Modal>
     </section>
   )
 }
