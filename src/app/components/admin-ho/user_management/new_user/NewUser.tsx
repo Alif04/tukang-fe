@@ -50,7 +50,8 @@ const NewUserHO: FC = () => {
       if (Array.isArray(response.data.data.data)) {
         const tempRoles = response.data.data.data
           .filter(
-            (item: any) => !['Admin Vendor', 'Tukang', 'Employee', 'Member'].includes(item.name)
+            (item: any) =>
+              !['Owner Vendor', 'Admin Vendor', 'Tukang', 'Employee', 'Member'].includes(item.name)
           )
           .map((item: any) => ({
             value: item.id,
@@ -161,6 +162,7 @@ const NewUserHO: FC = () => {
       store_id: null,
       vendor_id: null,
       username: '',
+      email: '',
       password: '',
     })
   }
@@ -352,6 +354,18 @@ const NewUserHO: FC = () => {
               <Form.Control
                 name='username'
                 value={userForm.username}
+                onChange={(e) => userFormHandler(e)}
+              />
+            </Form.Group>
+          </Row>
+
+          <Row className='mb-5'>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Email :</Form.Label>
+
+              <Form.Control
+                name='email'
+                value={userForm.email}
                 onChange={(e) => userFormHandler(e)}
               />
             </Form.Group>

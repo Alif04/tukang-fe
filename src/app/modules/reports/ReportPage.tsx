@@ -531,7 +531,7 @@ const RefundPage: React.FC = () => {
 
             <ReportHO
               endpoint='orders'
-              statusName='WARRANTYCLAIM'
+              statusName='WORKEND'
               headerColor='primary'
               title='Laporan Garansi '
               params=''

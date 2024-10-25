@@ -230,23 +230,28 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 110,
       render: (record: DataType) => {
+        const id = record.order_id
+
         const handleDetailId = () => {
-          const id = record.order_id
           navigate(`/warranty/claim-warranty-form/${id}`)
         }
 
         return (
-          <div className='button-wrapper d-flex justify-content-center gap-3'>
-            <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Claim Garansi')}
-            >
-              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
-                <FontAwesomeIcon className='text-white' icon={faTicket} fontSize={'13px'} />
-              </Button>
-            </OverlayTrigger>
-          </div>
+          <>
+            {!['Garansi Expired'].includes(record.warranty_status) && (
+              <div className='button-wrapper d-flex justify-content-center gap-3'>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Claim Garansi')}
+                >
+                  <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+                    <FontAwesomeIcon className='text-white' icon={faTicket} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
+              </div>
+            )}
+          </>
         )
       },
       fixed: 'right',

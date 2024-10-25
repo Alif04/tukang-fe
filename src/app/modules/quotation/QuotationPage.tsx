@@ -7,6 +7,8 @@ import {ViewQuotation} from './components/ViewQuotation'
 import {NewQuotation} from './components/NewQuotation'
 import {UpdateQuotation} from './components/UpdateQuotation'
 import {DetailQuotation} from './components/DetailQuotation'
+import {ViewRequestDiscount} from './components/ViewRequestDiscount'
+import {DetailRequestDiscount} from './components/DetailRequestDiscount'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -102,6 +104,48 @@ const VendorPage: React.FC = () => {
             )}
             <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL QUOTATION</PageTitle>
             <DetailQuotation />
+          </>
+        }
+      />
+
+      <Route
+        path='view-request-discount'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DAFTAR PENGAJUAN DISKON</PageTitle>
+            <ViewRequestDiscount />
+          </>
+        }
+      />
+
+      <Route
+        path='detail-request-discount/:id'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
+              <>
+                <HeaderWrapper className='bg-header-vendor' />
+              </>
+            ) : (
+              <></>
+            )}
+            <PageTitle breadcrumbs={orderBreadCrumbs}>DETAIL PENGAJUAN DISKON</PageTitle>
+            <DetailRequestDiscount />
           </>
         }
       />

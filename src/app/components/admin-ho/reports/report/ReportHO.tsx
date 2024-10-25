@@ -155,6 +155,15 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           width: 135,
           sorter: (a, b) => a.grand_total - b.grand_total,
         },
+        {
+          title: 'Status',
+          dataIndex: 'status',
+          key: 'status',
+          align: 'left',
+          width: 150,
+          onFilter: (value, record) => record.status.includes(String(value)),
+          sorter: (a, b) => a.status.length - b.status.length,
+        },
       ]
       break
 
@@ -1085,6 +1094,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
               vendor_name: item?.vendor?.company_name ?? '-',
               grand_total: `Rp. ${grandTotal.toLocaleString('id')}`,
               date_order: orderDate,
+              status: item?.status?.description,
             }
 
             return data

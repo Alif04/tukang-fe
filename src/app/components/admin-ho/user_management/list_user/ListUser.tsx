@@ -21,6 +21,7 @@ interface DataType {
   index: number
   id: number
   username: string
+  email: string
   role: string
 }
 
@@ -73,6 +74,15 @@ const ListUserHO: React.FC<Props> = ({className}) => {
       width: 110,
       onFilter: (value, record) => record.username.includes(String(value)),
       sorter: (a, b) => a.username.length - b.username.length,
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      align: 'start',
+      width: 110,
+      onFilter: (value, record) => record.email.includes(String(value)),
+      sorter: (a, b) => a.email.length - b.email.length,
     },
     {
       title: 'Role',
@@ -241,6 +251,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
           index: index + 1,
           id: item.id,
           username: item?.username ?? '-',
+          email: item?.email ?? '-',
           role: item?.roles.name ?? '-',
         }
 

@@ -274,6 +274,15 @@ const PrivateRoutes = () => {
         />
 
         <Route
+          path='request-discount-quotation/*'
+          element={
+            <SuspensedView>
+              <PromotionQuotation />
+            </SuspensedView>
+          }
+        />
+
+        <Route
           path='profile/*'
           element={
             <SuspensedView>
