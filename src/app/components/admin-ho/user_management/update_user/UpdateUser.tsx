@@ -77,7 +77,7 @@ const UpdateUserHO: FC = () => {
                 pic_name: data?.tukang[0]?.name,
                 email: data?.tukang[0]?.email,
               }))
-            } else if (['Admin Vendor'].includes(data?.roles?.name)) {
+            } else if (['Owner Vendor', 'Admin Vendor'].includes(data?.roles?.name)) {
               setUserForm((prev) => ({
                 ...prev,
                 pic_name: data?.pic_vendor[0]?.pic_name,
@@ -120,7 +120,8 @@ const UpdateUserHO: FC = () => {
       if (Array.isArray(response.data.data.data)) {
         const tempRoles = response.data.data.data
           .filter(
-            (item: any) => !['Admin Vendor', 'Tukang', 'Employee', 'Member'].includes(item.name)
+            (item: any) =>
+              !['Owner Vendor', 'Admin Vendor', 'Tukang', 'Employee', 'Member'].includes(item.name)
           )
           .map((item: any) => ({
             value: item.id,
@@ -406,6 +407,18 @@ const UpdateUserHO: FC = () => {
               <Form.Control
                 name='username'
                 value={userForm.username}
+                onChange={(e) => userFormHandler(e)}
+              />
+            </Form.Group>
+          </Row>
+
+          <Row className='mb-5'>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Email :</Form.Label>
+
+              <Form.Control
+                name='email'
+                value={userForm.email}
                 onChange={(e) => userFormHandler(e)}
               />
             </Form.Group>
