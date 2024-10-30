@@ -329,7 +329,7 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
 
         const requestDate = formatDateWithTime(item?.created_at)
 
-        const statusIncentive = (status: number) => {
+        const requestDiscount = (status: number) => {
           switch (status) {
             case 1:
               return 'Pengajuan Diskon'
@@ -347,7 +347,7 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
           quotation_id: item?.quotation_id,
           created_at: requestDate,
           status: item?.status,
-          status_name: statusIncentive(item?.status),
+          status_name: requestDiscount(item?.status),
           total_request: `Rp. ${parseInt(item?.promotion_nominal ?? 0).toLocaleString('id')}`,
           total_amount: `Rp. ${parseInt(item?.quotation?.quotation_grand_total ?? 0).toLocaleString(
             'id'

@@ -3461,10 +3461,6 @@ const ViewOrders: FC = () => {
                     delay={{show: 250, hide: 400}}
                     overlay={renderTooltip('Update Order')}
                   >
-                    {/* <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
-                      <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                    </Button> */}
-
                     <a
                       href={`/order/update-order/${id}`}
                       target='_blank'
@@ -3499,10 +3495,6 @@ const ViewOrders: FC = () => {
                 delay={{show: 250, hide: 400}}
                 overlay={renderTooltip('Update Order')}
               >
-                {/* <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
-                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                </Button> */}
-
                 <a
                   href={`/order/update-order/${id}`}
                   target='_blank'

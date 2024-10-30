@@ -243,7 +243,7 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
         },
       })
 
-      setTotalData(response?.data?.total ?? 0)
+      setTotalData(response?.data?.takeTotal ?? 0)
       setCurrentPage(response?.data?.page ?? 1)
       setLoadData(false)
 
