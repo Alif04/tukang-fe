@@ -349,7 +349,7 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
           created_at: requestDate,
           status: item?.status,
           status_name: requestDiscount(item?.status),
-          total_request: `Rp. ${parseInt(item?.promotion_nominal ?? 0).toLocaleString('id')}`,
+          total_request: `${parseInt(item?.promotion_nominal ?? 0)} %`,
           total_amount: `Rp. ${parseInt(item?.quotation?.quotation_grand_total ?? 0).toLocaleString(
             'id'
           )}`,

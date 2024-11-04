@@ -209,7 +209,7 @@ const RequestIncentiveSales: FC = () => {
   ].filter(Boolean) as ColumnsType<DataType>
 
   const getIncentive = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&status=2&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&status=2&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -328,9 +328,6 @@ const RequestIncentiveSales: FC = () => {
     }
 
     valueCheck(`&search=`, searchFilter)
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
-
     const data = await ViewIncentive(1, 10, queryparams)
     setIncentiveData(data)
 
