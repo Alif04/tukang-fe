@@ -85,6 +85,7 @@ interface VendorItem {
 const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const userRole = sessionStorage.getItem('userRole') as string
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadingButton, setLoadingButton] = useState(false)
@@ -335,7 +336,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            {['QUOTEOUT'].includes(record.order_status) && (
+            {['QUOTEOUT'].includes(record.order_status) && ['Admin HO'].includes(userRole) && (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}

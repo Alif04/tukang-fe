@@ -9,6 +9,7 @@ import {Image} from 'antd'
 import {Modal, ListGroup, Table, Row, Col, Card, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faDownload} from '@fortawesome/free-solid-svg-icons'
+import Swal from 'sweetalert2'
 
 const DetailRequestDiscountHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -16,6 +17,7 @@ const DetailRequestDiscountHO: FC = () => {
   const userRole = localStorage.getItem('userRole') as string
 
   // Loader
+  const [loading, setIsLoading] = useState<boolean>(false)
   const [loadingPDF, setLoadingPDF] = useState<boolean>(false)
   const [loadingTemplate, setLoadingTemplate] = useState<boolean>(false)
 
@@ -161,6 +163,69 @@ const DetailRequestDiscountHO: FC = () => {
       {stage: 'Tahap 2', percentage: '50%', amount: stage2},
       {stage: 'Tahap 3', percentage: '25%', amount: stage3},
     ])
+  }
+
+  // Handle Update Incentive
+  const handleUpdateIncentive = async (id: number, status: number, statusName: string) => {
+    if (id === null) return
+
+    const textConfirmation = `Apakah Anda yakin ingin mengubah status pengajuan ini menjadi ${statusName} ?`
+
+    Swal.fire({
+      title: textConfirmation,
+      icon: 'question',
+      showConfirmButton: true,
+      confirmButtonColor: '#6b9230',
+      showDenyButton: true,
+      confirmButtonText: 'Ya',
+      denyButtonText: 'Tidak',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setIsLoading(true)
+        try {
+          const formData = new FormData()
+          formData.append('status', String(status))
+
+          const response = await axios.post(`${apiUrl}/quotation-promotion/${id}`, formData, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+          if (response.data.status === 200 || response.data.status === 201) {
+            Swal.fire({
+              title: 'Success',
+              text: 'Berhasil mengubah status pengajuan',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              window.location.reload()
+            })
+
+            setIsLoading(false)
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: response.data.message,
+              icon: 'error',
+            })
+            setIsLoading(false)
+          }
+        } catch (error: any) {
+          setIsLoading(false)
+          Swal.fire({
+            title: 'Error',
+            text: error.response?.data?.message,
+            icon: 'error',
+          })
+        }
+      } else {
+        setIsLoading(false)
+      }
+    })
   }
 
   return (
@@ -714,10 +779,28 @@ const DetailRequestDiscountHO: FC = () => {
               </Table>
             </>
           )}
+
+          <div className='button-wrapper d-flex justify-content-center align-items-center gap-3 mt-3'>
+            <Button
+              className='btn-dark-success d-flex justify-content-center align-items-center gap-3 m-0'
+              disabled={loading}
+              onClick={() => handleUpdateIncentive(Number(params.id), 2, 'Pengajuan disetujui')}
+            >
+              {loading ? 'Memuat..' : 'Setujui Pengajuan'}
+            </Button>
+
+            <Button
+              className='btn-dark-danger d-flex justify-content-center align-items-center gap-3 m-0'
+              disabled={loading}
+              onClick={() => handleUpdateIncentive(Number(params.id), 3, 'Pengajuan ditolak')}
+            >
+              {loading ? 'Memuat..' : 'Tolak Pengajuan'}
+            </Button>
+          </div>
         </Card.Body>
       </Card>
 
-      <Card className='mt-5'>
+      {/* <Card className='mt-5'>
         <Card.Header>
           <Card.Title>File Bukti Persetujuan</Card.Title>
         </Card.Header>
@@ -794,38 +877,7 @@ const DetailRequestDiscountHO: FC = () => {
             </Col>
           </Row>
         </Card.Body>
-      </Card>
-
-      <div className='button-wrapper d-flex justify-content-center align-items-center gap-3 mt-3'>
-        <Button
-          className='btn-dark-success d-flex justify-content-center align-items-center w-100 gap-3 m-0'
-          disabled={loadingPDF}
-          onClick={() => exportExcel()}
-        >
-          {loadingTemplate === false ? (
-            <>
-              <FontAwesomeIcon icon={faDownload} size='lg' />
-              Export Excel
-            </>
-          ) : (
-            'Exporting...'
-          )}
-        </Button>
-
-        <Button
-          className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3 m-0'
-          onClick={() => generatePDF()}
-        >
-          {loadingPDF === false ? (
-            <>
-              <FontAwesomeIcon icon={faDownload} size='lg' />
-              Download PDF
-            </>
-          ) : (
-            'Generating PDF...'
-          )}
-        </Button>
-      </div>
+      </Card> */}
     </section>
   )
 }
