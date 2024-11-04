@@ -331,7 +331,7 @@ const RequestIncentiveSales: FC = () => {
     valueCheck(`&date_from=`, dateFrom)
     valueCheck(`&date_to=`, dateTo)
 
-    const data = await getIncentive(1, 10, queryparams)
+    const data = await ViewIncentive(1, 10, queryparams)
     setIncentiveData(data)
 
     setLoadingButton(false)
