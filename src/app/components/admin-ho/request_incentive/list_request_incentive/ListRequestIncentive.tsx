@@ -64,6 +64,7 @@ interface IncentiveGroup {
 const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const userRole = localStorage.getItem('userRole') as string
 
   const [isLoading, setIsLoading] = useState(false)
   const [loadingExport, setLoadingExport] = useState(false)
@@ -179,33 +180,37 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Insentif dibayarkan')}
-            >
-              <Button
-                variant='primary'
-                className='button-verif'
-                onClick={() => handleUpdateIncentive(id, 3, 'Insentif dibayarkan')}
-              >
-                <FontAwesomeIcon className='text-white' icon={faCheckCircle} fontSize='13px' />
-              </Button>
-            </OverlayTrigger>
+            {['Payroll'].includes(userRole) && (
+              <>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Insentif dibayarkan')}
+                >
+                  <Button
+                    variant='primary'
+                    className='button-verif'
+                    onClick={() => handleUpdateIncentive(id, 3, 'Insentif dibayarkan')}
+                  >
+                    <FontAwesomeIcon className='text-white' icon={faCheckCircle} fontSize='13px' />
+                  </Button>
+                </OverlayTrigger>
 
-            <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Insentif ditolak')}
-            >
-              <Button
-                variant='danger'
-                className='button-cancel'
-                onClick={() => handleUpdateIncentive(id, 4, 'Insentif ditolak')}
-              >
-                <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize='13px' />
-              </Button>
-            </OverlayTrigger>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Insentif ditolak')}
+                >
+                  <Button
+                    variant='danger'
+                    className='button-cancel'
+                    onClick={() => handleUpdateIncentive(id, 4, 'Insentif ditolak')}
+                  >
+                    <FontAwesomeIcon className='text-white' icon={faXmarkCircle} fontSize='13px' />
+                  </Button>
+                </OverlayTrigger>
+              </>
+            )}
 
             {[2, 3].includes(record.status_id) ? (
               <OverlayTrigger
