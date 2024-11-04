@@ -815,23 +815,25 @@ const DetailRequestDiscountHO: FC = () => {
             </>
           )}
 
-          <div className='button-wrapper d-flex justify-content-center align-items-center gap-3 mt-3'>
-            <Button
-              className='btn-dark-success d-flex justify-content-center align-items-center gap-3 m-0'
-              disabled={loading}
-              onClick={() => handleUpdateIncentive(Number(params.id), 2, 'Pengajuan disetujui')}
-            >
-              {loading ? 'Memuat..' : 'Setujui Pengajuan'}
-            </Button>
+          {['Super User'].includes(userRole) && ![3].includes(requestDiscountDetail?.status) && (
+            <div className='button-wrapper d-flex justify-content-center align-items-center gap-3 mt-3'>
+              <Button
+                className='btn-dark-success d-flex justify-content-center align-items-center gap-3 m-0'
+                disabled={loading}
+                onClick={() => handleUpdateIncentive(Number(params.id), 2, 'Pengajuan disetujui')}
+              >
+                {loading ? 'Memuat..' : 'Setujui Pengajuan'}
+              </Button>
 
-            <Button
-              className='btn-dark-danger d-flex justify-content-center align-items-center gap-3 m-0'
-              disabled={loading}
-              onClick={() => handleUpdateIncentive(Number(params.id), 3, 'Pengajuan ditolak')}
-            >
-              {loading ? 'Memuat..' : 'Tolak Pengajuan'}
-            </Button>
-          </div>
+              <Button
+                className='btn-dark-danger d-flex justify-content-center align-items-center gap-3 m-0'
+                disabled={loading}
+                onClick={() => handleUpdateIncentive(Number(params.id), 3, 'Pengajuan ditolak')}
+              >
+                {loading ? 'Memuat..' : 'Tolak Pengajuan'}
+              </Button>
+            </div>
+          )}
         </Card.Body>
       </Card>
 
