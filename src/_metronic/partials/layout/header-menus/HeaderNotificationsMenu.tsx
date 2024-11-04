@@ -130,6 +130,18 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
       disabled: (role: string) =>
         ['Owner Vendor', 'Admin Vendor', 'Tukang'].includes(role) ? true : false,
     },
+    COMISSION_SALES_INCENTIVE: {
+      name: 'Pengajuan Insentif',
+      url: () => '/reports/report-insentif',
+      disabled: (role: string) =>
+        ['Owner Vendor', 'Admin Vendor', 'Tukang'].includes(role) ? true : false,
+    },
+    QUOTATION_PROMOTION: {
+      name: 'Promosi Quotation',
+      url: () => '/reports/report-insentif',
+      disabled: (role: string) =>
+        ['Owner Vendor', 'Admin Vendor', 'Tukang'].includes(role) ? true : false,
+    },
   }
 
   const actionMap: {[key: string]: (moduleType: string) => string} = {
@@ -323,8 +335,7 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
                       ) : (
                         <a
                           className='fs-7 text-dark fw-bold'
-                          // href={moduleUrl}
-                          href='#'
+                          href={moduleUrl}
                           style={{maxWidth: '190px'}}
                           onClick={() =>
                             handleSubmitOneData(item.id, item.is_read === false ? true : false)
