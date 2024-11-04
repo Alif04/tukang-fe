@@ -66,6 +66,7 @@ interface IncentiveGroup {
 const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const userRole = localStorage.getItem('userRole')
 
   const [isLoading, setIsLoading] = useState(false)
   const [loadingExport, setLoadingExport] = useState(false)
@@ -160,6 +161,7 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
       align: 'center',
       render: (record) => {
         const id = record.request_discount_id
+        const status = record.status_id
 
         const handleDetailIncentiveGroup = () => {
           navigate(`/quotation/detail-request-discount/${id}`)
@@ -195,7 +197,11 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
                 className='button-detail'
                 onClick={handleDetailIncentiveGroup}
               >
-                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                <FontAwesomeIcon
+                  className='text-white'
+                  icon={userRole === 'Admin HO' ? faBook : faPen}
+                  fontSize={'13px'}
+                />
               </Button>
             </OverlayTrigger>
             {/* 
