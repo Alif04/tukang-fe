@@ -209,7 +209,7 @@ const RequestIncentiveSales: FC = () => {
   ].filter(Boolean) as ColumnsType<DataType>
 
   const getIncentive = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&status=2&page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -328,6 +328,12 @@ const RequestIncentiveSales: FC = () => {
     }
 
     valueCheck(`&search=`, searchFilter)
+    valueCheck(`&date_from=`, dateFrom)
+    valueCheck(`&date_to=`, dateTo)
+
+    const data = await getIncentive(1, 10, queryparams)
+    setIncentiveData(data)
+
     setLoadingButton(false)
   }
 
@@ -496,11 +502,15 @@ const RequestIncentiveSales: FC = () => {
                 </FormGroup>
               </div>
 
-              <Button
+              {/* <Button
                 className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button> */}
+
+              <Button className='btn-dark-primary button-submit m-0' onClick={handleSubmitFilter}>
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
             </div>

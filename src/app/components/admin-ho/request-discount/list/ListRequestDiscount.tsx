@@ -28,6 +28,7 @@ import {
   faFile,
   faCheckCircle,
   faXmarkCircle,
+  faPen,
 } from '@fortawesome/free-solid-svg-icons'
 import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
@@ -194,10 +195,10 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
                 className='button-detail'
                 onClick={handleDetailIncentiveGroup}
               >
-                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
               </Button>
             </OverlayTrigger>
-
+            {/* 
             <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
@@ -242,7 +243,7 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
               </OverlayTrigger>
             ) : (
               <></>
-            )}
+            )} */}
           </div>
         )
       },
