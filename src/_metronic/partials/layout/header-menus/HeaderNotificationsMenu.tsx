@@ -323,7 +323,8 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
                       ) : (
                         <a
                           className='fs-7 text-dark fw-bold'
-                          href={moduleUrl}
+                          // href={moduleUrl}
+                          href='#'
                           style={{maxWidth: '190px'}}
                           onClick={() =>
                             handleSubmitOneData(item.id, item.is_read === false ? true : false)
