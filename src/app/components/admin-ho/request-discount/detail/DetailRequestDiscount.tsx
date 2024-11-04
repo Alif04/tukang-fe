@@ -75,6 +75,7 @@ const DetailRequestDiscountHO: FC = () => {
   }, [])
 
   useEffect(() => {
+    if (!quotationID) return
     getDetailQuotation()
   }, [quotationID])
 
@@ -227,6 +228,45 @@ const DetailRequestDiscountHO: FC = () => {
       }
     })
   }
+
+  // Total Quotation
+  const [totalQuotation, setTotalQuotation] = useState({
+    grandTotalFromVendor: 0,
+    promotionSurvey: 0,
+    grandTotalFromMitra: 0,
+    mitraMargin: 0,
+    nominalMitraMargin: 0,
+    vendorMargin: 0,
+    nominalVendorMargin: 0,
+    requestDiscount: 0,
+    customerPay: 0,
+    margin: 0,
+    marginMitraAfterDiscount: 0,
+  })
+
+  useEffect(() => {
+    setTotalQuotation((prev) => ({
+      ...prev,
+      grandTotalFromVendor: quotationDetail?.quotation_details?.reduce(
+        (total: any, item: any) => total + parseInt(item?.final_price ?? 0),
+        0
+      ),
+      promotionSurvey: parseInt(quotationDetail?.promotion?.promotion ?? 0),
+      grandTotalFromMitra: parseInt(quotationDetail?.quotation_grand_total ?? 0),
+      mitraMargin: 100 - parseInt(quotationDetail?.order_detail?.vendor?.margin_nominal ?? 0),
+      nominalMitraMargin: totalQuotation.grandTotalFromVendor * (totalQuotation.mitraMargin / 100),
+      vendorMargin: parseInt(quotationDetail?.order_detail?.vendor?.margin_nominal ?? 0),
+      nominalVendorMargin:
+        (totalQuotation.grandTotalFromVendor * totalQuotation.vendorMargin) / 100,
+      requestDiscount:
+        totalQuotation.grandTotalFromVendor * (requestDiscountDetail?.promotion_nominal / 100),
+      customerPay: totalQuotation.grandTotalFromMitra - totalQuotation.requestDiscount,
+      margin: totalQuotation.customerPay - totalQuotation.nominalVendorMargin,
+      marginMitraAfterDiscount: Math.ceil(
+        (totalQuotation.margin / totalQuotation.customerPay) * 100
+      ),
+    }))
+  }, [quotationDetail, requestDiscountDetail, totalQuotation])
 
   return (
     <section id='detail-quotation'>
@@ -724,9 +764,7 @@ const DetailRequestDiscountHO: FC = () => {
                     Nominal Pengajuan Diskon
                   </td>
                   <td className=' fw-bolder'>
-                    {`Rp. ${parseInt(requestDiscountDetail?.promotion_nominal).toLocaleString(
-                      'id'
-                    )}`}
+                    {`Rp. ${Number(totalQuotation?.requestDiscount).toLocaleString('id')}`}
                   </td>
                 </tr>
 
@@ -738,10 +776,7 @@ const DetailRequestDiscountHO: FC = () => {
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>
-                    {`Rp. ${(
-                      Number(quotationDetail?.quotation_grand_total || 0) -
-                      Number(requestDiscountDetail?.promotion_nominal || 0)
-                    ).toLocaleString('id')}`}
+                    {`Rp. ${Number(totalQuotation?.customerPay ?? 0).toLocaleString('id')}`}
                   </td>
                 </tr>
               </tbody>

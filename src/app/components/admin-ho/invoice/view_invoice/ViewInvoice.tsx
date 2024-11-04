@@ -299,7 +299,7 @@ const ViewInvoiceHO: FC = () => {
 
   const getInvoiceList = async (page: number, pageSize: number, queryparams: any) => {
     const statuses = ['Finance'].includes(userRole) ? '&status=5,6' : ''
-    const url = `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}${queryparams}${statuses}`
+    const url = `${apiUrl}/invoices?order_by=desc&page=${page}&take=${pageSize}${queryparams}${statuses}&date_from=${dateFrom}&date_to=${dateTo}`
 
     const response = await axios.get(url, {
       headers: {
@@ -401,8 +401,6 @@ const ViewInvoiceHO: FC = () => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
 
     const data = await ViewInvoice(1, 10, queryparams)
@@ -656,13 +654,18 @@ const ViewInvoiceHO: FC = () => {
     setLoadingTemplate(true)
 
     axios
-      .get(`${apiUrl}/invoices/export-excel`, {
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      })
+      .get(
+        `${apiUrl}/invoices/export-excel${userRole === 'Finance' ? `?status=5,6` : ''}${
+          dateFrom ? `&date_from=${dateFrom}` : ''
+        }${dateTo ? `&date_to=${dateTo}` : ''}`,
+        {
+          method: 'GET',
+          responseType: 'blob',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        }
+      )
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
@@ -766,8 +769,8 @@ const ViewInvoiceHO: FC = () => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />
