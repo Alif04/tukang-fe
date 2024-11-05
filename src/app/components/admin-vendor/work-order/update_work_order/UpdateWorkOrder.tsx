@@ -1,6 +1,10 @@
 import React, {useState, useEffect, FC, SetStateAction} from 'react'
 import {WorkOrder, WorkOrderTukang} from '../../../../interfaces/work-order'
-import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
+import {
+  formatDate,
+  formatDateWithTime,
+  formatDateWithTimeZone,
+} from '../../../../../_metronic/helpers'
 
 import './UpdateWorkOrder.css'
 
@@ -128,7 +132,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             const orderHistory = data?.order_history.map((item: any) => {
               return {
                 status: item?.status?.description,
-                created_at: item?.created_at ? formatDateWithTime(item?.created_at) : '-',
+                created_at: item?.created_at ? formatDateWithTimeZone(item?.created_at) : '-',
                 updated_by: item?.created_by?.username,
               }
             })

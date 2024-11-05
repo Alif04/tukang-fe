@@ -85,7 +85,7 @@ interface VendorItem {
 const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const userRole = sessionStorage.getItem('userRole') as string
+  const userRole = localStorage.getItem('userRole') as string
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadingButton, setLoadingButton] = useState(false)

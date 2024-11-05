@@ -7,6 +7,7 @@ import './ViewInvoice.css'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
+import Select, {SingleValue} from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination, Upload, Image} from 'antd'
 import {InboxOutlined} from '@ant-design/icons'
@@ -20,6 +21,7 @@ import {
   Tooltip,
   Modal,
   ListGroup,
+  FormGroup,
 } from 'react-bootstrap'
 import {LoadingOutlined} from '@ant-design/icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -54,6 +56,11 @@ interface Status {
   label: string
 }
 
+interface VendorItem {
+  value: number | null
+  label: string
+}
+
 const ViewInvoiceHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const userRole = localStorage.getItem('userRole') as string
@@ -74,6 +81,14 @@ const ViewInvoiceHO: FC = () => {
   )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
+
+  // Vendor
+  const [vendor, setVendor] = useState<VendorItem[]>([])
+  const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendor]
+  const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorItem>>({
+    value: null,
+    label: 'All Vendor',
+  })
 
   // Status
   const storedStatus = sessionStorage.getItem('statusData')
@@ -380,6 +395,36 @@ const ViewInvoiceHO: FC = () => {
     fetchData(1, 10, '')
   }, [])
 
+  useEffect(() => {
+    const getVendor = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/vendor?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempVendor = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.company_name,
+          }))
+
+          setVendor(tempVendor)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getVendor()
+  }, [])
+
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
       return <a>Prev</a>
@@ -402,6 +447,7 @@ const ViewInvoiceHO: FC = () => {
     }
 
     valueCheck(`&search=`, searchFilter)
+    valueCheck(`&vendor_id=`, selectedVendor?.value)
 
     const data = await ViewInvoice(1, 10, queryparams)
     setInvoiceData(data)
@@ -739,6 +785,12 @@ const ViewInvoiceHO: FC = () => {
     })
   }
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   return (
     <section id='view-invoice'>
       <div className='card'>
@@ -752,15 +804,15 @@ const ViewInvoiceHO: FC = () => {
           </div>
 
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='d-flex mb-2'>
-              <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-3 fw-normal'>Date : </h3>
-              </div>
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+              onKeyDown={handleKeyPress}
+            >
+              <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
 
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range ms-3'
-                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
+                className='date-range'
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -774,33 +826,41 @@ const ViewInvoiceHO: FC = () => {
                   }
                 }}
               />
-            </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
               <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-
+                <FormGroup>
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
-                </InputGroup>
-              </div>
-            </Col>
 
-            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                  <span className='search-icon'>
+                    <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
+                  </span>
+                </FormGroup>
+              </div>
+
+              <Select
+                name='vendor_id'
+                className='form-control w-50 p-0'
+                classNamePrefix='select'
+                placeholder='Pilih Vendor'
+                isSearchable={true}
+                isClearable={true}
+                options={vendorOptions}
+                value={selectedVendor}
+                onChange={(newValue) => setSelectedVendor(newValue)}
+              />
+
               <Button
-                className='btn-dark-primary button-submit'
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-            </Col>
+            </div>
           </Row>
 
           <Spin
