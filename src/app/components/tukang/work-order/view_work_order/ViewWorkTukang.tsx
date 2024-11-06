@@ -234,6 +234,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               'SURVEYSTART',
               'SURVEYDONE',
               'RESURVEYREQ',
+              'RETUKANGSURVEY',
               'RESURVEYSTART',
               'RESURVEYDONE',
               'TUKANGWORK',
@@ -249,6 +250,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               'WORKENDSTEPTWO',
               'WORKENDSTEPTHREE',
               'REWORKREQ',
+              'RETUKANGWORK',
               'REWORKSTART',
               'REWORKEND',
             ].includes(record.order_status) ? (
