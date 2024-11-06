@@ -87,7 +87,7 @@ const DetailRefundCS: FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   LAST ORDER STATUS :{' '}
                   <span className='fs-4 ms-2 fw-bold text-success'>
-                    {refundDetail?.orders?.work_orders?.work_order_status.length > 0
+                    {refundDetail?.orders?.work_orders?.work_order_status?.length > 0
                       ? refundDetail?.orders?.work_orders?.work_order_status[0]?.status?.description
                       : refundDetail?.orders?.status?.description}
                   </span>
