@@ -281,7 +281,7 @@ const DetailRequestIncentiveHO: FC = () => {
                                 key={previewImage}
                                 width='100%'
                                 height='100%'
-                                src={`${apiUrl}/public/comission_sales_incentive/${previewImage}`}
+                                src={`${apiUrl}/public/comission-sales-incentive/${previewImage}`}
                                 style={{border: 'none'}}
                               />
                             </Modal.Body>
@@ -292,10 +292,10 @@ const DetailRequestIncentiveHO: FC = () => {
                           key={previewImage}
                           width={200}
                           style={{display: 'none'}}
-                          src={`${apiUrl}/public/comission_sales_incentive/${previewImage}`}
+                          src={`${apiUrl}/public/comission-sales-incentive/${previewImage}`}
                           preview={{
                             visible: visible,
-                            src: `${apiUrl}/public/comission_sales_incentive/${previewImage}`,
+                            src: `${apiUrl}/public/comission-sales-incentive/${previewImage}`,
                             onVisibleChange: (value) => {
                               setVisible(value)
                             },
@@ -315,7 +315,7 @@ const DetailRequestIncentiveHO: FC = () => {
         </Card.Body>
       </Card>
 
-      <div className='button-wrapper d-flex justify-content-center align-items-center gap-3 mt-3'>
+      <div className='button-wrapper gap-3 mt-3'>
         <Button
           className='btn-dark-success d-flex justify-content-center align-items-center w-100 gap-3 m-0'
           disabled={loadingPDF}
@@ -328,20 +328,6 @@ const DetailRequestIncentiveHO: FC = () => {
             </>
           ) : (
             'Exporting...'
-          )}
-        </Button>
-
-        <Button
-          className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3 m-0'
-          onClick={() => generatePDF()}
-        >
-          {loadingPDF === false ? (
-            <>
-              <FontAwesomeIcon icon={faDownload} size='lg' />
-              Download PDF
-            </>
-          ) : (
-            'Generating PDF...'
           )}
         </Button>
       </div>
