@@ -28,6 +28,7 @@ interface DataType {
   member_id: number
   member_name: string
   phone_number: number
+  vendor_name: string
   payment_status: string
   order_status: string
   refund_status: string
@@ -137,6 +138,15 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.payment_status.length - b.payment_status.length,
     },
     {
+      title: 'Nama Vendor',
+      dataIndex: 'vendor_name',
+      key: 'vendor_name',
+      align: 'center',
+      width: 150,
+      onFilter: (value, record) => record.vendor_name.includes(String(value)),
+      sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+    },
+    {
       title: 'Status Order',
       filters: statusFilters,
       dataIndex: 'order_status',
@@ -234,7 +244,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       })
 
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.takeTotal ?? 0)
+      setTotalData(response?.data?.total ?? 0)
       setLoadData(false)
 
       return response.data.data
@@ -273,6 +283,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
           refund_id: item.id,
           order_id: item.order_id,
           store_name: item?.orders?.store?.store_name,
+          vendor_name: item?.orders?.vendor?.company_name ?? '-',
           date_order: orderDate,
           member_id: item?.orders?.members?.member_number,
           member_name: item?.orders?.members?.full_name,

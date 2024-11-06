@@ -498,13 +498,13 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
       })
     }
 
-    // if (uploadFiles?.length) {
-    //   uploadFiles.forEach((item: any, index: number) => {
-    //     if (item.id) {
-    //       formData.append(`preserve_files[${index}]`, item.id)
-    //     }
-    //   })
-    // }
+    if (uploadFiles?.length) {
+      uploadFiles.forEach((item: any, index: number) => {
+        if (item.id) {
+          formData.append(`preserve_files[${index}]`, item.id)
+        }
+      })
+    }
 
     await axios
       .patch(`${apiUrl}/comission-sales-incentive/${incentiveGroup.id}`, formData, {
@@ -523,6 +523,8 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
+          }).then(() => {
+            window.location.reload()
           })
 
           setLoadingUpdate(false)
@@ -535,8 +537,6 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
 
           setLoadingUpdate(false)
         }
-
-        window.location.reload()
       })
       .catch((error) => {
         setLoadingUpdate(false)
@@ -629,14 +629,14 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
                                 src={
                                   item instanceof File
                                     ? URL.createObjectURL(item)
-                                    : `${apiUrl}/public/invoices/${previewImage}`
+                                    : `${apiUrl}/public/comission-sales-incentive/${previewImage}`
                                 }
                                 preview={{
                                   visible: visible,
                                   src:
                                     item instanceof File
                                       ? URL.createObjectURL(item)
-                                      : `${apiUrl}/public/invoices/${previewImage}`,
+                                      : `${apiUrl}/public/comission-sales-incentive/${previewImage}`,
                                   onVisibleChange: (value) => {
                                     setVisible(value)
                                   },

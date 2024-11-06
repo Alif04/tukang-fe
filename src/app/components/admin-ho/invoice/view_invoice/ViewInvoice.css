@@ -1,4 +1,12 @@
 /* Table */
+#view-invoice .select__control.css-13cymwt-control {
+  height: 45px;
+}
+
+#view-invoice .form-control.p-0.css-b62m3t-container {
+  z-index: 99 !important;
+}
+
 #view-invoice .ant-table-wrapper .ant-table-thead > tr > th {
   color: #ffff;
   font-weight: 500;

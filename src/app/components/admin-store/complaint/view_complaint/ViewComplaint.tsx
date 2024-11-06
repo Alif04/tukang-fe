@@ -54,7 +54,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [dateFrom, setDateFrom] = useState<any>(
-    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+    new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
   )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
