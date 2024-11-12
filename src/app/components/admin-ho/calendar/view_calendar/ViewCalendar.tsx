@@ -7,6 +7,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
 import {MoreLinkContentArg} from '@fullcalendar/core'
+import idLocale from '@fullcalendar/core/locales/id'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -385,6 +386,8 @@ const ViewCalendarHO: React.FC = () => {
           weekends={true}
           events={order}
           eventOrder={''}
+          locale={idLocale}
+          timeZone='Asia/Jakarta'
           datesSet={handleDatesSet}
           eventClick={(info) => handleShowModal(info.event.id)}
           moreLinkContent={renderMoreLink}

@@ -7,6 +7,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
+import idLocale from '@fullcalendar/core/locales/id'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -450,6 +451,8 @@ const ViewCalendarCS: React.FC = () => {
           weekends={true}
           events={order}
           eventOrder={''}
+          locale={idLocale}
+          timeZone='Asia/Jakarta'
           datesSet={handleDatesSet}
           eventClick={(info) => handleShowModal(info.event.id)}
         />

@@ -6,7 +6,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
-import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
+import idLocale from '@fullcalendar/core/locales/id'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -15,6 +15,8 @@ import {Row, Col, Modal, Form, Table, Accordion} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleInfo} from '@fortawesome/free-solid-svg-icons'
 import {LoadingOutlined} from '@ant-design/icons'
+
+import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface Order {
   id: any
@@ -353,6 +355,8 @@ const ViewCalendarVendor: React.FC = () => {
           eventDisplay=''
           weekends={true}
           events={order}
+          locale={idLocale}
+          timeZone='Asia/Jakarta'
           datesSet={handleDatesSet}
           eventClick={(info) => handleShowModal(info.event.id)}
         />

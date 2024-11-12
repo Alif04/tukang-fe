@@ -6,6 +6,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
+import idLocale from '@fullcalendar/core/locales/id'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
@@ -364,6 +365,8 @@ const ViewCalendarTukang: React.FC = () => {
           weekends={true}
           displayEventTime={false}
           eventDisplay=''
+          locale={idLocale}
+          timeZone='Asia/Jakarta'
           events={workOrder}
           datesSet={handleDatesSet}
           eventClick={(info) => handleShowModal(info.event.id)}
