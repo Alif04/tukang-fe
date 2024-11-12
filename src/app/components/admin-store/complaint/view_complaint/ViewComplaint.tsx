@@ -13,7 +13,7 @@ import type {ColumnsType} from 'antd/es/table'
 import {Form, FormGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
+import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -69,16 +69,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  const today = new Date()
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
-
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
-
   const columns: ColumnsType<DataType> = [
     {
       title: 'Complaint ID',
@@ -95,7 +86,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       key: 'order_id',
       align: 'center',
       className: 'text-start',
-      width: 'fit-content',
+      width: 110,
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
@@ -205,7 +196,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       dataIndex: 'complaint_age',
       key: 'complaint_age',
       className: 'col-complaint-date text-start',
-      width: 'fit-content',
+      width: 110,
       onFilter: (value, record) => record.complaint_age.includes(String(value)),
       sorter: (a, b) => a.complaint_age.length - b.complaint_age.length,
     },
@@ -239,7 +230,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     {
       title: 'Action',
       key: 'action',
-      width: 'fit-content',
+      width: 110,
       fixed: 'right',
       render: (record) => {
         const handleDetail = () => {
