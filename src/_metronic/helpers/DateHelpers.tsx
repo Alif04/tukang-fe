@@ -1,5 +1,7 @@
 // Format Date
 export const formatDate = (date: Date | string) => {
+  if (!date) return '-'
+
   const newDate = new Date(date)
 
   // UTC
@@ -11,6 +13,8 @@ export const formatDate = (date: Date | string) => {
 }
 
 export const formatDateTimeZone = (date: Date | string) => {
+  if (!date) return '-'
+
   const newDate = new Date(date)
 
   // Time Zone
@@ -23,6 +27,8 @@ export const formatDateTimeZone = (date: Date | string) => {
 
 // Format Date With Time
 export const formatDateWithTime = (date: Date | string) => {
+  if (!date) return '-'
+
   const newDate = new Date(date)
 
   // UTC
@@ -36,6 +42,8 @@ export const formatDateWithTime = (date: Date | string) => {
 }
 
 export const formatDateWithTimeZone = (date: Date | string) => {
+  if (!date) return '-'
+
   const newDate = new Date(date)
 
   // Time Zone

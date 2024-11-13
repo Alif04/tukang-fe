@@ -11,7 +11,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {Row, Col, Form, ListGroup, Modal, Button, Card} from 'react-bootstrap'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 import {formatDate} from '@fullcalendar/core'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 interface Complaint {
   id: number | null
@@ -22,6 +22,7 @@ interface Complaint {
   complaint_date: string
   complaint_status: number | null
   complaint_type: number
+  crm_type: number
   work_status_update?: number | null
 }
 
@@ -37,6 +38,11 @@ interface Remedial {
 
 interface Position {
   value: string
+  label: string
+}
+
+interface CrmType {
+  value: number | null
   label: string
 }
 
@@ -68,8 +74,16 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     complaint_date: '',
     complaint_status: null,
     complaint_type: 1,
+    crm_type: 1,
     work_status_update: null,
   })
+
+  // CRM Type
+  const [crmType] = useState<CrmType[]>([
+    {value: 1, label: 'Positive'},
+    {value: 2, label: 'Neutral'},
+    {value: 3, label: 'Negative'},
+  ])
 
   // Remedial
   const [feedbackEvidence, setFeedbackEvidence] = useState<Array<File | null>>([])
@@ -139,6 +153,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
             complaint_channel: data?.complaint_channels?.id,
             complaint_date: new Date(data?.complaint_date).toISOString().split('T')[0],
             complaint_type: data?.type,
+            crm_type: data?.crm_type,
             complaint_status: data?.complaint_status,
           })
 
@@ -215,6 +230,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     formData.append('complaint_channel', String(complaintForm.complaint_channel))
     formData.append('complaint_date', complaintForm.complaint_date)
     formData.append('type', complaintForm.complaint_type.toString())
+    formData.append('crm_type', complaintForm.crm_type.toString())
 
     await axios
       .post(`${apiUrl}/complaints/${complaintForm.id}`, formData, {
@@ -271,6 +287,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     formData.append('complaint_channel', String(complaintForm.complaint_channel))
     formData.append('complaint_date', complaintForm.complaint_date)
     formData.append('type', String(complaintForm.complaint_type))
+    formData.append('crm_type', String(complaintForm.crm_type))
     formData.append('complaint_status', complaintStatusApprove)
     formData.append('work_status_update', String(complaintForm.work_status_update))
 
@@ -1645,11 +1662,24 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
                     <Form.Group as={Row} className='detail-info'>
                       <Form.Label column sm='5'>
-                        Tanggal Komplain
+                        Tanggal Komplain Dibuat
                       </Form.Label>
 
                       <Col sm='7'>
                         <p className='fs-7'>: {formatDateWithTime(complaintDetail?.created_at)}</p>
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='5'>
+                        Tanggal Komplain Diterima
+                      </Form.Label>
+
+                      <Col sm='7'>
+                        <p className='fs-7'>
+                          :{' '}
+                          {formatDateWithTimeZone(complaintDetail?.complaint_received_date ?? null)}
+                        </p>
                       </Col>
                     </Form.Group>
 
@@ -1660,6 +1690,20 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
                       <Col sm='7'>
                         <p className='fs-7'>: {complaintDetail?.complaint_channels?.name}</p>
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='5'>
+                        Jenis Pengaduan
+                      </Form.Label>
+
+                      <Col sm='7'>
+                        <p className='fs-7'>
+                          :{' '}
+                          {crmType.find((type) => type.value === complaintDetail?.crm_type)
+                            ?.label ?? '-'}
+                        </p>
                       </Col>
                     </Form.Group>
                   </Skeleton>

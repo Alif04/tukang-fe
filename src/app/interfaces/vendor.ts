@@ -4,4 +4,5 @@ export interface Vendor {
   company_name: string
   address: string
   phone_number: string
+  type?: number
 }

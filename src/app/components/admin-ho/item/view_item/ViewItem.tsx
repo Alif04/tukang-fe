@@ -24,6 +24,7 @@ interface DataType {
   service_name: string
   default_price: number
   min_order: number
+  is_active: boolean
 }
 
 interface StoreItem {
@@ -117,27 +118,32 @@ const ViewItemHO: React.FC = () => {
       sorter: (a, b) => a.min_order - b.min_order,
     },
     {
+      title: 'Status Item',
+      dataIndex: 'is_active',
+      key: 'is_active',
+      align: 'center',
+      width: 100,
+    },
+    {
       title: 'Action',
       key: 'action',
       align: 'center',
       fixed: 'right',
       width: 100,
       render: (record) => {
+        const id = record.material_id
+
         const handleUpdate = () => {
-          const id = record.material_id
           navigate(`/item/update-item/${id}`)
         }
 
         const handleDetail = () => {
-          const id = record.material_id
           navigate(`/item/detail-item/${id}`)
         }
 
         const handleDeleteId = () => {
-          const id = record.material_id
-
           Swal.fire({
-            title: `Apakah anda yakin akan menghapus data Item ini ?`,
+            title: `Apakah anda yakin akan menonaktifkan Item ini ?`,
             icon: 'warning',
             showConfirmButton: true,
             showDenyButton: true,
@@ -158,8 +164,10 @@ const ViewItemHO: React.FC = () => {
                   .then((response) => {
                     Swal.fire({
                       title: 'Success',
-                      text: response.data.message,
+                      text: 'Item berhasil dinonaktifkan',
                       icon: 'success',
+                      showConfirmButton: false,
+                      timer: 1500,
                     }).then(() => {
                       window.location.reload()
                     })
@@ -220,7 +228,7 @@ const ViewItemHO: React.FC = () => {
   ]
 
   const getItemList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/items?order_by=desc&is_promotion=1&${queryparams}&page=${page}&take=${pageSize}`
+    let apiUrlWithParams = `${apiUrl}/items?order_by=desc&is_promotion=1${queryparams}&page=${page}&take=${pageSize}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -267,6 +275,7 @@ const ViewItemHO: React.FC = () => {
           service_name: item?.service_name ?? '-',
           default_price: `Rp. ${parseInt(item?.default_price).toLocaleString('id')}`,
           min_order: item?.prices[0]?.min_order ?? '-',
+          is_active: item?.is_active === true ? 'Aktif' : 'Tidak Aktif',
         }
 
         return data

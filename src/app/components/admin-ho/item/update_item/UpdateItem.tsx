@@ -9,8 +9,6 @@ import {DatePicker} from 'antd'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
 import {Form, Table, Button, Row, Col, Modal} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash} from '@fortawesome/free-solid-svg-icons'
 
 const {RangePicker} = DatePicker
 
@@ -35,6 +33,7 @@ interface Item {
   default_price: number
   item_type: number
   invoice_nominal: number
+  is_active: number
   prices: Array<{
     id: number | null
     is_active: number
@@ -66,6 +65,7 @@ const UpdateItemHO: FC = () => {
     default_price: 0,
     item_type: 1,
     invoice_nominal: 0,
+    is_active: 1,
     prices: [
       {
         id: null,
@@ -135,6 +135,7 @@ const UpdateItemHO: FC = () => {
               default_price: data?.default_price,
               item_type: data?.type,
               invoice_nominal: data?.invoice_nominal,
+              is_active: data?.is_active === true ? 1 : 0,
               prices: pricesItem,
             }))
 
@@ -295,7 +296,6 @@ const UpdateItemHO: FC = () => {
   // Modal Assign To Store
   const [showModal, setShowModal] = useState<boolean>(false)
   const [modalIndex, setModalIndex] = useState<number | null>(null)
-  const [searchByStore, setSearchByStore] = useState<string>('')
 
   const handleShowModal = (index: any) => {
     setModalIndex(index)
@@ -405,6 +405,18 @@ const UpdateItemHO: FC = () => {
       return cache
     })
   }
+
+  // check if all prices are inactive and automatically set is_active to 0
+  useEffect(() => {
+    if (item.prices) {
+      const allInactive = item.prices.every((price) => price.is_active === 0)
+
+      setItem((prevItem) => ({
+        ...prevItem,
+        is_active: allInactive ? 0 : 1,
+      }))
+    }
+  }, [JSON.stringify(item.prices)])
 
   // Item Validation
   const ItemValidation = () => {

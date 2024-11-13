@@ -5,8 +5,9 @@ import {useNavigate} from 'react-router-dom'
 import './NewComplaint.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
-import {Image} from 'antd'
+import {Image, DatePicker} from 'antd'
 import Select, {SingleValue} from 'react-select'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {Row, Col, Form, Button, ListGroup, Card} from 'react-bootstrap'
@@ -19,8 +20,15 @@ interface Complaint {
   description: string
   complaint_channel: number | null
   complaint_date: string
+  complaint_received_date: string
   complaint_status: string
   complaint_type: number
+  crm_type: number
+}
+
+interface CrmType {
+  value: number | null
+  label: string
 }
 
 interface ComplaintChannel {
@@ -61,8 +69,10 @@ const NewComplaintForm: FC = () => {
     description: '',
     complaint_channel: null,
     complaint_date: '',
+    complaint_received_date: '',
     complaint_status: '',
     complaint_type: 1,
+    crm_type: 1,
   })
 
   // Complaint Channel
@@ -72,6 +82,17 @@ const NewComplaintForm: FC = () => {
   >({
     value: null,
     label: 'Complaint Via',
+  })
+
+  // CRM Status
+  const [crmType] = useState<CrmType[]>([
+    {value: 1, label: 'Positive'},
+    {value: 2, label: 'Neutral'},
+    {value: 3, label: 'Negative'},
+  ])
+  const [selectedCrmType, setSelectedCrmType] = useState<SingleValue<CrmType>>({
+    value: null,
+    label: 'Jenis Pengaduan',
   })
 
   const [complaintEvidence, setComplaintEvidence] = useState<Array<File | null>>([])
@@ -345,8 +366,10 @@ const NewComplaintForm: FC = () => {
       pic_name: '',
       description: '',
       complaint_date: '',
+      complaint_received_date: '',
       complaint_status: '',
       complaint_type: 1,
+      crm_type: 1,
     })
     setComplaintEvidence([])
     setSelectedComplaintChannel({
@@ -367,7 +390,9 @@ const NewComplaintForm: FC = () => {
       formData.append('complaint_status', complaintForm.complaint_status)
       formData.append('complaint_channel', String(complaintForm.complaint_channel))
       formData.append('complaint_date', today)
+      formData.append('complaint_received_date', complaintForm.complaint_received_date)
       formData.append('type', complaintForm.complaint_type.toString())
+      formData.append('crm_type', complaintForm.crm_type.toString())
 
       if (complaintEvidence?.length) {
         complaintEvidence.forEach((item) => {
@@ -1487,13 +1512,38 @@ const NewComplaintForm: FC = () => {
               </Form.Group>
 
               <Form.Group className='mb-3'>
-                <Form.Label>Tanggal Komplain :</Form.Label>
+                <Form.Label>Tanggal Komplain Dibuat :</Form.Label>
                 <Form.Control
                   name='complaint_date'
                   type='date'
                   value={today}
                   readOnly
                   onChange={(e) => complaintFormHandler(e)}
+                />
+              </Form.Group>
+
+              <Form.Group className='detail-info mb-3'>
+                <Form.Label>Tanggal Komplain Diterima :</Form.Label>
+
+                <DatePicker
+                  name='complaint_received_date'
+                  showTime={{
+                    format: 'HH:mm',
+                  }}
+                  className='date-range w-100'
+                  format='DD-MM-YYYY HH:mm'
+                  value={
+                    complaintForm.complaint_received_date
+                      ? dayjs(complaintForm.complaint_received_date, 'YYYY-MM-DD HH:mm')
+                      : null
+                  }
+                  onChange={(value) => {
+                    const complaintDate = value ? value.format('YYYY-MM-DDTHH:mm') : ''
+                    setComplaintForm((prev) => ({
+                      ...prev,
+                      complaint_received_date: complaintDate,
+                    }))
+                  }}
                 />
               </Form.Group>
 
@@ -1511,6 +1561,21 @@ const NewComplaintForm: FC = () => {
                   onChange={(newValue) => setSelectedComplaintChannel(newValue)}
                 />
               </Form.Group>
+
+              <Form.Group className='mb-3'>
+                <Form.Label>Jenis Pengaduan : </Form.Label>
+
+                <Select
+                  name='crm_type_id'
+                  className='form-control p-0'
+                  classNamePrefix='select'
+                  placeholder='Jenis Pengaduan'
+                  isSearchable={true}
+                  options={crmType}
+                  value={selectedCrmType}
+                  onChange={(newValue) => setSelectedCrmType(newValue)}
+                />
+              </Form.Group>
             </Col>
 
             <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='mb-3'>
@@ -1518,7 +1583,7 @@ const NewComplaintForm: FC = () => {
               <Form.Control
                 as='textarea'
                 name='description'
-                style={{minHeight: '250px'}}
+                style={{minHeight: '355px'}}
                 value={complaintForm?.description ?? ''}
                 onChange={(e) => complaintFormHandler(e)}
               ></Form.Control>
