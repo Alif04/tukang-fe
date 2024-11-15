@@ -30,6 +30,7 @@ import {
   faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons'
 import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import dayjs from 'dayjs'
 
 const {RangePicker} = DatePicker
 
@@ -75,8 +76,10 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
   const [totalData, setTotalData] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
+  )
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
 
   // Incentive Group
@@ -759,6 +762,7 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range ms-3'
+                defaultValue={[dayjs().subtract(30, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')

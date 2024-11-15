@@ -137,8 +137,8 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
         ['Owner Vendor', 'Admin Vendor', 'Tukang'].includes(role) ? true : false,
     },
     QUOTATION_PROMOTION: {
-      name: 'Promosi Quotation',
-      url: () => '/reports/report-insentif',
+      name: 'Pengajuan Diskon Quotation',
+      url: () => '/quotation/detail-request-discount',
       disabled: (role: string) =>
         ['Owner Vendor', 'Admin Vendor', 'Tukang'].includes(role) ? true : false,
     },
@@ -230,7 +230,7 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
     }
 
     await axios
-      .post(`${apiUrl}/notifications`, payload, {
+      .post(`${apiUrl}/notifications`, [payload], {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -300,10 +300,11 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
           dataSource={notifications}
           renderItem={(item) => {
             const module = moduleTypeMap[item.module_type] || {name: item.module_type, url: '#'}
-            const moduleUrl =
-              item.module_type === 'INCENTIVE'
+            const moduleUrl = moduleTypeMap[item.module_type]
+              ? item.module_type === 'INCENTIVE'
                 ? moduleTypeMap[item.module_type].url(role)
                 : `${moduleTypeMap[item.module_type].url(role)}/${item.module_id}`
+              : ''
 
             return (
               <List.Item
@@ -322,7 +323,7 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
                   }
                   title={
                     <div className='d-flex justify-content-between align-items-center'>
-                      {moduleTypeMap[item.module_type].disabled(role) ? (
+                      {moduleTypeMap[item.module_type]?.disabled(role) ?? null ? (
                         <a
                           className='fs-7 text-dark fw-bold'
                           onClick={() =>
