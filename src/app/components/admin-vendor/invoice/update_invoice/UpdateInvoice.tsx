@@ -98,10 +98,10 @@ const UpdateInvoiceVendor: FC = () => {
               (acc: number, item: any) => acc + parseInt(item?.total),
               0
             ),
-            pph_nominal: data?.pph_nominal,
-            ppn_nominal: data?.ppn_nominal,
-            pkp_nominal: parseInt(data?.pkp_nominal),
-            penalty_nominal: parseInt(data?.penalty_nominal),
+            pph_nominal: data?.pph_nominal ?? 0,
+            ppn_nominal: data?.ppn_nominal ?? 0,
+            pkp_nominal: parseInt(data?.pkp_nominal ?? 0),
+            penalty_nominal: parseInt(data?.penalty_nominal ?? 0),
             invoice_details: data?.invoice_details.map((item: any) => ({
               id: item.id,
               order_id: item.order_id,
