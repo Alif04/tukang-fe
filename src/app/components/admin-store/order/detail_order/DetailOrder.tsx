@@ -673,6 +673,71 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                 } else if (order?.quotation?.length >= 1 && order?.payment_type === 'survey') {
                   return (
                     <div className='table-warranty-content'>
+                      <div className='table-warranty-content'>
+                        {order?.is_overdistance === 1 && (
+                          <>
+                            <Form.Text className='fs-8 text-dark'>
+                              *Order ini lebih dari{' '}
+                              <span className='fw-bolder text-decoration-underline'>10 KM</span>{' '}
+                              dari toko sehingga dikenakan biaya tambahan
+                            </Form.Text>
+                          </>
+                        )}
+                        <table className='table hover responsive'>
+                          <thead className='table-warranty-head'>
+                            <tr>
+                              <th>Item Code</th>
+                              <th>Item Name</th>
+                              <th>Nama Pemasangan</th>
+                              <th>QTY Pemasangan</th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {order?.order_details.map((item: any, index: any) => (
+                              <tr key={`${index} - order_detail`}>
+                                <td>{item?.item_code}</td>
+                                <td>{item?.item_name}</td>
+                                <td>{item?.item_notes}</td>
+                                <td>{item?.quantity ?? 0}</td>
+                              </tr>
+                            ))}
+
+                            <tr>
+                              <td colSpan={3} className='text-end fw-bolder'>
+                                Biaya Survey
+                              </td>
+
+                              <td className=' fw-bolder'>Rp. 99.000</td>
+                            </tr>
+
+                            {order?.is_overdistance === 1 && (
+                              <>
+                                <tr>
+                                  <td colSpan={3} className='text-end fw-bolder align-middle'>
+                                    Biaya Tambahan
+                                  </td>
+
+                                  <td className=' fw-bolder'>{`Rp. ${Number(
+                                    order?.additional_fee
+                                  ).toLocaleString('id')}`}</td>
+                                </tr>
+
+                                <tr>
+                                  <td colSpan={3} className='text-end fw-bolder'>
+                                    Grand Total
+                                  </td>
+
+                                  <td className=' fw-bolder'>{`Rp. ${Number(
+                                    order?.grand_total
+                                  ).toLocaleString('id')}`}</td>
+                                </tr>
+                              </>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+
                       {order?.quotation?.[0]?.quotation_special === 0 ? (
                         <table className='table hover responsive'>
                           <thead className='table-warranty-head'>

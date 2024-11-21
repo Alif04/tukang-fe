@@ -94,6 +94,8 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
     ],
   })
 
+  console.log('incentive group', incentiveGroup)
+
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
@@ -239,7 +241,7 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
   ]
 
   const getRequestIncentive = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/comission-sales-incentive?order_by=desc&status=2&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/comission-sales-incentive?order_by=desc&status=2&page=${page}&date_from=${dateFrom}&date_to=${dateTo}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -404,6 +406,12 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
   }
 
   // Handler Submit Filter
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
     let queryparams = ``
@@ -414,8 +422,6 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
 
     const data = await ViewIncentive(1, 10, queryparams)
@@ -679,74 +685,85 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
   const handleUpdateIncentive = async (id: number, status: number, statusName: string) => {
     if (id === null) return
 
-    await findOneIncentiveGroup(id)
-    const textConfirmation = `Apakah Anda yakin ingin mengubah status insentif ini menjadi ${statusName} ?`
+    try {
+      await findOneIncentiveGroup(id)
+      const textConfirmation = `Apakah Anda yakin ingin mengubah status insentif ini menjadi ${statusName} ?`
 
-    Swal.fire({
-      title: textConfirmation,
-      icon: 'question',
-      showConfirmButton: true,
-      confirmButtonColor: '#6b9230',
-      showDenyButton: true,
-      confirmButtonText: 'Ya',
-      denyButtonText: 'Tidak',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        setIsLoading(true)
-        try {
-          const formData = new FormData()
+      Swal.fire({
+        title: textConfirmation,
+        icon: 'question',
+        showConfirmButton: true,
+        confirmButtonColor: '#6b9230',
+        showDenyButton: true,
+        confirmButtonText: 'Ya',
+        denyButtonText: 'Tidak',
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          setIsLoading(true)
+          try {
+            const formData = new FormData()
 
-          formData.append('status', String(status))
-          incentiveGroup?.sales_incentive?.forEach((incentive, index) => {
-            if (incentive.id !== null) {
-              formData.append(`sales_incentive[${index}][sales_incentive_id]`, String(incentive.id))
-            }
-          })
-
-          const response = await axios.patch(
-            `${apiUrl}/comission-sales-incentive/${id}`,
-            formData,
-            {
-              headers: {
-                Accept: 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                'Access-Control-Allow-Origin': '*',
-                'ngrok-skip-browser-warning': 'true',
-              },
-            }
-          )
-          if (response.data.status === 200 || response.data.status === 201) {
-            Swal.fire({
-              title: 'Success',
-              text: 'Berhasil mengubah status insentif',
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 1500,
-            }).then(() => {
-              window.location.reload()
+            formData.append('status', String(status))
+            incentiveGroup?.sales_incentive?.forEach((incentive, index) => {
+              if (incentive.id !== null) {
+                formData.append(
+                  `sales_incentive[${index}][sales_incentive_id]`,
+                  String(incentive.id)
+                )
+              }
             })
 
+            const response = await axios.patch(
+              `${apiUrl}/comission-sales-incentive/${id}`,
+              formData,
+              {
+                headers: {
+                  Accept: 'application/json',
+                  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                  'Access-Control-Allow-Origin': '*',
+                  'ngrok-skip-browser-warning': 'true',
+                },
+              }
+            )
+            if (response.data.status === 200 || response.data.status === 201) {
+              Swal.fire({
+                title: 'Success',
+                text: 'Berhasil mengubah status insentif',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500,
+              }).then(() => {
+                window.location.reload()
+              })
+
+              setIsLoading(false)
+            } else {
+              Swal.fire({
+                title: 'Error',
+                text: response.data.message,
+                icon: 'error',
+              })
+              setIsLoading(false)
+            }
+          } catch (error: any) {
             setIsLoading(false)
-          } else {
             Swal.fire({
               title: 'Error',
-              text: response.data.message,
+              text: error.response?.data?.message,
               icon: 'error',
             })
-            setIsLoading(false)
           }
-        } catch (error: any) {
+        } else {
           setIsLoading(false)
-          Swal.fire({
-            title: 'Error',
-            text: error.response?.data?.message,
-            icon: 'error',
-          })
         }
-      } else {
-        setIsLoading(false)
-      }
-    })
+      })
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Gagal mengambil data insentif. Silakan coba lagi.',
+        icon: 'error',
+      })
+    }
   }
 
   return (
@@ -754,14 +771,15 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
       <div className={`card ${className}`}>
         <div className='card-body table-view-report'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4} className='d-flex mb-2'>
-              <div className='d-flex align-items-center me-3'>
-                <h3 className='fs-5 fw-normal'>Date : </h3>
-              </div>
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+              onKeyDown={handleKeyPress}
+            >
+              <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
 
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range ms-3'
+                className='date-range'
                 defaultValue={[dayjs().subtract(30, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
@@ -776,9 +794,7 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
                   }
                 }}
               />
-            </Col>
 
-            <Col>
               <div className='filter-search'>
                 <InputGroup>
                   <InputGroup.Text className='filter-ltr'>
@@ -792,30 +808,24 @@ const ListRequestIncentiveHO: React.FC<Props> = ({className}) => {
                   />
                 </InputGroup>
               </div>
-            </Col>
 
-            <Col>
               <Button
-                className='btn-dark-primary button-submit'
-                onClick={handleSubmitFilter}
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
+                onClick={handleSubmitFilter}
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-            </Col>
 
-            <Col>
-              <div className='d-flex justify-content-end'>
-                <Button
-                  variant='success m-0'
-                  className='d-flex justify-content-center align-items-center'
-                  onClick={exportToExcel}
-                  disabled={loadingExport}
-                >
-                  {loadingExport ? 'Exporting..' : 'Export To Excel'}
-                </Button>
-              </div>
-            </Col>
+              <Button
+                variant='success m-0'
+                className='d-flex justify-content-center align-items-center m-0'
+                onClick={exportToExcel}
+                disabled={loadingExport}
+              >
+                {loadingExport ? 'Exporting..' : 'Export To Excel'}
+              </Button>
+            </div>
           </Row>
 
           <Spin
