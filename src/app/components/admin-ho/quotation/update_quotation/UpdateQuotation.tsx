@@ -619,6 +619,8 @@ const UpdateQuotationHO: FC = () => {
             icon: 'error',
           })
         }
+      } else {
+        setIsLoading(false)
       }
     })
   }
