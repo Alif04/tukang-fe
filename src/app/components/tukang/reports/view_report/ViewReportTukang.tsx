@@ -65,7 +65,7 @@ const ViewReportTukang = () => {
   }
 
   // Status
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status: any) => ['WORKEND'].includes(status.category))
   const statuses = desiredStatus.map((x) => x.value)

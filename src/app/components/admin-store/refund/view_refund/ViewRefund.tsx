@@ -57,7 +57,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData = storedStatus ? JSON.parse(storedStatus) : []
   const statusFilters = statusData.map((item: any) => ({
     text: item.description,

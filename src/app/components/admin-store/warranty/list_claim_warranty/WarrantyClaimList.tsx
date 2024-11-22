@@ -61,7 +61,7 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status: any) => ['DONE'].includes(status.category))
   const statuses = desiredStatus.map((x: any) => x.value)

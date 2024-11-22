@@ -1,39 +1,28 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useState, useEffect, useRef} from 'react'
-import {WorkOrderTukang} from '../../../../interfaces/work-order'
+import React, {useState, useEffect} from 'react'
 import {useNavigate} from 'react-router-dom'
+import {useSelector, useDispatch} from 'react-redux'
+import {RootState} from '../../../../../store'
+import {
+  setQueryParams,
+  setCurrentPage,
+  setPageSize,
+  setDateFrom,
+  setDateTo,
+  setSearchFilter,
+} from '../../../../../store/workOrderSlice'
 
 import './ViewWorkOrder.css'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
-import Select from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import makeAnimated from 'react-select/animated'
-import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker, Image} from 'antd'
-import {
-  Row,
-  Col,
-  Form,
-  FormGroup,
-  Button,
-  OverlayTrigger,
-  Tooltip,
-  Modal,
-  ListGroup,
-} from 'react-bootstrap'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {Row, Form, FormGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-  faBook,
-  faPen,
-  faSearch,
-  faFileImage,
-  faTrash,
-  faImage,
-  faPrint,
-} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faSearch, faPrint} from '@fortawesome/free-solid-svg-icons'
 import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
@@ -59,29 +48,23 @@ interface DataType {
 const ViewWorkVendor: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const animatedComponents = makeAnimated()
+  const dispatch = useDispatch()
 
+  // Session Storage
   const vendorId = localStorage.getItem('vendor_id')
 
+  // Loader
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
+  // Table State
   const [orderData, setOrderData] = useState<DataType[]>([])
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(50)
   const [totalData, setTotalData] = useState<number>(0)
-
-  const [dateFrom, setDateFrom] = useState<any>(
-    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  const {queryParams, searchFilter, currentPage, pageSize, dateFrom, dateTo} = useSelector(
+    (state: RootState) => state.workOrder
   )
-  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-  const [searchFilter, setSearchFilter] = useState<string>('')
 
-  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchFilter = event.target.value
-    setSearchFilter(updatedSearchFilter)
-  }
-
+  // Columns Table
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
   const columns: ColumnsType<DataType> = [
     {
@@ -207,29 +190,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           navigate(`/work-order/update-work-order/${id}`)
         }
 
-        const handleModalRequest = (id: number) => {
-          const selected = orderData.find((item) => item.order_id === id)
-
-          if (selected) {
-            setModalRequest(true)
-            setTukangRequest((prev: any) => ({
-              ...prev,
-              work_order_id: selected.work_order_id,
-              existing_tukang_id: selected.existing_tukang.map((item: any) => ({
-                id: item.request_tukang,
-              })),
-            }))
-          }
-        }
-
-        const handleModalNotification = (id: number) => {
-          const selected = orderData.find((item) => item.order_id === id)
-
-          if (selected) {
-            setModalNotification(true)
-          }
-        }
-
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>
             <OverlayTrigger
@@ -297,38 +257,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
                 </Button>
               </OverlayTrigger>
             )}
-
-            {/* <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Permintaan Pergantian Tukang')}
-            >
-              <Button
-                variant='warning'
-                className='button-request'
-                onClick={() => handleModalRequest(id)}
-              >
-                <FontAwesomeIcon className='text-white' icon={faShuffle} fontSize={'13px'} />
-              </Button>
-            </OverlayTrigger> */}
-
-            {/* <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Notifikasi Permintaan Pergantian Tukang')}
-            >
-              <Button
-                variant='danger'
-                className='button-cancel'
-                onClick={() => handleModalNotification(id)}
-              >
-                <FontAwesomeIcon
-                  className='text-white'
-                  icon={faPeopleArrowsLeftRight}
-                  fontSize={'13px'}
-                />
-              </Button>
-            </OverlayTrigger> */}
           </div>
         )
       },
@@ -336,7 +264,10 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
   ]
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&page=${page}&take=${pageSize}${queryparams}`
+    if (dateFrom && dateTo) {
+      apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
+    }
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -430,40 +361,21 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     setOrderData(data)
   }
 
-  const getTukang = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/tukang?vendor_id=${vendorId}&take=0`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+  useEffect(() => {
+    fetchData(currentPage, pageSize, queryParams)
+  }, [currentPage, queryParams])
 
-      if (Array.isArray(response.data.data)) {
-        const tempTukang = response.data.data.map((item: any) => ({
-          tukang_id: item.id ?? 0,
-          tukang_name: item.full_name,
-          is_active: item.is_active,
-        }))
-        const filteredTukang = tempTukang.filter((x: any) => x.is_active !== false)
-        setTukang(filteredTukang)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
+  // Table Handler
+  const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchFilter(e.target.value))
   }
 
-  useEffect(() => {
-    fetchData(1, 10, '')
-  }, [])
-
-  useEffect(() => {
-    getTukang()
-  }, [])
+  const handlePageChange = (page: number, size?: number) => {
+    dispatch(setCurrentPage(page))
+    if (size) {
+      dispatch(setPageSize(size))
+    }
+  }
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -477,6 +389,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+
     let queryparams = ``
 
     const valueCheck = (key: any, value: any) => {
@@ -486,8 +399,9 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     }
 
     valueCheck(`&search=`, searchFilter)
+    dispatch(setQueryParams(queryparams))
 
-    const data = await ViewOrder(1, pageSize, queryparams)
+    const data = await ViewOrder(currentPage, pageSize, queryparams)
     setOrderData(data)
 
     setLoadingButton(false)
@@ -497,167 +411,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     if (event.key === 'Enter') {
       handleSubmitFilter()
     }
-  }
-
-  const [modalRequest, setModalRequest] = useState(false)
-  const handleModalRequest = () => {
-    setModalRequest(false)
-  }
-
-  // Replace Tukang
-  const [tukang, setTukang] = useState<WorkOrderTukang[]>([])
-  const [tukangRequest, setTukangRequest] = useState<any>({
-    work_order_id: null,
-    status_id: 2,
-    existing_tukang_id: null,
-    tukang_id: null,
-    notes: '',
-  })
-
-  // File
-  const [files, setFiles] = useState<Array<File | null>>([])
-  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
-  const [previewFile, setPreviewFile] = useState<any>()
-  const [visibleFile, setVisibleFile] = useState(false)
-  const evidenceRef = useRef<HTMLInputElement>(null)
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = event.target.files
-
-    if (fileList) {
-      const file: Array<File | null> = new Array<File>()
-      const existingFiles = [...files]
-      const mergedFiles = existingFiles.concat(file)
-
-      const {length: existingFilesLength} = existingFiles
-      const {length: fileListLength} = fileList
-
-      for (let i = 0; i < fileListLength; i++) {
-        mergedFiles[existingFilesLength + i] = fileList.item(i)
-      }
-
-      setFiles(mergedFiles)
-    }
-  }
-
-  // Click Image
-  const handleFileClick = () => {
-    const inputField = document.querySelector('.input-field-file') as HTMLInputElement
-    inputField.click()
-  }
-
-  // Handle Remove File
-  const handleRemoveFiles = (index: number) => {
-    const newEvidances = [...files]
-    newEvidances.splice(index, 1)
-    setFiles(newEvidances)
-
-    // Update element value
-    if (evidenceRef.current?.value) {
-      evidenceRef.current.value = ''
-    }
-  }
-
-  // File Click
-  const handleFileIndex = (index: number) => {
-    setPreviewFile(files[index]?.name)
-    setVisibleFile(true)
-    setSelectedFileIndex(index)
-  }
-
-  const handleTukangChanges = async () => {
-    const formData = new FormData()
-
-    formData.append(`replace_tukang[0][status]`, tukangRequest.status_id)
-    formData.append(`replace_tukang[0][notes]`, tukangRequest.notes)
-
-    if (tukangRequest.existing_tukang_id?.length) {
-      tukangRequest.existing_tukang_id.forEach((item: any, index: number) => {
-        if (item) {
-          formData.append(`replace_tukang[${index}][id]`, item.id)
-        }
-      })
-    }
-
-    if (tukangRequest.tukang_id?.length) {
-      tukangRequest.tukang_id.forEach((item: any, index: number) => {
-        if (item) {
-          formData.append(`replace_tukang[${index}][tukang_id]`, item.id)
-        }
-      })
-    }
-
-    if (files?.length) {
-      files.forEach((item) => {
-        if (item instanceof Blob) {
-          formData.append(`file`, item, item.name)
-        }
-      })
-    }
-
-    await axios
-      .post(`${apiUrl}/work-orders/${tukangRequest.work_order_id}/replace-tukang`, formData, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Berhasil Melakukan Permintaan Pergantian Tukang',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
-
-        window.location.reload()
-      })
-      .catch((error) => {
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
-        })
-      })
-  }
-
-  // Modal Notification Tukang Change
-  const [modalNotification, setModalNotification] = useState(false)
-  const handleCloseNotification = () => {
-    setModalNotification(false)
-  }
-
-  // Preview Image
-  const [visible, setVisible] = useState(false)
-
-  // Tukang Request Handler
-  const tukangRequestHandler = (e: any) => {
-    setTukangRequest((prev: any) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }))
-  }
-
-  const tukangHandler = (selectedOptions: any) => {
-    const updatedTukang = selectedOptions.map((option: any) => ({
-      id: option.tukang_id,
-    }))
-
-    setTukangRequest((prev: any) => ({
-      ...prev,
-      tukang_id: updatedTukang,
-    }))
   }
 
   // Export PDF Quotation
@@ -702,17 +455,20 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
-                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
+                value={[
+                  dateFrom ? dayjs(dateFrom, 'YYYY-MM-DD') : null,
+                  dateTo ? dayjs(dateTo, 'YYYY-MM-DD') : null,
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
 
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
+                    dispatch(setDateFrom(dateFromFormatted))
+                    dispatch(setDateTo(dateToFormatted))
                   } else {
-                    setDateFrom(new Date().toISOString().split('T')[0])
-                    setDateTo(new Date().toISOString().split('T')[0])
+                    dispatch(setDateFrom(''))
+                    dispatch(setDateTo(''))
                   }
                 }}
               />
@@ -722,6 +478,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
+                    value={searchFilter ?? ''}
                     onChange={handleChangeSearchFilter}
                   />
 
@@ -770,227 +527,19 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
             <Pagination
               className='pagination'
+              pageSize={pageSize}
               current={currentPage}
               total={totalData}
               showSizeChanger
-              defaultPageSize={pageSize}
-              pageSizeOptions={[5, 10, 20, 50, 100]}
+              pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
               itemRender={itemRender}
-              onShowSizeChange={(current, size) => {
-                setPageSize(size)
-              }}
               onChange={(page, pageSize) => {
-                fetchData(page, pageSize, '')
+                handlePageChange(page, pageSize)
               }}
             />
           </div>
         </div>
       </div>
-
-      <Modal
-        dialogClassName='modal-vendor-request'
-        centered
-        show={modalRequest}
-        onHide={handleModalRequest}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Formulir Alasan Pergantian Tukang</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>
-          <Row className='mb-5'>
-            <Form.Group className='tukang-info'>
-              <Form.Label>Tukang</Form.Label>
-
-              <Select
-                classNamePrefix='select'
-                placeholder='Pilih Tukang'
-                closeMenuOnSelect={false}
-                components={animatedComponents}
-                isMulti
-                options={tukang}
-                getOptionValue={(option: WorkOrderTukang) => `${option.tukang_id}`}
-                getOptionLabel={(option: WorkOrderTukang) =>
-                  tukang.find((item) => item.tukang_id === option.tukang_id)?.tukang_name ||
-                  'Pilih Tukang'
-                }
-                onChange={(e) => tukangHandler(e)}
-              />
-            </Form.Group>
-          </Row>
-
-          <Row className='notes mb-5'>
-            <Form.Group>
-              <Form.Label className='fs-5 fw-bold'>Alasan :</Form.Label>
-              <Form.Control
-                name='notes'
-                style={{minHeight: '140px'}}
-                as='textarea'
-                onChange={(e) => tukangRequestHandler(e)}
-              />
-            </Form.Group>
-          </Row>
-
-          <Row className='upload-receipt d-flex align-items-start mt-5 mb-5'>
-            <Form.Group>
-              <Form.Label>Upload File</Form.Label>
-
-              <Form className='form-input-image' onClick={handleFileClick}>
-                <Form.Control
-                  type='file'
-                  accept='image/jpeg, image/png'
-                  className='input-field-file'
-                  multiple
-                  hidden
-                  id='file-input'
-                  ref={evidenceRef}
-                  onChange={handleFileChange}
-                />
-
-                <div className='input-image-text'>
-                  <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
-                  <p>Add File</p>
-                </div>
-              </Form>
-
-              <ListGroup className='pt-3'>
-                {files.length ? (
-                  files.map((item: any, index: number) => (
-                    <ListGroup>
-                      <ListGroup.Item
-                        className='d-flex justify-content-between align-items-center'
-                        key={`${item?.name}-${index}-${item?.type}`}
-                      >
-                        <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
-
-                        <span
-                          className='upload-content'
-                          style={{cursor: 'pointer'}}
-                          onClick={() => handleFileIndex(index)}
-                        >
-                          {item?.name}
-                        </span>
-
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          size='sm'
-                          color='#ed2b2a'
-                          style={{cursor: 'pointer'}}
-                          onClick={(e) => handleRemoveFiles(index)}
-                        />
-                      </ListGroup.Item>
-
-                      {selectedFileIndex === index && item && (
-                        <Image
-                          key={`${previewFile} - ${index}`}
-                          width={200}
-                          style={{display: 'none'}}
-                          src={
-                            item instanceof File
-                              ? URL.createObjectURL(item)
-                              : `${apiUrl}/public/invoices/${previewFile}`
-                          }
-                          preview={{
-                            visible: visibleFile,
-                            src:
-                              item instanceof File
-                                ? URL.createObjectURL(item)
-                                : `${apiUrl}/public/invoices/${previewFile}`,
-                            onVisibleChange: (value) => {
-                              setVisibleFile(value)
-                            },
-                          }}
-                        />
-                      )}
-                    </ListGroup>
-                  ))
-                ) : (
-                  <ListGroup.Item className='d-flex justify-content-center'>
-                    Tidak ada file yang dipilih
-                  </ListGroup.Item>
-                )}
-              </ListGroup>
-            </Form.Group>
-          </Row>
-
-          <Button
-            className='d-flex justify-content-center align-items-center w-100 mt-5'
-            onClick={handleTukangChanges}
-            variant='primary'
-          >
-            Submit
-          </Button>
-        </Modal.Body>
-      </Modal>
-
-      <Modal
-        dialogClassName='modal-vendor-change'
-        centered
-        show={modalNotification}
-        onHide={handleCloseNotification}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Pemberitahuan Permintaan Pergantian Tukang</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>
-          <Row className='notes mb-5'>
-            <Form.Group>
-              <Form.Label className='fs-5 fw-bold'>Alasan dari Tukang :</Form.Label>
-              <Form.Control
-                readOnly
-                style={{minHeight: '140px'}}
-                as='textarea'
-                value={'Jadwal saya sudah padat dan tidak bisa mengerjakan pekerjaan ini.'}
-              />
-            </Form.Group>
-          </Row>
-
-          <Row className='mb-5'>
-            <Form.Label className='mt-3'>Bukti Foto :</Form.Label>
-            <ListGroup>
-              <ListGroup.Item
-                action
-                style={{cursor: 'pointer'}}
-                onClick={() => {
-                  setVisible(true)
-                }}
-              >
-                foto-jadwal.png
-              </ListGroup.Item>
-            </ListGroup>
-
-            <div>
-              <Image
-                width={200}
-                style={{display: 'none'}}
-                src='https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
-                preview={{
-                  visible,
-                  src: 'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg',
-                  onVisibleChange: (value) => {
-                    setVisible(value)
-                  },
-                }}
-              />
-            </div>
-          </Row>
-
-          <Row className='button-wrapper d-flex justify-content-center'>
-            <Col xxl={6} xl={6} lg={6} md={6} sm={12} xs={12}>
-              <Button type='submit' variant='success' className='button-approve w-100'>
-                Setujui
-              </Button>
-            </Col>
-
-            <Col xxl={6} xl={6} lg={6} md={6} sm={12} xs={12}>
-              <Button type='submit' variant='danger' className='button-decline w-100'>
-                Tolak
-              </Button>
-            </Col>
-          </Row>
-        </Modal.Body>
-      </Modal>
     </section>
   )
 }

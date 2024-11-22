@@ -55,7 +55,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
 }) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status) => statusName.includes(status.category))
   const statuses = desiredStatus.map((x) => x.value)

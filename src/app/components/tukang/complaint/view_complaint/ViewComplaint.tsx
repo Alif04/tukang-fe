@@ -341,7 +341,7 @@ const ViewComplaintTukang: React.FC<Props> = ({className}) => {
 
   const fetchComplaintList = async (page: number, pageSize: number) => {
     try {
-      const storedStatus = sessionStorage.getItem('statusData')
+      const storedStatus = localStorage.getItem('statusData')
       const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
       const desiredStatus = statusData.filter((status: any) =>
         ['INVESTIGATED', 'ACCEPTED'].includes(status.category)

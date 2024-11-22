@@ -194,7 +194,7 @@ const ViewOrders: FC = () => {
   const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendorSelect]
 
   // Status
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData = storedStatus ? JSON.parse(storedStatus) : []
   const cancelOrder = statusData.find((status: any) => status.category === 'CANCEL')
   const verificationStatus = statusData.find((status: any) => status.category === 'QUOTATIONPAID')

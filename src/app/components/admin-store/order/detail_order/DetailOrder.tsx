@@ -134,7 +134,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const [visibleQuotationReceipt, setVisibleQuotationReceipt] = useState(false)
   const [visibleQuotationFiles, setVisibleQuotationFiles] = useState(false)
 
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const getStatuses = (categories: string[]) =>
     statusData.filter((status: any) => categories.includes(status.category)).map((x) => x.value)

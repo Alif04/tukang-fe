@@ -135,7 +135,7 @@ const NewQuotationHO: FC = () => {
   }
 
   const getQuotation = async () => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) => ['QUOTEIN'].includes(status.category))
 
@@ -282,7 +282,7 @@ const NewQuotationHO: FC = () => {
 
   // Quotation Status
   useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatus = statusData.find((status: any) => status.category === 'QUOTEIN')

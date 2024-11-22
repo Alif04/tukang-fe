@@ -87,7 +87,7 @@ const UpdateRefundHO: FC = () => {
 
   // Refund Status
   const getStatusId = (category: string) => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
     const status = statusData.find((status: any) => status.category === category)
     return status?.value

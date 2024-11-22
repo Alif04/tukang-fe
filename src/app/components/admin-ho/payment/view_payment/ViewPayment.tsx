@@ -49,7 +49,7 @@ const ViewPaymentHO: FC = () => {
   const [selectedRows, setSelectedRows] = useState<DataType[]>([])
 
   // Status
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status: any) => ['PAID'].includes(status.category))
 

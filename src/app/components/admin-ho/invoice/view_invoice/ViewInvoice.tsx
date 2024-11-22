@@ -91,7 +91,7 @@ const ViewInvoiceHO: FC = () => {
   })
 
   // Status
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
 
   // Update Invoice

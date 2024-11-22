@@ -482,7 +482,7 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
   }, [paymentTypeValue])
 
   useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatusName = 'PICKLIST'
