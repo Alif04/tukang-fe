@@ -20,6 +20,7 @@ interface DataType {
   incentive_type: string
   order_id: number
   store_name: string
+  status_order: string
   costumer_name: string
   sales_name: string
   brands: string
@@ -44,14 +45,12 @@ const RequestIncentiveSales: FC = () => {
   const [incentiveData, setIncentiveData] = useState<DataType[]>([])
   const [selectedRows, setSelectedRows] = useState<DataType[]>([])
 
-  console.log('selected rows', selectedRows)
-
   const [pageSize, setPageSize] = useState<number>(10)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
   const [dateFrom, setDateFrom] = useState<any>(
-    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+    new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
   )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
@@ -81,6 +80,15 @@ const RequestIncentiveSales: FC = () => {
       width: 140,
       onFilter: (value: string, record: DataType) => record.store_name.includes(String(value)),
       sorter: (a: DataType, b: DataType) => a.store_name.length - b.store_name.length,
+    },
+    {
+      title: 'Status Order',
+      dataIndex: 'status_order',
+      key: 'status_order',
+      align: 'left',
+      width: 140,
+      onFilter: (value: string, record: DataType) => record.status_order.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.status_order.length - b.status_order.length,
     },
     {
       title: 'Nama Sales',
@@ -276,6 +284,7 @@ const RequestIncentiveSales: FC = () => {
             item?.quotation?.quotation_special === 0 ? 'Insentif Biasa' : 'Insentif Tahapan',
           order_id: item?.quotation?.order_id,
           store_name: item?.quotation?.order?.store?.store_name,
+          status_order: item?.quotation?.order?.status?.description,
           costumer_name: item?.quotation?.order?.members?.full_name,
           sales_name: item?.sales?.full_name,
           brands: item?.sales?.sales_brand,
@@ -470,7 +479,7 @@ const RequestIncentiveSales: FC = () => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
-                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
+                defaultValue={[dayjs().subtract(30, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')

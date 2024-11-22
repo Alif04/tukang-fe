@@ -47,6 +47,8 @@ const UpdateQuotationHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
+
+  // Loading
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Order Id
@@ -60,7 +62,6 @@ const UpdateQuotationHO: FC = () => {
   const [quotationDate, setQuotationDate] = useState<string>('')
   const [quotationValidity, setQuotationValidity] = useState<any>()
   const [quotationSpecial, setQuotationSpecial] = useState<number>(0)
-  const [quotationFiles, setQuotationFiles] = useState<Array<File | null>>([])
 
   const [totalMaterial, setTotalMaterial] = useState<number>(0)
   const [totalJasaMaterial, setTotalJasaMaterial] = useState<number>(0)
@@ -258,6 +259,8 @@ const UpdateQuotationHO: FC = () => {
   }, [])
 
   useEffect(() => {
+    if (!storeId) return
+
     getPromotion()
   }, [storeId])
 
@@ -1491,6 +1494,7 @@ const UpdateQuotationHO: FC = () => {
               variant='dark-primary'
               className='d-flex justify-content-center align-items-center mb-2'
               type='submit'
+              disabled={isLoading}
               onClick={() => handleUpdateQuotation(1)}
             >
               Save
@@ -1502,6 +1506,7 @@ const UpdateQuotationHO: FC = () => {
                   variant='dark-success'
                   className='d-flex justify-content-center align-items-center mb-2'
                   type='submit'
+                  disabled={isLoading}
                   onClick={() => handleUpdateQuotation(2)}
                 >
                   Approve
@@ -1511,6 +1516,7 @@ const UpdateQuotationHO: FC = () => {
                   variant='dark-danger'
                   className='d-flex justify-content-center align-items-center mb-2'
                   type='submit'
+                  disabled={isLoading}
                   onClick={() => handleUpdateQuotation(3)}
                 >
                   Reject
@@ -1523,6 +1529,7 @@ const UpdateQuotationHO: FC = () => {
                 variant='dark-warning'
                 className='d-flex justify-content-center align-items-center mb-2'
                 type='submit'
+                disabled={isLoading}
                 onClick={() => handleUpdateQuotation(4)}
               >
                 Send Email To Customers
