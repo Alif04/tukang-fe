@@ -61,7 +61,7 @@ const WarrantyFormClaimHO: FC<{updatePageTitle: (warranty: any) => void}> = ({up
   const [complantChannel, setComplaintChannel] = useState<number>(1)
 
   // Set Status Warranty Claim
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
   const desiredStatusName = 'WARRANTYCLAIM'

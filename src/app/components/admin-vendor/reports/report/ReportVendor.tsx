@@ -31,7 +31,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
   const userVendor = localStorage.getItem('vendor_id')
   const vendorId = userVendor ? `&vendor_id=${userVendor}` : ''
 
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status: any) => status.category.includes(statusName))
   const statuses = desiredStatus.map((x) => x.value)

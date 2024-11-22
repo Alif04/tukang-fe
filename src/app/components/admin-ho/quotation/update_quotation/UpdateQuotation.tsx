@@ -290,7 +290,7 @@ const UpdateQuotationHO: FC = () => {
 
   // Quotation Status
   useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatus = statusData.find((status: any) => status.category === 'QUOTEOUT')

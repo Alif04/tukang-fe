@@ -57,7 +57,7 @@ const NewReschedule: FC = () => {
     reschedule_status_by: userRole,
   })
 
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status: any) =>
     [
@@ -140,7 +140,7 @@ const NewReschedule: FC = () => {
 
   // Reschedule Status
   useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatus = statusData.find((status: any) => status.category === 'RESCHEDULE')

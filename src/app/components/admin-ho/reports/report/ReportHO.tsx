@@ -47,7 +47,7 @@ interface AreaItem {
 const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, params}) => {
   const apiUrl = process.env.REACT_APP_API_URL
 
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status: any) => status.category === statusName)
   const statuses = desiredStatus.map((x) => x.value)

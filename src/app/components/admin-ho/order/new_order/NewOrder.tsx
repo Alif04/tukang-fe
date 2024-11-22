@@ -530,7 +530,7 @@ const NewOrderHO: FC = () => {
   }, [paymentTypeValue])
 
   useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const statusNameByPaymentType =

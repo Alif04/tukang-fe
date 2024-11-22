@@ -30,7 +30,7 @@ const ReportTukang: React.FC<Props> = ({endpoint, statusName, headerColor, title
   const userTukang = localStorage.getItem('tukang_id')
   const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
 
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status: any) => status.category.includes(statusName))
   const statuses = desiredStatus.map((x) => x.value)

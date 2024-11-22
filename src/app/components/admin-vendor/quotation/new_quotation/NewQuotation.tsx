@@ -125,7 +125,7 @@ const NewQuotationVendor: FC = () => {
   const [grandTotalDiff, setGrandTotalDiff] = useState<any>(0)
 
   const getWorkOrder = async () => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) =>
       ['SURVEYDONE', 'RESURVEYDONE'].includes(status?.category)
@@ -281,7 +281,7 @@ const NewQuotationVendor: FC = () => {
 
   // Quotation Status
   useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
     const desiredStatus = statusData.find((status: any) => status.category === 'QUOTEIN')

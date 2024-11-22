@@ -12,17 +12,31 @@ export function AsideMenuMain() {
   const userTukang = localStorage.getItem('tukang_id')
 
   const logoutHandler = () => {
-    localStorage.clear()
-    sessionStorage.clear()
+    const textConfirmation = `Apakah Anda yakin ingin keluar dari aplikasi ini ?`
 
     Swal.fire({
-      icon: 'success',
-      title: 'Logout Success',
-      text: 'You have been logged out successfully.',
-      showConfirmButton: false,
-      timer: 3000,
-    }).then(() => {
-      document.location.href = '/login'
+      title: textConfirmation,
+      icon: 'question',
+      showConfirmButton: true,
+      confirmButtonColor: '#6b9230',
+      showDenyButton: true,
+      confirmButtonText: 'Ya',
+      denyButtonText: 'Tidak',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        localStorage.clear()
+        sessionStorage.clear()
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Logout Success',
+          text: 'You have been logged out successfully.',
+          showConfirmButton: false,
+          timer: 3000,
+        }).then(() => {
+          document.location.href = '/login'
+        })
+      }
     })
   }
 
@@ -650,6 +664,22 @@ export function AsideMenuMain() {
           />
         </AsideMenuItemWithSub>
       </AsideMenuItemWithSub>
+
+      {/* Halaman Livechat */}
+      {/* <AsideMenuItemWithSub
+        title='Chat'
+        to='/apps/chat'
+        icon='/media/icons/duotune/communication/com012.svg'
+        fontIcon='bi-person'
+        role={['Store CS', 'Admin HO', 'Super User']}
+      >
+        <AsideMenuItem
+          to='/apps/chat/private-chat'
+          title='Private Chat'
+          role={['Store CS', 'Admin HO', 'Super User']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub> */}
 
       {/* Logout */}
       <div className='menu-item'>

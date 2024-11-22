@@ -106,7 +106,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   })
 
   // Status
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {

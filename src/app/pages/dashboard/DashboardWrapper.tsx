@@ -16,14 +16,13 @@ interface Status {
 }
 
 const DashboardWrapper: FC = () => {
+  const apiUrl = process.env.REACT_APP_API_URL
   const userRole = localStorage.getItem('userRole') as string
   const [status, setStatus] = useState<Status[]>([])
 
   // Get Status
   const getStatus = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL
-
       const response = await axios.get(`${apiUrl}/status?take=0`, {
         headers: {
           Accept: 'application/json',
@@ -42,7 +41,7 @@ const DashboardWrapper: FC = () => {
 
         setStatus(tempStatus)
 
-        sessionStorage.setItem('statusData', JSON.stringify(tempStatus))
+        localStorage.setItem('statusData', JSON.stringify(tempStatus))
       } else {
         console.error('API response data is not an array:', response.data)
       }

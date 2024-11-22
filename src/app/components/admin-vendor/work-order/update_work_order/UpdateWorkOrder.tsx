@@ -311,10 +311,14 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   }
 
   // Filter Work Order Status
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
 
+  console.log('storedStatus', storedStatus)
+  console.log('statusData', statusData)
+
   useEffect(() => {
+    // Get Status Name by Category
     const getStatusNameByCategory = (category: string) => {
       switch (category) {
         case 'SURVEYREQ':
@@ -1382,24 +1386,20 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                       </thead>
                       <tbody>
                         {orderDetail?.order_details.map((item: any, index: any) => (
-                          <>
-                            <tr key={`${index} - order_detail`}>
-                              <td>{item?.item_code}</td>
-                              <td>{item?.item_name}</td>
-                              <td>{item?.item?.service_name}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              {!(orderDetail?.payment_type === 'gratis') && (
-                                <>
-                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                </>
-                              )}
-                            </tr>
-                          </>
+                          <tr key={`${index} - order_detail`}>
+                            <td>{item?.item_code}</td>
+                            <td>{item?.item_name}</td>
+                            <td>{item?.item?.service_name}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            {!(orderDetail?.payment_type === 'gratis') && (
+                              <>
+                                <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                  'id'
+                                )}`}</td>
+                                <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                              </>
+                            )}
+                          </tr>
                         ))}
 
                         {orderDetail?.is_overdistance === 1 && (

@@ -103,7 +103,7 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   }
 
   // Status
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const desiredStatus = statusData.filter((status: any) =>
     ['WORKEND', 'DONE'].includes(status.category)

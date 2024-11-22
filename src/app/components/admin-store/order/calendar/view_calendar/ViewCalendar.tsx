@@ -252,7 +252,7 @@ const ViewCalendarCS: React.FC = () => {
   }
 
   // Statuses for Order Timeline
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const getStatuses = (categories: string[]) =>
     statusData.filter((status: any) => categories.includes(status.category)).map((x) => x.value)

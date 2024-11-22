@@ -539,7 +539,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   }
 
   useEffect(() => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
 
     const getStatusNameByCategory = (category: string) => {
