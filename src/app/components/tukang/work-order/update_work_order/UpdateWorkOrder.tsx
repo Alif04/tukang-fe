@@ -1,7 +1,11 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
 import {WorkOrder} from '../../../../interfaces/work-order'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
-import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
+import {
+  formatDate,
+  formatDateWithTime,
+  formatDateWithTimeZone,
+} from '../../../../../_metronic/helpers'
 
 import './UpdateWorkOrder.css'
 
@@ -286,13 +290,10 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           }
 
           if (data?.work_order_status) {
-            const workStartDate = formatDateWithTime(data?.work_start_date)
-            const workEndDate = formatDateWithTime(data?.work_end_date)
-
             const workOrderHistoryData = data?.order?.order_history.map((item: any) => {
               return {
                 status: item?.status?.description,
-                created_at: item?.created_at ? formatDateWithTime(item?.created_at) : '-',
+                created_at: item?.created_at ? formatDateWithTimeZone(item?.created_at) : '-',
                 updated_by: item?.created_by?.username,
               }
             })
@@ -1923,12 +1924,14 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         </Card.Body>
       </Card>
 
-      <Card className='mb-5'>
-        <Card.Body>
-          <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
-            <div className='work-order-history'>
-              <h1 className='title mb-5'>Order History</h1>
+      <Skeleton active loading={isLoadingPage}>
+        <Card>
+          <Card.Header>
+            <Card.Title className='fw-bold'>Order History</Card.Title>
+          </Card.Header>
 
+          <Card.Body>
+            <div className='work-order-history'>
               <Steps
                 progressDot
                 current={OrderHistory.length - 1}
@@ -1941,9 +1944,9 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 }))}
               />
             </div>
-          </Skeleton>
-        </Card.Body>
-      </Card>
+          </Card.Body>
+        </Card>
+      </Skeleton>
     </section>
   )
 }

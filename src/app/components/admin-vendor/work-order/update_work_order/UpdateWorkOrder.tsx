@@ -1514,7 +1514,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       </Card>
 
       {orderDetail?.reschedule && orderDetail?.reschedule?.length > 0 && (
-        <Card className='mt-5'>
+        <Card className='mt-5 mb-5'>
           <Card.Header>
             <Card.Title>Reschedule History</Card.Title>
           </Card.Header>
@@ -1546,7 +1546,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
                   <p className='fs-6'>
                     {orderDetail?.reschedule[0]?.reschedule_date
-                      ? `${formatDate(orderDetail?.reschedule[0]?.reschedule_date)}`
+                      ? `${formatDateWithTimeZone(orderDetail?.reschedule[0]?.reschedule_date)}`
                       : 'Tanggal belum ditentukan vendor'}
                   </p>
                 </Form.Group>

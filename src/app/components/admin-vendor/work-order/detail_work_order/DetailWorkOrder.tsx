@@ -5,9 +5,13 @@ import './DetailWorkOrder.css'
 
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
-import {DatePicker, Steps, Image, Skeleton} from 'antd'
-import {Form, Button, Row, Col, Card, ListGroup, Modal} from 'react-bootstrap'
-import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
+import {Steps, Image, Skeleton} from 'antd'
+import {Form, Row, Col, Card, ListGroup, Modal} from 'react-bootstrap'
+import {
+  formatDate,
+  formatDateWithTime,
+  formatDateWithTimeZone,
+} from '../../../../../_metronic/helpers'
 
 interface Status {
   value: number | null
@@ -57,7 +61,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             const orderHistory = data?.order_history.map((item: any) => {
               return {
                 status: item?.status?.description,
-                created_at: item?.created_at ? formatDateWithTime(item?.created_at) : '-',
+                created_at: item?.created_at ? formatDateWithTimeZone(item?.created_at) : '-',
                 updated_by: item?.created_by?.username,
               }
             })
@@ -1142,7 +1146,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
       <Skeleton active loading={isLoadingPage}>
         {orderDetail?.reschedule && orderDetail?.reschedule?.length > 0 && (
-          <Card className='mt-5'>
+          <Card className='mt-5 mb-5'>
             <Card.Header>
               <Card.Title>Reschedule History</Card.Title>
             </Card.Header>
@@ -1174,7 +1178,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                     <p className='fs-6'>
                       {orderDetail?.reschedule[0]?.reschedule_date
-                        ? `${formatDate(orderDetail?.reschedule[0]?.reschedule_date)}`
+                        ? `${formatDateWithTimeZone(orderDetail?.reschedule[0]?.reschedule_date)}`
                         : 'Tanggal belum ditentukan vendor'}
                     </p>
                   </Form.Group>

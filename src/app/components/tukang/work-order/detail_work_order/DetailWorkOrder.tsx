@@ -1,5 +1,9 @@
 import React, {FC, useState, useEffect} from 'react'
-import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
+import {
+  formatDate,
+  formatDateWithTime,
+  formatDateWithTimeZone,
+} from '../../../../../_metronic/helpers'
 
 import './DetailWorkOrder.css'
 
@@ -56,7 +60,7 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
             const orderHistory = data?.order?.order_history.map((item: any) => {
               return {
                 status: item?.status?.description,
-                created_at: item?.created_at ? formatDateWithTime(item?.created_at) : '-',
+                created_at: item?.created_at ? formatDateWithTimeZone(item?.created_at) : '-',
                 updated_by: item?.created_by?.username,
               }
             })
@@ -988,12 +992,14 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
         </Card.Body>
       </Card>
 
-      <Card>
-        <Card.Body>
-          <Skeleton active loading={isLoadingPage}>
-            <div className='work-order-history'>
-              <h1 className='title mb-5'>Order History</h1>
+      <Skeleton active loading={isLoadingPage}>
+        <Card>
+          <Card.Header>
+            <Card.Title className='fw-bold'>Order History</Card.Title>
+          </Card.Header>
 
+          <Card.Body>
+            <div className='work-order-history'>
               <Steps
                 progressDot
                 current={OrderHistory.length - 1}
@@ -1006,9 +1012,9 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
                 }))}
               />
             </div>
-          </Skeleton>
-        </Card.Body>
-      </Card>
+          </Card.Body>
+        </Card>
+      </Skeleton>
     </section>
   )
 }
