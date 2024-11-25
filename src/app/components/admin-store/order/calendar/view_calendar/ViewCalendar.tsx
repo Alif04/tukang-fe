@@ -56,9 +56,7 @@ const ViewCalendarCS: React.FC = () => {
   ])
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [initialView, setInitialView] = useState(
-    window.innerWidth <= 768 ? 'listMonth' : 'dayGridMonth'
-  )
+  const [initialView] = useState(window.innerWidth <= 768 ? 'listMonth' : 'dayGridMonth')
 
   // Fetch Data
   const getVendor = async () => {
@@ -109,37 +107,6 @@ const ViewCalendarCS: React.FC = () => {
         ? item?.work_orders.work_end_date || item.work_orders.survey_date
         : item?.request_survey
 
-      // const orderStatus = (() => {
-      //   if (item?.work_orders?.work_order_status?.length >= 0) {
-      //     if (
-      //       [
-      //         'QUOTEIN',
-      //         'QUOTEOUT',
-      //         'CANCEL',
-      //         'WARRANTYCLAIM',
-      //         'INVESTIGATED',
-      //         'COMPLAINTAPPROVEDBYHO',
-      //         'COMPLAINTREJECTEDBYHO',
-      //         'RESCHEDULE',
-      //       ].includes(item?.status?.category)
-      //     ) {
-      //       return item?.status?.category
-      //     } else if (
-      //       ['WORKREQ'].includes(item?.status?.category) &&
-      //       item?.payment_type === 'survey' &&
-      //       !['WORKSTART', 'WORKEND'].includes(
-      //         item?.work_orders?.work_order_status[0]?.status?.category
-      //       )
-      //     ) {
-      //       return item?.status?.category
-      //     } else {
-      //       return item?.work_orders?.work_order_status[0]?.status?.category
-      //     }
-      //   } else {
-      //     return item?.status?.category
-      //   }
-      // })()
-
       const orderStatus = (() => {
         return item?.status?.category
       })()
@@ -156,7 +123,18 @@ const ViewCalendarCS: React.FC = () => {
           case 'WORKREQ':
           case 'WORKSTART':
             return 'bg-calendar-order-wip'
+          case 'QUOTATIONDRAFT':
+          case 'QUOTEIN':
+          case 'QUOTEOUT':
+          case 'QUOTATIONPAID':
+          case 'QUOTATIONPAIDSTEPONE':
+          case 'QUOTATIONPAIDSTEPTWO':
+          case 'QUOTATIONPAIDSTEPTHREE':
           case 'WORKEND':
+          case 'WORKENDSTEPONE':
+          case 'WORKENDSTEPTWO':
+          case 'WORKENDSTEPTHREE':
+          case 'REWORKEND':
             return 'bg-calendar-order-done'
           case 'RESCHEDULE':
             return 'bg-calendar-order-reschedule'
@@ -217,6 +195,7 @@ const ViewCalendarCS: React.FC = () => {
 
   useEffect(() => {
     getVendor()
+    //eslint-disable-next-line
   }, [])
 
   useEffect(() => {
@@ -225,6 +204,7 @@ const ViewCalendarCS: React.FC = () => {
       getOrder(dateFrom, dateTo, storeId)
       getOrderVendor(dateFrom, dateTo, vendorIds)
     }
+    //eslint-disable-next-line
   }, [vendor, dateFrom, dateTo])
 
   const handleDatesSet = (arg: any) => {

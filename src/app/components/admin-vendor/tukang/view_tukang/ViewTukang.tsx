@@ -9,17 +9,7 @@ import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, PaginationProps, Pagination, Spin, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
-import {
-  Form,
-  InputGroup,
-  Row,
-  Col,
-  Button,
-  OverlayTrigger,
-  Tooltip,
-  Card,
-  FormGroup,
-} from 'react-bootstrap'
+import {Form, Row, Button, OverlayTrigger, Tooltip, Card, FormGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
   faBook,
@@ -162,6 +152,7 @@ const ViewTukangVendor: FC = () => {
 
   useEffect(() => {
     fetchData(1, 10, '')
+    // eslint-disable-next-line
   }, [])
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
@@ -366,7 +357,7 @@ const ViewTukangVendor: FC = () => {
             .then((willDelete) => {
               if (willDelete.value) {
                 axios
-                  .post(`${apiUrl}/tukang/${id}`, {
+                  .delete(`${apiUrl}/tukang/${id}`, {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

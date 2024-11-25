@@ -70,14 +70,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
 
-  const today = new Date()
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}-${month}-${year}`
-  }
-
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
     setSearchFilter(updatedSearchFilter)
@@ -197,26 +189,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           navigate(`/work-order/update-work-order/${id}`)
         }
 
-        const handleModalRequest = (id: number) => {
-          const selected = workOrderData.find((item) => item.work_order_id === id)
-
-          if (selected) {
-            setModalRequest(true)
-            setTukangRequest((prev: any) => ({
-              ...prev,
-              work_order_id: selected.work_order_id,
-            }))
-          }
-        }
-
-        const handleModalNotification = (id: number) => {
-          const selected = workOrderData.find((item) => item.work_order_id === id)
-
-          if (selected) {
-            setModalNotification(true)
-          }
-        }
-
         return (
           <div className='button-wrapper d-flex justify-content-center align-items-center gap-3'>
             <OverlayTrigger
@@ -232,11 +204,9 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             {[
               'TUKANGSURVEY',
               'SURVEYSTART',
-              'SURVEYDONE',
               'RESURVEYREQ',
               'RETUKANGSURVEY',
               'RESURVEYSTART',
-              'RESURVEYDONE',
               'TUKANGWORK',
               'TUKANGWORKSTEPONE',
               'TUKANGWORKSTEPTWO',
@@ -245,14 +215,9 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               'WORKSTARTSTEPONE',
               'WORKSTARTSTEPTWO',
               'WORKSTARTSTEPTHREE',
-              'WORKEND',
-              'WORKENDSTEPONE',
-              'WORKENDSTEPTWO',
-              'WORKENDSTEPTHREE',
               'REWORKREQ',
               'RETUKANGWORK',
               'REWORKSTART',
-              'REWORKEND',
             ].includes(record.order_status) ? (
               <OverlayTrigger
                 placement='bottom'
@@ -266,38 +231,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
             ) : (
               <></>
             )}
-
-            {/* <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Request Ganti Tukang')}
-            >
-              <Button
-                variant='warning'
-                className='button-request'
-                onClick={() => handleModalRequest(id)}
-              >
-                <FontAwesomeIcon className='text-white' icon={faUserXmark} fontSize={'13px'} />
-              </Button>
-            </OverlayTrigger> */}
-
-            {/* <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Notifikasi Pergantian Tukang')}
-            >
-              <Button
-                variant='danger'
-                className='button-cancel'
-                onClick={() => handleModalNotification(id)}
-              >
-                <FontAwesomeIcon
-                  className='text-white'
-                  icon={faPeopleArrowsLeftRight}
-                  fontSize={'13px'}
-                />
-              </Button>
-            </OverlayTrigger> */}
           </div>
         )
       },
@@ -383,6 +316,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(1, 10, '')
+    // eslint-disable-next-line
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
