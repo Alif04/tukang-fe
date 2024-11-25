@@ -181,24 +181,26 @@ const UpdateOrderStoreStaff: FC<{updatePageTitle: (order: Orders) => void}> = ({
       )
 
       if (Array.isArray(response.data.data)) {
-        const item = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: paymentTypeValue[1] === 'survey' ? item.item_code : item.service_name,
-          item_code: item?.item_code ?? '',
-          item_name: item?.item_name ?? '',
-          category_id: item.category_id,
-          default_price: item.default_price,
-          type: item?.type,
-          prices: item.prices.map((priceItem: any) => ({
-            id: priceItem.id,
-            item_id: priceItem.item_id,
-            store_id: priceItem.store_id,
-            periodic_start: priceItem.periodic_start,
-            periodic_end: priceItem.periodic_end,
-            min_order: priceItem.min_order,
-            price: priceItem.price,
-          })),
-        }))
+        const item = response.data.data
+          .filter((x: any) => x.is_active === true)
+          .map((item: any) => ({
+            value: item.id,
+            label: paymentTypeValue[1] === 'survey' ? item.item_code : item.service_name,
+            item_code: item?.item_code ?? '',
+            item_name: item?.item_name ?? '',
+            category_id: item.category_id,
+            default_price: item.default_price,
+            type: item?.type,
+            prices: item.prices.map((priceItem: any) => ({
+              id: priceItem.id,
+              item_id: priceItem.item_id,
+              store_id: priceItem.store_id,
+              periodic_start: priceItem.periodic_start,
+              periodic_end: priceItem.periodic_end,
+              min_order: priceItem.min_order,
+              price: priceItem.price,
+            })),
+          }))
 
         const filteredItem = item.filter((detail: any) => detail.default_price !== '0')
         setItem(paymentTypeValue[0] === 'berbayar' ? filteredItem : item)
