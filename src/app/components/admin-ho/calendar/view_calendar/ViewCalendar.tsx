@@ -51,9 +51,7 @@ const ViewCalendarHO: React.FC = () => {
   ])
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [initialView, setInitialView] = useState(
-    window.innerWidth <= 768 ? 'listMonth' : 'dayGridMonth'
-  )
+  const [initialView] = useState(window.innerWidth <= 768 ? 'listMonth' : 'dayGridMonth')
 
   // Fetch Data
   const getOrder = async (start: any, end: any) => {
@@ -115,7 +113,18 @@ const ViewCalendarHO: React.FC = () => {
                   case 'WORKREQ':
                   case 'WORKSTART':
                     return 'bg-calendar-order-wip'
+                  case 'QUOTATIONDRAFT':
+                  case 'QUOTEIN':
+                  case 'QUOTEOUT':
+                  case 'QUOTATIONPAID':
+                  case 'QUOTATIONPAIDSTEPONE':
+                  case 'QUOTATIONPAIDSTEPTWO':
+                  case 'QUOTATIONPAIDSTEPTHREE':
                   case 'WORKEND':
+                  case 'WORKENDSTEPONE':
+                  case 'WORKENDSTEPTWO':
+                  case 'WORKENDSTEPTHREE':
+                  case 'REWORKEND':
                     return 'bg-calendar-order-done'
                   case 'RESCHEDULE':
                     return 'bg-calendar-order-reschedule'
@@ -155,6 +164,7 @@ const ViewCalendarHO: React.FC = () => {
     if (dateFrom && dateTo) {
       getOrder(dateFrom, dateTo)
     }
+    // eslint-disable-next-line
   }, [dateFrom, dateTo])
 
   const handleDatesSet = (arg: any) => {
@@ -379,7 +389,7 @@ const ViewCalendarHO: React.FC = () => {
             center: 'title',
             right: 'dayGridMonth,dayGridWeek,dayGridDay,listMonth',
           }}
-          initialView='dayGridMonth'
+          initialView={initialView}
           displayEventTime={false}
           eventDisplay=''
           dayMaxEvents={7}

@@ -238,12 +238,14 @@ const NewQuotationVendor: FC = () => {
   useEffect(() => {
     getWorkOrder()
     getCode()
+    // eslint-disable-next-line
   }, [])
 
   useEffect(() => {
     if (workOrderId) {
       getWorkOrderDetail()
     }
+    // eslint-disable-next-line
   }, [workOrderId, quotation.quotation_special])
 
   const formatForFormData = (date: any) => {
@@ -262,7 +264,7 @@ const NewQuotationVendor: FC = () => {
   const stringToHash = (string: string): number => {
     let hash = 0
 
-    if (string.length == 0) return hash
+    if (string.length === 0) return hash
 
     for (let i = 0; i < string.length; i++) {
       const char = string.charCodeAt(i)
@@ -372,7 +374,6 @@ const NewQuotationVendor: FC = () => {
         updatedDetails[elementIndex].is_user = isChecked ? 1 : 0
 
         if (isChecked) {
-          updatedDetails[elementIndex].quantity = 0
           updatedDetails[elementIndex].margin = 0
           updatedDetails[elementIndex].unit_price = 0
         }
@@ -514,6 +515,7 @@ const NewQuotationVendor: FC = () => {
     calculateTotalMaterials()
     calculateTotalDetails()
     calculatedGrandTotalQuotation()
+    // eslint-disable-next-line
   }, [quotation.quotation_details, quotation.quotation_details.length, totalJasaMaterial])
 
   // Quotation Validation

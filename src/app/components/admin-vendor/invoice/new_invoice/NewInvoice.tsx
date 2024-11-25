@@ -120,7 +120,7 @@ const NewInvoiceVendor: FC = () => {
   }
 
   // Status
-  const storedStatus = sessionStorage.getItem('statusData')
+  const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
   const workend = statusData.filter((status: any) => ['WORKEND'].includes(status.category))
   const workstep = statusData.filter((status: any) =>

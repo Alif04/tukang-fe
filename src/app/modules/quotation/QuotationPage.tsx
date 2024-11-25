@@ -112,18 +112,10 @@ const VendorPage: React.FC = () => {
         path='view-request-discount'
         element={
           <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : userRole === 'Admin Vendor' || userRole === 'Owner Vendor' ? (
-              <>
-                <HeaderWrapper className='bg-header-vendor' />
-              </>
-            ) : (
-              <></>
-            )}
-            <PageTitle breadcrumbs={orderBreadCrumbs}>DAFTAR PENGAJUAN DISKON</PageTitle>
+            <HeaderWrapper className='bg-header-ho' />
+            <PageTitle breadcrumbs={orderBreadCrumbs}>
+              {userRole === 'Super User' ? 'APPROVAL PENGAJUAN DISKON' : 'DAFTAR PENGAJUAN DISKON'}
+            </PageTitle>
             <ViewRequestDiscount />
           </>
         }

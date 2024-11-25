@@ -167,7 +167,11 @@ export function AsideMenuMain() {
         />
         <AsideMenuItem
           to='/quotation/view-request-discount'
-          title='Daftar Pengajuan Diskon'
+          title={
+            ['Super User'].includes(userRole)
+              ? 'Approval Pengajuan Diskon'
+              : 'Daftar Pengajuan Diskon'
+          }
           role={['Admin HO', 'Super User']}
           hasBullet={true}
         />

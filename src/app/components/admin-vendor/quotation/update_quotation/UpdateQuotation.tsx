@@ -175,46 +175,8 @@ const UpdateQuotationVendor: FC = () => {
 
   useEffect(() => {
     getQuotationData()
+    // eslint-disable-next-line
   }, [])
-
-  // Format Date
-  const formatDate = (date: any) => {
-    if (isNaN(date.getTime()) || date === null) {
-      return '--/--/----'
-    }
-
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
-  const formatForFormData = (date: any) => {
-    if (isNaN(date.getTime())) {
-      return ''
-    }
-
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-
-    return `${year}-${month}-${day}`
-  }
-
-  // Hash Key
-  const stringToHash = (string: string): number => {
-    let hash = 0
-
-    if (string.length == 0) return hash
-
-    for (let i = 0; i < string.length; i++) {
-      const char = string.charCodeAt(i)
-      hash = (hash << 5) - hash + char
-      hash = hash & hash
-    }
-
-    return hash
-  }
 
   // Quotation Status
   useEffect(() => {
@@ -309,7 +271,6 @@ const UpdateQuotationVendor: FC = () => {
         updatedDetails[elementIndex].is_user = isChecked ? 1 : 0
 
         if (isChecked) {
-          updatedDetails[elementIndex].quantity = 0
           updatedDetails[elementIndex].margin = 0
           updatedDetails[elementIndex].unit_price = 0
         }
@@ -451,6 +412,7 @@ const UpdateQuotationVendor: FC = () => {
     calculateTotalMaterials()
     calculateTotalDetails()
     calculatedGrandTotalQuotation()
+    // eslint-disable-next-line
   }, [quotation.quotation_details, quotation.quotation_details.length, totalJasaMaterial])
 
   // Quotation Validation
