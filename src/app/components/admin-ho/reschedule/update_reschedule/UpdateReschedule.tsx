@@ -25,10 +25,7 @@ interface Reschedule {
   reschedule_status_id: any
   description: string
   reschedule_status_by: string
-  reschedule_tukang: Array<{
-    id: number | null
-    tukang_id: number | null
-  }>
+  reschedule_tukang: WorkOrderTukang[]
 }
 
 const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
@@ -55,12 +52,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
     reschedule_status_id: null,
     description: '',
     reschedule_status_by: '',
-    reschedule_tukang: [
-      {
-        id: null,
-        tukang_id: null,
-      },
-    ],
+    reschedule_tukang: [],
   })
 
   console.log('reschedule', reschedule)
@@ -101,10 +93,13 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
               description: data?.reschedule_status[0]?.description,
               reschedule_status_by: data?.reschedule_status[0]?.status_by,
               confirm_date: data?.confirm_date,
-              reschedule_tukang: data?.reschedule_tukang.map((item: any) => ({
-                id: item.id,
-                tukang_id: item.tukang_id,
-              })),
+              reschedule_tukang: data?.reschedule_tukang
+                ?.filter((x: any) => x.deleted_at === null)
+                ?.map((item: any) => ({
+                  id: item.id,
+                  tukang_id: item.tukang_id,
+                  tukang_name: item.tukang.full_name,
+                })),
             })
           }
 
@@ -165,14 +160,15 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
   }, [searchTukang])
 
   // Reschedule Status
-  useEffect(() => {
-    const storedStatus = localStorage.getItem('statusData')
-    const statusData = storedStatus ? JSON.parse(storedStatus) : []
-    const getStatus = (category: string) => {
-      const status = statusData.find((status: any) => status.category === category)
-      return status ? status.value : null
-    }
+  const storedStatus = localStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
 
+  const getStatus = (category: string) => {
+    const status = statusData.find((status: any) => status.category === category)
+    return status ? status.value : null
+  }
+
+  useEffect(() => {
     const statusApproveId = getStatus('RESCHEDULEAPPROVEDBYVENDOR')
     const statusRejectId = getStatus('RESCHEDULEREJECTEDBYVENDOR')
 
@@ -180,7 +176,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
       approve: statusApproveId,
       rejected: statusRejectId,
     })
-  }, [rescheduleApproval])
+  }, [reschedule])
 
   // Reschedule Handler Form
   const disabledDate = (current: dayjs.Dayjs) => {
@@ -198,6 +194,7 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
   const tukangHandler = (selectedOption: any) => {
     const updatedServices = selectedOption.map((option: any) => ({
       tukang_id: option.tukang_id,
+      tukang_name: option.tukang_name,
     }))
 
     setReschedule((prev) => ({
@@ -290,6 +287,10 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
     if (reschedule.reschedule_tukang.length > 0) {
       reschedule.reschedule_tukang.forEach((item, index) => {
+        if (item.id !== null) {
+          formData.append(`reschedule_tukang[${index}][id]`, String(item.id))
+        }
+
         if (item.tukang_id !== null) {
           formData.append(`reschedule_tukang[${index}][tukang_id]`, String(item.tukang_id))
         }
@@ -760,24 +761,20 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                       </thead>
                       <tbody>
                         {rescheduleDetail?.order?.m_order_details.map((item: any, index: any) => (
-                          <>
-                            <tr key={`${index} - order_detail`}>
-                              <td>{item?.item_code}</td>
-                              <td>{item?.item_name}</td>
-                              <td>{item?.item?.service_name}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              {!(rescheduleDetail?.order?.payment_type === 'gratis') && (
-                                <>
-                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                </>
-                              )}
-                            </tr>
-                          </>
+                          <tr key={`${index} - order_detail`}>
+                            <td>{item?.item_code}</td>
+                            <td>{item?.item_name}</td>
+                            <td>{item?.item?.service_name}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            {!(rescheduleDetail?.order?.payment_type === 'gratis') && (
+                              <>
+                                <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                  'id'
+                                )}`}</td>
+                                <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                              </>
+                            )}
+                          </tr>
                         ))}
 
                         {rescheduleDetail?.order?.is_overdistance === 1 && (
@@ -905,8 +902,9 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
                   components={animatedComponents}
                   isMulti
                   options={tukang}
-                  getOptionLabel={(option: WorkOrderTukang) => `${option.tukang_name}`}
-                  getOptionValue={(option: WorkOrderTukang) => `${option.tukang_id}`}
+                  value={reschedule.reschedule_tukang}
+                  getOptionLabel={(option) => `${option.tukang_name}`}
+                  getOptionValue={(option) => `${option.tukang_id}`}
                   onChange={(e) => tukangHandler(e)}
                   onInputChange={(newValue) => setSearchTukang(newValue)}
                 />

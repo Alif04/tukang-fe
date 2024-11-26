@@ -1828,9 +1828,11 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
 
                           <p className='fs-6'>
-                            {item?.reschedule_date
-                              ? `${formatDateWithTime(item?.reschedule_date)}`
-                              : 'Tanggal belum ditentukan vendor'}
+                            {item?.reschedule_tukang?.length >= 1
+                              ? item?.reschedule_tukang
+                                  ?.map((item: any) => item?.tukang?.full_name)
+                                  ?.join(', ')
+                              : 'Tukang belum ditentukan vendor'}
                           </p>
                         </Form.Group>
                       </Col>

@@ -1820,7 +1820,24 @@ const NewMaterialVendor: FC = () => {
 
           <Row>
             {workOrderDetail?.work_order_status?.length > 1 &&
-            workOrderDetail?.work_order_status[0]?.status?.category === 'WORKEND' ? (
+            [
+              'QUOTEIN',
+              'QUOTATIONPAID',
+              'QUOTATIONPAIDSTEPONE',
+              'QUOTATIONPAIDSTEPTWO',
+              'QUOTATIONPAIDSTEPTHREE',
+              'QUOTEOUT',
+              'CANCEL',
+              'WARRANTYCLAIM',
+              'INVESTIGATED',
+              'COMPLAINTAPPROVEDBYHO',
+              'COMPLAINTREJECTEDBYHO',
+              'SURVEYDONE',
+              'WORKEND',
+              'WORKENDSTEPONE',
+              'WORKENDSTEPTWO',
+              'WORKENDSTEPTHREE',
+            ].includes(workOrderDetail?.work_order_status[0]?.status?.category) ? (
               <div className='d-flex justify-content-center align-items-center'>
                 <Button
                   className='btn-done d-flex justify-content-center align-items-center'
