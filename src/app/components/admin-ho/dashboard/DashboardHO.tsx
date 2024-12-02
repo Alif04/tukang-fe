@@ -2,6 +2,7 @@ import React, {useState, useEffect, FC} from 'react'
 
 import './DashboardHO.css'
 
+import {TopBestStores} from './components/TopBestStore'
 import {ChartBarPerformance} from './components/ChartBarPerformance'
 import {ChartBarOrder} from './components/ChartBarOrder'
 import {ChartBarSurvey} from './components/ChartBarSurvey'
@@ -112,6 +113,7 @@ const DashboardHO: FC = () => {
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
   const [store, setStore] = useState<StoreItem[]>([])
+  const [topBestStore, setTopBestStore] = useState<any[]>([])
   const [area, setArea] = useState<AreaItem[]>([])
 
   const [selectedStore, setSelectedStore] = useState<any>({
@@ -302,6 +304,27 @@ const DashboardHO: FC = () => {
       }
     }
 
+    const getTopStore = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/stores?top_best=1&take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          setTopBestStore(response.data.data)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     const getArea = async () => {
       try {
         const response = await axios.get(`${apiUrl}/area?take=0`, {
@@ -330,6 +353,7 @@ const DashboardHO: FC = () => {
 
     getStore()
     getArea()
+    getTopStore()
   }, [selectedZone])
 
   const handleSubmitFilter = async () => {
@@ -525,6 +549,17 @@ const DashboardHO: FC = () => {
       <Row className='mb-5'>
         <Col md={12}>
           <ChartBarPerformance className='card-xl-stretch' orderData={chartDataOrder} />
+        </Col>
+      </Row>
+
+      <Row className='mb-5'>
+        <Col md={12}>
+          <TopBestStores
+            className='card-xl-stretch'
+            storeData={topBestStore}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+          />
         </Col>
       </Row>
 
