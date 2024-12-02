@@ -287,9 +287,9 @@ const UpdateRescheduleHO: FC<{updatePageTitle: (reschedule: any) => void}> = ({
 
     if (reschedule.reschedule_tukang.length > 0) {
       reschedule.reschedule_tukang.forEach((item, index) => {
-        if (item.id !== null) {
-          formData.append(`reschedule_tukang[${index}][id]`, String(item.id))
-        }
+        // if (item.id !== null || item.id !== undefined) {
+        //   formData.append(`reschedule_tukang[${index}][id]`, String(item.id))
+        // }
 
         if (item.tukang_id !== null) {
           formData.append(`reschedule_tukang[${index}][tukang_id]`, String(item.tukang_id))
