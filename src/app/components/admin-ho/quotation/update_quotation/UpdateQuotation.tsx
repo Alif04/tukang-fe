@@ -156,7 +156,7 @@ const UpdateQuotationHO: FC = () => {
             )
             setQuotationDescription(data.description)
             setQuotationSpecial(data.quotation_special)
-            setGrandTotalBeforePromotion(data?.quotation_grand_total)
+            setGrandTotalBeforePromotion(data?.quotation_no_promotion)
             setGrandTotal(data.quotation_grand_total)
           }
 
