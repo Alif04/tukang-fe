@@ -848,7 +848,7 @@ const UpdateRefundHO: FC = () => {
               <div className='col-xxl-4'>
                 <div className='row'>
                   <div className='col-xxl-6'>
-                    <Form.Group>
+                    <Form.Group className='d-flex flex-column'>
                       <Form.Label className='fs-4 fw-bold mb-1'>Untuk Customer</Form.Label>
                       <Form.Label className='mb-1'>Input Voucher</Form.Label>
                       <Form.Control
@@ -861,7 +861,7 @@ const UpdateRefundHO: FC = () => {
 
                   <div className='col-xxl-6'>
                     {refundDetail?.orders?.vendor_id !== null && (
-                      <Form.Group>
+                      <Form.Group className='d-flex flex-column'>
                         <Form.Label className='fs-4 fw-bold mb-1'>Untuk Vendor</Form.Label>
                         <Form.Label className='mb-1'>Input Nominal Denda</Form.Label>
                         <Form.Control
