@@ -8,6 +8,7 @@ import {Row, Col, Form, Table, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {formatDate, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const DetailRefundCS: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -44,13 +45,6 @@ const DetailRefundCS: FC = () => {
   useEffect(() => {
     fetchRefundData()
   }, [])
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
 
   return (
     <section id='detail-refund'>
@@ -227,7 +221,7 @@ const DetailRefundCS: FC = () => {
               if (
                 (refundDetail?.orders?.payment_type === 'survey' &&
                   refundDetail?.orders?.work_orders === null) ||
-                (refundDetail?.orders?.work_orders?.work_order_status.length === 1 &&
+                (refundDetail?.orders?.work_orders?.work_order_status?.length === 1 &&
                   refundDetail?.orders?.payment_type === 'survey')
               ) {
                 return (
@@ -300,7 +294,14 @@ const DetailRefundCS: FC = () => {
                   </div>
                 )
               } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(refundDetail?.orders?.status?.category ?? '') &&
+                [
+                  'QUOTEIN',
+                  'QUOTEOUT',
+                  'QUOTATIONPAID',
+                  'QUOTATIONPAIDSTEPONE',
+                  'QUOTATIONPAIDSTEPTWO',
+                  'QUOTATIONPAIDSTEPTHREE',
+                ].includes(refundDetail?.orders?.status?.category ?? '') &&
                 refundDetail?.orders?.payment_type === 'survey'
               ) {
                 return (
@@ -449,11 +450,21 @@ const DetailRefundCS: FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
-                  refundDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
+                [
+                  'SURVEYREQ',
+                  'TUKANGSURVEY',
+                  'SURVEYSTART',
+                  'SURVEYDONE',
+                  'WORKREQ',
+                  'TUKANGWORK',
+                  'WORKSTART',
+                  'WORKEND',
+                  'DONE',
+                ].includes(
+                  refundDetail?.orders?.work_orders?.work_order_status?.[0]?.status?.category
                 ) &&
                 refundDetail?.orders?.payment_type === 'survey' &&
-                refundDetail?.orders?.work_orders?.work_order_status.length >= 1
+                refundDetail?.orders?.work_orders?.work_order_status?.length >= 1
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -468,7 +479,7 @@ const DetailRefundCS: FC = () => {
 
                       <tbody>
                         {refundDetail?.orders?.work_orders?.work_order_status[0]?.work_order_items
-                          .length ? (
+                          ?.length ? (
                           refundDetail?.orders?.work_orders?.work_order_status[0].work_order_items.map(
                             (item: any, index: any) => (
                               <tr key={`${index}-work_order_detail`}>
@@ -597,7 +608,11 @@ const DetailRefundCS: FC = () => {
                   <Form.Control
                     type='text'
                     readOnly
-                    value={refundDetail ? formatDate(new Date(refundDetail?.date_of_filing)) : ''}
+                    value={
+                      refundDetail
+                        ? formatDateWithTimeZone(new Date(refundDetail?.date_of_filing))
+                        : ''
+                    }
                   />
                 </Form.Group>
 
