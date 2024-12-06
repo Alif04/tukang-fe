@@ -4,6 +4,7 @@ import React, {useState, useEffect} from 'react'
 import './ReportInsentif.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Select from 'react-select'
 import {Table, DatePicker, PaginationProps, Spin, Pagination} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
@@ -56,8 +57,10 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
   const [totalOrder, setTotalOrder] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
+  )
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
 
   // Store
@@ -167,6 +170,9 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/reports/sales-comission?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+    if (dateFrom && dateTo) {
+      apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
+    }
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -371,8 +377,6 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
     valueCheck(`&sales_id=`, selectedSales.value)
     valueCheck(`&store_id=`, selectedStore.value)
@@ -396,6 +400,7 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range ms-3'
+                defaultValue={[dayjs().subtract(30, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -404,8 +409,8 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />
