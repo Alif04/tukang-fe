@@ -284,7 +284,7 @@ const RefundPage: React.FC = () => {
               statusName=''
               headerColor='success'
               title='Laporan General Report'
-              params='&is_receipt_quotation=1'
+              params='&orderPaidGrandTotal=1'
             />
           </>
         }
