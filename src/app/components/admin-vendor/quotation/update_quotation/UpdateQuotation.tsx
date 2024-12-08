@@ -435,6 +435,13 @@ const UpdateQuotationVendor: FC = () => {
         icon: 'warning',
       })
       valid = false
+    } else if (quotation.quotation_details.some((x) => x.margin === null)) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong Isi Margin, isi 0 jika tidak ada',
+        icon: 'warning',
+      })
+      valid = false
     }
 
     // else if (quotation.quotation_grand_total >= 20000000 && quotation.quotation_special === 0) {
@@ -481,9 +488,9 @@ const UpdateQuotationVendor: FC = () => {
       appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
       appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
       appendIfNotDefault(formData, `quotation_details[${index}][work_step]`, quotation.work_step)
-      formData.append(`quotation_details[${index}][price]`, String(quotation.unit_price))
-      formData.append(`quotation_details[${index}][quantity]`, String(quotation.quantity))
-      formData.append(`quotation_details[${index}][margin]`, String(quotation.margin))
+      formData.append(`quotation_details[${index}][price]`, String(quotation?.unit_price ?? 0))
+      formData.append(`quotation_details[${index}][quantity]`, String(quotation?.quantity ?? 0))
+      formData.append(`quotation_details[${index}][margin]`, String(quotation?.margin ?? 0))
 
       if (quotation.item_name !== '') {
         appendIfNotDefault(formData, `quotation_details[${index}][type]`, quotation.type)
