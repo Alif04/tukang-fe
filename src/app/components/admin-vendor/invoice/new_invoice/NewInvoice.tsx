@@ -122,7 +122,9 @@ const NewInvoiceVendor: FC = () => {
   // Status
   const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const workend = statusData.filter((status: any) => ['WORKEND'].includes(status.category))
+  const workend = statusData.filter((status: any) =>
+    ['WORKEND', 'REWORKEND'].includes(status.category)
+  )
   const workstep = statusData.filter((status: any) =>
     ['WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(status.category)
   )
@@ -343,6 +345,8 @@ const NewInvoiceVendor: FC = () => {
           row.order_status === 'QUOTEIN'
             ? 1
             : row.order_status === 'WORKEND'
+            ? 2
+            : row.order_status === 'REWORKEND'
             ? 2
             : row.order_status === 'WORKENDSTEPONE'
             ? 3
