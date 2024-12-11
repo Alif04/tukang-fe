@@ -304,27 +304,6 @@ const DashboardHO: FC = () => {
       }
     }
 
-    const getTopStore = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/stores?top_best=1&take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          setTopBestStore(response.data.data)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     const getArea = async () => {
       try {
         const response = await axios.get(`${apiUrl}/area?take=0`, {
@@ -353,8 +332,35 @@ const DashboardHO: FC = () => {
 
     getStore()
     getArea()
-    getTopStore()
   }, [selectedZone])
+
+  useEffect(() => {
+    const getTopStore = async () => {
+      try {
+        const response = await axios.get(
+          `${apiUrl}/stores?top_best=1&take=0&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
+
+        if (Array.isArray(response.data.data)) {
+          setTopBestStore(response.data.data)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getTopStore()
+  }, [dateFrom, dateTo])
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)

@@ -35,6 +35,12 @@ const TopVendorWidget: React.FC<Props> = ({className, vendorData}) => {
             </div>
 
             <div className='d-flex flex-column justify-content-center align-items-end'>
+              <span className='fw-normal text-black'>{`Paid Value : Rp. ${parseInt(
+                item?.total_paid_order ?? 0
+              ).toLocaleString('id')}`}</span>
+              <span className='fw-normal text-dark-danger '>{`Unpaid Value : Rp. ${parseInt(
+                item?.total_unpaid_order ?? 0
+              ).toLocaleString('id')}`}</span>
               <span className='fw-normal text-dark'>{item?.orders?.length} Order</span>
             </div>
           </div>
