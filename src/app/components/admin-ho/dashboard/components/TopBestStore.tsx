@@ -17,8 +17,8 @@ const TopBestStores: React.FC<Props> = ({className, storeData, dateFrom, dateTo}
 
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
 
-  const checkDateFrom = dateFrom ? `&date_from=${dateFrom}` : ''
-  const checkDateTo = dateTo ? `&date_to=${dateTo}` : ''
+  const checkDateFrom = dateFrom ? `&order_date_from=${dateFrom}` : ''
+  const checkDateTo = dateTo ? `&order_date_to=${dateTo}` : ''
 
   // Export To Excel
   const exportToExcel = () => {
@@ -30,7 +30,7 @@ const TopBestStores: React.FC<Props> = ({className, storeData, dateFrom, dateTo}
     setLoadingExport(true)
 
     axios
-      .get(`${apiUrl}/store/export-excel`, {
+      .get(`${apiUrl}/store/export-excel?top_best=1${checkDateFrom}${checkDateTo}`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
