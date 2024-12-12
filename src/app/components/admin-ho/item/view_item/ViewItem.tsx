@@ -21,6 +21,7 @@ interface DataType {
   material_id: number
   store_name: string
   product_name: string
+  category_name: string
   service_name: string
   default_price: number
   min_order: number
@@ -30,6 +31,12 @@ interface DataType {
 interface StoreItem {
   value: number | null
   label: string
+}
+
+export interface ItemType {
+  key: string
+  value: string
+  query: string
 }
 
 const ViewItemHO: React.FC = () => {
@@ -60,6 +67,20 @@ const ViewItemHO: React.FC = () => {
     setSearchFilter(updatedSearchFilter)
   }
 
+  const getQueryParams = (params: ItemType[]) => {
+    const queryParams = new URLSearchParams(window.location.search)
+
+    return params
+      .filter(({key, value}) => queryParams.get(key) === value)
+      .map(({query}) => query)
+      .join('')
+  }
+
+  const QUERY_PARAMS_CONFIG: ItemType[] = [
+    {key: 'type', value: 'item_promotion', query: '&is_promotion=1'},
+    {key: 'type', value: 'item_survei', query: '&item_type=3'},
+  ]
+
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
 
   const columns: ColumnsType<DataType> = [
@@ -69,7 +90,7 @@ const ViewItemHO: React.FC = () => {
       key: 'no',
       width: 90,
       align: 'center',
-      sorter: (a, b) => a.no - b.no,
+      sorter: (a: DataType, b: DataType) => a.no - b.no,
       render: (text: any, record: any, index: number) => {
         return (currentPage - 1) * pageSize + index + 1
       },
@@ -80,8 +101,8 @@ const ViewItemHO: React.FC = () => {
       key: 'product_name',
       align: 'left',
       width: 150,
-      onFilter: (value, record) => record.product_name.includes(String(value)),
-      sorter: (a, b) => a.product_name.length - b.product_name.length,
+      onFilter: (value: string, record: DataType) => record.product_name.includes(value),
+      sorter: (a: DataType, b: DataType) => a.product_name.localeCompare(b.product_name),
     },
     {
       title: 'Nama Jasa Pemasangan',
@@ -89,33 +110,42 @@ const ViewItemHO: React.FC = () => {
       key: 'service_name',
       align: 'left',
       width: 170,
-      onFilter: (value, record) => record.service_name.includes(String(value)),
-      sorter: (a, b) => a.service_name.length - b.service_name.length,
+      onFilter: (value: string, record: DataType) => record.service_name.includes(value),
+      sorter: (a: DataType, b: DataType) => a.service_name.localeCompare(b.service_name),
     },
     {
+      title: 'Kategori',
+      dataIndex: 'category_name',
+      key: 'category_name',
+      align: 'left',
+      width: 170,
+      onFilter: (value: string, record: DataType) => record.category_name.includes(value),
+      sorter: (a: DataType, b: DataType) => a.category_name.localeCompare(b.category_name),
+    },
+    getQueryParams(QUERY_PARAMS_CONFIG).includes('&is_promotion=1') && {
       title: 'Assign To Store',
       dataIndex: 'store_name',
       key: 'store_name',
       align: 'left',
       width: 100,
-      onFilter: (value, record) => record.store_name.includes(String(value)),
-      sorter: (a, b) => a.store_name.length - b.store_name.length,
+      onFilter: (value: string, record: DataType) => record.store_name.includes(value),
+      sorter: (a: DataType, b: DataType) => a.store_name.localeCompare(b.store_name),
     },
-    {
+    getQueryParams(QUERY_PARAMS_CONFIG).includes('&is_promotion=1') && {
       title: 'Price',
       dataIndex: 'default_price',
       key: 'default_price',
       align: 'center',
       width: 150,
-      sorter: (a, b) => a.default_price - b.default_price,
+      sorter: (a: DataType, b: DataType) => a.default_price - b.default_price,
     },
-    {
+    getQueryParams(QUERY_PARAMS_CONFIG).includes('&is_promotion=1') && {
       title: 'Min Order',
       dataIndex: 'min_order',
       key: 'min_order',
       align: 'center',
       width: 100,
-      sorter: (a, b) => a.min_order - b.min_order,
+      sorter: (a: DataType, b: DataType) => a.min_order - b.min_order,
     },
     {
       title: 'Status Item',
@@ -127,10 +157,10 @@ const ViewItemHO: React.FC = () => {
     {
       title: 'Action',
       key: 'action',
-      align: 'center',
+      align: 'left',
       fixed: 'right',
-      width: 100,
-      render: (record) => {
+      width: 80,
+      render: (record: DataType) => {
         const id = record.material_id
 
         const handleUpdate = () => {
@@ -191,26 +221,30 @@ const ViewItemHO: React.FC = () => {
         }
 
         return (
-          <div className='button-wrapper'>
-            <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Detail Item')}
-            >
-              <Button variant='primary' className='button-detail' onClick={handleDetail}>
-                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
-              </Button>
-            </OverlayTrigger>
+          <div className='d-flex gap-3'>
+            {getQueryParams(QUERY_PARAMS_CONFIG).includes('&is_promotion=1') && (
+              <>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Detail Item')}
+                >
+                  <Button variant='primary' className='button-detail' onClick={handleDetail}>
+                    <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
 
-            <OverlayTrigger
-              placement='bottom'
-              delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Edit Item')}
-            >
-              <Button variant='primary' className='button-edit' onClick={handleUpdate}>
-                <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-              </Button>
-            </OverlayTrigger>
+                <OverlayTrigger
+                  placement='bottom'
+                  delay={{show: 250, hide: 400}}
+                  overlay={renderTooltip('Edit Item')}
+                >
+                  <Button variant='primary' className='button-edit' onClick={handleUpdate}>
+                    <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                  </Button>
+                </OverlayTrigger>
+              </>
+            )}
 
             <OverlayTrigger
               placement='bottom'
@@ -225,20 +259,23 @@ const ViewItemHO: React.FC = () => {
         )
       },
     },
-  ]
+  ].filter(Boolean) as ColumnsType<DataType>
 
   const getItemList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/items?order_by=desc&is_promotion=1${queryparams}&page=${page}&take=${pageSize}`
+    const dynamicQuery = getQueryParams(QUERY_PARAMS_CONFIG)
 
     try {
-      const response = await axios.get(apiUrlWithParams, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/items?order_by=desc${dynamicQuery}${queryparams}&page=${page}&take=${pageSize}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
@@ -305,7 +342,7 @@ const ViewItemHO: React.FC = () => {
 
   useEffect(() => {
     fetchData(1, 10, '')
-  }, [])
+  }, [getQueryParams(QUERY_PARAMS_CONFIG)])
 
   useEffect(() => {
     const getStore = async () => {

@@ -1,11 +1,11 @@
 import React, {FC, useState, useEffect} from 'react'
-import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './DetailItem.css'
 
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
-import {Form, Table, Row, Col} from 'react-bootstrap'
+import {Table, Row, Col} from 'react-bootstrap'
+import {formatDate} from '../../../../../_metronic/helpers'
 
 const DetailItemHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -37,24 +37,6 @@ const DetailItemHO: FC = () => {
   useEffect(() => {
     getItemData()
   }, [])
-
-  const formatDate = (date: any) => {
-    const day = date.toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
-
-  const formatDateTime = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    const hours = date.getHours().toString().padStart(2, '0')
-    const minutes = date.getMinutes().toString().padStart(2, '0')
-    const seconds = date.getSeconds().toString().padStart(2, '0')
-
-    return `${year}/${month}/${day} ${hours}:${minutes}`
-  }
 
   return (
     <section id='detail-item'>
@@ -118,9 +100,9 @@ const DetailItemHO: FC = () => {
               <tbody>
                 {itemDetail?.prices.map((item: any, index: number) => (
                   <tr key={`price-${index}`}>
-                    <td style={{maxWidth: '200px'}}>{`${formatDateTime(
+                    <td style={{maxWidth: '200px'}}>{`${formatDate(
                       new Date(item?.periodic_start)
-                    )} — ${formatDateTime(new Date(item?.periodic_end))}`}</td>
+                    )} — ${formatDate(new Date(item?.periodic_end))}`}</td>
 
                     <td style={{maxWidth: '250px'}}>
                       {item?.price_stores
