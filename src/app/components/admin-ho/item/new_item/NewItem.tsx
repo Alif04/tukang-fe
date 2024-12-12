@@ -29,9 +29,9 @@ interface Item {
   item_name: string
   name: string
   category_id: number | null
-  default_price: number
-  item_type: number
-  invoice_nominal: number
+  default_price: number | null
+  item_type: number | null
+  invoice_nominal: number | null
   prices: Array<{
     id: number | null
     is_active: number
@@ -45,6 +45,11 @@ interface Item {
   }>
 }
 
+interface ItemType {
+  value: number
+  label: string
+}
+
 const NewItemHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -56,7 +61,7 @@ const NewItemHO: FC = () => {
     name: '',
     category_id: null,
     default_price: 0,
-    item_type: 1,
+    item_type: null,
     invoice_nominal: 0,
     prices: [
       {
@@ -70,6 +75,12 @@ const NewItemHO: FC = () => {
       },
     ],
   })
+
+  const [itemType] = useState<ItemType[]>([
+    {value: 1, label: 'Item Gratis'},
+    {value: 2, label: 'Item Promosi'},
+    {value: 3, label: 'Item Survei'},
+  ])
 
   // Store
   const [store, setStore] = useState<Store[]>([])
@@ -234,17 +245,18 @@ const NewItemHO: FC = () => {
     })
   }
 
-  const handleMarginTypeChange = (isChecked: boolean) => {
+  const handleItemTypeChange = (newValue: ItemType | null) => {
+    if (!newValue) return
+
     setItem({
       ...item,
-      item_type: isChecked ? 1 : 2,
+      item_type: newValue.value,
     })
   }
 
   // Modal Assign To Store
   const [showModal, setShowModal] = useState<boolean>(false)
   const [modalIndex, setModalIndex] = useState<number | null>(null)
-  const [searchByStore, setSearchByStore] = useState<string>('')
 
   const handleShowModal = (index: any) => {
     setModalIndex(index)
@@ -351,33 +363,54 @@ const NewItemHO: FC = () => {
         icon: 'warning',
       })
       valid = false
+    } else if (!item.item_type) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please select Item Type form',
+        icon: 'warning',
+      })
+      valid = false
     }
 
-    item.prices.map((item) => {
-      if (item.periodic_start === '') {
-        Swal.fire({
-          title: 'Warning',
-          text: 'Please fill Periode form',
-          icon: 'warning',
-        })
-        valid = false
-      } else if (item.periodic_end === '') {
-        Swal.fire({
-          title: 'Warning',
-          text: 'Please fill Periode  form',
-          icon: 'warning',
-        })
-        valid = false
-      } else if (item.min_order === 0) {
-        Swal.fire({
-          title: 'Warning',
-          text: 'Please fill Minimum Order  form',
-          icon: 'warning',
-        })
-        valid = false
+    if (item.item_type !== null && [1, 2].includes(item.item_type)) {
+      item.prices.map((item) => {
+        if (item.periodic_start === '') {
+          Swal.fire({
+            title: 'Warning',
+            text: 'Please fill Periode form',
+            icon: 'warning',
+          })
+          valid = false
+        } else if (item.periodic_end === '') {
+          Swal.fire({
+            title: 'Warning',
+            text: 'Please fill Periode  form',
+            icon: 'warning',
+          })
+          valid = false
+        } else if (item.min_order === 0) {
+          Swal.fire({
+            title: 'Warning',
+            text: 'Please fill Minimum Order  form',
+            icon: 'warning',
+          })
+          valid = false
+        }
+      })
+    }
+    return valid
+  }
+
+  const objectValueCheck = (data: Item) => {
+    let cleanedData: Partial<Item> = {}
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        cleanedData[key as keyof Item] = value
       }
     })
-    return valid
+
+    return cleanedData
   }
 
   // Handle Submit New Item
@@ -388,8 +421,17 @@ const NewItemHO: FC = () => {
 
     setIsLoading(true)
 
+    const itemPayload = {
+      ...item,
+      ...(item.item_type === 3 && {
+        prices: [],
+        default_price: null,
+        invoice_nominal: null,
+      }),
+    }
+
     await axios
-      .post(`${apiUrl}/items`, item, {
+      .post(`${apiUrl}/items`, objectValueCheck(itemPayload), {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -470,31 +512,42 @@ const NewItemHO: FC = () => {
                       type='text'
                       onChange={(e) => itemFormHandler(e)}
                     />
-
-                    <Form.Check
-                      id={`item-type`}
-                      className='mt-2'
-                      label='Gratis ?'
-                      type='checkbox'
-                      checked={item.item_type === 1}
-                      onChange={(e) => handleMarginTypeChange(e.target.checked)}
-                    />
                   </Col>
                 </Form.Group>
 
                 <Form.Group as={Row} className='mb-4'>
                   <Form.Label className='fs-5 fw-bold' column sm='4'>
-                    Harga Normal :
+                    Tipe Item :
                   </Form.Label>
 
                   <Col sm='8'>
-                    <Form.Control
-                      name='default_price'
-                      type='number'
-                      onChange={(e) => itemFormHandler(e)}
+                    <Select
+                      name='item-type'
+                      className='form-control p-0'
+                      placeholder='Ketik/Pilih Tipe Item'
+                      isSearchable={true}
+                      options={itemType}
+                      onChange={(newValue) => handleItemTypeChange(newValue)}
                     />
                   </Col>
                 </Form.Group>
+
+                {item.item_type !== null && [1, 2].includes(item.item_type) && (
+                  <Form.Group as={Row} className='mb-4'>
+                    <Form.Label className='fs-5 fw-bold' column sm='4'>
+                      Harga Normal :
+                    </Form.Label>
+
+                    <Col sm='8'>
+                      <Form.Control
+                        name='default_price'
+                        type='number'
+                        value={item?.default_price ?? 0}
+                        onChange={(e) => itemFormHandler(e)}
+                      />
+                    </Col>
+                  </Form.Group>
+                )}
               </div>
             </Col>
 
@@ -526,238 +579,232 @@ const NewItemHO: FC = () => {
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} className='mb-4'>
-                <Form.Label className='fs-5 fw-bold' column sm='4'>
-                  Harga Kepada Vendor:
-                </Form.Label>
+              {item.item_type !== null && [1, 2].includes(item.item_type) && (
+                <Form.Group as={Row} className='mb-4'>
+                  <Form.Label className='fs-5 fw-bold' column sm='4'>
+                    Harga Kepada Vendor:
+                  </Form.Label>
 
-                <Col sm='8'>
-                  <Form.Control
-                    name='invoice_nominal'
-                    type='number'
-                    value={item.invoice_nominal}
-                    onChange={(e) => itemFormHandler(e)}
-                  />
-                </Col>
-              </Form.Group>
+                  <Col sm='8'>
+                    <Form.Control
+                      name='invoice_nominal'
+                      type='number'
+                      value={item?.invoice_nominal ?? 0}
+                      onChange={(e) => itemFormHandler(e)}
+                    />
+                  </Col>
+                </Form.Group>
+              )}
             </Col>
           </Row>
 
-          <div className='d-flex justify-content-end mb-5'>
-            <Button
-              className='d-flex justify-content-center align-items-center'
-              variant='dark-primary'
-              onClick={() => handleAddForm()}
-            >
-              Tambah Periode Order
-            </Button>
-          </div>
+          {item.item_type !== null && [1, 2].includes(item.item_type) && (
+            <>
+              <div className='d-flex justify-content-end mb-5'>
+                <Button
+                  className='d-flex justify-content-center align-items-center'
+                  variant='dark-primary'
+                  onClick={() => handleAddForm()}
+                >
+                  Tambah Periode Order
+                </Button>
+              </div>
 
-          <div className='detail-table'>
-            <Table hover>
-              <thead>
-                <tr>
-                  <th className='text-center'>Aktif</th>
-                  <th className='text-center'>Periode</th>
-                  <th className='text-center'>Assign To Store</th>
-                  <th className='text-center'>Minimum Order</th>
-                  <th className='text-center'>Price</th>
-                  <th className='text-center'>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {item.prices.map((element, index) => (
-                  <tr key={`${index}-item_details`}>
-                    <td align='center' style={{maxWidth: '100px'}}>
-                      <Form.Check
-                        id={`is-active-${index}`}
-                        name={`is_active`}
-                        type='checkbox'
-                        checked={element.is_active === 1}
-                        onChange={(e) => {
-                          activeHandler(index, e.target.checked)
-                        }}
-                      />
-                    </td>
+              <div className='detail-table'>
+                <Table hover>
+                  <thead>
+                    <tr>
+                      <th className='text-center'>Aktif</th>
+                      <th className='text-center'>Periode</th>
+                      <th className='text-center'>Assign To Store</th>
+                      <th className='text-center'>Minimum Order</th>
+                      <th className='text-center'>Price</th>
+                      <th className='text-center'>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {item.prices.map((element, index) => (
+                      <tr key={`${index}-item_details`}>
+                        <td align='center' style={{maxWidth: '100px'}}>
+                          <Form.Check
+                            id={`is-active-${index}`}
+                            name={`is_active`}
+                            type='checkbox'
+                            checked={element.is_active === 1}
+                            onChange={(e) => {
+                              activeHandler(index, e.target.checked)
+                            }}
+                          />
+                        </td>
 
-                    <td style={{maxWidth: '300px'}}>
-                      <RangePicker
-                        id={`date-range-${index}`}
-                        className='date-range ms-3 w-100'
-                        format={'DD-MM-YYYY'}
-                        onChange={(values) => {
-                          if (values && values.length === 2) {
-                            const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                            const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+                        <td style={{maxWidth: '300px'}}>
+                          <RangePicker
+                            id={`date-range-${index}`}
+                            className='date-range ms-3 w-100'
+                            format={'DD-MM-YYYY'}
+                            onChange={(values) => {
+                              if (values && values.length === 2) {
+                                const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                                const dateToFormatted = values[1]?.format('YYYY-MM-DD')
 
-                            setItem((prev) => {
-                              const cache = {...prev}
-                              cache.prices[index] = {
-                                ...cache.prices[index],
-                                periodic_start: dateFromFormatted ?? '',
-                                periodic_end: dateToFormatted ?? '',
+                                setItem((prev) => {
+                                  const cache = {...prev}
+                                  cache.prices[index] = {
+                                    ...cache.prices[index],
+                                    periodic_start: dateFromFormatted ?? '',
+                                    periodic_end: dateToFormatted ?? '',
+                                  }
+
+                                  return cache
+                                })
+                              } else {
+                                setItem((prev) => {
+                                  const cache = {...prev}
+                                  cache.prices[index] = {
+                                    ...cache.prices[index],
+                                    periodic_start: '',
+                                    periodic_end: '',
+                                  }
+                                  return cache
+                                })
                               }
+                            }}
+                          />
+                        </td>
 
-                              return cache
-                            })
-                          } else {
-                            setItem((prev) => {
-                              const cache = {...prev}
-                              cache.prices[index] = {
-                                ...cache.prices[index],
-                                periodic_start: '',
-                                periodic_end: '',
-                              }
-                              return cache
-                            })
-                          }
-                        }}
-                      />
-                    </td>
-
-                    <td style={{maxWidth: '300px'}}>
-                      <Button
-                        className='d-flex justify-content-center align-items-center assign-store'
-                        variant='dark-primary'
-                        onClick={() => handleShowModal(index)}
-                      >
-                        Assign To Store
-                      </Button>
-                    </td>
-
-                    <td style={{maxWidth: '150px'}}>
-                      <Form.Control
-                        id={`min-order-${index}`}
-                        name={`min_order`}
-                        type='number'
-                        value={element.min_order}
-                        onChange={(e) => itemDetailsFormHandler(e, index)}
-                      />
-                    </td>
-
-                    <td>
-                      <Form.Control
-                        id={`price-${index}`}
-                        name={`price`}
-                        type='number'
-                        value={element.price}
-                        onChange={(e) => itemDetailsFormHandler(e, index)}
-                      />
-                    </td>
-
-                    <td>
-                      <Button variant='danger' onClick={() => handleRemoveForm(index)}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-
-          {showModal && (
-            <Modal
-              key={`${modalIndex}-Assign-Store`}
-              dialogClassName='modal-assign-store'
-              centered
-              show={true}
-              onHide={handleCloseModal}
-            >
-              <Modal.Header closeButton>
-                <Modal.Title>Assign To Store - Item Promo</Modal.Title>
-              </Modal.Header>
-
-              <Modal.Body>
-                <Form.Group className='mb-5'>
-                  <Form.Label>Shortcut</Form.Label>
-
-                  <Row>
-                    <Col xxl={3} xl={3} md={3} sm={12} className='all-store'>
-                      <Form.Check
-                        label='All Store'
-                        name='all-store'
-                        value={0}
-                        type='checkbox'
-                        // checked={element.all_store === 1}
-                        onChange={(e) =>
-                          handleAssignToStoreByAllStore(0, modalIndex, e.target.checked)
-                        }
-                      />
-                    </Col>
-
-                    <Col xxl={9} xl={9} md={9} sm={12}>
-                      <Row>
-                        {storeGroup.map((item) => (
-                          <Col
-                            key={item.store_group_id}
-                            xs={12}
-                            sm={6}
-                            md={3}
-                            lg={3}
-                            className='mb-3'
+                        <td style={{maxWidth: '300px'}}>
+                          <Button
+                            className='d-flex justify-content-center align-items-center assign-store'
+                            variant='dark-primary'
+                            onClick={() => handleShowModal(index)}
                           >
+                            Assign To Store
+                          </Button>
+                        </td>
+
+                        <td style={{maxWidth: '150px'}}>
+                          <Form.Control
+                            id={`min-order-${index}`}
+                            name={`min_order`}
+                            type='number'
+                            value={element.min_order}
+                            onChange={(e) => itemDetailsFormHandler(e, index)}
+                          />
+                        </td>
+
+                        <td>
+                          <Form.Control
+                            id={`price-${index}`}
+                            name={`price`}
+                            type='number'
+                            value={element.price}
+                            onChange={(e) => itemDetailsFormHandler(e, index)}
+                          />
+                        </td>
+
+                        <td>
+                          <Button variant='danger' onClick={() => handleRemoveForm(index)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+
+              {showModal && (
+                <Modal
+                  key={`${modalIndex}-Assign-Store`}
+                  dialogClassName='modal-assign-store'
+                  centered
+                  show={true}
+                  onHide={handleCloseModal}
+                >
+                  <Modal.Header closeButton>
+                    <Modal.Title>Assign To Store - Item Promo</Modal.Title>
+                  </Modal.Header>
+
+                  <Modal.Body>
+                    <Form.Group className='mb-5'>
+                      <Form.Label>Shortcut</Form.Label>
+
+                      <Row>
+                        <Col xxl={3} xl={3} md={3} sm={12} className='all-store'>
+                          <Form.Check
+                            label='All Store'
+                            name='all-store'
+                            value={0}
+                            type='checkbox'
+                            // checked={element.all_store === 1}
+                            onChange={(e) =>
+                              handleAssignToStoreByAllStore(0, modalIndex, e.target.checked)
+                            }
+                          />
+                        </Col>
+
+                        <Col xxl={9} xl={9} md={9} sm={12}>
+                          <Row>
+                            {storeGroup.map((item) => (
+                              <Col
+                                key={item.store_group_id}
+                                xs={12}
+                                sm={6}
+                                md={3}
+                                lg={3}
+                                className='mb-3'
+                              >
+                                <Form.Check
+                                  className='mb-3'
+                                  key={item.store_group_id}
+                                  inline
+                                  name='store-group'
+                                  type='checkbox'
+                                  value={item.store_group_id}
+                                  label={item.label}
+                                  onChange={(e) =>
+                                    handleAssignToStoreByStoreGroup(
+                                      item.store_group_id,
+                                      modalIndex,
+                                      e.target.checked
+                                    )
+                                  }
+                                />
+                              </Col>
+                            ))}
+                          </Row>
+                        </Col>
+                      </Row>
+                    </Form.Group>
+
+                    <Form.Group>
+                      <Row>
+                        <Form.Label>List Store</Form.Label>
+                      </Row>
+
+                      <Row>
+                        {store.map((item) => (
+                          <Col key={item.store_id} xs={12} sm={6} md={4} lg={4} className='mb-3'>
                             <Form.Check
-                              className='mb-3'
-                              key={item.store_group_id}
                               inline
-                              name='store-group'
+                              name='store'
                               type='checkbox'
-                              value={item.store_group_id}
+                              id={`${modalIndex}-checkbox`}
+                              value={item.store_id}
                               label={item.label}
+                              checked={isStoreChecked(item.store_id, modalIndex)}
                               onChange={(e) =>
-                                handleAssignToStoreByStoreGroup(
-                                  item.store_group_id,
-                                  modalIndex,
-                                  e.target.checked
-                                )
+                                handleAssignToStore(item.store_id, modalIndex, e.target.checked)
                               }
                             />
                           </Col>
                         ))}
                       </Row>
-                    </Col>
-                  </Row>
-                </Form.Group>
-
-                <Form.Group>
-                  <Row>
-                    <Form.Label>List Store</Form.Label>
-
-                    {/* <div className='d-flex align-items-center mb-5'>
-                      <Form.Label className='me-2'>Search</Form.Label>
-
-                      <Form.Control
-                        className='store-search'
-                        name='store-search'
-                        placeholder='Search..'
-                        type='text'
-                        onChange={(e) => setSearchByStore(e.target.value)}
-                      />
-                    </div> */}
-                  </Row>
-
-                  <Row>
-                    {store.map((item) => (
-                      <Col key={item.store_id} xs={12} sm={6} md={4} lg={4} className='mb-3'>
-                        <Form.Check
-                          inline
-                          name='store'
-                          type='checkbox'
-                          id={`${modalIndex}-checkbox`}
-                          value={item.store_id}
-                          label={item.label}
-                          checked={isStoreChecked(item.store_id, modalIndex)}
-                          onChange={(e) =>
-                            handleAssignToStore(item.store_id, modalIndex, e.target.checked)
-                          }
-                        />
-                      </Col>
-                    ))}
-                  </Row>
-                </Form.Group>
-              </Modal.Body>
-            </Modal>
+                    </Form.Group>
+                  </Modal.Body>
+                </Modal>
+              )}
+            </>
           )}
 
           <div className='d-flex justify-content-center mb-5'>

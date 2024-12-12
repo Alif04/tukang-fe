@@ -30,9 +30,9 @@ interface Item {
   item_name: string
   name: string
   category_id: number | null
-  default_price: number
-  item_type: number
-  invoice_nominal: number
+  default_price: number | null
+  item_type: number | null
+  invoice_nominal: number | null
   is_active: number
   prices: Array<{
     id: number | null
@@ -49,6 +49,11 @@ interface Item {
   }>
 }
 
+interface ItemType {
+  value: number
+  label: string
+}
+
 const UpdateItemHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -63,7 +68,7 @@ const UpdateItemHO: FC = () => {
     name: '',
     category_id: null,
     default_price: 0,
-    item_type: 1,
+    item_type: null,
     invoice_nominal: 0,
     is_active: 1,
     prices: [
@@ -80,6 +85,11 @@ const UpdateItemHO: FC = () => {
       },
     ],
   })
+
+  const [itemType] = useState<ItemType[]>([
+    {value: 1, label: 'Item Gratis'},
+    {value: 2, label: 'Item Promosi'},
+  ])
 
   // Store
   const [store, setStore] = useState<Store[]>([])
@@ -286,10 +296,12 @@ const UpdateItemHO: FC = () => {
     })
   }
 
-  const handleMarginTypeChange = (isChecked: boolean) => {
+  const handleItemTypeChange = (newValue: ItemType | null) => {
+    if (!newValue) return
+
     setItem({
       ...item,
-      item_type: isChecked ? 1 : 2,
+      item_type: newValue.value,
     })
   }
 
@@ -436,32 +448,41 @@ const UpdateItemHO: FC = () => {
         icon: 'warning',
       })
       valid = false
+    } else if (!item.item_type) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please select Item Type form',
+        icon: 'warning',
+      })
+      valid = false
     }
 
-    item.prices.map((item) => {
-      if (item.periodic_start === '') {
-        Swal.fire({
-          title: 'Warning',
-          text: 'Please fill Periode form',
-          icon: 'warning',
-        })
-        valid = false
-      } else if (item.periodic_end === '') {
-        Swal.fire({
-          title: 'Warning',
-          text: 'Please fill Periode  form',
-          icon: 'warning',
-        })
-        valid = false
-      } else if (item.min_order === 0) {
-        Swal.fire({
-          title: 'Warning',
-          text: 'Please fill Minimum Order  form',
-          icon: 'warning',
-        })
-        valid = false
-      }
-    })
+    if (item.item_type !== null && [1, 2].includes(item.item_type)) {
+      item.prices.map((item) => {
+        if (item.periodic_start === '') {
+          Swal.fire({
+            title: 'Warning',
+            text: 'Please fill Periode form',
+            icon: 'warning',
+          })
+          valid = false
+        } else if (item.periodic_end === '') {
+          Swal.fire({
+            title: 'Warning',
+            text: 'Please fill Periode  form',
+            icon: 'warning',
+          })
+          valid = false
+        } else if (item.min_order === 0) {
+          Swal.fire({
+            title: 'Warning',
+            text: 'Please fill Minimum Order  form',
+            icon: 'warning',
+          })
+          valid = false
+        }
+      })
+    }
     return valid
   }
 
@@ -481,15 +502,18 @@ const UpdateItemHO: FC = () => {
       return price
     })
 
-    const newItemDetail = {
+    const itemPayload = {
       ...item,
-      prices: updatedPrices,
+      ...(item.item_type !== null &&
+        [1, 2].includes(item.item_type) && {
+          prices: updatedPrices,
+        }),
     }
 
     setIsLoading(true)
 
     await axios
-      .post(`${apiUrl}/items/${params.id}`, newItemDetail, {
+      .post(`${apiUrl}/items/${params.id}`, itemPayload, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -516,7 +540,7 @@ const UpdateItemHO: FC = () => {
           setIsLoading(false)
         }
 
-        navigate('/item/view-item')
+        navigate('/item/view-item?tab=item_promotion')
       })
       .catch((error) => {
         console.error(error)
@@ -569,14 +593,23 @@ const UpdateItemHO: FC = () => {
                       value={item.item_name}
                       onChange={(e) => itemFormHandler(e)}
                     />
+                  </Col>
+                </Form.Group>
 
-                    <Form.Check
-                      id={`item-type`}
-                      className='mt-2'
-                      label='Gratis ?'
-                      type='checkbox'
-                      checked={item.item_type === 1}
-                      onChange={(e) => handleMarginTypeChange(e.target.checked)}
+                <Form.Group as={Row} className='mb-4'>
+                  <Form.Label className='fs-5 fw-bold' column sm='4'>
+                    Tipe Item :
+                  </Form.Label>
+
+                  <Col sm='8'>
+                    <Select
+                      name='item-type'
+                      className='form-control p-0'
+                      placeholder='Ketik/Pilih Tipe Item'
+                      isSearchable={true}
+                      options={itemType}
+                      value={itemType.find((selected) => selected.value === item.item_type)}
+                      onChange={(newValue) => handleItemTypeChange(newValue)}
                     />
                   </Col>
                 </Form.Group>
@@ -590,7 +623,7 @@ const UpdateItemHO: FC = () => {
                     <Form.Control
                       name='default_price'
                       type='number'
-                      value={item.default_price}
+                      value={item?.default_price ?? 0}
                       onChange={(e) => itemFormHandler(e)}
                     />
                   </Col>
@@ -644,7 +677,7 @@ const UpdateItemHO: FC = () => {
                   <Form.Control
                     name='invoice_nominal'
                     type='number'
-                    value={item.invoice_nominal}
+                    value={item?.invoice_nominal ?? 0}
                     onChange={(e) => itemFormHandler(e)}
                   />
                 </Col>
