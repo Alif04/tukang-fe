@@ -1,14 +1,11 @@
 import React, {FC, useState, useEffect} from 'react'
-import {useParams, Link} from 'react-router-dom'
+import {useParams} from 'react-router-dom'
 import {formatDate, formatDateWithTime, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './DetailRequestDiscount.css'
 
 import axios from 'axios'
-import {Image} from 'antd'
-import {Modal, ListGroup, Table, Row, Col, Card, Button} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faDownload} from '@fortawesome/free-solid-svg-icons'
+import {Table, Row, Col, Card, Button, Form} from 'react-bootstrap'
 import Swal from 'sweetalert2'
 
 const DetailRequestDiscountHO: FC = () => {
@@ -18,16 +15,12 @@ const DetailRequestDiscountHO: FC = () => {
 
   // Loader
   const [loading, setIsLoading] = useState<boolean>(false)
-  const [loadingPDF, setLoadingPDF] = useState<boolean>(false)
-  const [loadingTemplate, setLoadingTemplate] = useState<boolean>(false)
 
-  // Incentive Sales
+  // Request Discount
   const [requestDiscountDetail, setRequestDiscountDetail] = useState<any>()
   const [quotationID, setQuotationID] = useState<any>()
   const [quotationDetail, setQuotationDetail] = useState<any>()
-  const [previewImage, setPreviewImage] = useState<any>()
-  const [visible, setVisible] = useState(false)
-  const handleClose = () => setVisible(false)
+  const [notes, setNotes] = useState<string>('')
 
   const getIncentiveData = async () => {
     try {
@@ -79,74 +72,6 @@ const DetailRequestDiscountHO: FC = () => {
     getDetailQuotation()
   }, [quotationID])
 
-  const getFormattedPeriod = () => {
-    const now = new Date()
-    const lastMonth = new Date(now)
-    lastMonth.setMonth(now.getMonth() - 1)
-
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString('id-ID', {
-        month: 'long',
-      })
-    }
-
-    return `${formatDate(lastMonth)} - ${formatDate(now)} ${now.getFullYear()}`
-  }
-
-  // Generate PDF
-  const generatePDF = () => {
-    setLoadingPDF(true)
-    axios
-      .get(`${apiUrl}/quotation-promotion/${params.id}/pdf`, {
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      })
-      .then((response) => {
-        const url = window.URL.createObjectURL(new Blob([response.data]))
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute(
-          'download',
-          `Insentif ID ${params.id} - ${formatDateWithTime(new Date())}.pdf`
-        )
-        document.body.appendChild(link)
-        link.click()
-      })
-      .finally(() => {
-        setLoadingPDF(false)
-      })
-  }
-
-  // Export Excel
-  const exportExcel = () => {
-    setLoadingTemplate(true)
-
-    axios
-      .get(`${apiUrl}/quotation-promotion/${params.id}/export-excel`, {
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      })
-      .then((response) => {
-        const url = window.URL.createObjectURL(new Blob([response.data]))
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute(
-          'download',
-          `Pengajuan Insentif ID ${params.id} - ${formatDateWithTime(new Date())}.xlsx`
-        )
-        document.body.appendChild(link)
-        link.click()
-
-        setLoadingTemplate(false)
-      })
-  }
-
   // Payment Stage
   const [paymentStages, setPaymentStages] = useState([
     {stage: 'Tahap 1', percentage: '25%', amount: 0},
@@ -185,7 +110,9 @@ const DetailRequestDiscountHO: FC = () => {
         setIsLoading(true)
         try {
           const formData = new FormData()
+
           formData.append('status', String(status))
+          formData.append('notes', notes)
 
           const response = await axios.post(`${apiUrl}/quotation-promotion/${id}`, formData, {
             headers: {
@@ -815,8 +742,23 @@ const DetailRequestDiscountHO: FC = () => {
             </>
           )}
 
+          <hr />
+
+          <Row className='mt-5'>
+            <Form.Group>
+              <Form.Label className='fs-5 fw-bold'>Notes :</Form.Label>
+              <Form.Control
+                style={{minHeight: '140px'}}
+                as='textarea'
+                readOnly={userRole === 'Admin HO' ? true : false}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </Form.Group>
+          </Row>
+
           {['Super User'].includes(userRole) && ![3].includes(requestDiscountDetail?.status) && (
-            <div className='button-wrapper d-flex justify-content-center align-items-center gap-3 mt-3'>
+            <div className='button-wrapper d-flex justify-content-center align-items-center gap-3 mt-5'>
               <Button
                 className='btn-dark-success d-flex justify-content-center align-items-center gap-3 m-0'
                 disabled={loading}
@@ -836,85 +778,6 @@ const DetailRequestDiscountHO: FC = () => {
           )}
         </Card.Body>
       </Card>
-
-      {/* <Card className='mt-5'>
-        <Card.Header>
-          <Card.Title>File Bukti Persetujuan</Card.Title>
-        </Card.Header>
-
-        <Card.Body>
-          <Row>
-            <Col>
-              <ListGroup>
-                {quotationDetail?.comission_sales_incentive_evidence?.map((item: any) => (
-                  <ListGroup.Item
-                    key={item.id}
-                    action
-                    style={{cursor: 'pointer'}}
-                    onClick={() => {
-                      setPreviewImage(item.evidence_location)
-                      setVisible(true)
-                    }}
-                  >
-                    {item.evidence_location}
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-
-              {quotationDetail?.comission_sales_incentive_evidence?.length ? (
-                <>
-                  {previewImage && (
-                    <div>
-                      {previewImage.endsWith('.pdf') ? (
-                        <div>
-                          <Modal
-                            dialogClassName='modal-show-pdf'
-                            centered
-                            show={visible}
-                            onHide={handleClose}
-                          >
-                            <Modal.Header closeButton>
-                              <Modal.Title>File - {previewImage}</Modal.Title>
-                            </Modal.Header>
-
-                            <Modal.Body>
-                              <iframe
-                                key={previewImage}
-                                width='100%'
-                                height='100%'
-                                src={`${apiUrl}/public/comission_sales_incentive/${previewImage}`}
-                                style={{border: 'none'}}
-                              />
-                            </Modal.Body>
-                          </Modal>
-                        </div>
-                      ) : (
-                        <Image
-                          key={previewImage}
-                          width={200}
-                          style={{display: 'none'}}
-                          src={`${apiUrl}/public/comission_sales_incentive/${previewImage}`}
-                          preview={{
-                            visible: visible,
-                            src: `${apiUrl}/public/comission_sales_incentive/${previewImage}`,
-                            onVisibleChange: (value) => {
-                              setVisible(value)
-                            },
-                          }}
-                        />
-                      )}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className='d-flex justify-content-start align-items-center'>
-                  <p className='fs-7 text-danger'>Belum ada file persetujuan</p>
-                </div>
-              )}
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card> */}
     </section>
   )
 }

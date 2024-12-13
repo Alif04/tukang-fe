@@ -30,7 +30,7 @@ import {
   faXmarkCircle,
   faPen,
 } from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -334,7 +334,7 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
       const incentiveData = apiData.map((item: any) => {
         let data
 
-        const requestDate = formatDateWithTime(item?.created_at)
+        const requestDate = formatDateWithTimeZone(item?.created_at)
 
         const requestDiscount = (status: number) => {
           switch (status) {

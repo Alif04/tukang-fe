@@ -36,7 +36,7 @@ import {
   faFile,
   faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime} from '../../../../../_metronic/helpers'
+import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 const {Dragger} = Upload
@@ -344,7 +344,7 @@ const ViewInvoiceHO: FC = () => {
       const invoiceData = apiData.map((item: any) => {
         let data
 
-        const invoiceDate = formatDateWithTime(item?.created_at)
+        const invoiceDate = formatDateWithTimeZone(item?.created_at)
 
         const invoiceStatus = (status: number) => {
           switch (status) {
