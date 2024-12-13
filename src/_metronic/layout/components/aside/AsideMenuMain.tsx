@@ -597,15 +597,22 @@ export function AsideMenuMain() {
           role={['Admin HO', 'Super User']}
         >
           <AsideMenuItem
-            to='/item/view-item'
-            title='List Item'
+            to='/item/view-item?type=item_promotion'
+            title='List Item Promosi'
+            role={['Admin HO', 'Super User']}
+            hasBullet={true}
+          />
+
+          <AsideMenuItem
+            to='/item/view-item?type=item_survei'
+            title='List Item Survei'
             role={['Admin HO', 'Super User']}
             hasBullet={true}
           />
 
           <AsideMenuItem
             to='/item/new-item'
-            title='New Items'
+            title='Tambah Item'
             role={['Admin HO', 'Super User']}
             hasBullet={true}
           />
