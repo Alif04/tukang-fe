@@ -90,9 +90,6 @@ const TopBestStores: React.FC<Props> = ({className, storeData, dateFrom, dateTo}
               <span className='fw-normal text-black'>{`Paid Value : Rp. ${parseInt(
                 item?.total_paid ?? 0
               ).toLocaleString('id')}`}</span>
-              <span className='fw-normal text-dark-danger '>{`Unpaid Value : Rp. ${parseInt(
-                item?.total_unpaid ?? 0
-              ).toLocaleString('id')}`}</span>
               <span className='fw-normal text-dark'>{item?.total_order ?? 0} Order</span>
             </div>
           </div>

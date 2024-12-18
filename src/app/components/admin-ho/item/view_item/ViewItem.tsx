@@ -20,6 +20,7 @@ interface DataType {
   no: number
   material_id: number
   store_name: string
+  item_code: number
   product_name: string
   category_name: string
   service_name: string
@@ -94,6 +95,14 @@ const ViewItemHO: React.FC = () => {
       render: (text: any, record: any, index: number) => {
         return (currentPage - 1) * pageSize + index + 1
       },
+    },
+    {
+      title: 'Item Code',
+      dataIndex: 'item_code',
+      key: 'item_code',
+      width: 110,
+      align: 'center',
+      sorter: (a: DataType, b: DataType) => a.item_code - b.item_code,
     },
     {
       title: 'Nama Item',
@@ -264,18 +273,21 @@ const ViewItemHO: React.FC = () => {
   const getItemList = async (page: number, pageSize: number, queryparams: any) => {
     const dynamicQuery = getQueryParams(QUERY_PARAMS_CONFIG)
 
+    let apiUrlWithParams = `${apiUrl}/items?order_by=desc${dynamicQuery}${queryparams}&page=${page}&take=${pageSize}`
+
+    if (dateFrom && dateTo) {
+      apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
+    }
+
     try {
-      const response = await axios.get(
-        `${apiUrl}/items?order_by=desc${dynamicQuery}${queryparams}&page=${page}&take=${pageSize}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
@@ -306,9 +318,11 @@ const ViewItemHO: React.FC = () => {
 
         data = {
           no: index + 1,
+          item_code: item?.item_code,
           material_id: item?.id,
           store_name: `${uniqueStoreIds.length} Toko`,
           product_name: item?.item_name ?? '-',
+          category_name: item?.category?.category_name ?? '-',
           service_name: item?.service_name ?? '-',
           default_price: `Rp. ${parseInt(item?.default_price).toLocaleString('id')}`,
           min_order: item?.prices[0]?.min_order ?? '-',
@@ -386,8 +400,6 @@ const ViewItemHO: React.FC = () => {
     }
 
     valueCheck(`&search=`, searchFilter)
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&store_id=`, selectedStore?.value)
 
     const data = await ViewItem(1, 10, queryparams)
