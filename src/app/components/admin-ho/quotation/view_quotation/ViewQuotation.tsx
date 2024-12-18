@@ -6,6 +6,7 @@ import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor
 import './ViewQuotation.css'
 
 import axios from 'axios'
+import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
@@ -39,11 +40,6 @@ const {RangePicker} = DatePicker
 
 type Props = {
   className: string
-}
-
-interface Status {
-  value: number | null
-  category: string
 }
 
 interface TimeLeft {
@@ -82,6 +78,11 @@ interface VendorItem {
   label: string
 }
 
+interface DiscountType {
+  value: number | null
+  label: string
+}
+
 const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -95,8 +96,10 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
+  )
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
 
   const [vendor, setVendor] = useState<VendorItem[]>([])
@@ -104,10 +107,6 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
     value: null,
     label: 'All Vendor',
   })
-
-  // Status
-  const storedStatus = localStorage.getItem('statusData')
-  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -359,6 +358,9 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
   const getQuotationList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/quotation?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+    if (dateFrom && dateTo) {
+      apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
+    }
 
     try {
       const response = await axiosInstance.get(apiUrlWithParams, {
@@ -574,8 +576,6 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
     valueCheck(`&vendor_id=`, selectedVendor?.value)
 
@@ -612,7 +612,18 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const [quotationId, setQuotationId] = useState<any>()
   const [selectedQuotation, setSelectedQuotation] = useState<any>()
   const [quotationNotes, setQuotationNotes] = useState<any>()
-  const [discountNominal, setDiscountNominal] = useState<any>(0)
+  const [discountNominal, setDiscountNominal] = useState<string>('')
+  const [selectedDiscountType, setSelectedDiscountType] = useState<DiscountType | null>(null)
+  const [discountType] = useState<DiscountType[]>([
+    {value: 1, label: 'Persentase (%)'},
+    {value: 2, label: 'Nominal (Rp.)'},
+  ])
+
+  // Handle Discount Type Change
+  const handleDiscountTypeChange = (newValue: DiscountType | null) => {
+    setSelectedDiscountType(newValue)
+    setDiscountNominal('')
+  }
 
   // Request Discount
   const [showModalQuotation, setModalInvoice] = useState(false)
@@ -673,6 +684,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   }
 
   const handleCreateRequest = async () => {
+    setIsLoading(true)
     const formData = new FormData()
 
     formData.append(`quotation_id`, quotationId)
@@ -688,8 +700,8 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
       })
     }
 
-    await axios
-      .post(`${apiUrl}/quotation-promotion`, formData, {
+    try {
+      const response = await axios.post(`${apiUrl}/quotation-promotion`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -697,32 +709,25 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      .then((response) => {
-        if (response.data.status === 201 || response.data.status === 200) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Berhasil Melakukan Pengajuan',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          }).then(() => {
-            navigate('/quotation/view-request-discount')
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
-      })
-      .catch((error) => {
+
+      if (response.data.status === 201 || response.data.status === 200) {
         Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
+          title: 'Success',
+          text: 'Berhasil Melakukan Pengajuan',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+        }).then(() => {
+          navigate('/quotation/view-request-discount')
+          setIsLoading(false)
         })
-      })
+      } else {
+        setIsLoading(false)
+        Swal.fire({title: 'Error', text: response.data.message, icon: 'error'})
+      }
+    } catch (error) {
+      console.log('error', error)
+    }
   }
 
   // Total Quotation
@@ -741,26 +746,34 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   })
 
   useEffect(() => {
-    setTotalQuotation((prev) => ({
-      ...prev,
-      grandTotalFromVendor: selectedQuotation?.quotation_detail?.reduce(
-        (total: any, item: any) => total + parseInt(item?.final_price ?? 0),
-        0
-      ),
-      promotionSurvey: parseInt(selectedQuotation?.promotion?.promotion ?? 0),
-      grandTotalFromMitra: parseInt(selectedQuotation?.quotation_grand_total ?? 0),
-      mitraMargin: 100 - parseInt(selectedQuotation?.order_detail?.vendor?.margin_nominal ?? 0),
-      nominalMitraMargin: totalQuotation.grandTotalFromVendor * (totalQuotation.mitraMargin / 100),
-      vendorMargin: parseInt(selectedQuotation?.order_detail?.vendor?.margin_nominal ?? 0),
-      nominalVendorMargin:
-        (totalQuotation.grandTotalFromVendor * totalQuotation.vendorMargin) / 100,
-      requestDiscount: totalQuotation.grandTotalFromVendor * (discountNominal / 100),
-      customerPay: totalQuotation.grandTotalFromMitra - totalQuotation.requestDiscount,
-      margin: totalQuotation.customerPay - totalQuotation.nominalVendorMargin,
-      marginMitraAfterDiscount: Math.ceil(
-        (totalQuotation.margin / totalQuotation.customerPay) * 100
-      ),
-    }))
+    setTotalQuotation((prev) => {
+      const discountAmount =
+        selectedDiscountType?.value === 1
+          ? totalQuotation.grandTotalFromVendor * (Number(discountNominal) / 100) || 0
+          : Number(discountNominal) || 0
+
+      return {
+        ...prev,
+        grandTotalFromVendor: selectedQuotation?.quotation_detail?.reduce(
+          (total: any, item: any) => total + parseInt(item?.final_price ?? 0),
+          0
+        ),
+        promotionSurvey: parseInt(selectedQuotation?.promotion?.promotion ?? 0),
+        grandTotalFromMitra: parseInt(selectedQuotation?.quotation_grand_total ?? 0),
+        mitraMargin: 100 - parseInt(selectedQuotation?.order_detail?.vendor?.margin_nominal ?? 0),
+        nominalMitraMargin:
+          totalQuotation.grandTotalFromVendor * (totalQuotation.mitraMargin / 100),
+        vendorMargin: parseInt(selectedQuotation?.order_detail?.vendor?.margin_nominal ?? 0),
+        nominalVendorMargin:
+          (totalQuotation.grandTotalFromVendor * totalQuotation.vendorMargin) / 100,
+        requestDiscount: discountAmount,
+        customerPay: totalQuotation.grandTotalFromMitra - discountAmount,
+        margin: totalQuotation.customerPay - totalQuotation.nominalVendorMargin,
+        marginMitraAfterDiscount: Math.ceil(
+          (totalQuotation.margin / totalQuotation.customerPay) * 100
+        ),
+      }
+    })
   }, [
     selectedQuotation,
     discountNominal,
@@ -784,6 +797,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
+                defaultValue={[dayjs().subtract(30, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -1309,20 +1323,39 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
 
                         <tr>
                           <td colSpan={3} className='text-end fw-bolder'>
-                            Pengajuan Diskon
-                            <span>
-                              <div className='custom-input ms-3'>
-                                <Form.Control
-                                  name='input-discount'
-                                  id='percentage'
-                                  type='number'
-                                  onChange={(e) => setDiscountNominal(e.target.value)}
-                                  value={discountNominal}
-                                />
+                            <div className='d-flex justify-content-end align-items-center gap-3'>
+                              <div className=''>Tipe Pengajuan Diskon</div>
 
-                                <span className='percentage fs-1'>%</span>
-                              </div>
-                            </span>
+                              <Select
+                                name='discount-type'
+                                className='p-0'
+                                placeholder='Ketik/Pilih Diskon '
+                                isSearchable={true}
+                                options={discountType}
+                                onChange={(newValue) => handleDiscountTypeChange(newValue)}
+                              />
+                            </div>
+                          </td>
+
+                          <td className=' fw-bolder'>
+                            <Form.Control
+                              name='input-discount'
+                              id='discount'
+                              type='number'
+                              value={discountNominal}
+                              onChange={(e) => setDiscountNominal(e.target.value)}
+                              placeholder={
+                                selectedDiscountType?.value === 1
+                                  ? 'Masukkan Persentase (%)'
+                                  : 'Masukkan Nominal (Rp)'
+                              }
+                            />
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td colSpan={3} className='text-end fw-bolder'>
+                            Nominal Pengajuan Diskon
                           </td>
 
                           <td className=' fw-bolder'>{`Rp. ${Number(

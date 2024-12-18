@@ -38,6 +38,7 @@ interface ItemSelect {
   label: string
   item_code: string
   item_name: string
+  service_name: string
   category: string
   type: number
   default_price: number
@@ -73,6 +74,7 @@ interface Order {
     item_id: number | null
     item_code: string | null
     item_name: string | null
+    service_name: string | null
     quantity: number
     unit_price: string | null
     total: string | null
@@ -117,6 +119,7 @@ const NewOrderStoreCS: FC = () => {
         item_id: null,
         item_code: null,
         item_name: null,
+        service_name: null,
         quantity: 1,
         unit_price: null,
         total: null,
@@ -198,6 +201,7 @@ const NewOrderStoreCS: FC = () => {
             label: paymentTypeValue[1] === 'survey' ? item.item_code : item.service_name,
             item_code: item?.item_code ?? '',
             item_name: item?.item_name ?? '',
+            service_name: item?.service_name ?? '',
             category_id: item.category_id,
             default_price: item.default_price,
             type: item?.type,
@@ -418,6 +422,7 @@ const NewOrderStoreCS: FC = () => {
           item_id: null,
           item_code: null,
           item_name: null,
+          service_name: null,
           quantity: 1,
           unit_price: null,
           total: null,
@@ -527,6 +532,7 @@ const NewOrderStoreCS: FC = () => {
       item_id: null,
       item_code: null,
       item_name: null,
+      service_name: null,
       quantity: 1,
       unit_price: null,
       total: null,
@@ -1541,6 +1547,7 @@ const NewOrderStoreCS: FC = () => {
                                   item_id: newValue?.value ?? null,
                                   item_code: newValue?.item_code ?? '',
                                   item_name: newValue?.item_name ?? '',
+                                  service_name: newValue?.service_name ?? '',
                                   item: newValue,
                                 }
                                 return cache
