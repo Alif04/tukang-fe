@@ -8,15 +8,20 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
 import idLocale from '@fullcalendar/core/locales/id'
+import {MoreLinkContentArg} from '@fullcalendar/core'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
 import {Steps, Spin} from 'antd'
-import {Row, Col, Modal, Form, Table, Accordion} from 'react-bootstrap'
+import {Row, Col, Modal, Form, Table, Accordion, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleInfo} from '@fortawesome/free-solid-svg-icons'
 import {LoadingOutlined} from '@ant-design/icons'
-import {formatDate, formatDateWithTime} from '../../../../../../_metronic/helpers'
+import {
+  formatDate,
+  formatDateWithTime,
+  formatDateWithTimeZone,
+} from '../../../../../../_metronic/helpers'
 
 interface Order {
   id: any
@@ -26,6 +31,13 @@ interface Order {
   status_order: string
   className: string
   order_detail?: any
+}
+
+interface OrderHistory {
+  order_id: number
+  order_status: string
+  created_at: string
+  updated_by: string
 }
 
 interface Status {
@@ -55,6 +67,7 @@ const ViewCalendarCS: React.FC = () => {
     },
   ])
 
+  const [orderHistorical, setOrderHistorical] = useState<OrderHistory[]>([])
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [initialView] = useState(window.innerWidth <= 768 ? 'listMonth' : 'dayGridMonth')
 
@@ -81,31 +94,124 @@ const ViewCalendarCS: React.FC = () => {
     }
   }
 
-  const fetchOrders = async (start: string, end: string, params: string) => {
-    const response = await axiosInstance.get(
-      `${apiUrl}/orders/calender?take=0&date_from=${start}&date_to=${end}${params}`,
-      {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      }
-    )
+  const getOrder = async (start: string, end: string, params: string) => {
+    let currentPage = 1
+    const pageSize = 100
+    let allOrders: Order[] = []
+    let hasMoreData = true
 
-    return response.data.data
+    try {
+      while (hasMoreData) {
+        const response = await axiosInstance.get(
+          `${apiUrl}/orders/calender?take=${pageSize}&page=${currentPage}&date_from=${start}&date_to=${end}${params}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
+
+        const {data, total} = response.data
+
+        if (Array.isArray(data) && data.length > 0) {
+          const parsedData = parseOrderData(data)
+
+          allOrders = [...allOrders, ...parsedData]
+          currentPage += 1
+
+          // Cek apakah total data sudah diambil
+          const currentTotal = allOrders.length
+          if (currentTotal >= total) {
+            hasMoreData = false
+          }
+        } else {
+          hasMoreData = false
+        }
+      }
+
+      setOrder(allOrders)
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+    }
+  }
+
+  const getOrderVendor = async (start: string, end: string, vendorIds: string) => {
+    setIsLoadingPage(true)
+
+    let currentPage = 1
+    const pageSize = 100
+    let allOrders: Order[] = []
+    let hasMoreData = true
+
+    try {
+      while (hasMoreData) {
+        const response = await axiosInstance.get(
+          `${apiUrl}/orders/calender?page=${currentPage}&take=${pageSize}&date_from=${start}&date_to=${end}${vendorIds}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
+
+        const {data, total} = response.data
+
+        if (Array.isArray(data) && data.length > 0) {
+          const parsedData = parseOrderData(data)
+
+          allOrders = [...allOrders, ...parsedData]
+          currentPage += 1
+
+          // Cek apakah total data sudah diambil
+          const currentTotal = allOrders.length
+          if (currentTotal >= total) {
+            hasMoreData = false
+          }
+        } else {
+          hasMoreData = false
+        }
+      }
+
+      setOrder(allOrders)
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+    } finally {
+      setIsLoadingPage(false)
+    }
   }
 
   const parseOrderData = (data: any) => {
     return data.map((item: any) => {
-      const startDate = item?.work_orders
-        ? item?.work_orders.survey_date || item.work_orders.work_start_date
-        : item?.request_survey
+      const startDate = (() => {
+        if (item?.work_orders) {
+          if (item.work_order_survey_date !== null) {
+            return item.work_orders.work_start_date === null
+              ? item.work_orders.survey_date
+              : item.work_orders.work_start_date
+          }
+        }
+        return item?.request_survey
+      })()
 
-      const endDate = item?.work_orders
-        ? item?.work_orders.work_end_date || item.work_orders.survey_date
-        : item?.request_survey
+      const endDate = (() => {
+        if (item?.work_orders) {
+          if (item.work_order_survey_date !== null) {
+            return item.work_orders.work_end_date === null
+              ? item.work_orders.survey_date
+              : item.work_orders.work_end_date
+          }
+          if (item.work_order_survey_date === null && item.work_orders.work_end_date !== null) {
+            return item.work_orders.work_end_date
+          }
+        }
+        return item?.request_survey
+      })()
 
       const orderStatus = (() => {
         return item?.status?.category
@@ -149,6 +255,21 @@ const ViewCalendarCS: React.FC = () => {
         }
       })()
 
+      if (item?.order_history) {
+        const orderHistory = item?.order_history?.map((item: any) => ({
+          order_id: item?.order_id,
+          order_status: item?.status?.description,
+          updated_by: item?.created_at?.username,
+          created_at: item?.created_at
+            ? `${formatDateWithTimeZone(item?.created_at)} ${
+                item.created_by ? `oleh ${item?.created_by?.username}` : ''
+              }`
+            : '-',
+        }))
+
+        setOrderHistorical(orderHistory)
+      }
+
       return {
         id: item?.id.toString(),
         title: `#${item?.id ?? ''} ${
@@ -161,36 +282,6 @@ const ViewCalendarCS: React.FC = () => {
         order_detail: item,
       }
     })
-  }
-
-  const getOrder = async (start: string, end: string, storeId: string) => {
-    setIsLoadingPage(true)
-    try {
-      const data = await fetchOrders(start, end, storeId)
-      if (data) {
-        const parsedData = parseOrderData(data)
-        setOrder((prevData: any) => [...prevData, ...parsedData])
-      }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setIsLoadingPage(false)
-    }
-  }
-
-  const getOrderVendor = async (start: string, end: string, vendorIds: string) => {
-    setIsLoadingPage(true)
-    try {
-      const data = await fetchOrders(start, end, vendorIds)
-      if (data) {
-        const parsedData = parseOrderData(data)
-        setOrder((prevData: any) => [...prevData, ...parsedData])
-      }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setIsLoadingPage(false)
-    }
   }
 
   useEffect(() => {
@@ -244,6 +335,10 @@ const ViewCalendarCS: React.FC = () => {
     'SURVEYSTART',
     'SURVEYDONE',
     'QUOTEIN',
+    'QUOTATIONPAID',
+    'QUOTATIONPAIDSTEPONE',
+    'QUOTATIONPAIDSTEPTWO',
+    'QUOTATIONPAIDSTEPTHREE',
     'QUOTEOUT',
   ])
   const workStatuses = getStatuses([
@@ -306,6 +401,10 @@ const ViewCalendarCS: React.FC = () => {
       value: complaintDoneStatuses,
     },
   ]
+
+  const renderMoreLink = (arg: MoreLinkContentArg) => {
+    return <a>Read more +{arg.num} Order</a>
+  }
 
   return (
     <section id='view-calendar'>
@@ -430,11 +529,13 @@ const ViewCalendarCS: React.FC = () => {
           eventDisplay=''
           weekends={true}
           events={order}
+          dayMaxEvents={7}
           eventOrder={''}
           locale={idLocale}
           timeZone='Asia/Jakarta'
           datesSet={handleDatesSet}
           eventClick={(info) => handleShowModal(info.event.id)}
+          moreLinkContent={renderMoreLink}
         />
       </Spin>
 
@@ -486,6 +587,10 @@ const ViewCalendarCS: React.FC = () => {
                         if (
                           [
                             'QUOTEIN',
+                            'QUOTATIONPAID',
+                            'QUOTATIONPAIDSTEPONE',
+                            'QUOTATIONPAIDSTEPTWO',
+                            'QUOTATIONPAIDSTEPTHREE',
                             'QUOTEOUT',
                             'CANCEL',
                             'WARRANTYCLAIM',
@@ -1199,6 +1304,30 @@ const ViewCalendarCS: React.FC = () => {
                   />
                 </div>
               )}
+          </Row>
+
+          <Row className='mt-3 mb-3'>
+            <Card className='mt-5'>
+              <Card.Header>
+                <Card.Title className='fw-bold'>Order History</Card.Title>
+              </Card.Header>
+
+              <Card.Body>
+                <div className='work-order-history'>
+                  <Steps
+                    progressDot
+                    current={orderHistorical.length - 1}
+                    direction='vertical'
+                    items={orderHistorical.map((item) => ({
+                      title: item?.order_status,
+                      description: `Terakhir update : ${item?.created_at} ${
+                        item.updated_by ? `oleh ${item?.updated_by}` : ''
+                      }`,
+                    }))}
+                  />
+                </div>
+              </Card.Body>
+            </Card>
           </Row>
         </Modal.Body>
       </Modal>

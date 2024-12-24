@@ -47,7 +47,7 @@ const TopSalesWidget: React.FC<Props> = ({className, salesData, loadingPage, tot
               </div>
 
               <div className='d-flex flex-column justify-content-center align-items-end w-50'>
-                <span className='text-muted'>{`${item?.order_total ?? 0} Order`}</span>
+                <span className='text-muted'>{`${item?.sales_total_order ?? 0} Order`}</span>
               </div>
             </div>
           </Skeleton>
