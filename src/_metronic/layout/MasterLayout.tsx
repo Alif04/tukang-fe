@@ -1,6 +1,7 @@
 import {useEffect} from 'react'
 import {Outlet} from 'react-router-dom'
 import {AsideDefault} from './components/aside/AsideDefault'
+import ChatPage from './components/chat/ChatPage'
 import {HeaderWrapper} from './components/header/HeaderWrapper'
 import {ScrollTop} from './components/ScrollTop'
 import {Content} from './components/Content'
@@ -11,6 +12,7 @@ import {MenuComponent} from '../assets/ts/components'
 
 const MasterLayout = () => {
   const location = useLocation()
+  const userRole = localStorage.getItem("userRole") as string;
   useEffect(() => {
     setTimeout(() => {
       MenuComponent.reinitialization()
@@ -38,7 +40,9 @@ const MasterLayout = () => {
             >
               <Content>
                 <Outlet />
+            
               </Content>
+              {(userRole ==="Admin HO" || userRole === "Store CS" || userRole === "Owner Vendor") && <ChatPage/>}
             </div>
           </div>
         </div>
