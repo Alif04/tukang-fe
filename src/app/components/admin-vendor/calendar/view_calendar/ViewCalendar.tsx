@@ -56,12 +56,17 @@ const ViewCalendarVendor: React.FC = () => {
 
   // Fetch Data
   const getOrder = async (start: any, end: any) => {
-    try {
-      setIsLoadingPage(true)
+    setIsLoadingPage(true)
 
-      await axios
-        .get(
-          `${apiUrl}/orders?vendor_id=${vendorId}&take=0&order_by=desc&date_from=${start}&date_to=${end}`,
+    let currentPage = 1
+    const pageSize = 100
+    let allOrders: Order[] = []
+    let hasMoreData = true
+
+    try {
+      while (hasMoreData) {
+        const response = await axios.get(
+          `${apiUrl}/orders?vendor_id=${vendorId}&take=${pageSize}&page=${currentPage}&order_by=desc&date_from=${start}&date_to=${end}`,
           {
             headers: {
               Accept: 'application/json',
@@ -71,105 +76,111 @@ const ViewCalendarVendor: React.FC = () => {
             },
           }
         )
-        .then((response) => {
-          const data = response.data.data
-          setIsLoadingPage(false)
 
-          if (data) {
-            const orderDetail = data.map((item: any) => {
-              const startDate = item?.work_orders
-                ? item?.work_orders &&
-                  item.work_orders.survey_date !== null &&
-                  item.work_orders.work_start_date === null
-                  ? item.work_orders.survey_date
-                  : item?.work_orders &&
-                    item.work_orders.survey_date === null &&
-                    item.work_orders.work_start_date !== null
-                  ? item.work_orders.work_start_date
-                  : null
-                : item?.request_survey
+        const data = response.data.data
 
-              const endDate = item?.work_orders
-                ? item?.work_orders &&
-                  item.work_orders.survey_date !== null &&
-                  item.work_orders.work_end_date === null
-                  ? item.work_orders.survey_date
-                  : item?.work_orders &&
-                    item.work_orders.survey_date === null &&
-                    item.work_orders.work_end_date !== null
-                  ? item.work_orders.work_end_date
-                  : null
-                : item?.request_survey
+        if (data.length > 0) {
+          const orders = data.map((item: any) => {
+            const startDate = item?.work_orders
+              ? item?.work_orders &&
+                item.work_orders.survey_date !== null &&
+                item.work_orders.work_start_date === null
+                ? item.work_orders.survey_date
+                : item?.work_orders &&
+                  item.work_orders.survey_date === null &&
+                  item.work_orders.work_start_date !== null
+                ? item.work_orders.work_start_date
+                : null
+              : item?.request_survey
 
-              const orderStatus = (() => {
-                if (item?.work_orders?.work_order_status?.length >= 0) {
-                  if (['QUOTEIN', 'QUOTEOUT'].includes(item?.status?.category)) {
-                    return item?.status?.category
-                  } else if (
-                    ['WORKREQ'].includes(item?.status?.category) &&
-                    item?.payment_type === 'survey' &&
-                    !['WORKSTART', 'WORKEND'].includes(
-                      item?.work_orders?.work_order_status[0]?.status?.category
-                    )
-                  ) {
-                    return item?.status?.category
-                  } else {
-                    return item?.work_orders?.work_order_status[0]?.status?.category
-                  }
-                } else {
+            const endDate = item?.work_orders
+              ? item?.work_orders &&
+                item.work_orders.survey_date !== null &&
+                item.work_orders.work_end_date === null
+                ? item.work_orders.survey_date
+                : item?.work_orders &&
+                  item.work_orders.survey_date === null &&
+                  item.work_orders.work_end_date !== null
+                ? item.work_orders.work_end_date
+                : null
+              : item?.request_survey
+
+            const orderStatus = (() => {
+              if (item?.work_orders?.work_order_status?.length >= 0) {
+                if (['QUOTEIN', 'QUOTATIONPAID', 'QUOTEOUT'].includes(item?.status?.category)) {
                   return item?.status?.category
+                } else if (
+                  ['WORKREQ'].includes(item?.status?.category) &&
+                  item?.payment_type === 'survey' &&
+                  !['WORKSTART', 'WORKEND'].includes(
+                    item?.work_orders?.work_order_status[0]?.status?.category
+                  )
+                ) {
+                  return item?.status?.category
+                } else {
+                  return item?.work_orders?.work_order_status[0]?.status?.category
                 }
-              })()
-
-              const contextualColor = (() => {
-                switch (orderStatus) {
-                  case 'SURVEYREQ':
-                  case 'WORKREQ':
-                    return 'bg-primary'
-                  case 'SURVEYSTART':
-                  case 'SURVEYDONE':
-                  case 'WORKSTART':
-                    return 'bg-calendar-order-wip'
-                  case 'QUOTATIONDRAFT':
-                  case 'QUOTEIN':
-                  case 'QUOTEOUT':
-                  case 'QUOTATIONPAID':
-                  case 'QUOTATIONPAIDSTEPONE':
-                  case 'QUOTATIONPAIDSTEPTWO':
-                  case 'QUOTATIONPAIDSTEPTHREE':
-                  case 'WORKEND':
-                  case 'WORKENDSTEPONE':
-                  case 'WORKENDSTEPTWO':
-                  case 'WORKENDSTEPTHREE':
-                  case 'REWORKEND':
-                    return 'bg-calendar-order-done'
-                  case 'RESCHEDULE':
-                    return 'bg-calendar-order-reschedule'
-                  case 'INVESTIGATED':
-                    return 'bg-calendar-order-complaint'
-                  default:
-                    return 'bg-primary'
-                }
-              })()
-
-              return {
-                id: item?.id.toString(),
-                title: `#${item?.id ?? ''} ${item.store ? `- ${item.store.store_name}` : ''} - ${
-                  item?.members?.full_name ?? ''
-                } `,
-                start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
-                end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
-                order_status: orderStatus,
-                className: contextualColor,
-                order_detail: item,
+              } else {
+                return item?.status?.category
               }
-            })
+            })()
 
-            setOrder(orderDetail)
-          }
-        })
+            const contextualColor = (() => {
+              switch (orderStatus) {
+                case 'SURVEYREQ':
+                case 'WORKREQ':
+                  return 'bg-primary'
+                case 'SURVEYSTART':
+                case 'SURVEYDONE':
+                case 'WORKSTART':
+                  return 'bg-calendar-order-wip'
+                case 'QUOTATIONDRAFT':
+                case 'QUOTEIN':
+                case 'QUOTEOUT':
+                case 'QUOTATIONPAID':
+                case 'QUOTATIONPAIDSTEPONE':
+                case 'QUOTATIONPAIDSTEPTWO':
+                case 'QUOTATIONPAIDSTEPTHREE':
+                case 'WORKEND':
+                case 'WORKENDSTEPONE':
+                case 'WORKENDSTEPTWO':
+                case 'WORKENDSTEPTHREE':
+                case 'REWORKEND':
+                  return 'bg-calendar-order-done'
+                case 'RESCHEDULE':
+                  return 'bg-calendar-order-reschedule'
+                case 'INVESTIGATED':
+                  return 'bg-calendar-order-complaint'
+                default:
+                  return 'bg-primary'
+              }
+            })()
+
+            return {
+              id: item?.id.toString(),
+              title: `#${item?.id ?? ''} ${item.store ? `- ${item.store.store_name}` : ''} - ${
+                item?.members?.full_name ?? ''
+              } `,
+              start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
+              end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
+              order_status: orderStatus,
+              className: contextualColor,
+              order_detail: item,
+            }
+          })
+
+          allOrders = [...allOrders, ...orders]
+          currentPage += 1
+        } else {
+          hasMoreData = false
+        }
+      }
+
+      setOrder(allOrders)
     } catch (error) {
-      console.error(error)
+      console.log('Error fetching orders', error)
+    } finally {
+      setIsLoadingPage(false)
     }
   }
 

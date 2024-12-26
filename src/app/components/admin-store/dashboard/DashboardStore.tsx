@@ -98,7 +98,7 @@ const DashboardStore: FC = () => {
   const getSales = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/sales?take=0&top_best=1&order_by=desc&store_id=${userStore}`,
+        `${apiUrl}/sales?take=0&top_best=1&order_by=desc&store_id=${userStore}&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
         {
           headers: {
             Accept: 'application/json',

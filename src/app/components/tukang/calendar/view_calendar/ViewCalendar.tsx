@@ -50,12 +50,17 @@ const ViewCalendarTukang: React.FC = () => {
 
   // Fetch Data
   const getWorkOrder = async (start: any, end: any) => {
-    try {
-      setIsLoadingPage(true)
+    setIsLoadingPage(true)
 
-      await axios
-        .get(
-          `${apiUrl}/work-orders?tukang_id=${tukangId}&take=0&order_by=desc&date_from=${start}&date_to=${end}`,
+    let currentPage = 1
+    const pageSize = 100
+    let allOrders: WorkOrder[] = []
+    let hasMoreData = true
+
+    try {
+      while (hasMoreData) {
+        const response = await axios.get(
+          `${apiUrl}/work-orders?tukang_id=${tukangId}&take=${pageSize}&page=${currentPage}&order_by=desc&date_from=${start}&date_to=${end}`,
           {
             headers: {
               Accept: 'application/json',
@@ -65,174 +70,180 @@ const ViewCalendarTukang: React.FC = () => {
             },
           }
         )
-        .then((response) => {
-          const data = response.data.data
-          setIsLoadingPage(false)
 
-          if (data) {
-            const workOrderDetail = data.map((item: any) => {
-              const workOrderItems = item?.work_order_status[0]?.work_order_items
-                .map((service: any) => service.name ?? '')
-                .join(', ')
+        const data = response.data.data
 
-              const workOrderTukang = item?.work_order_tukang
-                .map((item: any) => item.tukang.full_name ?? '')
-                .join(', ')
+        if (data.length > 0) {
+          const workOrderDetail = data.map((item: any) => {
+            const workOrderItems = item?.work_order_status[0]?.work_order_items
+              .map((service: any) => service.name ?? '')
+              .join(', ')
 
-              const startDate =
-                item.survey_date !== null && item.work_start_date === null
-                  ? item.survey_date
-                  : item.survey_date === null && item.work_start_date
-                  ? item.work_start_date
-                  : item.work_start_date
+            const workOrderTukang = item?.work_order_tukang
+              .map((item: any) => item.tukang.full_name ?? '')
+              .join(', ')
 
-              const endDate =
-                item.survey_date !== null && item.work_end_date === null
-                  ? item.survey_date
-                  : item.survey_date === null && item.work_end_date
-                  ? item.work_end_date
-                  : item.work_end_date
+            const startDate =
+              item.survey_date !== null && item.work_start_date === null
+                ? item.survey_date
+                : item.survey_date === null && item.work_start_date
+                ? item.work_start_date
+                : item.work_start_date
 
-              const workStartDate = new Date(item?.work_start_date).toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })
+            const endDate =
+              item.survey_date !== null && item.work_end_date === null
+                ? item.survey_date
+                : item.survey_date === null && item.work_end_date
+                ? item.work_end_date
+                : item.work_end_date
 
-              const workEndDate = new Date(item?.work_end_date).toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })
-
-              const workDateTime =
-                item?.work_end_date !== null
-                  ? `${workStartDate} - ${workEndDate}`
-                  : 'Belum dijadwalkan oleh vendor'
-
-              const orderStatus = (() => {
-                if (item?.work_order_status?.length >= 0) {
-                  if (['QUOTEIN', 'QUOTEOUT'].includes(item?.order?.status?.category)) {
-                    return item?.status?.category
-                  } else if (
-                    ['WORKREQ'].includes(item?.order?.status?.category) &&
-                    item?.payment_type === 'survey' &&
-                    !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
-                  ) {
-                    return item?.order?.status?.category
-                  } else {
-                    return item?.work_order_status[0]?.status?.category
-                  }
-                } else {
-                  return item?.order?.status?.category
-                }
-              })()
-
-              const contextualColor = (() => {
-                switch (orderStatus) {
-                  case 'SURVEYREQ':
-                  case 'WORKREQ':
-                    return 'bg-primary'
-                  case 'SURVEYSTART':
-                  case 'SURVEYDONE':
-                  case 'WORKSTART':
-                    return 'bg-calendar-order-wip'
-                  case 'QUOTATIONDRAFT':
-                  case 'QUOTEIN':
-                  case 'QUOTEOUT':
-                  case 'QUOTATIONPAID':
-                  case 'QUOTATIONPAIDSTEPONE':
-                  case 'QUOTATIONPAIDSTEPTWO':
-                  case 'QUOTATIONPAIDSTEPTHREE':
-                  case 'WORKEND':
-                  case 'WORKENDSTEPONE':
-                  case 'WORKENDSTEPTWO':
-                  case 'WORKENDSTEPTHREE':
-                  case 'REWORKEND':
-                    return 'bg-calendar-order-done'
-                  case 'RESCHEDULE':
-                    return 'bg-calendar-order-reschedule'
-                  case 'INVESTIGATED':
-                    return 'bg-calendar-order-complaint'
-                  default:
-                    return 'bg-primary'
-                }
-              })()
-
-              const workOrderHistoryData = item?.work_order_status.map(
-                (item: any, index: number, array: any[]) => {
-                  let workTime = '-'
-
-                  if (index > 0) {
-                    const date_1 = new Date(array[index - 1].created_at).getTime()
-                    const date_2 = new Date(item.created_at).getTime()
-
-                    const timeDifferenceInMilliseconds = Math.abs(date_2 - date_1)
-
-                    const timeDifferenceInMinutes = Math.floor(
-                      timeDifferenceInMilliseconds / (1000 * 60)
-                    )
-
-                    const timeDifferenceInHours = Math.floor(
-                      timeDifferenceInMilliseconds / (1000 * 60 * 60)
-                    )
-
-                    const timeDifferenceInDays = Math.floor(
-                      timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)
-                    )
-
-                    if (timeDifferenceInDays >= 1) {
-                      workTime = `${timeDifferenceInDays} Hari`
-                    } else if (timeDifferenceInHours >= 1) {
-                      workTime = `${timeDifferenceInHours} Jam`
-                    } else {
-                      workTime = `${timeDifferenceInMinutes} Menit`
-                    }
-                  }
-
-                  return {
-                    work_order_id: item?.work_order_id,
-                    work_order_status: item?.status?.category,
-                    work_order_status_label: item?.status?.description,
-                    time_range: workTime,
-                    updated_at: item?.created_at
-                      ? new Date(item?.created_at).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric',
-                        })
-                      : '-',
-                    work_date_time: workDateTime,
-                    updated_by: item?.updated_by,
-                  }
-                }
-              )
-
-              return {
-                id: item?.id.toString(),
-                order_id: item?.order_id.toString(),
-                title: `#${item?.order?.id} - ${item?.order?.store?.store_name ?? ''} - ${
-                  item?.order?.members?.full_name ?? ''
-                } `,
-                work_order_status: item?.work_order_status[0]?.status.category,
-                service: workOrderItems ?? '',
-                tukang: workOrderTukang ?? '',
-                start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
-                end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
-                order_status: orderStatus,
-                className: contextualColor,
-                work_order_detail: item,
-                work_order_history: workOrderHistoryData,
-              }
+            const workStartDate = new Date(item?.work_start_date).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
             })
 
-            setWorkOrder(workOrderDetail)
-          }
-        })
+            const workEndDate = new Date(item?.work_end_date).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+
+            const workDateTime =
+              item?.work_end_date !== null
+                ? `${workStartDate} - ${workEndDate}`
+                : 'Belum dijadwalkan oleh vendor'
+
+            const orderStatus = (() => {
+              if (item?.work_order_status?.length >= 0) {
+                if (['QUOTEIN', 'QUOTEOUT'].includes(item?.order?.status?.category)) {
+                  return item?.status?.category
+                } else if (
+                  ['WORKREQ'].includes(item?.order?.status?.category) &&
+                  item?.payment_type === 'survey' &&
+                  !['WORKSTART', 'WORKEND'].includes(item?.work_order_status[0]?.status?.category)
+                ) {
+                  return item?.order?.status?.category
+                } else {
+                  return item?.work_order_status[0]?.status?.category
+                }
+              } else {
+                return item?.order?.status?.category
+              }
+            })()
+
+            const contextualColor = (() => {
+              switch (orderStatus) {
+                case 'SURVEYREQ':
+                case 'WORKREQ':
+                  return 'bg-primary'
+                case 'SURVEYSTART':
+                case 'SURVEYDONE':
+                case 'WORKSTART':
+                  return 'bg-calendar-order-wip'
+                case 'QUOTATIONDRAFT':
+                case 'QUOTEIN':
+                case 'QUOTEOUT':
+                case 'QUOTATIONPAID':
+                case 'QUOTATIONPAIDSTEPONE':
+                case 'QUOTATIONPAIDSTEPTWO':
+                case 'QUOTATIONPAIDSTEPTHREE':
+                case 'WORKEND':
+                case 'WORKENDSTEPONE':
+                case 'WORKENDSTEPTWO':
+                case 'WORKENDSTEPTHREE':
+                case 'REWORKEND':
+                  return 'bg-calendar-order-done'
+                case 'RESCHEDULE':
+                  return 'bg-calendar-order-reschedule'
+                case 'INVESTIGATED':
+                  return 'bg-calendar-order-complaint'
+                default:
+                  return 'bg-primary'
+              }
+            })()
+
+            const workOrderHistoryData = item?.work_order_status.map(
+              (item: any, index: number, array: any[]) => {
+                let workTime = '-'
+
+                if (index > 0) {
+                  const date_1 = new Date(array[index - 1].created_at).getTime()
+                  const date_2 = new Date(item.created_at).getTime()
+
+                  const timeDifferenceInMilliseconds = Math.abs(date_2 - date_1)
+
+                  const timeDifferenceInMinutes = Math.floor(
+                    timeDifferenceInMilliseconds / (1000 * 60)
+                  )
+
+                  const timeDifferenceInHours = Math.floor(
+                    timeDifferenceInMilliseconds / (1000 * 60 * 60)
+                  )
+
+                  const timeDifferenceInDays = Math.floor(
+                    timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)
+                  )
+
+                  if (timeDifferenceInDays >= 1) {
+                    workTime = `${timeDifferenceInDays} Hari`
+                  } else if (timeDifferenceInHours >= 1) {
+                    workTime = `${timeDifferenceInHours} Jam`
+                  } else {
+                    workTime = `${timeDifferenceInMinutes} Menit`
+                  }
+                }
+
+                return {
+                  work_order_id: item?.work_order_id,
+                  work_order_status: item?.status?.category,
+                  work_order_status_label: item?.status?.description,
+                  time_range: workTime,
+                  updated_at: item?.created_at
+                    ? new Date(item?.created_at).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      })
+                    : '-',
+                  work_date_time: workDateTime,
+                  updated_by: item?.updated_by,
+                }
+              }
+            )
+
+            return {
+              id: item?.id.toString(),
+              order_id: item?.order_id.toString(),
+              title: `#${item?.order?.id} - ${item?.order?.store?.store_name ?? ''} - ${
+                item?.order?.members?.full_name ?? ''
+              } `,
+              work_order_status: item?.work_order_status[0]?.status.category,
+              service: workOrderItems ?? '',
+              tukang: workOrderTukang ?? '',
+              start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
+              end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
+              order_status: orderStatus,
+              className: contextualColor,
+              work_order_detail: item,
+              work_order_history: workOrderHistoryData,
+            }
+          })
+
+          allOrders = [...allOrders, ...workOrderDetail]
+          currentPage += 1
+        } else {
+          hasMoreData = false
+        }
+      }
+
+      setWorkOrder(allOrders)
     } catch (error) {
-      console.error(error)
+      console.log('Error fetching orders', error)
+    } finally {
+      setIsLoadingPage(false)
     }
   }
 

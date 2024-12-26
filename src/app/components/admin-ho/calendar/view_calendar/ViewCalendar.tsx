@@ -54,109 +54,124 @@ const ViewCalendarHO: React.FC = () => {
   const [initialView] = useState(window.innerWidth <= 768 ? 'listMonth' : 'dayGridMonth')
 
   // Fetch Data
-  const getOrder = async (start: any, end: any) => {
+  const getOrder = async (start: string, end: string) => {
+    setIsLoadingPage(true)
+
+    let currentPage = 1
+    const pageSize = 100
+    let allOrders: Order[] = []
+    let hasMoreData = true
+
     try {
-      setIsLoadingPage(true)
-
-      await axios
-        .get(`${apiUrl}/orders/calender?take=0&date_from=${start}&date_to=${end}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        .then((response) => {
-          const data = response.data.data
-          setIsLoadingPage(false)
-
-          if (data) {
-            const orderDetail = data.map((item: any) => {
-              const startDate = item?.work_orders
-                ? item?.work_orders &&
-                  item.work_orders.survey_date !== null &&
-                  item.work_orders.work_start_date === null
-                  ? item.work_orders.survey_date
-                  : item?.work_orders &&
-                    item.work_orders.survey_date === null &&
-                    item.work_orders.work_start_date !== null
-                  ? item.work_orders.work_start_date
-                  : null
-                : item?.request_survey
-
-              const endDate = item?.work_orders
-                ? item?.work_orders &&
-                  item.work_orders.survey_date !== null &&
-                  item.work_orders.work_end_date === null
-                  ? item.work_orders.survey_date
-                  : item?.work_orders &&
-                    item.work_orders.survey_date === null &&
-                    item.work_orders.work_end_date !== null
-                  ? item.work_orders.work_end_date
-                  : null
-                : item?.request_survey
-
-              const orderStatus = (() => {
-                return item?.status?.category
-              })()
-
-              const contextualColor = (() => {
-                switch (orderStatus) {
-                  case 'PICKLIST':
-                    return 'bg-primary'
-                  case 'BOOKED':
-                    return 'bg-calendar-order-booked'
-                  case 'SURVEYREQ':
-                  case 'SURVEYSTART':
-                  case 'SURVEYDONE':
-                  case 'WORKREQ':
-                  case 'WORKSTART':
-                    return 'bg-calendar-order-wip'
-                  case 'QUOTATIONDRAFT':
-                  case 'QUOTEIN':
-                  case 'QUOTEOUT':
-                  case 'QUOTATIONPAID':
-                  case 'QUOTATIONPAIDSTEPONE':
-                  case 'QUOTATIONPAIDSTEPTWO':
-                  case 'QUOTATIONPAIDSTEPTHREE':
-                  case 'WORKEND':
-                  case 'WORKENDSTEPONE':
-                  case 'WORKENDSTEPTWO':
-                  case 'WORKENDSTEPTHREE':
-                  case 'REWORKEND':
-                    return 'bg-calendar-order-done'
-                  case 'RESCHEDULE':
-                    return 'bg-calendar-order-reschedule'
-                  case 'INVESTIGATED':
-                  case 'COMPLAINTAPPROVEDBYHO':
-                  case 'COMPLAINTREJECTEDBYHO':
-                    return 'bg-calendar-order-complaint'
-                  case 'CANCEL':
-                    return 'bg-calendar-order-cancel'
-                  default:
-                    return 'bg-primary'
-                }
-              })()
-
-              return {
-                id: item?.id.toString(),
-                title: `#${item?.id ?? ''} ${
-                  item.vendor ? `- ${item.vendor.company_name}` : '- Vendor Belum Ditugaskan'
-                } - ${item?.members?.full_name ?? ''} `,
-                start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
-                end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
-                order_status: orderStatus,
-                className: contextualColor,
-                order_detail: item,
-              }
-            })
-
-            setOrder(orderDetail)
+      while (hasMoreData) {
+        const response = await axios.get(
+          `${apiUrl}/orders/calender?page=${currentPage}&take=${pageSize}&date_from=${start}&date_to=${end}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
           }
-        })
+        )
+
+        const data = response.data.data
+
+        if (data.length > 0) {
+          const orders = data.map((item: any) => {
+            const startDate = (() => {
+              if (item?.work_orders) {
+                if (item.work_order_survey_date !== null) {
+                  return item.work_orders.work_start_date === null
+                    ? item.work_orders.survey_date
+                    : item.work_orders.work_start_date
+                }
+              }
+              return item?.request_survey
+            })()
+
+            const endDate = (() => {
+              if (item?.work_orders) {
+                if (item.work_order_survey_date !== null) {
+                  return item.work_orders.work_end_date === null
+                    ? item.work_orders.survey_date
+                    : item.work_orders.work_end_date
+                }
+                if (
+                  item.work_order_survey_date === null &&
+                  item.work_orders.work_end_date !== null
+                ) {
+                  return item.work_orders.work_end_date
+                }
+              }
+              return item?.request_survey
+            })()
+
+            const orderStatus = item?.status?.category
+            const contextualColor = (() => {
+              switch (orderStatus) {
+                case 'PICKLIST':
+                  return 'bg-primary'
+                case 'BOOKED':
+                  return 'bg-calendar-order-booked'
+                case 'SURVEYREQ':
+                case 'SURVEYSTART':
+                case 'SURVEYDONE':
+                case 'WORKREQ':
+                case 'WORKSTART':
+                  return 'bg-calendar-order-wip'
+                case 'QUOTATIONDRAFT':
+                case 'QUOTEIN':
+                case 'QUOTEOUT':
+                case 'QUOTATIONPAID':
+                case 'QUOTATIONPAIDSTEPONE':
+                case 'QUOTATIONPAIDSTEPTWO':
+                case 'QUOTATIONPAIDSTEPTHREE':
+                case 'WORKEND':
+                case 'WORKENDSTEPONE':
+                case 'WORKENDSTEPTWO':
+                case 'WORKENDSTEPTHREE':
+                case 'REWORKEND':
+                  return 'bg-calendar-order-done'
+                case 'RESCHEDULE':
+                  return 'bg-calendar-order-reschedule'
+                case 'INVESTIGATED':
+                case 'COMPLAINTAPPROVEDBYHO':
+                case 'COMPLAINTREJECTEDBYHO':
+                  return 'bg-calendar-order-complaint'
+                case 'CANCEL':
+                  return 'bg-calendar-order-cancel'
+                default:
+                  return 'bg-primary'
+              }
+            })()
+
+            return {
+              id: item?.id.toString(),
+              title: `#${item?.id ?? ''} - ${
+                item.vendor ? item.vendor.company_name : '- Vendor Belum Ditugaskan'
+              } - ${item?.members?.full_name ?? ''}`,
+              start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
+              end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
+              order_status: orderStatus,
+              className: contextualColor,
+              order_detail: item,
+            }
+          })
+
+          allOrders = [...allOrders, ...orders]
+          currentPage += 1
+        } else {
+          hasMoreData = false
+        }
+      }
+
+      setOrder(allOrders)
     } catch (error) {
-      console.error(error)
+      console.error('Error fetching orders:', error)
+    } finally {
+      setIsLoadingPage(false)
     }
   }
 
