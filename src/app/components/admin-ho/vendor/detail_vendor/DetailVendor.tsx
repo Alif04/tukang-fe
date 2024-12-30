@@ -165,9 +165,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       Margin :
                     </Form.Label>
                     <Col sm='6'>
-                      <p className='fw-normal mt-3'>
-                        {vendorDetail?.vendor_area[0].default_markup} %
-                      </p>
+                      <p className='fw-normal mt-3'>{vendorDetail?.margin_nominal ?? 0} %</p>
                     </Col>
                   </Form.Group>
 
@@ -334,48 +332,48 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                 <Col xxl={4}>
                   <Form.Group controlId='formFile'>
                     <Form.Label>Foto Company Profile</Form.Label>
-                    <Form className='form-input-image'>
-                      <Form.Control
-                        type='file'
-                        accept='image/*'
-                        className='input-field-image'
-                        hidden
-                      />
+                    {imageCompro.fileName ? (
+                      <Form className='form-input-image'>
+                        <Form.Control
+                          type='file'
+                          accept='image/*'
+                          className='input-field-image'
+                          hidden
+                        />
 
-                      {imageCompro?.fileName ? (
                         <img
                           src={`${apiUrl}/public/vendors/${imageCompro.fileName}`}
                           alt={imageCompro.fileName}
                           className='image-preview'
                         />
-                      ) : (
-                        <></>
-                      )}
-                    </Form>
+                      </Form>
+                    ) : (
+                      <p className='fw-semibold text-danger'>File belum tersedia</p>
+                    )}
                   </Form.Group>
                 </Col>
 
                 <Col xxl={4}>
                   <Form.Group controlId='formFile'>
                     <Form.Label>Foto Surat Permohonan</Form.Label>
-                    <Form className='form-input-image'>
-                      <Form.Control
-                        type='file'
-                        accept='image/*'
-                        className='input-field-image'
-                        hidden
-                      />
+                    {imageSuratPermohonan.fileName ? (
+                      <Form className='form-input-image'>
+                        <Form.Control
+                          type='file'
+                          accept='image/*'
+                          className='input-field-image'
+                          hidden
+                        />
 
-                      {imageSuratPermohonan?.fileName ? (
                         <img
                           src={`${apiUrl}/public/vendors/${imageSuratPermohonan.fileName}`}
                           alt={imageSuratPermohonan.fileName}
                           className='image-preview'
                         />
-                      ) : (
-                        <></>
-                      )}
-                    </Form>
+                      </Form>
+                    ) : (
+                      <p className='fw-semibold text-danger'>File belum tersedia</p>
+                    )}
                   </Form.Group>
                 </Col>
               </Row>

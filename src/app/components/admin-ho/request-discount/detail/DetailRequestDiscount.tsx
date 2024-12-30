@@ -1,6 +1,6 @@
 import React, {FC, useState, useEffect} from 'react'
 import {useParams} from 'react-router-dom'
-import {formatDate, formatDateWithTime, toAbsoluteUrl} from '../../../../../_metronic/helpers'
+import {formatDate, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './DetailRequestDiscount.css'
 
@@ -20,6 +20,7 @@ const DetailRequestDiscountHO: FC = () => {
   const [requestDiscountDetail, setRequestDiscountDetail] = useState<any>()
   const [quotationID, setQuotationID] = useState<any>()
   const [quotationDetail, setQuotationDetail] = useState<any>()
+
   const [notes, setNotes] = useState<string>('')
 
   const getIncentiveData = async () => {
@@ -92,8 +93,34 @@ const DetailRequestDiscountHO: FC = () => {
     ])
   }
 
-  // Handle Update Incentive
-  const handleUpdateIncentive = async (id: number, status: number, statusName: string) => {
+  // Handle Update Quotation
+  const handleUpdateQuotation = async () => {
+    const formData = new FormData()
+
+    formData.append('order_id', quotationDetail.order_id?.toString() ?? '')
+    formData.append('quotation_status', quotationDetail.quotation_status?.toString() ?? '')
+
+    await axios
+      .post(`${apiUrl}/quotation/${quotationDetail.id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then(() => {
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }
+
+  // Handle Update Request Discount
+  const handleUpdateRequestDiscount = async (id: number, status: number, statusName: string) => {
     if (id === null) return
 
     const textConfirmation = `Apakah Anda yakin ingin mengubah status pengajuan ini menjadi ${statusName} ?`
@@ -131,7 +158,7 @@ const DetailRequestDiscountHO: FC = () => {
               showConfirmButton: false,
               timer: 1500,
             }).then(() => {
-              window.location.reload()
+              handleUpdateQuotation()
             })
 
             setIsLoading(false)
@@ -732,7 +759,9 @@ const DetailRequestDiscountHO: FC = () => {
               <Button
                 className='btn-dark-success d-flex justify-content-center align-items-center gap-3 m-0'
                 disabled={loading}
-                onClick={() => handleUpdateIncentive(Number(params.id), 2, 'Pengajuan disetujui')}
+                onClick={() =>
+                  handleUpdateRequestDiscount(Number(params.id), 2, 'Pengajuan disetujui')
+                }
               >
                 {loading ? 'Memuat..' : 'Setujui Pengajuan'}
               </Button>
@@ -740,7 +769,9 @@ const DetailRequestDiscountHO: FC = () => {
               <Button
                 className='btn-dark-danger d-flex justify-content-center align-items-center gap-3 m-0'
                 disabled={loading}
-                onClick={() => handleUpdateIncentive(Number(params.id), 3, 'Pengajuan ditolak')}
+                onClick={() =>
+                  handleUpdateRequestDiscount(Number(params.id), 3, 'Pengajuan ditolak')
+                }
               >
                 {loading ? 'Memuat..' : 'Tolak Pengajuan'}
               </Button>

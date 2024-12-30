@@ -154,6 +154,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
 
   // Sales
   const [sales, setSales] = useState<SalesSelect[]>([])
+  const [searchSales, setSearchSales] = useState('')
   const [selectedSales, setSelectedSales] = useState<SingleValue<SalesSelect>>({
     value: null,
     label: '',
@@ -295,7 +296,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
               setSelectedSales((prev) => ({
                 ...prev,
                 value: data.sales.id,
-                label: data.sales.id,
+                label: data.sales.full_name,
                 full_name: data.sales.full_name,
               }))
 
@@ -398,20 +399,25 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     }
 
     const getSales = async () => {
+      const search = searchSales ? `&search=${searchSales}` : ''
+
       try {
-        const response = await axios.get(`${apiUrl}/sales?take=0&store_id=${staffStoreId}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+        const response = await axios.get(
+          `${apiUrl}/sales?take=0&store_id=${staffStoreId}${search}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
 
         if (Array.isArray(response.data.data)) {
           const tempSales = response.data.data.map((item: any) => ({
             value: item.id,
-            label: item.id,
+            label: item.full_name,
             full_name: item.full_name,
           }))
 
@@ -1132,10 +1138,23 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                   </Form.Label>
 
                   <Col sm='8'>
-                    <Form.Control
+                    {/* <Form.Control
                       type='text'
                       disabled
                       value={userRole === 'SALES' ? username : selectedSales?.full_name || ''}
+                    /> */}
+
+                    <Select
+                      name='sales_id'
+                      id='sales_id'
+                      className='form-control p-0 form-item-name'
+                      classNamePrefix='select'
+                      placeholder='Pilih/Ketik Nama Sales'
+                      isSearchable={true}
+                      isClearable={true}
+                      options={sales}
+                      onChange={(newValue) => setSelectedSales(newValue)}
+                      onInputChange={(newValue) => setSearchSales(newValue)}
                     />
                   </Col>
                 </Form.Group>

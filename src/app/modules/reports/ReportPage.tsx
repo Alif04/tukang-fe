@@ -137,7 +137,7 @@ const RefundPage: React.FC = () => {
               endpoint='orders'
               className=''
               params=''
-              statusName={['SURVEYSTART']}
+              statusName={['TUKANGSURVEY', 'SURVEYSTART']}
             />
           </>
         }
@@ -168,12 +168,17 @@ const RefundPage: React.FC = () => {
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN QUOTATION TELAH DIBAYAR</PageTitle>
             <TotalOrderReportStore
-              title='LAPORAN MENUNGGU BAYAR QUOTATION'
+              title='LAPORAN QUOTATION TELAH DIBAYAR'
               isWorkOrder={false}
               endpoint='quotation'
               className=''
               params='&is_paid=1'
-              statusName={['QUOTEOUT']}
+              statusName={[
+                'QUOTATIONPAID',
+                'QUOTATIONPAIDSTEPONE',
+                'QUOTATIONPAIDSTEPTWO',
+                'QUOTATIONPAIDSTEPTHREE',
+              ]}
             />
           </>
         }
@@ -190,7 +195,21 @@ const RefundPage: React.FC = () => {
               endpoint='orders'
               className=''
               params=''
-              statusName={['WORKSTART', 'WORKEND', 'REWORKSTART', 'REWORKEND']}
+              statusName={[
+                'WORKSTART',
+                'WORKSTARTSTEPONE',
+                'WORKSTARTSTEPTWO',
+                'WORKSTARTSTEPTHREE',
+                'TUKANGWORKSTEPONE',
+                'TUKANGWORKSTEPTWO',
+                'TUKANGWORKSTEPTHREE',
+                'WORKEND',
+                'WORKENDSTEPONE',
+                'WORKENDSTEPTWO',
+                'WORKENDSTEPTHREE',
+                'REWORKSTART',
+                'REWORKEND',
+              ]}
             />
           </>
         }
@@ -207,7 +226,13 @@ const RefundPage: React.FC = () => {
               endpoint='orders'
               className=''
               params=''
-              statusName={['WORKEND', 'DONE']}
+              statusName={[
+                'WORKEND',
+                'WORKENDSTEPONE',
+                'WORKENDSTEPTWO',
+                'WORKENDSTEPTHREE',
+                'DONE',
+              ]}
             />
           </>
         }

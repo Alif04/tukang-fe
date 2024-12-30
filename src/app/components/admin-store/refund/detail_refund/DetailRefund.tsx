@@ -641,10 +641,10 @@ const DetailRefundCS: FC = () => {
               </Col>
             </Row>
 
-            <Row className='mb-5'>
+            <Row className='mb-2'>
               <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-                <Form.Group>
-                  <Form.Label className='fs-5 fw-bold'>Nominal Voucher Konsumen :</Form.Label>
+                <Form.Group className='mb-5'>
+                  <Form.Label className='fs-5 fw-bold'>Voucher Konsumen :</Form.Label>
 
                   <Form.Control
                     type='text'
@@ -653,22 +653,61 @@ const DetailRefundCS: FC = () => {
                   />
                 </Form.Group>
 
+                <Form.Group className='mb-5'>
+                  <Form.Label className='fs-5 fw-bold'>Nominal Denda :</Form.Label>
+
+                  <Form.Control
+                    type='text'
+                    readOnly
+                    value={
+                      refundDetail
+                        ? `Rp. ${parseInt(refundDetail?.penalty_nominal).toLocaleString('id')}`
+                        : 'Rp. 0'
+                    }
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xxl={8} xl={8} lg={8} md={8} sm={12}>
                 <Form.Group>
-                  <Form.Label className='mt-3'>File Pendukung :</Form.Label>
+                  <Form.Label className='fs-5 fw-bold'>Notes : </Form.Label>
+
+                  <Form.Control
+                    as='textarea'
+                    className='desc-notes'
+                    readOnly
+                    value={refundDetail?.notes}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className='mb-2'>
+              <Col md={12} sm={12}>
+                <Form.Group>
+                  <Form.Label>File Pendukung :</Form.Label>
 
                   <ListGroup>
-                    {refundDetail?.refund_evidences.map((item: any) => (
-                      <ListGroup.Item
-                        key={item.id}
-                        action
-                        onClick={() => {
-                          setPreviewImage(item.evidence_location)
-                          setVisible(true)
-                        }}
-                      >
-                        {item.evidence_location}
+                    {refundDetail?.refund_evidences.length > 0 ? (
+                      <>
+                        {refundDetail?.refund_evidences.map((item: any) => (
+                          <ListGroup.Item
+                            key={item.id}
+                            action
+                            onClick={() => {
+                              setPreviewImage(item.evidence_location)
+                              setVisible(true)
+                            }}
+                          >
+                            {item.evidence_location}
+                          </ListGroup.Item>
+                        ))}
+                      </>
+                    ) : (
+                      <ListGroup.Item className='text-danger'>
+                        Belum ada file pendukung
                       </ListGroup.Item>
-                    ))}
+                    )}
                   </ListGroup>
 
                   {previewImage && (
@@ -688,19 +727,6 @@ const DetailRefundCS: FC = () => {
                       />
                     </div>
                   )}
-                </Form.Group>
-              </Col>
-
-              <Col xxl={8} xl={8} lg={8} md={8} sm={12}>
-                <Form.Group>
-                  <Form.Label className='fs-5 fw-bold'>Notes : </Form.Label>
-
-                  <Form.Control
-                    as='textarea'
-                    className='desc-notes'
-                    readOnly
-                    value={refundDetail?.notes}
-                  />
                 </Form.Group>
               </Col>
             </Row>

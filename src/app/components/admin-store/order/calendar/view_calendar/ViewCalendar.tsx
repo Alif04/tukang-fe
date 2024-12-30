@@ -214,7 +214,7 @@ const ViewCalendarCS: React.FC = () => {
       })()
 
       const orderStatus = (() => {
-        return item?.status?.category
+        return item?.reschedule?.length > 0 ? 'RESCHEDULE' : item?.status?.category
       })()
 
       const contextualColor = (() => {
