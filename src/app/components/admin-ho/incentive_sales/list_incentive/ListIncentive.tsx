@@ -8,7 +8,8 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
+import {faSearch, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
+import Swal from 'sweetalert2'
 
 const {RangePicker} = DatePicker
 
@@ -138,6 +139,54 @@ const ListIncentiveHO: React.FC<Props> = ({className}) => {
           navigate(`/incentive-sales/update-incentive/${id}`)
         }
 
+        const handleDelete = () => {
+          Swal.fire({
+            title: `Apakah anda yakin akan menghapus data Insentif ini ?`,
+            icon: 'warning',
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ya',
+            denyButtonText: 'Cancel',
+          })
+            .then((willDelete) => {
+              if (willDelete.value) {
+                axios
+                  .delete(`${apiUrl}/incentive/${id}`, {
+                    headers: {
+                      Accept: 'application/json',
+                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Access-Control-Allow-Origin': '*',
+                      'ngrok-skip-browser-warning': 'true',
+                    },
+                  })
+                  .then((response) => {
+                    Swal.fire({
+                      title: 'Success',
+                      text: 'Berhasil menghapus data insentif sales',
+                      icon: 'success',
+                      showConfirmButton: false,
+                    }).then(() => {
+                      window.location.reload()
+                    })
+                  })
+                  .catch((error) => {
+                    Swal.fire({
+                      title: 'Error',
+                      text: error.response.data.message,
+                      icon: 'error',
+                    })
+                  })
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
+        }
+
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>
             <OverlayTrigger
@@ -147,6 +196,16 @@ const ListIncentiveHO: React.FC<Props> = ({className}) => {
             >
               <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
                 <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
+
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Hapus Insentif')}
+            >
+              <Button className='button-delete' variant='danger' onClick={handleDelete}>
+                <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
               </Button>
             </OverlayTrigger>
           </div>

@@ -8,8 +8,8 @@ import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
 import {Image, Skeleton} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {Row, Col, Form, ListGroup, Modal, Button, Card} from 'react-bootstrap'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {Row, Col, Form, ListGroup, Modal, Button, Card, Alert} from 'react-bootstrap'
+import {faTrash, faImage, faFileImage, faCircleInfo} from '@fortawesome/free-solid-svg-icons'
 import {formatDate} from '@fullcalendar/core'
 import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
@@ -231,6 +231,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     formData.append('complaint_date', complaintForm.complaint_date)
     formData.append('type', complaintForm.complaint_type.toString())
     formData.append('crm_type', complaintForm.crm_type.toString())
+    formData.append('reason', reasonRejected)
 
     await axios
       .post(`${apiUrl}/complaints/${complaintForm.id}`, formData, {
@@ -537,6 +538,73 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
   const warrantyData = calculateWarrantyDays(
     complaintDetail?.orders?.work_orders?.work_order_status[0]?.created_at
+  )
+
+  // Conditional Button Render
+  const shouldDisplayActions = () => {
+    const excludedStatus = [
+      'DONE',
+      'RESURVEYREQ',
+      'RESURVEYSTART',
+      'REWORKREQ',
+      'REWORKSTART',
+      'REWORKEND',
+      'RESURVEYDONE',
+    ]
+
+    const isRejectedByHO = complaintDetail?.status?.category === 'COMPLAINTREJECTEDBYHO'
+
+    return !excludedStatus.includes(complaintDetail?.orders?.status?.category) && !isRejectedByHO
+  }
+
+  const shouldDisplayAcceptButton = () => {
+    const acceptableStatuses = [
+      'WARRANTYCLAIM',
+      'WORKEND',
+      'WORKENDSTEPONE',
+      'WORKENDSTEPTWO',
+      'WORKENDSTEPTHREE',
+    ]
+
+    return acceptableStatuses.includes(
+      complaintDetail?.orders?.work_orders?.work_order_status?.[0]?.status?.category
+    )
+  }
+
+  const ActionButtons = () => (
+    <div className='d-flex justify-content-end align-items-center'>
+      <Button
+        variant='dark-danger'
+        className='d-flex justify-content-center align-items-center'
+        type='submit'
+        disabled={isLoading}
+        onClick={() => handleShowModal(1)}
+      >
+        {isLoading ? 'Rejected..' : 'Rejected'}
+      </Button>
+
+      {shouldDisplayAcceptButton() ? (
+        <Button
+          variant='dark-primary'
+          className='d-flex justify-content-center align-items-center'
+          type='submit'
+          disabled={isLoading}
+          onClick={() => handleShowModal(2)}
+        >
+          {isLoading ? 'Accepted..' : 'Accept and Choose Status'}
+        </Button>
+      ) : (
+        <Button
+          variant='dark-primary'
+          className='d-flex justify-content-center align-items-center'
+          type='submit'
+          disabled={isLoading}
+          onClick={() => handleApprovalComplaint(complaintStatusApprove)}
+        >
+          {isLoading ? 'Accepted..' : 'Accepted'}
+        </Button>
+      )}
+    </div>
   )
 
   return (
@@ -1588,59 +1656,8 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
             )}
           </Skeleton>
 
-          {![
-            'COMPLAINTREJECTEDBYHO',
-            'DONE',
-            'RESURVEYSTART',
-            'REWORKSTART',
-            'REWORKEND',
-            'RESURVEYDONE',
-          ].includes(complaintDetail?.orders?.status?.category) && (
-            <>
-              {['Admin HO', 'Super User'].includes(userRole) && (
-                <div className='d-flex justify-content-end align-items-center'>
-                  <Button
-                    variant='dark-danger'
-                    className='d-flex justify-content-center align-items-center'
-                    type='submit'
-                    disabled={isLoading}
-                    onClick={() => handleShowModal(1)}
-                  >
-                    {isLoading ? 'Rejected..' : 'Rejected'}
-                  </Button>
-
-                  {[
-                    'WARRANTYCLAIM',
-                    'WORKEND',
-                    'WORKENDSTEPONE',
-                    'WORKENDSTEPTWO',
-                    'WORKENDSTEPTHREE',
-                  ].includes(
-                    complaintDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
-                  ) ? (
-                    <Button
-                      variant='dark-primary'
-                      className='d-flex justify-content-center align-items-center'
-                      type='submit'
-                      disabled={isLoading}
-                      onClick={() => handleShowModal(2)}
-                    >
-                      {isLoading ? 'Accepted..' : 'Accept and Choose Status'}
-                    </Button>
-                  ) : (
-                    <Button
-                      variant='dark-primary'
-                      className='d-flex justify-content-center align-items-center'
-                      type='submit'
-                      disabled={isLoading}
-                      onClick={() => handleApprovalComplaint(complaintStatusApprove)}
-                    >
-                      {isLoading ? 'Accepted..' : 'Accepted'}
-                    </Button>
-                  )}
-                </div>
-              )}
-            </>
+          {shouldDisplayActions() && ['Admin HO', 'Super User'].includes(userRole) && (
+            <ActionButtons />
           )}
 
           <hr />
@@ -1873,7 +1890,9 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
           {!['Tukang'].includes(userRole) && (
             <>
-              {!['COMPLAINTREJECTEDBYHO', 'DONE'].includes(complaintDetail?.status?.category) && (
+              {!['WARRANTYCLAIM', 'INVESTIGATED', 'COMPLAINTREJECTEDBYHO', 'DONE'].includes(
+                complaintDetail?.status?.category
+              ) && (
                 <>
                   <hr />
 
@@ -2017,6 +2036,24 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                   )}
                 </>
               )}
+            </>
+          )}
+
+          {['COMPLAINTREJECTEDBYHO'].includes(complaintDetail?.status?.category) && (
+            <>
+              <hr />
+
+              <Alert variant='danger' className='d-flex align-items-center'>
+                <FontAwesomeIcon className='text-black' icon={faCircleInfo} fontSize={'15px'} />
+
+                <p className='fw-normal text-black'>
+                  Komplain telah ditolak oleh HO dengan alasan{' '}
+                  <span className='fw-bold text-black'>
+                    {complaintDetail?.complaint_histories[0].reason}
+                    Komplain ini sudah ditindaklanjuti
+                  </span>
+                </p>
+              </Alert>
             </>
           )}
         </Card.Body>

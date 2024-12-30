@@ -322,6 +322,33 @@ const UpdateQuotationVendor: FC = () => {
     })
   }
 
+  const validateQtyInput = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number,
+    item_type: number,
+    work_step?: number
+  ) => {
+    const value = e.target.value
+
+    const regex = /^[0-9]*(\.[0-9]{1})?$/
+
+    if (!regex.test(value)) {
+      const roundedValue = parseFloat(value).toFixed(1)
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Input tidak valid',
+        text: 'QTY hanya boleh memiliki satu angka di belakang koma. Nilai telah dibulatkan.',
+        confirmButtonText: 'OK',
+      })
+
+      e.target.value = roundedValue
+      handleChangeQuotationDetails(e, index, item_type, work_step)
+    } else {
+      handleChangeQuotationDetails(e, index, item_type, work_step)
+    }
+  }
+
   const calculateEachDetail = (isNominal: number, index: number) => {
     setQuotation((prev) => {
       const updatedDetails = prev.quotation_details.map((detail) => {
@@ -781,7 +808,7 @@ const UpdateQuotationVendor: FC = () => {
                                   type='number'
                                   value={element.quantity}
                                   onChange={(e) => {
-                                    handleChangeQuotationDetails(
+                                    validateQtyInput(
                                       e as ChangeEvent<HTMLInputElement>,
                                       element.index,
                                       2
@@ -970,6 +997,12 @@ const UpdateQuotationVendor: FC = () => {
                                       2,
                                       1
                                     )
+                                    validateQtyInput(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      1
+                                    )
                                     calculateEachDetail(element.margin_type, element.index)
                                   }}
                                 />
@@ -1153,6 +1186,12 @@ const UpdateQuotationVendor: FC = () => {
                                       2,
                                       2
                                     )
+                                    validateQtyInput(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      2
+                                    )
                                     calculateEachDetail(element.margin_type, element.index)
                                   }}
                                 />
@@ -1331,6 +1370,12 @@ const UpdateQuotationVendor: FC = () => {
                                   value={element.quantity}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
+                                      e as ChangeEvent<HTMLInputElement>,
+                                      element.index,
+                                      2,
+                                      3
+                                    )
+                                    validateQtyInput(
                                       e as ChangeEvent<HTMLInputElement>,
                                       element.index,
                                       2,
@@ -1528,6 +1573,11 @@ const UpdateQuotationVendor: FC = () => {
                               disabled={element.is_user === 1 ? true : false}
                               onChange={(e) => {
                                 handleChangeQuotationDetails(
+                                  e as ChangeEvent<HTMLInputElement>,
+                                  element.index,
+                                  1
+                                )
+                                validateQtyInput(
                                   e as ChangeEvent<HTMLInputElement>,
                                   element.index,
                                   1

@@ -108,7 +108,8 @@ const ViewCalendarHO: React.FC = () => {
               return item?.request_survey
             })()
 
-            const orderStatus = item?.status?.category
+            const orderStatus = item?.reschedule?.length > 0 ? 'RESCHEDULE' : item?.status?.category
+
             const contextualColor = (() => {
               switch (orderStatus) {
                 case 'PICKLIST':

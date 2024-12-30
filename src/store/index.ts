@@ -2,11 +2,13 @@
 import {configureStore} from '@reduxjs/toolkit'
 import tableReducer from './tableSlice'
 import workOrderReducer from './workOrderSlice'
+import itemReducer from './itemSlice'
 
 export const store = configureStore({
   reducer: {
     table: tableReducer,
     workOrder: workOrderReducer,
+    item: itemReducer,
   },
 })
 

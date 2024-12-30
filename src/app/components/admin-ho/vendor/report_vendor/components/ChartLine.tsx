@@ -55,8 +55,8 @@ function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
   const borderColor = getCSSVariableValue('--kt-gray-200')
   const baseColor = getCSSVariableValue('--kt-primary')
   const baseLightColor = getCSSVariableValue('--kt-primary-light')
-  const secondaryColor = getCSSVariableValue('--kt-info')
-  const secondaryLightColor = getCSSVariableValue('--kt-info-light')
+  const secondaryColor = getCSSVariableValue('--kt-success')
+  const secondaryLightColor = getCSSVariableValue('--kt-success-light')
   const isHour = chartWorkOrder?.every(
     (item: any) => /^\d+$/.test(item.period) && chartWorkOrder.length === 24
   )

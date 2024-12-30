@@ -613,7 +613,10 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
   const [selectedQuotation, setSelectedQuotation] = useState<any>()
   const [quotationNotes, setQuotationNotes] = useState<any>()
   const [discountNominal, setDiscountNominal] = useState<string>('')
-  const [selectedDiscountType, setSelectedDiscountType] = useState<DiscountType | null>(null)
+  const [selectedDiscountType, setSelectedDiscountType] = useState<DiscountType | null>({
+    value: 2,
+    label: 'Nominal (Rp.)',
+  })
   const [discountType] = useState<DiscountType[]>([
     {value: 1, label: 'Persentase (%)'},
     {value: 2, label: 'Nominal (Rp.)'},
@@ -1332,6 +1335,7 @@ const ViewQuotationHO: React.FC<Props> = ({className}) => {
                                 placeholder='Ketik/Pilih Diskon '
                                 isSearchable={true}
                                 options={discountType}
+                                value={selectedDiscountType}
                                 onChange={(newValue) => handleDiscountTypeChange(newValue)}
                               />
                             </div>

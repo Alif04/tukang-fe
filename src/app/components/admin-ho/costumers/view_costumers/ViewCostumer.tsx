@@ -159,7 +159,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
             .then((willDelete) => {
               if (willDelete.value) {
                 axios
-                  .post(`${apiUrl}/member/${id}`, {
+                  .delete(`${apiUrl}/member/${id}`, {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -217,15 +217,15 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
               </Button>
             </OverlayTrigger>
 
-            {/* <OverlayTrigger
+            <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Hapus Member')}
+              overlay={renderTooltip('Hapus Customer')}
             >
               <Button className='button-delete' variant='danger' onClick={handleDelete}>
                 <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
               </Button>
-            </OverlayTrigger> */}
+            </OverlayTrigger>
           </div>
         )
       },
@@ -472,7 +472,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
             }}
             showTotal={(total, range) => (
               <span style={{left: 0, position: 'absolute'}}>
-                Showing {range[0]} - {range[1]} of {total} Total Member
+                Showing {range[0]} - {range[1]} of {total} Total Customers
               </span>
             )}
           />
