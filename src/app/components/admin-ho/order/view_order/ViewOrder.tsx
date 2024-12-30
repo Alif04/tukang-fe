@@ -22,6 +22,7 @@ import dayjs from 'dayjs'
 import Select, {SingleValue} from 'react-select'
 import type {ColumnsType} from 'antd/es/table'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import type {FilterValue, SorterResult, TableCurrentDataSource} from 'antd/es/table/interface'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Image, Skeleton} from 'antd'
 import Swal from 'sweetalert2'
@@ -200,7 +201,7 @@ const ViewOrders: FC = () => {
   const verificationStatus = statusData.find((status: any) => status.category === 'QUOTATIONPAID')
   const statusFilters = statusData.map((item: any) => ({
     text: item.description,
-    value: item.description,
+    value: item.value,
   }))
 
   // Order Detail
@@ -871,6 +872,39 @@ const ViewOrders: FC = () => {
   const handleVendorChange = (newValue: SingleValue<VendorItem>) => {
     const selectedVendor: VendorItem = newValue || {value: null, label: 'All Vendor'}
     dispatch(setSelectedVendor(selectedVendor))
+  }
+
+  const handleFilterTable = (
+    pagination: PaginationProps,
+    filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<DataType> | SorterResult<DataType>[],
+    extra: TableCurrentDataSource<DataType>
+  ) => {
+    const newQueryParams: string[] = []
+
+    if (filters.order_status_label && filters.order_status_label.length > 0) {
+      const statusFilters = filters.order_status_label.join(',')
+      newQueryParams.push(`&status=${statusFilters}`)
+    }
+
+    if (filters.payment_receipt) {
+      const paymentStatus = filters.payment_receipt[0]
+      if (paymentStatus) {
+        newQueryParams.push(`&is_receipt=${paymentStatus}`)
+      }
+    }
+
+    if (filters.payment_quotation) {
+      const quotationStatus = filters.payment_quotation[0]
+      if (quotationStatus) {
+        newQueryParams.push(`&is_receipt_quotation=${quotationStatus}`)
+      }
+    }
+
+    const finalQueryParams = newQueryParams.join('')
+    dispatch(setQueryParams(finalQueryParams))
+
+    fetchData(currentPage, pageSize, finalQueryParams)
   }
 
   const handleSubmitFilter = async () => {
@@ -3285,9 +3319,8 @@ const ViewOrders: FC = () => {
         record.payment_receipt.includes(String(value)),
       sorter: (a: DataType, b: DataType) => a.payment_receipt.length - b.payment_receipt.length,
       filters: [
-        {text: 'FREE', value: 'FREE'},
-        {text: 'UNPAID', value: 'UNPAID'},
-        {text: 'PAID', value: 'PAID'},
+        {text: 'UNPAID', value: '0'},
+        {text: 'PAID', value: '1'},
       ],
     },
     {
@@ -3296,6 +3329,7 @@ const ViewOrders: FC = () => {
       key: 'order_status_label',
       align: 'left',
       filters: statusFilters,
+      filterMultiple: true,
       render: (order_status_label: any) => {
         const orderStatus = order_status_label
         let color = ''
@@ -3314,8 +3348,6 @@ const ViewOrders: FC = () => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      onFilter: (value: DataType, record: DataType) =>
-        record.order_status_label.includes(String(value)),
       sorter: (a: DataType, b: DataType) =>
         a.order_status_label.length - b.order_status_label.length,
     },
@@ -3329,8 +3361,8 @@ const ViewOrders: FC = () => {
         record.payment_quotation.includes(String(value)),
       sorter: (a: DataType, b: DataType) => a.payment_quotation.length - b.payment_quotation.length,
       filters: [
-        {text: 'UNPAID', value: 'UNPAID'},
-        {text: 'PAID', value: 'PAID'},
+        {text: 'UNPAID', value: '0'},
+        {text: 'PAID', value: '1'},
       ],
     },
     {
@@ -3654,7 +3686,7 @@ const ViewOrders: FC = () => {
               <Button
                 className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
-                onClick={handleSubmitFilter}
+                onClick={() => handleSubmitFilter()}
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
@@ -3678,6 +3710,7 @@ const ViewOrders: FC = () => {
                 sticky={true}
                 tableLayout='auto'
                 scroll={{x: 'max-content'}}
+                onChange={handleFilterTable}
               />
             </div>
           </Spin>

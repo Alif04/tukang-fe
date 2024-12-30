@@ -36,7 +36,7 @@ const ListFormatCSI: FC = () => {
 
       setCsiData(response.data.data)
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
+      setTotalData(response?.data?.takeTotal ?? 0)
 
       return response.data.data
     } catch (error) {

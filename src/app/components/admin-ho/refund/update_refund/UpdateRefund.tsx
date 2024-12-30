@@ -852,7 +852,7 @@ const UpdateRefundHO: FC = () => {
                       <Form.Label className='fs-4 fw-bold mb-1'>Untuk Customer</Form.Label>
                       <Form.Label className='mb-1'>Input Voucher</Form.Label>
                       <Form.Control
-                        type='number'
+                        type='text'
                         onChange={(element) => handleChangeRefundVoucher(element)}
                         value={refundValues.voucher}
                       />

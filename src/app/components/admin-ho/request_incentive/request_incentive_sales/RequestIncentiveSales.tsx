@@ -82,15 +82,6 @@ const RequestIncentiveSales: FC = () => {
       sorter: (a: DataType, b: DataType) => a.store_name.length - b.store_name.length,
     },
     {
-      title: 'Status Order',
-      dataIndex: 'status_order',
-      key: 'status_order',
-      align: 'left',
-      width: 140,
-      onFilter: (value: string, record: DataType) => record.status_order.includes(String(value)),
-      sorter: (a: DataType, b: DataType) => a.status_order.length - b.status_order.length,
-    },
-    {
       title: 'Nama Sales',
       dataIndex: 'sales_name',
       key: 'sales_name',
@@ -151,6 +142,15 @@ const RequestIncentiveSales: FC = () => {
       width: 140,
       onFilter: (value: string, record: DataType) => record.receipt_number.includes(String(value)),
       sorter: (a: DataType, b: DataType) => a.receipt_number.length - b.receipt_number.length,
+    },
+    {
+      title: 'Status Order',
+      dataIndex: 'status_order',
+      key: 'status_order',
+      align: 'left',
+      width: 140,
+      onFilter: (value: string, record: DataType) => record.status_order.includes(String(value)),
+      sorter: (a: DataType, b: DataType) => a.status_order.length - b.status_order.length,
     },
     {
       title: 'Grand Total Quotation',

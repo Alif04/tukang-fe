@@ -36,8 +36,6 @@ const ViewCSIHO: React.FC<Props> = ({className}) => {
       setCurrentPage(response.data.page)
       setTotalData(response?.data?.csi_answers?.length ?? 0)
 
-      console.log('total data', response.data.data.csi_answers)
-
       return response.data.data
     } catch (error) {
       console.error('Error fetching data:', error)
