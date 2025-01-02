@@ -13,7 +13,10 @@ type Props = {
 
 const TopBestStores: React.FC<Props> = ({className, storeData, dateFrom, dateTo}) => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const topFive = storeData.slice(0, 5)
+  const topFive = [...storeData]
+  .sort((a, b) => (b.total_paid_value ?? 0) - (a.total_paid_value ?? 0))
+  .slice(0, 5)
+
 
   const [loadingExport, setLoadingExport] = useState<boolean>(false)
 
@@ -88,7 +91,7 @@ const TopBestStores: React.FC<Props> = ({className, storeData, dateFrom, dateTo}
 
             <div className='d-flex flex-column justify-content-center align-items-end'>
               <span className='fw-normal text-black'>{`Paid Value : Rp. ${parseInt(
-                item?.total_paid ?? 0
+                item?.total_paid_value ?? 0
               ).toLocaleString('id')}`}</span>
               <span className='fw-normal text-dark'>{item?.total_order ?? 0} Order</span>
             </div>
