@@ -27,8 +27,8 @@ interface Store {
   phone_number_1: number | null
   email: string
   bank_name: string
-  bank_number: string
-  bank_account: number | null
+  bank_account: string
+  bank_number: number | null
   zip_code: string
   username: string
   default_password: string
@@ -49,14 +49,12 @@ const NewStore: FC = () => {
     phone_number_1: null,
     email: '',
     bank_name: '',
-    bank_number: '',
-    bank_account: null,
+    bank_account: '',
+    bank_number: null,
     zip_code: '',
     username: '',
     default_password: '',
   })
-
-  console.log('store info', storeInfo)
 
   // Area
   const [area, setArea] = useState<AreaItem[]>([])
@@ -474,8 +472,8 @@ const NewStore: FC = () => {
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
                   <Form.Label>Nomor Akun</Form.Label>
                   <Form.Control
-                    type='number'
-                    name='bank_account'
+                    type='text'
+                    name='bank_number'
                     onChange={(e) => storeInfoFormHandler(e)}
                   />
                 </Col>
@@ -487,7 +485,7 @@ const NewStore: FC = () => {
                     <Form.Label>Nama Pemilik Akun</Form.Label>
                     <Form.Control
                       type='text'
-                      name='bank_number'
+                      name='bank_account'
                       onChange={(e) => storeInfoFormHandler(e)}
                     />
                   </Form.Group>

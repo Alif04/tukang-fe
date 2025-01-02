@@ -25,7 +25,7 @@ const NewInvoiceVendor: FC = () => {
   const [orderDetail, setOrderDetail] = useState<any>()
 
   const getOrder = async () => {
-    const storedStatus = sessionStorage.getItem('statusData')
+    const storedStatus = localStorage.getItem('statusData')
     const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
     const desiredStatus = statusData.filter((status: any) =>
       [

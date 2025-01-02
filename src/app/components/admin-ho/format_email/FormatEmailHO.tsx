@@ -472,11 +472,10 @@ const FormatEmailHO: FC = () => {
             <p className='fs-7 fw-bold'>Preview Email</p>
           </Accordion.Header>
 
-          <Accordion.Body>
+          <Accordion.Body className='d-flex flex-column align-items-center justify-content-center'>
             <div className='description fs-7 mb-5'>
               Disajikan informasi berupa gambar yang akan ditampilkankan melalui email
             </div>
-
             <img src={toAbsoluteUrl('/media/tukangin/format-email.png')} alt='Mitra110 Vector' />
           </Accordion.Body>
         </Accordion.Item>

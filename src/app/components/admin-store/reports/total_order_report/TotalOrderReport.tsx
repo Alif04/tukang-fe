@@ -433,7 +433,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
       return
     }
     setLoadingExport(true)
-    let url = `${apiUrl}/${endpoint}/export-excel?take=0`
+    let url = `${apiUrl}/${endpoint}/export-excel`
 
     if (params !== '') {
       url += `${params}`
@@ -445,7 +445,7 @@ const TotalOrderReportStore: React.FC<Props> = ({
       }
     }
 
-    valueCheck(`&store_id=`, userStore)
+    valueCheck(`?store_id=`, userStore)
     valueCheck(`&date_from=`, dateFrom)
     valueCheck(`&date_to=`, dateTo)
     valueCheck(`${isWorkOrder === true ? '&work_order_status=' : '&status='}`, reportStatus)

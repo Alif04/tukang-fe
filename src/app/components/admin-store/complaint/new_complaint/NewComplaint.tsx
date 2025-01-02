@@ -151,7 +151,7 @@ const NewComplaintForm: FC = () => {
               'REFUND',
               'REFUNDAPPROVEDBYHO',
               'REFUNDREJECTEDBYHO',
-            ].includes(detail.status)
+            ].includes(detail.status) && detail?.complaints?.length > 0
         )
 
         setOrder(filteredOrder)

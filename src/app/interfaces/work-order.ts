@@ -1,11 +1,8 @@
-import {Dayjs} from 'dayjs'
-import {Tukang} from './tukang'
-
 export interface WorkOrderTukang {
   id?: number | null
-  tukang_id: number
+  tukang_id?: number | null
   tukang_name: string
-  type: number
+  type?: number
 }
 
 interface WorkOrderItem {

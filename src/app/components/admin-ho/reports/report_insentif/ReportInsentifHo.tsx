@@ -88,6 +88,16 @@ const ReportInsentifHO: React.FC<Props> = ({className}) => {
 
   const columns: ColumnsType<DataType> = [
     {
+      title: 'Insentif ID',
+      dataIndex: 'incentive_id',
+      key: 'incentive_id',
+      align: 'center',
+      width: 110,
+      className: 'col_order_id',
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.incentive_id - b.incentive_id,
+    },
+    {
       title: 'Order ID',
       dataIndex: 'order_id',
       key: 'order_id',

@@ -127,6 +127,8 @@ const ViewCalendarTukang: React.FC = () => {
                 } else {
                   return item?.work_order_status[0]?.status?.category
                 }
+              } else if (item?.order?.reschedule?.length > 0) {
+                return 'RESCHEDULE'
               } else {
                 return item?.order?.status?.category
               }

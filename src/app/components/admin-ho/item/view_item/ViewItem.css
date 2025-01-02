@@ -76,17 +76,16 @@
   width: 370px;
 }
 
-#view-item .table-head-wrapper .filter-search .input-group {
-  height: 45px;
+#view-item input.filter-ltr.form-control {
+  height: 45px !important;
+  padding-left: 35px !important;
 }
 
-#view-item .table-head-wrapper .filter-search .input-group .form-control.filter-ltr {
-  border-left: none;
-}
-
-#view-item .table-head-wrapper .filter-search .input-group-text.filter-ltr {
-  background-color: transparent;
-  border-right: none;
+#view-item .filter-search .search-icon {
+  float: left;
+  margin-left: 11px;
+  margin-top: -30px;
+  position: relative;
 }
 
 @media screen and (max-width: 1200px) {

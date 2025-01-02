@@ -791,6 +791,7 @@ const UpdateQuotationHO: FC = () => {
                   <Form.Control
                     style={{minHeight: '140px'}}
                     as='textarea'
+                    readOnly
                     value={quotationDescription}
                     onChange={handleInputQuotationDesc}
                   />

@@ -3,6 +3,18 @@ import React, {useEffect, useState} from 'react'
 
 import './ViewItem.css'
 
+import {useSelector, useDispatch} from 'react-redux'
+import {RootState} from '../../../../../store'
+import {
+  setQueryParams,
+  setCurrentPage,
+  setPageSize,
+  setDateFrom,
+  setDateTo,
+  setSearchFilter,
+  setSelectedStore,
+} from '../../../../../store/itemSlice'
+
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
@@ -10,9 +22,10 @@ import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {Form, Row, Button, OverlayTrigger, Tooltip, FormGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
+import dayjs from 'dayjs'
 
 const {RangePicker} = DatePicker
 
@@ -43,30 +56,18 @@ export interface ItemType {
 const ViewItemHO: React.FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [itemData, setItemData] = useState<DataType[]>([])
-  const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
-  const [pageSize, setPageSize] = useState<number>(10)
-
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
-  const [searchFilter, setSearchFilter] = useState<string>('')
+  const {queryParams, searchFilter, currentPage, pageSize, dateFrom, dateTo, selectedStore} =
+    useSelector((state: RootState) => state.item)
 
   const [store, setStore] = useState<StoreItem[]>([])
   const storeOptions = [{value: null, label: 'All Store'}, ...store]
-  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
-    value: null,
-    label: 'All Store',
-  })
-
-  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchFilter = event.target.value
-    setSearchFilter(updatedSearchFilter)
-  }
 
   const getQueryParams = (params: ItemType[]) => {
     const queryParams = new URLSearchParams(window.location.search)
@@ -270,6 +271,37 @@ const ViewItemHO: React.FC = () => {
     },
   ].filter(Boolean) as ColumnsType<DataType>
 
+  useEffect(() => {
+    const getStore = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/stores?take=0`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempStore = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.store_name,
+            city_id: item.city_id,
+          }))
+
+          setStore(tempStore)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getStore()
+  }, [])
+
   const getItemList = async (page: number, pageSize: number, queryparams: any) => {
     const dynamicQuery = getQueryParams(QUERY_PARAMS_CONFIG)
 
@@ -344,6 +376,27 @@ const ViewItemHO: React.FC = () => {
     setItemData(data)
   }
 
+  useEffect(() => {
+    fetchData(currentPage, pageSize, queryParams)
+  }, [currentPage, queryParams, getQueryParams(QUERY_PARAMS_CONFIG)])
+
+  // Table Handler
+  const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchFilter(e.target.value))
+  }
+
+  const handleStoreChange = (newValue: SingleValue<StoreItem>) => {
+    const selectedStore: StoreItem = newValue || {value: null, label: 'All Store'}
+    dispatch(setSelectedStore(selectedStore))
+  }
+
+  const handlePageChange = (page: number, size?: number) => {
+    dispatch(setCurrentPage(page))
+    if (size) {
+      dispatch(setPageSize(size))
+    }
+  }
+
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
       return <a>Prev</a>
@@ -354,40 +407,11 @@ const ViewItemHO: React.FC = () => {
     return originalElement
   }
 
-  useEffect(() => {
-    fetchData(1, 10, '')
-  }, [getQueryParams(QUERY_PARAMS_CONFIG)])
-
-  useEffect(() => {
-    const getStore = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/stores?take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempStore = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.store_name,
-            city_id: item.city_id,
-          }))
-
-          setStore(tempStore)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
     }
-
-    getStore()
-  }, [])
+  }
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
@@ -401,6 +425,7 @@ const ViewItemHO: React.FC = () => {
 
     valueCheck(`&search=`, searchFilter)
     valueCheck(`&store_id=`, selectedStore?.value)
+    dispatch(setQueryParams(queryparams))
 
     const data = await ViewItem(1, 10, queryparams)
     setItemData(data)
@@ -413,71 +438,67 @@ const ViewItemHO: React.FC = () => {
       <div className='card'>
         <div className='card-body'>
           <Row className='table-head-wrapper'>
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
-              <Form.Group as={Row}>
-                <Form.Label className='fs-3' column sm='4'>
-                  Date :
-                </Form.Label>
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+              onKeyDown={handleKeyPress}
+            >
+              <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
 
-                <Col sm='8'>
-                  <RangePicker
-                    format={'DD-MM-YYYY'}
-                    className='date-range ms-3'
-                    onChange={(values) => {
-                      if (values && values.length === 2) {
-                        const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                        const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range'
+                value={[
+                  dateFrom ? dayjs(dateFrom, 'YYYY-MM-DD') : null,
+                  dateTo ? dayjs(dateTo, 'YYYY-MM-DD') : null,
+                ]}
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
 
-                        setDateFrom(dateFromFormatted)
-                        setDateTo(dateToFormatted)
-                      } else {
-                        setDateFrom('')
-                        setDateTo('')
-                      }
-                    }}
-                  />
-                </Col>
-              </Form.Group>
-            </Col>
+                    dispatch(setDateFrom(dateFromFormatted))
+                    dispatch(setDateTo(dateToFormatted))
+                  } else {
+                    dispatch(setDateFrom(''))
+                    dispatch(setDateTo(''))
+                  }
+                }}
+              />
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-
+                <FormGroup>
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
+                    value={searchFilter ?? ''}
                     onChange={handleChangeSearchFilter}
                   />
-                </InputGroup>
-              </div>
-            </Col>
 
-            <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
-              <div className='d-flex'>
-                <Select
-                  name='store_id'
-                  className='form-control p-0'
-                  classNamePrefix='select'
-                  placeholder='Pilih Toko'
-                  isSearchable={true}
-                  options={storeOptions}
-                  value={selectedStore}
-                  onChange={(newValue) => setSelectedStore(newValue)}
-                />
-
-                <Button
-                  className='btn-dark-primary button-submit'
-                  disabled={loadingButton}
-                  onClick={handleSubmitFilter}
-                >
-                  {loadingButton ? 'Filtering..' : 'Submit'}
-                </Button>
+                  <span className='search-icon'>
+                    <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
+                  </span>
+                </FormGroup>
               </div>
-            </Col>
+
+              <Select
+                name='store_id'
+                className='form-control p-0 w-25'
+                classNamePrefix='select'
+                placeholder='Pilih Toko'
+                isSearchable={true}
+                options={storeOptions}
+                value={selectedStore}
+                onChange={handleStoreChange}
+              />
+
+              <Button
+                className='btn-dark-primary button-submit m-0'
+                disabled={loadingButton}
+                onClick={handleSubmitFilter}
+              >
+                {loadingButton ? 'Filtering..' : 'Submit'}
+              </Button>
+            </div>
           </Row>
 
           <Spin
@@ -501,24 +522,24 @@ const ViewItemHO: React.FC = () => {
             </div>
           </Spin>
 
-          <Pagination
-            className='mt-5'
-            style={{textAlign: 'right', position: 'relative'}}
-            current={currentPage}
-            total={totalData}
-            showSizeChanger
-            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
-            itemRender={itemRender}
-            onShowSizeChange={(current, size) => setPageSize(size)}
-            onChange={(page, pageSize) => {
-              fetchData(page, pageSize, '')
-            }}
-            showTotal={(total, range) => (
-              <span style={{left: 0, position: 'absolute'}}>
-                Showing {range[0]} - {range[1]} of {total} Total Item
-              </span>
-            )}
-          />
+          <div className='pagination-container mt-5'>
+            <span className='total-text'>
+              Showing {(currentPage - 1) * pageSize + 1} -{' '}
+              {Math.min(currentPage * pageSize, totalData)} of {totalData} Item
+            </span>
+
+            <Pagination
+              style={{textAlign: 'right', position: 'relative'}}
+              current={currentPage}
+              total={totalData}
+              showSizeChanger
+              pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+              itemRender={itemRender}
+              onChange={(page, pageSize) => {
+                handlePageChange(page, pageSize)
+              }}
+            />
+          </div>
         </div>
       </div>
     </section>
