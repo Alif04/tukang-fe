@@ -850,7 +850,7 @@ const ViewOrders: FC = () => {
 
   useEffect(() => {
     fetchData(currentPage, pageSize, queryParams)
-  }, [currentPage, queryParams])
+  }, [currentPage,pageSize,queryParams])
 
   // Table Handler
   const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -3730,6 +3730,7 @@ const ViewOrders: FC = () => {
               pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
               itemRender={itemRender}
               onChange={(page, pageSize) => {
+                
                 handlePageChange(page, pageSize)
               }}
             />
