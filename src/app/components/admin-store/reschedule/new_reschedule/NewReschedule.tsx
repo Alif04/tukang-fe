@@ -40,6 +40,7 @@ const NewReschedule: FC = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  const [searchOrder, setSearchOrder] = useState('')
   const [order, setOrder] = useState<any>()
   const [orderDetail, setOrderDetail] = useState<any>()
   const [selectedOrder, setSelectedOrder] = useState<any>({
@@ -47,6 +48,7 @@ const NewReschedule: FC = () => {
     label: 'Ketik/Pilih Order Id',
     status_id: null,
   })
+  const search = searchOrder ? `&search=${searchOrder}` : ''
 
   const [reschedule, setReschedule] = useState<Reschedule>({
     order_id: null,
@@ -74,7 +76,7 @@ const NewReschedule: FC = () => {
 
   const getOrder = async () => {
     const response = await axiosInstance.get(
-      `${apiUrl}/orders?order_by=desc&take=0&status=${statuses}${storeId}${tukangId}`,
+      `${apiUrl}/orders?order_by=desc&take=0&status=${statuses}${storeId}${tukangId}${search}`,
       {
         headers: {
           Accept: 'application/json',
@@ -121,7 +123,7 @@ const NewReschedule: FC = () => {
 
   useEffect(() => {
     getOrder()
-  }, [])
+  }, [searchOrder])
 
   useEffect(() => {
     if (selectedOrder?.value) {
@@ -376,6 +378,7 @@ const NewReschedule: FC = () => {
                       isSearchable={true}
                       options={order}
                       onChange={(newValue) => setSelectedOrder(newValue)}
+                      onInputChange={(newValue) => setSearchOrder(newValue)}
                     />
                   </Col>
                 </Form.Group>

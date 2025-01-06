@@ -54,12 +54,14 @@ const NewComplaintForm: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Data Order
+  const [searchOrder, setSearchOrder] = useState('')
   const [order, setOrder] = useState<Order[]>([])
   const [orderDetail, setOrderDetail] = useState<any>(null)
   const [selectedOrderId, setSelectedOrderId] = useState<SingleValue<Order>>({
     value: null,
     label: 'Ketik/Pilih Order Id',
   })
+  const search = searchOrder ? `&search=${searchOrder}` : ''
 
   // Add Complaint
   const [complaintCode, setComplaintCode] = useState<string | number>('NaN')
@@ -107,13 +109,15 @@ const NewComplaintForm: FC = () => {
       const url = (() => {
         switch (userRole) {
           case 'Store CS':
-            return `${apiUrl}/orders?order_by=desc&store_id=${userStore}&take=0`
+            return `${apiUrl}/orders?order_by=desc&store_id=${userStore}${search}&take=0`
+          case 'Super User':
           case 'Admin HO':
-            return `${apiUrl}/orders?order_by=desc&take=0`
+            return `${apiUrl}/orders?order_by=desc&take=0${search}`
+          case 'Owner Vendor':
           case 'Admin Vendor':
-            return `${apiUrl}/orders?order_by=desc&vendor_id=${userVendor}&take=0`
+            return `${apiUrl}/orders?order_by=desc&vendor_id=${userVendor}${search}&take=0`
           default:
-            return `${apiUrl}/orders?order_by=desc&take=0`
+            return `${apiUrl}/orders?order_by=desc&take=0${search}`
         }
       })()
 
@@ -131,6 +135,7 @@ const NewComplaintForm: FC = () => {
           value: item.id,
           label: item.id,
           status: item.status.category,
+          complaints: item.complaints,
         }))
 
         const filteredOrder = tempOrder.filter(
@@ -151,7 +156,7 @@ const NewComplaintForm: FC = () => {
               'REFUND',
               'REFUNDAPPROVEDBYHO',
               'REFUNDREJECTEDBYHO',
-            ].includes(detail.status) && detail?.complaints?.length > 0
+            ].includes(detail.status) && detail?.complaints?.length === 0
         )
 
         setOrder(filteredOrder)
@@ -231,8 +236,11 @@ const NewComplaintForm: FC = () => {
 
   useEffect(() => {
     getOrder()
-    getComplaintChannel()
+  }, [searchOrder])
+
+  useEffect(() => {
     getCode()
+    getComplaintChannel()
   }, [complaintCode])
 
   useEffect(() => {
@@ -508,12 +516,16 @@ const NewComplaintForm: FC = () => {
         <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4} className='d-flex flex-column'>
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :{' '}
                   <span className='fs-4 ms-2 fw-normal'>
                     {orderDetail?.store?.store_name ?? ''}
                   </span>
+                </Form.Label>
+
+                <Form.Label className='fs-4 fw-bold'>
+                  Complaint ID : <span className='fs-4 ms-2 fw-normal'>{complaintCode}</span>
                 </Form.Label>
               </Col>
 
@@ -532,6 +544,7 @@ const NewComplaintForm: FC = () => {
                       options={order}
                       value={selectedOrderId}
                       onChange={(newValue) => setSelectedOrderId(newValue)}
+                      onInputChange={(newValue) => setSearchOrder(newValue)}
                     />
                   </Col>
                 </Form.Group>
