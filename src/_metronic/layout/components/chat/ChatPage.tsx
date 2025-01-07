@@ -8,6 +8,7 @@ const socket = io(`${process.env.REACT_APP_API_CHAT_URL}`);
 export default function ChatPage(): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [step, setStep] = useState<string>("start");
+  const [steps, setSteps] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<{ sender: string; message: string }[]>([]);
   const [orderId, setOrderId] = useState<string>("");
@@ -17,6 +18,8 @@ export default function ChatPage(): JSX.Element {
   const [loadingVendors, setLoadingVendors] = useState<boolean>(false);
   const [previousChats, setPreviousChats] = useState<any>([]);
   const [page, setPage] = useState(1); // Pagination state
+  const [newMessages, setNewMessages] = useState(false);
+  const [unreadChats, setUnreadChats] = useState<any>([]);
   const userRole = localStorage.getItem("userRole") as string;
   const storeName = localStorage.getItem("storeName") as string;
   const storeId = localStorage.getItem("storeId") as string;
@@ -27,6 +30,24 @@ export default function ChatPage(): JSX.Element {
   const poveuesiListRef = useRef<HTMLDivElement>(null); // Reference for vendor list container
   const apiUrl = process.env.REACT_APP_API_URL;
   const apiChat = process.env.REACT_APP_API_CHAT_URL
+  useEffect(() => {
+    console.log("masukk sini");
+    console.log(messages);
+    
+    if (messages.length > 0 && !isOpen) {
+      console.log("masuk sini");
+      
+      setNewMessages(true);
+      // Add to unread chats
+      setUnreadChats((prev: any) => {
+        const lastChat = messages[messages.length - 1];
+        if (!prev.includes(lastChat.sender)) {
+          return [...prev, lastChat.sender];
+        }
+        return prev;
+      });
+    }
+  }, [messages, isOpen]);
 
   // Function to fetch vendor data based on the current page
   const fetchVendors = async (page: number) => {
@@ -95,8 +116,6 @@ export default function ChatPage(): JSX.Element {
     }
   }, [isOpen]);
 
-
-
   const handleChatTypeSelection = async (option: string) => {
     setChatType(option);
 
@@ -124,8 +143,7 @@ export default function ChatPage(): JSX.Element {
           },
         });
         setVendorList(res.data.data);
-        setMessages((prev) => [
-          ...prev,
+        setMessages([
           { sender: "chatbot", message: "Silakan pilih vendor:" },
         ]);
         setStep("vendor");
@@ -153,9 +171,8 @@ export default function ChatPage(): JSX.Element {
         });
 
         setVendorList(res.data.data);
-        setMessages((prev) => [
-          ...prev,
-          { sender: "chatbot", message: "Silakan pilih vendor:" },
+        setMessages([
+          { sender: "chatbot", message: "Silakan pilih store:" },
         ]);
         setStep("vendor");
       } catch (err) {
@@ -403,6 +420,8 @@ export default function ChatPage(): JSX.Element {
     socket.emit("sendMessage", msg);
     setMessage("");
   };
+  console.log(unreadChats);
+  
   const fetchPreviousChats = async () => {
     try {
 
@@ -425,7 +444,7 @@ export default function ChatPage(): JSX.Element {
 
   const handlePreviousChat = async (groupId: any) => {
     setGroupId(groupId);
-    setStep("chat");
+    setSteps('riwayatChat')
     socket.emit("joinGroup", groupId);
     try {
       const res = await axios.get(`${apiChat}/chat/messages/${groupId}`, {
@@ -442,6 +461,7 @@ export default function ChatPage(): JSX.Element {
       console.error(err);
       alert("Terjadi kesalahan saat mengambil pesan grup.");
     }
+    setUnreadChats((prev: any) => prev.filter((id: any) => id !== groupId));
   };
 
   const handleDeleteChat = (id: any) => {
@@ -487,7 +507,14 @@ export default function ChatPage(): JSX.Element {
             if (isOpen) {
               resetChat();
             } else {
-              setIsOpen(true);
+              if (newMessages) {
+                setIsOpen(true);
+                setStep("previous")
+                setSteps('')
+              } else {
+                setIsOpen(true);
+              }
+         
             }
           }}
           style={{
@@ -502,12 +529,28 @@ export default function ChatPage(): JSX.Element {
           }}
         >
           {isOpen ? "X" : "💬"}
+          {newMessages && isOpen === false && (
+            <span
+              style={{
+                position: "absolute",
+                top: "5px",
+                right: "5px",
+                backgroundColor: "red",
+                color: "white",
+                borderRadius: "50%",
+                padding: "5px",
+                fontSize: "12px",
+              }}
+            >
+              !
+            </span>
+          )}
         </button>
 
         {isOpen && (
           <div
             style={{
-              width: "300px",
+              width: step === "previous" ? "900px" : "300px",
               height: "500px",
               backgroundColor: "white",
               borderRadius: "10px",
@@ -533,7 +576,18 @@ export default function ChatPage(): JSX.Element {
             >
               {step !== "start" && (
                 <button
-                  onClick={() => setStep("start")}
+                  onClick={() => {
+                    setStep("start")
+                    setSteps('')
+                    setMessages([
+                      { sender: "chatbot", message: "Selamat datang! Silakan pilih salah satu opsi berikut:" },
+                    ]);
+                    setOrderId("");
+                    setChatType("");
+                    setGroupId("");
+                    setVendorList([]);
+                    setLoadingVendors(false);
+                  }}
                   style={{
                     background: "none",
                     border: "none",
@@ -583,80 +637,180 @@ export default function ChatPage(): JSX.Element {
               </div>
             )}
             {step === "previous" && (
-              <div style={{ padding: "10px", borderTop: "1px solid #ccc" }}>
-                {previousChats.length === 0 ? (
-                  <div>Tidak ada chat sebelumnya.</div>
-
-                ) : (
-                  <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-                    {previousChats.map((chat: any) => (
-                      <div key={chat._id} style={{ position: "relative", marginBottom: "8px" }}>
-                        <button
-                          onClick={() => handlePreviousChat(chat._id)}
+              <div
+                style={{
+                  display: "flex", // Flex container untuk layout horizontal
+                  height: "900px",
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: "10px",
+                  overflow: "hidden",
+                  border: "1px solid #e0e0e0",
+                }}
+              >
+                {/* Bagian List Chat (Kiri) */}
+                <div
+                  style={{
+                    width: "40%", // Atur lebar list chat
+                    borderRight: "1px solid #ccc",
+                    overflowY: "auto",
+                    backgroundColor: "#ffffff",
+                    padding: "10px",
+                  }}
+                >
+                  <h4 style={{ margin: "0 0 10px", color: "#333" }}>Daftar Chat</h4>
+                  {previousChats.length === 0 ? (
+                    <div style={{ textAlign: "center", color: "#999", fontSize: "14px" }}>
+                      Tidak ada chat sebelumnya.
+                    </div>
+                  ) : (
+                    <div>
+                      {previousChats.map((chat: any) => (
+                        <div
+                          key={chat._id}
                           style={{
-                            width: "100%",
-                            padding: "16px",
-                            backgroundColor: "#f0f0f0",
-                            border: "1px solid #ccc",
-                            borderRadius: "4px",
-                            textAlign: "left",
                             position: "relative",
+                            marginBottom: "10px",
                           }}
                         >
-                          {/* Displaying chat members */}
-                          {chat.members && chat.members.length > 0 ? (
-                            chat.members.join(", ")
-                          ) : (
-                            <span>No members</span>
+                          <button
+                            onClick={() => handlePreviousChat(chat._id)}
+                            style={{
+                              width: "100%",
+                              padding: "15px",
+                              backgroundColor: unreadChats.includes(chat.sender) ? "#e0f7fa" : "#f7f7f7", // Highlight for unread
+                              border: "1px solidrgb(126, 95, 95)",
+                              borderRadius: "8px",
+                              textAlign: "left",
+                              fontSize: "14px",
+                              cursor: "pointer",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <span style={{ color: "#333", fontWeight: "500" }}>
+                              {chat.members && chat.members.length > 0
+                                ? chat.members.join(", ")
+                                : "No members"}
+
+                              {unreadChats.includes(chat.sender) && (
+                                <span style={{ color: "red", fontWeight: "bold" }}>New</span>
+                              )}
+                            </span>
+                          </button>
+                          {userRole === "Admin HO" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteChat(chat._id);
+                              }}
+                              style={{
+                                position: "absolute",
+                                top: "50%",
+                                right: "10px",
+                                transform: "translateY(-50%)",
+                                backgroundColor: "#ff4d4f",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "50%",
+                                width: "20px",
+                                height: "20px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                                fontSize: "12px",
+                                lineHeight: "1",
+                              }}
+                            >
+                              X
+                            </button>
                           )}
-                        </button>
-                        {/* Button X for delete */}
-                        {userRole === "Admin HO" && <button
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering the parent button's onClick
-                            handleDeleteChat(chat._id); // Call delete function
-                          }}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Bagian Chat Aktif (Kanan) */}
+                {steps === "riwayatChat" &&
+                  <div
+                    style={{
+                      flex: 1, // Bagian ini akan memenuhi sisa ruang
+                      padding: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      backgroundColor: "#f9f9f9",
+                    }}
+                  >
+                    <h4 style={{ margin: "0 0 10px", color: "#333" }}>Chat</h4>
+                    <div
+                      style={{
+                        flex: 1,
+                        overflowY: "auto",
+                        border: "1px solid #ccc",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        backgroundColor: "white",
+                      }}
+                    >
+                      {messages.map((msg, idx) => (
+                        <div
+                          key={idx}
                           style={{
-                            position: "absolute",
-                            top: "4px",
-                            right: "4px",
-                            backgroundColor: "red",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "50%",
-                            width: "20px",
-                            height: "20px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            fontSize: "12px",
-                            lineHeight: "1",
+                            textAlign:
+                              msg.sender === userRole || msg.sender === vendorName
+                                ? "right"
+                                : "left",
+                            margin: "5px 0",
                           }}
                         >
-                          X
-                        </button>}
-                        
-                      </div>
-                    ))}
-                    <div style={{ padding: "10px", borderTop: "1px solid #ccc" }}>
-                      <button
-                        onClick={() => setStep("start")}
+                          <strong>
+                            {msg.sender === userRole ? userRole : msg.sender}:
+                          </strong>{" "}
+                          {msg.message}
+                        </div>
+                      ))}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        marginTop: "10px",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        placeholder="Ketik pesan..."
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            sendMessage();
+                          }
+                        }}
                         style={{
+                          flex: 1,
                           padding: "10px",
-                          backgroundColor: "#ccc",
-                          color: "black",
+                          borderRadius: "5px",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                      <button
+                        onClick={sendMessage}
+                        style={{
+                          marginLeft: "10px",
+                          padding: "10px",
+                          backgroundColor: "#007BFF",
+                          color: "white",
                           borderRadius: "5px",
                           border: "none",
-                          cursor: "pointer",
                         }}
                       >
-                        Kembali
+                        Kirim
                       </button>
                     </div>
-                  </div>
+                  </div>}
 
-                )}
               </div>
             )}
             {step === "vendor" && (
