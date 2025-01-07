@@ -79,7 +79,7 @@ const ViewItemHO: React.FC = () => {
   }
 
   const QUERY_PARAMS_CONFIG: ItemType[] = [
-    {key: 'type', value: 'item_promotion', query: '&is_promotion=1'},
+    {key: 'type', value: 'item_promotion', query: '&item_type=1,2'},
     {key: 'type', value: 'item_survei', query: '&item_type=3'},
   ]
 
@@ -232,7 +232,7 @@ const ViewItemHO: React.FC = () => {
 
         return (
           <div className='d-flex gap-3'>
-            {getQueryParams(QUERY_PARAMS_CONFIG).includes('&is_promotion=1') && (
+            {getQueryParams(QUERY_PARAMS_CONFIG).includes('&item_type=1,2') && (
               <>
                 <OverlayTrigger
                   placement='bottom'
