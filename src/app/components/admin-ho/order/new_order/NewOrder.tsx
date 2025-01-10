@@ -194,11 +194,11 @@ const NewOrderHO: FC = () => {
     const storeId = selectedStore && selectedStore.value ? `&store_id=${selectedStore.value}` : ``
     const itemFree =
       paymentTypeValue[0] === 'gratis' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
-        ? `&item_type=1${storeId}`
+        ? `&item_type=1&is_promotion=1${storeId}`
         : ''
     const itemTanpaSurvey =
       paymentTypeValue[0] === 'berbayar' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
-        ? `&item_type=2${storeId}`
+        ? `&item_type=2&is_promotion=1${storeId}`
         : ''
     const itemSurvey = paymentTypeValue[1] === 'survey' ? '&item_type=3&all_store=1' : ''
     const search = searchItem ? `&search=${searchItem}` : ''

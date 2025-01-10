@@ -170,11 +170,11 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   const getItem = async () => {
     const itemFree =
       paymentTypeValue[0] === 'gratis' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
-        ? `&item_type=1&store_id=${staffStoreId}`
+        ? `&item_type=1&is_promotion=1&store_id=${staffStoreId}`
         : ''
     const itemTanpaSurvey =
       paymentTypeValue[0] === 'berbayar' && paymentTypeValue[1] === 'pemasangan_tanpa_survey'
-        ? `&item_type=2&store_id=${staffStoreId}`
+        ? `&item_type=2&is_promotion=1&store_id=${staffStoreId}`
         : ''
     const itemSurvey = paymentTypeValue[1] === 'survey' ? '&item_type=3&all_store=1' : ''
     const search = searchItem ? `&search=${searchItem}` : ''
