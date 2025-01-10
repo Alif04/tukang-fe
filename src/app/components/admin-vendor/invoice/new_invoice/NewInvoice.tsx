@@ -12,7 +12,7 @@ import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {Form, FormGroup, Row, Button, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch} from '@fortawesome/free-solid-svg-icons'
-import {formatDate, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
+import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -227,12 +227,25 @@ const NewInvoiceVendor: FC = () => {
       const workOrderData = workOrders
         .filter((x) => {
           const noInvoice = x.invoice_details.length === 0
-          const lastInvoice = x.invoice_details.slice(-1)[0]
-          const hasInvoiceRejected = lastInvoice?.type === 2 && lastInvoice?.invoices?.status === 3
-          const hasOtherInvoiceType =
-            x.invoice_details.length >= 1 && x.invoice_details.some((inv: any) => inv.type !== 2)
 
-          return noInvoice || hasInvoiceRejected || hasOtherInvoiceType
+          const sortedInvoices = x.invoice_details
+            .sort((a: any, b: any) => a.type - b.type)
+            .sort((a: any, b: any) => {
+              if (a.type === b.type) {
+                return b.invoices.id - a.invoices.id
+              }
+
+              return 0
+            })
+
+          const hasInvoiceSent =
+            x.invoice_details.length >= 1 &&
+            sortedInvoices.filter((inv: any) => inv.type === 2)[0]?.invoices.status === 1
+
+          const hasInvoiceRejected =
+            sortedInvoices.filter((inv: any) => inv.type === 2)[0]?.invoices.status === 3
+
+          return noInvoice || hasInvoiceRejected || !hasInvoiceSent
         })
         .map((item: any, index: number) => {
           const orderDate = formatDateWithTimeZone(item?.created_at)
@@ -289,12 +302,25 @@ const NewInvoiceVendor: FC = () => {
         .filter((x) => {
           const orderHistory = x.order_history.length >= 1
           const noInvoice = x.invoice_details.length === 0
-          const lastInvoice = x.invoice_details.slice(-1)[0]
-          const hasInvoiceRejected = lastInvoice?.type === 1 && lastInvoice?.invoices?.status === 3
-          const hasOtherInvoiceType =
-            x.invoice_details.length >= 1 && x.invoice_details.some((inv: any) => inv.type !== 1)
 
-          return (orderHistory && noInvoice) || hasInvoiceRejected || hasOtherInvoiceType
+          const sortedInvoices = x.invoice_details
+            .sort((a: any, b: any) => a.type - b.type)
+            .sort((a: any, b: any) => {
+              if (a.type === b.type) {
+                return b.invoices.id - a.invoices.id
+              }
+
+              return 0
+            })
+
+          const hasInvoiceSent =
+            x.invoice_details.length >= 1 &&
+            sortedInvoices.filter((inv: any) => inv.type === 1)[0]?.invoices.status === 1
+
+          const hasInvoiceRejected =
+            sortedInvoices.filter((inv: any) => inv.type === 1)[0]?.invoices.status === 3
+
+          return (orderHistory && noInvoice) || hasInvoiceRejected || !hasInvoiceSent
         })
         .map((item: any, index: number) => {
           const orderDate = formatDateWithTimeZone(item?.created_at)
@@ -315,7 +341,9 @@ const NewInvoiceVendor: FC = () => {
         })
 
       const data = [...workOrderData, ...surveyOrderData]
-      return data
+      const sortedByOrderID = data.sort((a: any, b: any) => b.order_id - a.order_id)
+
+      return sortedByOrderID
     } catch (error) {
       console.error('Error getting work order list data:', error)
       return []
