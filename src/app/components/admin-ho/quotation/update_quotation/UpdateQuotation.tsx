@@ -3,6 +3,7 @@ import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './UpdateQuotation.css'
 
+import dayjs from 'dayjs'
 import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
@@ -53,6 +54,10 @@ const UpdateQuotationHO: FC = () => {
 
   // Order Id
   const [orderId, setOrderId] = useState<string>('')
+
+  // Date Promotion
+  const [startDate] = useState<string>(dayjs().startOf('year').format('YYYY-MM-DD'))
+  const [endDate] = useState<string>(dayjs().endOf('year').format('YYYY-MM-DD'))
 
   // Add Quotation
   const [quotationData, setQuotationData] = useState<any>()
@@ -226,14 +231,17 @@ const UpdateQuotationHO: FC = () => {
 
   const getPromotion = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/promotion?store_id=${storeId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/promotion?store_id=${storeId}&date_from=${startDate}&date_to=${endDate}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
         const tempPromotion = response.data.data.map((item: any) => ({
