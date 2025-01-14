@@ -56,8 +56,8 @@ const UpdateQuotationHO: FC = () => {
   const [orderId, setOrderId] = useState<string>('')
 
   // Date Promotion
-  const [startDate] = useState<string>(dayjs().startOf('year').format('YYYY-MM-DD'))
-  const [endDate] = useState<string>(dayjs().endOf('year').format('YYYY-MM-DD'))
+  const [startDate] = useState<string>(dayjs().startOf('month').format('YYYY-MM-DD'))
+  const [endDate] = useState<string>(dayjs().endOf('month').format('YYYY-MM-DD'))
 
   // Add Quotation
   const [quotationData, setQuotationData] = useState<any>()
@@ -250,9 +250,22 @@ const UpdateQuotationHO: FC = () => {
           min_order: item.min_order,
           promotion: item.promotion,
           promotion_type: item.promotion_type,
+          periodic_start: item.periodic_start,
+          periodic_end: item.periodic_end,
         }))
 
-        setPromotion(tempPromotion)
+        const filteredPromotion = tempPromotion.filter((item: any) => {
+          const periodicStart = dayjs(item.periodic_start)
+          const periodicEnd = dayjs(item.periodic_end)
+          const today = dayjs()
+
+          return (
+            (periodicStart.isBefore(today, 'day') || periodicStart.isSame(today, 'day')) &&
+            (periodicEnd.isAfter(today, 'day') || periodicEnd.isSame(today, 'day'))
+          )
+        })
+
+        setPromotion(filteredPromotion)
       } else {
         console.error('API response data is not an array:', response.data)
       }
