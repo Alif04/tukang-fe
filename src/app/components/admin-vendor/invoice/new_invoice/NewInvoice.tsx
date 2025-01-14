@@ -125,9 +125,7 @@ const NewInvoiceVendor: FC = () => {
   const workend = statusData.filter((status: any) =>
     ['WORKEND', 'REWORKEND'].includes(status.category)
   )
-  const workstep = statusData.filter((status: any) =>
-    ['WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(status.category)
-  )
+  const workstep = statusData.filter((status: any) => ['WORKENDSTEPONE'].includes(status.category))
   const surveyend = statusData.filter((status: any) => ['QUOTEIN'].includes(status.category))
   const workStatuses = workend.map((x) => x.value)
   const workStepStatuses = workstep.map((x) => x.value)
@@ -189,7 +187,7 @@ const NewInvoiceVendor: FC = () => {
 
   const getOrders = async (queryparams: any) => {
     const urlWork = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&status=${workStatuses}${queryparams}`
-    // const urlWorkStep = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${workStepStatuses}${queryparams}`
+    const urlWorkStep = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${workStepStatuses}${queryparams}`
     const urlSurvey = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${surveyStatuses}${queryparams}`
 
     try {
@@ -200,15 +198,15 @@ const NewInvoiceVendor: FC = () => {
         'ngrok-skip-browser-warning': 'true',
       }
 
-      const [workOrders, surveyOrders] = await Promise.all([
+      const [workOrders, surveyOrders, workStepOrders] = await Promise.all([
         getAllData(urlWork, headers),
-        // getAllData(urlWorkStep, headers),
         getAllData(urlSurvey, headers),
+        getAllData(urlWorkStep, headers),
       ])
 
       setLoadData(false)
 
-      return {workOrders, surveyOrders}
+      return {workOrders, surveyOrders, workStepOrders}
     } catch (error) {
       console.error('Error fetching orders:', error)
       throw error
@@ -217,9 +215,9 @@ const NewInvoiceVendor: FC = () => {
 
   const ViewWorkOrder = async (queryparams: any) => {
     try {
-      const {workOrders, surveyOrders} = await getOrders(queryparams)
+      const {workOrders, surveyOrders, workStepOrders} = await getOrders(queryparams)
 
-      if (!workOrders && !surveyOrders) {
+      if (!workOrders && !surveyOrders && !workStepOrders) {
         console.error('No data received from getOrders')
         return []
       }
@@ -261,42 +259,6 @@ const NewInvoiceVendor: FC = () => {
             order_status_label: item?.status?.description,
           }
         })
-
-      // const workStepData = workStepOrders
-      //   .filter((x) => {
-      //     const orderHistoryExists = x.order_history.length >= 1
-      //     const noInvoiceExists = x.invoice_details.length === 0
-      //     const lastInvoice = x.invoice_details.slice(-1)[0]
-      //     const invoiceTypes = [3, 4, 5]
-
-      //     const hasInvoiceType = (type: number) =>
-      //       x.invoice_details.some((invoice: any) => invoice.type !== type)
-
-      //     const hasInvoiceRejected = (type: number) =>
-      //       lastInvoice?.type === type && lastInvoice?.invoices?.status === 3
-
-      //     const hasAnyInvoiceRejected = invoiceTypes.some(hasInvoiceRejected)
-      //     const hasAnyInvoiceType = invoiceTypes.some(hasInvoiceType)
-
-      //     return (orderHistoryExists && noInvoiceExists) || hasAnyInvoiceRejected
-      //   })
-      //   .map((item: any, index: number) => {
-      //     const orderDate = formatDateWithTimeZone(item?.created_at)
-      //     const workStepHistory = item?.order_history?.find((x: any) =>
-      //       ['WORKENDSTEPONE', 'WORKENDSTEPTWO', 'WORKENDSTEPTHREE'].includes(x.status.category)
-      //     )
-
-      //     return {
-      //       _key: workOrders.length + index + 1,
-      //       order_id: item?.id,
-      //       store_name: item?.store?.store_name,
-      //       date_order: orderDate,
-      //       member_name: item?.members?.full_name,
-      //       order_type: 'Pengerjaan Tahapan',
-      //       order_status: workStepHistory ? workStepHistory.status.category : null,
-      //       order_status_label: workStepHistory ? workStepHistory.status.description : null,
-      //     }
-      //   })
 
       const surveyOrderData = surveyOrders
         .filter((x) => {
@@ -340,7 +302,49 @@ const NewInvoiceVendor: FC = () => {
           }
         })
 
-      const data = [...workOrderData, ...surveyOrderData]
+      const workStepData = workStepOrders
+        .filter((x) => {
+          const orderHistory = x.order_history.length >= 1
+          const noInvoice = x.invoice_details.length === 0
+
+          const sortedInvoices = x.invoice_details
+            .sort((a: any, b: any) => a.type - b.type)
+            .sort((a: any, b: any) => {
+              if (a.type === b.type) {
+                return b.invoices.id - a.invoices.id
+              }
+
+              return 0
+            })
+
+          const hasInvoiceSent =
+            x.invoice_details.length >= 1 &&
+            sortedInvoices.filter((inv: any) => inv.type === 3)[0]?.invoices.status === 1
+
+          const hasInvoiceRejected =
+            sortedInvoices.filter((inv: any) => inv.type === 3)[0]?.invoices.status === 3
+
+          return (orderHistory && noInvoice) || hasInvoiceRejected || !hasInvoiceSent
+        })
+        .map((item: any, index: number) => {
+          const orderDate = formatDateWithTimeZone(item?.created_at)
+          const workStepHistory = item?.order_history?.find(
+            (x: any) => x.status.category === 'WORKENDSTEPONE'
+          )
+
+          return {
+            _key: workOrders.length + surveyOrders.length + index + 1,
+            order_id: item?.id,
+            store_name: item?.store?.store_name,
+            date_order: orderDate,
+            member_name: item?.members?.full_name,
+            order_type: 'Pekerjaan Tahap 1',
+            order_status: workStepHistory ? workStepHistory.status.category : null,
+            order_status_label: workStepHistory ? workStepHistory.status.description : null,
+          }
+        })
+
+      const data = [...workOrderData, ...surveyOrderData, ...workStepData]
       const sortedByOrderID = data.sort((a: any, b: any) => b.order_id - a.order_id)
 
       return sortedByOrderID
