@@ -8,9 +8,8 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faSearch, faPen} from '@fortawesome/free-solid-svg-icons'
-
-const {RangePicker} = DatePicker
+import {faSearch, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
+import Swal from 'sweetalert2'
 
 type Props = {
   className: string
@@ -122,6 +121,54 @@ const ListPromotionHO: React.FC<Props> = ({className}) => {
           navigate(`/promotion-quotation/update-promotion/${id}`)
         }
 
+        const handleDelete = () => {
+          Swal.fire({
+            title: `Apakah anda yakin akan menghapus data promosi ini ?`,
+            icon: 'warning',
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Ya',
+            denyButtonText: 'Cancel',
+          })
+            .then((willDelete) => {
+              if (willDelete.value) {
+                axios
+                  .delete(`${apiUrl}/promotion/${id}`, {
+                    headers: {
+                      Accept: 'application/json',
+                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                      'Access-Control-Allow-Origin': '*',
+                      'ngrok-skip-browser-warning': 'true',
+                    },
+                  })
+                  .then((response) => {
+                    Swal.fire({
+                      title: 'Success',
+                      text: 'Berhasil menghapus data promosi',
+                      icon: 'success',
+                      showConfirmButton: false,
+                    }).then(() => {
+                      window.location.reload()
+                    })
+                  })
+                  .catch((error) => {
+                    Swal.fire({
+                      title: 'Error',
+                      text: error.response.data.message,
+                      icon: 'error',
+                    })
+                  })
+              }
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: 'Error',
+                text: error.response.data.message,
+                icon: 'error',
+              })
+            })
+        }
+
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>
             <OverlayTrigger
@@ -131,6 +178,16 @@ const ListPromotionHO: React.FC<Props> = ({className}) => {
             >
               <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
                 <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+              </Button>
+            </OverlayTrigger>
+
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={renderTooltip('Hapus Promosi')}
+            >
+              <Button className='button-delete' variant='danger' onClick={handleDelete}>
+                <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
               </Button>
             </OverlayTrigger>
           </div>

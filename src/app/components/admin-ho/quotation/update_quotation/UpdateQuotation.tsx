@@ -3,6 +3,7 @@ import {toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './UpdateQuotation.css'
 
+import dayjs from 'dayjs'
 import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
@@ -53,6 +54,10 @@ const UpdateQuotationHO: FC = () => {
 
   // Order Id
   const [orderId, setOrderId] = useState<string>('')
+
+  // Date Promotion
+  const [startDate] = useState<string>(dayjs().startOf('month').format('YYYY-MM-DD'))
+  const [endDate] = useState<string>(dayjs().endOf('month').format('YYYY-MM-DD'))
 
   // Add Quotation
   const [quotationData, setQuotationData] = useState<any>()
@@ -226,14 +231,17 @@ const UpdateQuotationHO: FC = () => {
 
   const getPromotion = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/promotion?store_id=${storeId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      const response = await axios.get(
+        `${apiUrl}/promotion?store_id=${storeId}&date_from=${startDate}&date_to=${endDate}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
       if (Array.isArray(response.data.data)) {
         const tempPromotion = response.data.data.map((item: any) => ({
@@ -242,9 +250,22 @@ const UpdateQuotationHO: FC = () => {
           min_order: item.min_order,
           promotion: item.promotion,
           promotion_type: item.promotion_type,
+          periodic_start: item.periodic_start,
+          periodic_end: item.periodic_end,
         }))
 
-        setPromotion(tempPromotion)
+        const filteredPromotion = tempPromotion.filter((item: any) => {
+          const periodicStart = dayjs(item.periodic_start)
+          const periodicEnd = dayjs(item.periodic_end)
+          const today = dayjs()
+
+          return (
+            (periodicStart.isBefore(today, 'day') || periodicStart.isSame(today, 'day')) &&
+            (periodicEnd.isAfter(today, 'day') || periodicEnd.isSame(today, 'day'))
+          )
+        })
+
+        setPromotion(filteredPromotion)
       } else {
         console.error('API response data is not an array:', response.data)
       }
