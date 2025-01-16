@@ -149,6 +149,11 @@ const NewComplaintForm: FC = () => {
               'CANCELREFUND',
               'INVESTIGATE',
               'INVESTIGATED',
+              'QUOTEIN',
+              'QUOTEOUT',
+              'QUOTATIONPAIDSTEPONE',
+              'QUOTATIONPAIDSTEPTWO',
+              'QUOTATIONPAIDSTEPTHREE',
               'COMPLAINTAPPROVEDBYHO',
               'COMPLAINTREJECTEDBYHO',
               'SURVEYREQ',
@@ -236,17 +241,20 @@ const NewComplaintForm: FC = () => {
 
   useEffect(() => {
     getOrder()
+    // eslint-disable-next-line
   }, [searchOrder])
 
   useEffect(() => {
     getCode()
     getComplaintChannel()
+    // eslint-disable-next-line
   }, [complaintCode])
 
   useEffect(() => {
     if (selectedOrderId?.value) {
       getOrderDetail()
     }
+    // eslint-disable-next-line
   }, [selectedOrderId?.value])
 
   useEffect(() => {
@@ -255,6 +263,7 @@ const NewComplaintForm: FC = () => {
       order_id: selectedOrderId?.value ?? null,
       complaint_channel: selectedComplaintChannel?.value ?? null,
     })
+    // eslint-disable-next-line
   }, [selectedOrderId, selectedComplaintChannel])
 
   // Complaint Status
@@ -270,6 +279,7 @@ const NewComplaintForm: FC = () => {
       ...complaintForm,
       complaint_status: statusId,
     })
+    // eslint-disable-next-line
   }, [])
 
   // Complaint Form Handler
@@ -479,6 +489,7 @@ const NewComplaintForm: FC = () => {
 
   useEffect(() => {
     calculatePaymentStages(orderDetail?.quotation?.[0]?.quotation_grand_total)
+    // eslint-disable-next-line
   }, [orderDetail?.quotation?.[0]?.quotation_grand_total])
 
   // Calculate Warranty Days

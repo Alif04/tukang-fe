@@ -314,9 +314,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<StatusStorage> = storedStatus ? JSON.parse(storedStatus) : []
 
-  console.log('storedStatus', storedStatus)
-  console.log('statusData', statusData)
-
   useEffect(() => {
     // Get Status Name by Category
     const getStatusNameByCategory = (category: string) => {
@@ -350,8 +347,12 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
     const status = rescheduleStatus || getStatusNameByCategory(orderDetail?.status?.category)
 
+    console.log('status', status)
+
     const desiredStatus =
       statusData.find((statuses: StatusStorage) => statuses.category === status)?.value ?? null
+
+    console.log('desiredStatus', desiredStatus)
 
     setWorkOrder({
       ...workOrder,
