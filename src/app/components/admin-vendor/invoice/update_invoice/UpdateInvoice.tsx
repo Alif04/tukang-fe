@@ -1,5 +1,5 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
-import {useParams, useNavigate} from 'react-router-dom'
+import {useParams, useNavigate, Link} from 'react-router-dom'
 import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
 import './UpdateInvoice.css'
@@ -145,10 +145,12 @@ const UpdateInvoiceVendor: FC = () => {
 
   useEffect(() => {
     getInvoiceData()
+    // eslint-disable-next-line
   }, [store])
 
   useEffect(() => {
     getStore()
+    // eslint-disable-next-line
   }, [])
 
   // Format Period
@@ -193,6 +195,7 @@ const UpdateInvoiceVendor: FC = () => {
     if (invoiceDetail) {
       calculateGrandTotal()
     }
+    // eslint-disable-next-line
   }, [invoiceDetail, invoices.pph_nominal, invoices.ppn_nominal])
 
   // Handle Update Invoice
@@ -345,6 +348,31 @@ const UpdateInvoiceVendor: FC = () => {
       })
   }
 
+  const getReceiptQuotation = (data: any) => {
+    const {order} = data || {}
+    const {quotation, receipt_number} = order || {}
+
+    if (!quotation || quotation.length === 0) {
+      return receipt_number
+    }
+
+    const {quotation_receipt, receipt_quotation} = quotation[0] || {}
+
+    if (receipt_quotation !== null) {
+      return receipt_quotation
+    }
+
+    if (quotation_receipt && quotation_receipt.length > 0) {
+      const validReceipt = quotation_receipt.find(
+        (receipt: any) => receipt?.receipt_quotation !== null
+      )
+
+      return validReceipt?.receipt_quotation || receipt_number
+    }
+
+    return receipt_number
+  }
+
   return (
     <section id='update-invoice'>
       <Card ref={pdfRef}>
@@ -423,7 +451,7 @@ const UpdateInvoiceVendor: FC = () => {
               </thead>
 
               <tbody>
-                {invoiceDetail?.invoice_details.map((item: any) => (
+                {invoiceDetail?.invoice_details?.map((item: any) => (
                   <tr key={item?.order?.id}>
                     <td align='center'>{item?.invoice_number}</td>
                     <td align='center'>{item?.order?.id}</td>
@@ -442,10 +470,9 @@ const UpdateInvoiceVendor: FC = () => {
                         : ''}
                     </td>
                     <td>
-                      {item?.order?.quotation?.length > 0 &&
-                      item?.order?.quotation[0]?.receipt_quotation !== null
-                        ? item?.order?.quotation[0]?.receipt_quotation
-                        : item?.order?.receipt_number}
+                      <Link to={`/order/detail-order/${item?.order?.id}`}>
+                        {getReceiptQuotation(item)}
+                      </Link>
                     </td>
                     <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
                   </tr>
