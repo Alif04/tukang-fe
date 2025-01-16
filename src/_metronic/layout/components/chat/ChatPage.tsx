@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import Swal from "sweetalert2";
+import ChatStart from "./ChatStart";
+import ChatVendor from "./ChatVendor";
+import ChatOrderId from "./ChatOrderId";
+import ChatActive from "./ChatActive";
+import ChatPrevious from "./ChatPrevious";
+import EditMessageModal from "./EditMessageModal";
 
 const socket = io(`${process.env.REACT_APP_API_CHAT_URL}`);
 
@@ -14,6 +20,7 @@ export default function ChatPage(): JSX.Element {
   const [orderId, setOrderId] = useState<string>("");
   const [chatType, setChatType] = useState<string>("");
   const [groupId, setGroupId] = useState<string>("");
+  const [organisasiId, setOrganisasiId] = useState<string>("");
   const [vendorList, setVendorList] = useState<{ id: string; store_name: string }[]>([]);
   const [loadingVendors, setLoadingVendors] = useState<boolean>(false);
   const [previousChats, setPreviousChats] = useState<any>([]);
@@ -31,12 +38,10 @@ export default function ChatPage(): JSX.Element {
   const apiUrl = process.env.REACT_APP_API_URL;
   const apiChat = process.env.REACT_APP_API_CHAT_URL
   useEffect(() => {
-    console.log("masukk sini");
-    console.log(messages);
-    
+
+
     if (messages.length > 0 && !isOpen) {
-      console.log("masuk sini");
-      
+
       setNewMessages(true);
       // Add to unread chats
       setUnreadChats((prev: any) => {
@@ -107,12 +112,24 @@ export default function ChatPage(): JSX.Element {
       socket.off("receiveMessage", handleReceiveMessage);
     };
   }, []);
-
+  const datasss = async () => {
+    const res = await axios.get(`${apiChat}/chat/organisasi/Mitra 10`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    setOrganisasiId(res.data.groups._id)
+    setMessages([
+      {
+        sender: "Mitra 10", message: res.data.groups.
+          description
+      },
+    ]);
+  }
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      setMessages([
-        { sender: "chatbot", message: "Selamat datang! Silakan pilih salah satu opsi berikut:" },
-      ]);
+    
+      datasss()
     }
   }, [isOpen]);
 
@@ -122,7 +139,7 @@ export default function ChatPage(): JSX.Element {
     if (option === "id") {
       setMessages((prev) => [
         ...prev,
-        { sender: "chatbot", message: "Silakan isi Order ID Anda." },
+        { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
       ]);
       setStep("orderId");
     } else if (option === "ho") {
@@ -144,7 +161,7 @@ export default function ChatPage(): JSX.Element {
         });
         setVendorList(res.data.data);
         setMessages([
-          { sender: "chatbot", message: "Silakan pilih vendor:" },
+          { sender: "Mitra 10", message: "Silakan pilih vendor:" },
         ]);
         setStep("vendor");
       } catch (err) {
@@ -172,7 +189,7 @@ export default function ChatPage(): JSX.Element {
 
         setVendorList(res.data.data);
         setMessages([
-          { sender: "chatbot", message: "Silakan pilih store:" },
+          { sender: "Mitra 10", message: "Silakan pilih store:" },
         ]);
         setStep("vendor");
       } catch (err) {
@@ -184,7 +201,7 @@ export default function ChatPage(): JSX.Element {
     } else if (option === "previous") {
       setMessages((prev) => [
         ...prev,
-        { sender: "chatbot", message: "Silakan pilih chat sebelumnya:" },
+        { sender: "Mitra 10", message: "Silakan pilih chat sebelumnya:" },
       ]);
       fetchPreviousChats();
       setStep("previous");
@@ -290,11 +307,11 @@ export default function ChatPage(): JSX.Element {
             } else {
               setMessages((prev) => [
                 ...prev,
-                { sender: "chatbot", message: "Order ID ini bukan Milik Anda." },
+                { sender: "Mitra 10", message: "Order ID ini bukan Milik Anda." },
               ]);
               setMessages((prev) => [
                 ...prev,
-                { sender: "chatbot", message: "Silakan isi Order ID Anda." },
+                { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
               ]);
               setStep("orderId");
             }
@@ -311,7 +328,7 @@ export default function ChatPage(): JSX.Element {
           setStep("chat");
           setMessages((prev) => [
             ...prev,
-            { sender: "chatbot", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -351,11 +368,11 @@ export default function ChatPage(): JSX.Element {
             } else {
               setMessages((prev) => [
                 ...prev,
-                { sender: "chatbot", message: "Order ID ini bukan Milik Anda." },
+                { sender: "Mitra 10", message: "Order ID ini bukan Milik Anda." },
               ]);
               setMessages((prev) => [
                 ...prev,
-                { sender: "chatbot", message: "Silakan isi Order ID Anda." },
+                { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
               ]);
               setStep("orderId");
             }
@@ -372,7 +389,7 @@ export default function ChatPage(): JSX.Element {
           setStep("chat");
           setMessages((prev) => [
             ...prev,
-            { sender: "chatbot", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -384,11 +401,11 @@ export default function ChatPage(): JSX.Element {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { sender: "chatbot", message: "Data order tidak ditemukan" },
+        { sender: "Mitra 10", message: "Data order tidak ditemukan" },
       ]);
       setMessages((prev) => [
         ...prev,
-        { sender: "chatbot", message: "Silakan isi Order ID Anda." },
+        { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
       ]);
       setStep("orderId");
       // alert("Terjadi kesalahan.");
@@ -420,8 +437,7 @@ export default function ChatPage(): JSX.Element {
     socket.emit("sendMessage", msg);
     setMessage("");
   };
-  console.log(unreadChats);
-  
+
   const fetchPreviousChats = async () => {
     try {
 
@@ -492,6 +508,28 @@ export default function ChatPage(): JSX.Element {
       }
     });
   }
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [messageToEdit, setMessageToEdit] = useState<string>("");
+  const [messageIndexToEdit, setMessageIndexToEdit] = useState<number | null>(null);
+
+
+  const handleEditMessage = () => {
+    // setMessageToEdit(messages[index].message);
+    // setMessageIndexToEdit(index);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEditedMessage = async(newMessage: string) => {
+    const res = await axios.post(`${apiChat}/chat/organisasi/`,{
+      id: organisasiId,
+      deskripsi: newMessage
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    resetChat();
+  };
   return (
     <div>
       <div
@@ -509,27 +547,41 @@ export default function ChatPage(): JSX.Element {
             } else {
               if (newMessages) {
                 setIsOpen(true);
-                setStep("previous")
-                setSteps('')
+                setStep("previous");
+                setSteps("");
               } else {
                 setIsOpen(true);
               }
-         
             }
           }}
           style={{
             padding: "10px",
-            backgroundColor: "#007BFF",
-            color: "white",
-            borderRadius: "90%",
-            border: "none",
+            backgroundColor: isOpen ? "transparent" : "#007BFF",
+            color: isOpen ? "black" : "white",
+            borderRadius: isOpen ? "0" : "90%",
+            border: isOpen ? "none" : "none",
             cursor: "pointer",
-            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
-            fontSize: "24px", // Adjust the font size here
+            boxShadow: isOpen ? "none" : "0 2px 5px rgba(0, 0, 0, 0.2)",
+            fontSize: "20px",
+            position: "relative",
+            transition: "all 0.3s ease",
           }}
         >
-          {isOpen ? "X" : "💬"}
-          {newMessages && isOpen === false && (
+          {isOpen ? (
+            <span
+              style={{
+                fontSize: "18px",
+                fontWeight: "bold",
+                transform: "rotate(90deg)",
+                transition: "transform 0.3s ease",
+              }}
+            >
+              X
+            </span>
+          ) : (
+            "💬"
+          )}
+          {newMessages && !isOpen && (
             <span
               style={{
                 position: "absolute",
@@ -547,11 +599,12 @@ export default function ChatPage(): JSX.Element {
           )}
         </button>
 
+
         {isOpen && (
           <div
             style={{
               width: step === "previous" ? "900px" : "300px",
-              height: "500px",
+              height: "700px",
               backgroundColor: "white",
               borderRadius: "10px",
               boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
@@ -579,9 +632,7 @@ export default function ChatPage(): JSX.Element {
                   onClick={() => {
                     setStep("start")
                     setSteps('')
-                    setMessages([
-                      { sender: "chatbot", message: "Selamat datang! Silakan pilih salah satu opsi berikut:" },
-                    ]);
+                    datasss()
                     setOrderId("");
                     setChatType("");
                     setGroupId("");
@@ -605,7 +656,7 @@ export default function ChatPage(): JSX.Element {
                 Layanan Chat
               </span>
             </div>
-            <div
+            {step !== "previous" && <div
               style={{
                 flex: 1,
                 overflowY: "auto",
@@ -626,271 +677,21 @@ export default function ChatPage(): JSX.Element {
                   {msg.message}
                 </div>
               ))}
-            </div>
-            {step === "start" && (
-              <div style={{ padding: "10px", borderTop: "1px solid #ccc" }}>
-                <button onClick={() => handleChatTypeSelection("id")} style={buttonStyle}>1. Masukkan Order ID</button>
-                {userRole === "Admin HO" ? <button onClick={() => handleChatTypeSelection("store")} style={buttonStyle}>2. Chat dengan Store</button> :
-                  <button onClick={() => handleChatTypeSelection("ho")} style={buttonStyle}>2. Chat dengan HO</button>}
-                {userRole === "Owner Vendor" ? <button onClick={() => handleChatTypeSelection("store")} style={buttonStyle}>2. Chat dengan Store</button> : <button onClick={() => handleChatTypeSelection("vendor")} style={buttonStyle}>3. Chat dengan Vendor</button>}
-                <button onClick={() => handleChatTypeSelection("previous")} style={buttonStyle}>4. Lihat Chat Sebelumnya</button>
-              </div>
-            )}
-            {step === "previous" && (
-              <div
-                style={{
-                  display: "flex", // Flex container untuk layout horizontal
-                  height: "900px",
-                  backgroundColor: "#f9f9f9",
-                  borderRadius: "10px",
-                  overflow: "hidden",
-                  border: "1px solid #e0e0e0",
-                }}
-              >
-                {/* Bagian List Chat (Kiri) */}
-                <div
-                  style={{
-                    width: "40%", // Atur lebar list chat
-                    borderRight: "1px solid #ccc",
-                    overflowY: "auto",
-                    backgroundColor: "#ffffff",
-                    padding: "10px",
-                  }}
-                >
-                  <h4 style={{ margin: "0 0 10px", color: "#333" }}>Daftar Chat</h4>
-                  {previousChats.length === 0 ? (
-                    <div style={{ textAlign: "center", color: "#999", fontSize: "14px" }}>
-                      Tidak ada chat sebelumnya.
-                    </div>
-                  ) : (
-                    <div>
-                      {previousChats.map((chat: any) => (
-                        <div
-                          key={chat._id}
-                          style={{
-                            position: "relative",
-                            marginBottom: "10px",
-                          }}
-                        >
-                          <button
-                            onClick={() => handlePreviousChat(chat._id)}
-                            style={{
-                              width: "100%",
-                              padding: "15px",
-                              backgroundColor: unreadChats.includes(chat.sender) ? "#e0f7fa" : "#f7f7f7", // Highlight for unread
-                              border: "1px solidrgb(126, 95, 95)",
-                              borderRadius: "8px",
-                              textAlign: "left",
-                              fontSize: "14px",
-                              cursor: "pointer",
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <span style={{ color: "#333", fontWeight: "500" }}>
-                              {chat.members && chat.members.length > 0
-                                ? chat.members.join(", ")
-                                : "No members"}
-
-                              {unreadChats.includes(chat.sender) && (
-                                <span style={{ color: "red", fontWeight: "bold" }}>New</span>
-                              )}
-                            </span>
-                          </button>
-                          {userRole === "Admin HO" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteChat(chat._id);
-                              }}
-                              style={{
-                                position: "absolute",
-                                top: "50%",
-                                right: "10px",
-                                transform: "translateY(-50%)",
-                                backgroundColor: "#ff4d4f",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "50%",
-                                width: "20px",
-                                height: "20px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                                fontSize: "12px",
-                                lineHeight: "1",
-                              }}
-                            >
-                              X
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Bagian Chat Aktif (Kanan) */}
-                {steps === "riwayatChat" &&
-                  <div
-                    style={{
-                      flex: 1, // Bagian ini akan memenuhi sisa ruang
-                      padding: "10px",
-                      display: "flex",
-                      flexDirection: "column",
-                      backgroundColor: "#f9f9f9",
-                    }}
-                  >
-                    <h4 style={{ margin: "0 0 10px", color: "#333" }}>Chat</h4>
-                    <div
-                      style={{
-                        flex: 1,
-                        overflowY: "auto",
-                        border: "1px solid #ccc",
-                        borderRadius: "8px",
-                        padding: "10px",
-                        backgroundColor: "white",
-                      }}
-                    >
-                      {messages.map((msg, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            textAlign:
-                              msg.sender === userRole || msg.sender === vendorName
-                                ? "right"
-                                : "left",
-                            margin: "5px 0",
-                          }}
-                        >
-                          <strong>
-                            {msg.sender === userRole ? userRole : msg.sender}:
-                          </strong>{" "}
-                          {msg.message}
-                        </div>
-                      ))}
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        marginTop: "10px",
-                      }}
-                    >
-                      <input
-                        type="text"
-                        placeholder="Ketik pesan..."
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            sendMessage();
-                          }
-                        }}
-                        style={{
-                          flex: 1,
-                          padding: "10px",
-                          borderRadius: "5px",
-                          border: "1px solid #ccc",
-                        }}
-                      />
-                      <button
-                        onClick={sendMessage}
-                        style={{
-                          marginLeft: "10px",
-                          padding: "10px",
-                          backgroundColor: "#007BFF",
-                          color: "white",
-                          borderRadius: "5px",
-                          border: "none",
-                        }}
-                      >
-                        Kirim
-                      </button>
-                    </div>
-                  </div>}
-
-              </div>
-            )}
-            {step === "vendor" && (
-              <div style={{ padding: "10px", borderTop: "1px solid #ccc" }}>
-                {loadingVendors ? (
-                  <div>Loading vendor list...</div>
-                ) : (
-                  <div style={{ maxHeight: "200px", overflowY: "auto" }} ref={vendorListRef} onScroll={handleScroll}>
-                    {vendorList.map((vendor: any) => (
-                      <button
-                        key={vendor.id}
-                        onClick={() => startChat(chatType, vendor)}
-                        style={buttonStyle}
-                      >
-                        {chatType === "vendor" ? vendor.company_name : vendor.store_name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-            {step === "orderId" && (
-              <div style={{ padding: "10px", borderTop: "1px solid #ccc" }}>
-                <input
-                  type="text"
-                  placeholder="Masukkan Order ID"
-                  value={orderId}
-                  onChange={(e) => setOrderId(e.target.value)}
-                  style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-                />
-                <button
-                  onClick={() => startChat("id", orderId)}
-                  style={buttonStyle}
-                >
-                  Mulai Chat
-                </button>
-              </div>
-            )}
-            {step === "chat" && (
-              <div style={{ display: "flex", borderTop: "1px solid #ccc", padding: "10px" }}>
-                <input
-                  type="text"
-                  placeholder="Ketik pesan..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      sendMessage(); // Kirim pesan saat tombol Enter ditekan
-                    }
-                  }}
-                  style={{ flex: 1, padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }}
-                />
-                <button
-                  onClick={sendMessage}
-                  style={{
-                    marginLeft: "10px",
-                    padding: "10px",
-                    backgroundColor: "#007BFF",
-                    color: "white",
-                    borderRadius: "5px",
-                    border: "none",
-                  }}
-                >
-                  Kirim
-                </button>
-              </div>
-            )}
+            </div>}
+            {step === "start" && <ChatStart handleChatTypeSelection={handleChatTypeSelection} userRole={userRole} handleEditMessage={handleEditMessage} />}
+            {step === "previous" && <ChatPrevious vendorName={vendorName} setMessage={setMessage} sendMessage={sendMessage} messages={messages} message={message} previousChats={previousChats} handlePreviousChat={handlePreviousChat} handleDeleteChat={handleDeleteChat} unreadChats={unreadChats} userRole={userRole} />}
+            {step === "vendor" && <ChatVendor vendorList={vendorList} loadingVendors={loadingVendors} startChat={startChat} chatType={chatType} vendorListRef={vendorListRef} handleScroll={handleScroll} />}
+            {step === "orderId" && <ChatOrderId orderId={orderId} setOrderId={setOrderId} startChat={startChat} />}
+            {step === "chat" && <ChatActive messages={messages} message={message} setMessage={setMessage} sendMessage={sendMessage} />}
+            <EditMessageModal
+              isOpen={isEditModalOpen}
+              message={messageToEdit}
+              onClose={() => setIsEditModalOpen(false)}
+              onSave={handleSaveEditedMessage}
+            />
           </div>
         )}
       </div>
     </div>
   );
 }
-
-const buttonStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "10px",
-  backgroundColor: "#007BFF",
-  color: "white",
-  border: "none",
-  marginBottom: "10px",
-  cursor: "pointer",
-};
