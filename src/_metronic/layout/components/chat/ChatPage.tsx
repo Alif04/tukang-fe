@@ -265,7 +265,7 @@ export default function ChatPage(): JSX.Element {
           setStep("chat");
           setMessages((prev) => [
             ...prev,
-            { sender: "chatbot", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -604,7 +604,7 @@ export default function ChatPage(): JSX.Element {
           <div
             style={{
               width: step === "previous" ? "900px" : "300px",
-              height: "700px",
+              height: "550px",
               backgroundColor: "white",
               borderRadius: "10px",
               boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
@@ -649,7 +649,7 @@ export default function ChatPage(): JSX.Element {
                     alignItems: "center",
                   }}
                 >
-                  <span style={{ marginRight: "8px" }}>⬅</span> {/* Icon Kembali */}
+                 <i className="bi bi-arrow-left" style={{ marginRight: "8px", color:'white',fontSize: '24px'}}></i> {/* Icon Kembali */}
                 </button>
               )}
               <span style={{ flex: 1, textAlign: step !== "start" ? "center" : "left" }}>

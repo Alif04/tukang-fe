@@ -1,10 +1,10 @@
-import {lazy, FC, Suspense} from 'react'
-import {Route, Routes, Navigate} from 'react-router-dom'
-import {MasterLayout} from '../../_metronic/layout/MasterLayout'
+import { lazy, FC, Suspense } from 'react'
+import { Route, Routes, Navigate } from 'react-router-dom'
+import { MasterLayout } from '../../_metronic/layout/MasterLayout'
 import TopBarProgress from 'react-topbar-progress-indicator'
-import {DashboardWrapper} from '../pages/dashboard/DashboardWrapper'
-import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
-import {WithChildren} from '../../_metronic/helpers'
+import { DashboardWrapper } from '../pages/dashboard/DashboardWrapper'
+import { getCSSVariableValue } from '../../_metronic/assets/ts/_utils'
+import { WithChildren } from '../../_metronic/helpers'
 
 const PrivateRoutes = () => {
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
@@ -35,6 +35,9 @@ const PrivateRoutes = () => {
   const IncentiveSales = lazy(() => import('../modules/incentive_sales/IncentiveSalesPage'))
   const PromotionQuotation = lazy(
     () => import('../modules/promotion_quotation/PromotionQuotationPage')
+  )
+  const DataMasterPage = lazy(
+    () => import('../modules/data-master/DataMasterPage')
   )
 
   return (
@@ -290,7 +293,14 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
-
+        <Route
+          path='data-master/*'
+          element={
+            <SuspensedView>
+              <DataMasterPage />
+            </SuspensedView>
+          }
+        />
         {/* <Route
           path='apps/chat/*'
           element={
@@ -307,7 +317,7 @@ const PrivateRoutes = () => {
   )
 }
 
-const SuspensedView: FC<WithChildren> = ({children}) => {
+const SuspensedView: FC<WithChildren> = ({ children }) => {
   const baseColor = getCSSVariableValue('--kt-primary')
   TopBarProgress.config({
     barColors: {
@@ -319,4 +329,4 @@ const SuspensedView: FC<WithChildren> = ({children}) => {
   return <Suspense fallback={<TopBarProgress />}>{children}</Suspense>
 }
 
-export {PrivateRoutes}
+export { PrivateRoutes }
