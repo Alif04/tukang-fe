@@ -1,11 +1,9 @@
 import React, {FC, useState, useEffect, useRef} from 'react'
-import {useParams, useNavigate, Link} from 'react-router-dom'
+import {useParams, Link} from 'react-router-dom'
 
 import './DetailInvoice.css'
 
 import axios from 'axios'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 import {Image} from 'antd'
 import {Modal, ListGroup, Table, Row, Col, Card, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -92,10 +90,12 @@ const DetailInvoiceVendor: FC = () => {
 
   useEffect(() => {
     getInvoiceData()
+    // eslint-disable-next-line
   }, [store])
 
   useEffect(() => {
     getStore()
+    // eslint-disable-next-line
   }, [])
 
   const getFormattedPeriod = () => {
@@ -208,6 +208,31 @@ const DetailInvoiceVendor: FC = () => {
       })
   }
 
+  const getReceiptQuotation = (data: any) => {
+    const {order} = data || {}
+    const {quotation, receipt_number} = order || {}
+
+    if (!quotation || quotation.length === 0) {
+      return receipt_number
+    }
+
+    const {quotation_receipt, receipt_quotation} = quotation[0] || {}
+
+    if (receipt_quotation !== null) {
+      return receipt_quotation
+    }
+
+    if (quotation_receipt && quotation_receipt.length > 0) {
+      const validReceipt = quotation_receipt.find(
+        (receipt: any) => receipt?.receipt_quotation !== null
+      )
+
+      return validReceipt?.receipt_quotation || receipt_number
+    }
+
+    return receipt_number
+  }
+
   return (
     <section id='detail-invoice'>
       <Card ref={pdfRef}>
@@ -286,7 +311,7 @@ const DetailInvoiceVendor: FC = () => {
               </thead>
 
               <tbody>
-                {invoiceDetail?.invoice_details.map((item: any) => (
+                {invoiceDetail?.invoice_details?.map((item: any) => (
                   <tr key={item?.order?.id}>
                     <td align='center'>{item?.invoice_number}</td>
                     <td align='center'>{item?.order?.id}</td>
@@ -306,10 +331,7 @@ const DetailInvoiceVendor: FC = () => {
                     </td>
                     <td>
                       <Link to={`/order/detail-order/${item?.order?.id}`}>
-                        {item?.order?.quotation?.length > 0 &&
-                        item?.order?.quotation[0]?.receipt_quotation !== null
-                          ? item?.order?.quotation[0]?.receipt_quotation
-                          : item?.order?.receipt_number}
+                        {getReceiptQuotation(item)}
                       </Link>
                     </td>
                     <td>{`Rp. ${parseInt(item?.total).toLocaleString('id')}`}</td>
@@ -458,6 +480,7 @@ const DetailInvoiceVendor: FC = () => {
                             <Modal.Body>
                               <iframe
                                 key={previewImage}
+                                title={previewImage}
                                 width='100%'
                                 height='100%'
                                 src={`${apiUrl}/public/invoices/${previewImage}`}

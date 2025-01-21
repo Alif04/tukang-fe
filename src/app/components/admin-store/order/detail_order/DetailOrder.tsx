@@ -1,4 +1,4 @@
-import React, {useState, FC, useEffect, useRef} from 'react'
+import React, {useState, FC, useEffect} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 
 import {Orders} from '../../../../interfaces/order'
@@ -113,6 +113,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
   useEffect(() => {
     fetchOrderData()
+    // eslint-disable-next-line
   }, [])
 
   // Order Receipt
@@ -302,11 +303,19 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
 
   useEffect(() => {
     calculatePaymentStages(order?.quotation?.[0]?.quotation_grand_total)
+    // eslint-disable-next-line
   }, [order?.quotation?.[0]?.quotation_grand_total])
 
   return (
     <section id='detail-order'>
-      {['QUOTEOUT'].includes(order?.status?.category ?? '') && (
+      {[
+        'QUOTEIN',
+        'QUOTEOUT',
+        'QUOTATIONPAID',
+        'QUOTATIONPAIDSTEPONE',
+        'QUOTATIONPAIDSTEPTWO',
+        'QUOTATIONPAIDSTEPTHREE',
+      ].includes(order?.status?.category ?? '') && (
         <Row className='d-flex justify-content-end mb-3'>
           <Button
             className='btn-dark-primary d-flex justify-content-center align-items-center w-100 gap-3'
@@ -1405,6 +1414,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             <Modal.Body>
                               <iframe
                                 key={previewImage}
+                                title={previewImage}
                                 width='100%'
                                 height='100%'
                                 src={`${apiUrl}/public/receipt/${previewImage}`}
@@ -1711,6 +1721,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                         <Modal.Body>
                           <iframe
                             key={previewImage}
+                            title={previewImage}
                             width='100%'
                             height='100%'
                             src={`${apiUrl}/public/complaints/${previewImage}`}
@@ -1874,6 +1885,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                                   <Modal.Body>
                                     <iframe
                                       key={previewImage}
+                                      title={previewImage}
                                       width='100%'
                                       height='100%'
                                       src={`${apiUrl}/public/reschedule/${previewImage}`}
