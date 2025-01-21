@@ -50,6 +50,8 @@ const DetailInvoiceVendor: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
+          console.log(data);
+          
           setInvoiceDetail(data)
         })
     } catch (error) {

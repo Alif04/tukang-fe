@@ -14,6 +14,12 @@ const ChatOrderId: React.FC<ChatOrderIdProps> = ({ orderId, setOrderId, startCha
         placeholder="Masukkan Order ID"
         value={orderId}
         onChange={(e) => setOrderId(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            startChat("id", orderId); // Panggil startChat saat Enter ditekan
+            setOrderId('')
+          }
+        }}
         style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
       />
       <button

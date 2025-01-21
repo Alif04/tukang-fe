@@ -22,6 +22,7 @@ interface Status {
 }
 
 interface DataType {
+  grand_total: any
   _key: number
   order_id: number
   store_name: string
@@ -91,6 +92,21 @@ const columns: ColumnsType<DataType> = [
       return <Tag color='green'>{orderStatus}</Tag>
     },
   },
+  {
+    title: 'Nominal',
+    dataIndex: 'grand_total',
+    key: 'grand_total',
+    align: 'left',
+    sorter: (a, b) => Number(a.grand_total) - Number(b.grand_total), // Pastikan angka untuk sorting
+    render: (grand_total) => {
+      // Pastikan konversi ke angka sebelum diformat
+      const numericValue = Number(grand_total);
+      if (isNaN(numericValue)) {
+        return `Rp 0`; // Jika tidak valid, tampilkan Rp 0
+      }
+      return `Rp ${numericValue.toLocaleString('id-ID')}`;
+    },
+  }
 ]
 
 const NewInvoiceVendor: FC = () => {
@@ -257,6 +273,7 @@ const NewInvoiceVendor: FC = () => {
             order_type: 'Pengerjaan',
             order_status: item?.status?.category,
             order_status_label: item?.status?.description,
+            grand_total: item?.grand_total
           }
         })
 
@@ -299,6 +316,7 @@ const NewInvoiceVendor: FC = () => {
             order_type: 'Survei',
             order_status: quoteInHistory ? quoteInHistory.status.category : null,
             order_status_label: quoteInHistory ? quoteInHistory.status.description : null,
+            grand_total: item?.grand_total
           }
         })
 
@@ -341,6 +359,7 @@ const NewInvoiceVendor: FC = () => {
             order_type: 'Pekerjaan Tahap 1',
             order_status: workStepHistory ? workStepHistory.status.category : null,
             order_status_label: workStepHistory ? workStepHistory.status.description : null,
+            grand_total: item?.grand_total
           }
         })
 
@@ -497,7 +516,7 @@ const NewInvoiceVendor: FC = () => {
     }
 
     valueCheck(`&search=`, searchFilter)
-
+    console.log(valueCheck);
     const page = 1
     const pageSize = 10
     await fetchData(page, pageSize, queryparams)

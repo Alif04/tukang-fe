@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface Chat {
   _id: string;
@@ -21,6 +21,13 @@ interface ChatPreviousProps {
 }
 
 const ChatPrevious: React.FC<ChatPreviousProps> = ({ previousChats, handlePreviousChat, handleDeleteChat, unreadChats, userRole , messages, message, setMessage, sendMessage,vendorName}) => {
+  const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+
+  const onSelectChat = (chat: Chat) => {
+    setSelectedChat(chat);
+    handlePreviousChat(chat._id);
+  };
+  
   return (
     <div
     style={{
@@ -58,7 +65,9 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({ previousChats, handlePrevio
               }}
             >
               <button
-                onClick={() => handlePreviousChat(chat._id)}
+                onClick={() => 
+                  onSelectChat(chat)
+                }
                 style={{
                   width: "100%",
                   padding: "15px",
@@ -118,7 +127,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({ previousChats, handlePrevio
     </div>
 
 {/* Bagian Chat Aktif (Kanan) */}
-      <div
+{selectedChat &&   <div
         style={{
           flex: 1, // Bagian ini akan memenuhi sisa ruang
           padding: "10px",
@@ -193,7 +202,8 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({ previousChats, handlePrevio
             Kirim
           </button>
         </div>
-      </div>
+      </div>}
+    
 
   </div>
   );
