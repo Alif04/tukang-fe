@@ -503,3 +503,14 @@ export * from './admin-ho/request-discount/list/ListRequestDiscount'
 
 // Profile
 export * from './profile/update_profile/UpdateProfile'
+
+
+// DataMASTER
+// List data master
+export * from './admin-ho/data-master/list_data_master/ListDataMaster'
+
+// New data master
+export * from './admin-ho/data-master/new_data_master/NewDataMaster'
+
+// Update data masrer
+export * from './admin-ho/data-master/update_data_master/UpdateDataMaster'

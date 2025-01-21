@@ -1,0 +1,124 @@
+/* Form Layout */
+
+#update-bank .form-wrapper {
+  margin-bottom: 30px;
+}
+
+#update-bank .form-wrapper .form-new-bank {
+  padding: 0 200px;
+}
+
+#update-bank .alamat-order.row .col {
+  padding: 0 70px 0 10px;
+}
+
+#update-bank .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+/* Form Header */
+
+#update-bank .form-header.row {
+  margin-bottom: 30px;
+}
+
+#update-bank .form-header .form-check-request label.form-check-label {
+  font-size: 11px;
+}
+
+/* Form Layout */
+
+#update-bank .row {
+  margin: 0 0 20px 0 !important;
+}
+
+/* Button */
+
+#update-bank .btn.btn-dark-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #d80019 !important;
+  transition: 0.3s ease-in-out;
+}
+
+#update-bank .btn.btn-dark-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 40px;
+  margin: 0 10px 0 10px;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+@media screen and (max-width: 1400px) {
+  /* Form Layout */
+
+  #update-bank .form-wrapper .form-new-bank {
+    padding: 0 100px;
+  }
+
+  #update-bank .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-bank .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  /* Form Layout */
+
+  #update-bank .form-wrapper .form-new-bank {
+    padding: 0 0;
+  }
+
+  #update-bank .form-header.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-bank .input-order.row .col-xxl-6.col-xl-6.col-lg-6.col-md-6.col-12 {
+    padding: 0 10px 0 10px;
+  }
+
+  #update-bank .alamat-order.row .col {
+    padding: 0 10px 0 10px;
+  }
+}
+
+@media screen and (max-width: 991px) {
+}
+
+@media screen and (max-width: 768px) {
+}
+
+@media screen and (max-width: 576px) {
+  /* Button */
+  #update-bank .button-wrapper {
+    flex-direction: column;
+  }
+
+  #update-bank .btn.btn-dark-danger {
+    width: 100%;
+    margin: 5px 0;
+    height: 40px;
+  }
+
+  #update-bank .btn.btn-dark-primary {
+    width: 100%;
+    margin: 5px 0;
+    height: 40px;
+  }
+}

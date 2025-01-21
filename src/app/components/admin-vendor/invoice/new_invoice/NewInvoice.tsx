@@ -497,7 +497,7 @@ const NewInvoiceVendor: FC = () => {
     }
 
     valueCheck(`&search=`, searchFilter)
-
+    console.log(valueCheck);
     const page = 1
     const pageSize = 10
     await fetchData(page, pageSize, queryparams)

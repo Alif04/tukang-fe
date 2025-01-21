@@ -651,7 +651,19 @@ export function AsideMenuMain() {
             hasBullet={true}
           />
         </AsideMenuItemWithSub>
-
+        <AsideMenuItemWithSub
+          to='/data-master'
+          title='Data Master'
+          hasBullet={true}
+          role={['Admin HO', 'Super User']}
+        >
+          <AsideMenuItem
+            to='/data-master/view-data-master'
+            title='Daftar Data Master'
+            role={['Admin HO', 'Super User']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
         <AsideMenuItemWithSub
           to='/user'
           title={userRole === 'Super User' ? 'User Management' : 'Admin Management'}

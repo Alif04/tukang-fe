@@ -127,7 +127,7 @@ const NewOrderHO: FC = () => {
     payment_type: 'gratis',
     receipt_number: '',
     is_overdistance: 0,
-    additional_fee: 25000,
+    additional_fee: 40000,
     notes: '',
     order_details: [
       {
