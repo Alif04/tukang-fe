@@ -92,21 +92,21 @@ const columns: ColumnsType<DataType> = [
       return <Tag color='green'>{orderStatus}</Tag>
     },
   },
-  {
-    title: 'Nominal',
-    dataIndex: 'grand_total',
-    key: 'grand_total',
-    align: 'left',
-    sorter: (a, b) => Number(a.grand_total) - Number(b.grand_total), // Pastikan angka untuk sorting
-    render: (grand_total) => {
-      // Pastikan konversi ke angka sebelum diformat
-      const numericValue = Number(grand_total);
-      if (isNaN(numericValue)) {
-        return `Rp 0`; // Jika tidak valid, tampilkan Rp 0
-      }
-      return `Rp ${numericValue.toLocaleString('id-ID')}`;
-    },
-  }
+  // {
+  //   title: 'Nominal',
+  //   dataIndex: 'grand_total',
+  //   key: 'grand_total',
+  //   align: 'left',
+  //   sorter: (a, b) => Number(a.grand_total) - Number(b.grand_total), // Pastikan angka untuk sorting
+  //   render: (grand_total) => {
+  //     // Pastikan konversi ke angka sebelum diformat
+  //     const numericValue = Number(grand_total);
+  //     if (isNaN(numericValue)) {
+  //       return `Rp 0`; // Jika tidak valid, tampilkan Rp 0
+  //     }
+  //     return `Rp ${numericValue.toLocaleString('id-ID')}`;
+  //   },
+  // }
 ]
 
 const NewInvoiceVendor: FC = () => {

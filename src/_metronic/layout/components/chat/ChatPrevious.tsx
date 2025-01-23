@@ -36,6 +36,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
 }) => {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [unreadCounts, setUnreadCounts] = useState<{ [key: string]: number }>({}); // Map for unread counts
+  const [latestMessages, setLatestMessages] = useState<{ [key: string]: string }>({});
   const fetchUnreadCounts = async () => {
     const counts: { [key: string]: number } = {};
     for (const chat of previousChats) {
@@ -46,7 +47,6 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
           },
         });
         const unreadMessages = res.data.unreadCount.filter((msg:any) => msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole));
-        console.log(userRole);
         
         counts[chat._id] = unreadMessages.length || 0;
       } catch (err) {
@@ -56,10 +56,38 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
     }
     setUnreadCounts(counts);
   };
+
+  const fetchNewChat = async () => {
+    const latest: { [key: string]: string } = {};
+    for (const chat of previousChats) {
+    try {
+      const res = await axios.get(`${apiChat}/chat/messages/${chat._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      console.log(res);
+      
+      if (res.data && res.data.length > 0) {
+        res.data.forEach((chats: any) => {
+          const { groupId, timestamp } = chats;
+          if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
+            latest[groupId] = timestamp; // Simpan timestamp terbaru untuk setiap grup
+          }
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch new chats", err);
+    }
+  }
+    setLatestMessages(latest);
+  };
+  // console.log(latestMessages);
+  
   useEffect(() => {
     // Fetch unread messages for each chat
     
-
+    fetchNewChat()
     fetchUnreadCounts();
   }, [previousChats]);
 
@@ -79,7 +107,12 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
       console.error('Failed to update chat status:', err);
     }
   };
-
+  const sortedChats = [...previousChats].sort((a, b) => {
+    const timestampA = latestMessages[a._id] || "1970-01-01T00:00:00.000Z";
+    const timestampB = latestMessages[b._id] || "1970-01-01T00:00:00.000Z";
+    return new Date(timestampB).getTime() - new Date(timestampA).getTime();
+  });
+  
   return (
     <div
       style={{
@@ -108,14 +141,15 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
           </div>
         ) : (
           <div>
-            {previousChats.map((chat) => (
-              <div
+            {sortedChats.map((chat) => {
+              return <div
                 key={chat._id}
                 style={{
                   position: 'relative',
                   marginBottom: '10px',
                 }}
               >
+              
                 <button
                   onClick={() => onSelectChat(chat)}
                   style={{
@@ -187,7 +221,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                   </button>
                 )}
               </div>
-            ))}
+})}
           </div>
         )}
       </div>

@@ -16,7 +16,7 @@ export default function ChatPage(): JSX.Element {
   const [step, setStep] = useState<string>("start");
   const [steps, setSteps] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<{ sender: string; message: string }[]>([]);
+  const [messages, setMessages] = useState<{ sender: string; message: string; }[]>([]);
   const [orderId, setOrderId] = useState<string>("");
   const [chatType, setChatType] = useState<string>("");
   const [groupId, setGroupId] = useState<string>("");
