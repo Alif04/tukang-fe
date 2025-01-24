@@ -7,10 +7,11 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import {Row, Col, Form, Button, Card} from 'react-bootstrap'
 
-interface Bank {
-  id: number | null
-  bank_name: string
+interface DataMaster {
+  name:string
+  value: number
 }
+
 
 const UpdateDataMaster: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -19,9 +20,9 @@ const UpdateDataMaster: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Bank
-  const [bankInfo, setBankInfo] = useState<Bank>({
-    id: null,
-    bank_name: '',
+ const [dataMasterInfo, setDataMasterInfo] = useState<DataMaster>({
+    name: '',
+    value: 0,
   })
 
   // Fetch API Data
@@ -29,7 +30,7 @@ const UpdateDataMaster: FC = () => {
     const getBankData = async () => {
       try {
         await axios
-          .get(`${apiUrl}/bank/find/${params.id}`, {
+          .get(`${apiUrl}/data-master/${params.id}`, {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -41,10 +42,10 @@ const UpdateDataMaster: FC = () => {
             const data = response.data.data
 
             if (data) {
-              setBankInfo((prev) => ({
+              setDataMasterInfo((prev) => ({
                 ...prev,
-                id: data?.id,
-                bank_name: data?.bank_name,
+                value: data?.value,
+                name: data?.name,
               }))
             }
           })
@@ -57,8 +58,8 @@ const UpdateDataMaster: FC = () => {
   }, [])
 
   // Bank Form Handler
-  const bankInfoFormHandler = (e: any) => {
-    setBankInfo((prevStoreInfo) => ({
+  const dataMasterFormHandler = (e: any) => {
+    setDataMasterInfo((prevStoreInfo) => ({
       ...prevStoreInfo,
       [e.target.name]: e.target.value,
     }))
@@ -68,7 +69,7 @@ const UpdateDataMaster: FC = () => {
   const bankValidation = () => {
     let valid = true
 
-    if (!bankInfo.bank_name) {
+    if (!dataMasterInfo.value) {
       Swal.fire({
         title: 'Error',
         text: 'Please fill Nama Bank form',
@@ -83,10 +84,13 @@ const UpdateDataMaster: FC = () => {
     if (!bankValidation()) {
       return false
     }
-
+    const data = {
+      value: Number(dataMasterInfo.value),
+      name: dataMasterInfo.name,
+    }
     setIsLoading(true)
     await axios
-      .post(`${apiUrl}/bank/${params.id}`, bankInfo, {
+      .post(`${apiUrl}/data-master/${params.id}`, data, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -98,12 +102,12 @@ const UpdateDataMaster: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Store',
+            text: 'Success Update Data Master',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
           }).then(() => {
-            navigate(`/store/view-store`)
+            navigate(`/data-master/view-data-master`)
           })
 
           setIsLoading(false)
@@ -130,7 +134,7 @@ const UpdateDataMaster: FC = () => {
   }
 
   const handleCancel = () => {
-    navigate('/bank/view-bank')
+    navigate('/data-master/view-data-master')
   }
 
   return (
@@ -141,27 +145,30 @@ const UpdateDataMaster: FC = () => {
             <div className='form-update-bank'>
               <Row>
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group>
-                    <Form.Label>Bank ID</Form.Label>
-                    <Form.Control
-                      name='id'
-                      type='number'
-                      readOnly
-                      value={bankInfo.id ?? ''}
-                      onChange={(e) => bankInfoFormHandler(e)}
-                    />
+                <Form.Group>
+                   <Form.Label>Name</Form.Label>
+                   
+                                 <Form.Control
+                                   name='name'
+                                   type='text'
+                                   value={dataMasterInfo.name}
+                                   onChange={(e) => dataMasterFormHandler(e)}
+                                 />
                   </Form.Group>
+                 
                 </Col>
 
                 <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                  <Form.Group>
-                    <Form.Label>Nama Bank</Form.Label>
-                    <Form.Control
-                      name='bank_name'
-                      type='text'
-                      value={bankInfo.bank_name ?? ''}
-                      onChange={(e) => bankInfoFormHandler(e)}
-                    />
+                <Form.Group>
+                    <Form.Label>Value</Form.Label>
+                   
+                                 <Form.Control
+                                   name='value'
+                                   type='number'
+                                   placeholder='Silahkan isi value'
+                                   value={dataMasterInfo.value}
+                                   onChange={(e) => dataMasterFormHandler(e)}
+                                 />
                   </Form.Group>
                 </Col>
               </Row>

@@ -112,7 +112,7 @@ const NewOrderStoreCS: FC = () => {
     payment_type: 'gratis',
     receipt_number: '',
     is_overdistance: 0,
-    additional_fee: 25000,
+    additional_fee: 0,
     notes: '',
     order_details: [
       {
@@ -225,7 +225,37 @@ const NewOrderStoreCS: FC = () => {
       console.error(err)
     }
   }
+// Fetch API Data
+useEffect(() => {
+  const getDataMaster= async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/data-master`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
+
+      if (response.status === 200) {
+        const {data} = response
+        const finalData = data.data.find((a:any)=> a.name ==='jarak')
+        // console.log(finalData);
+        
+        setOrderForm((prev) => ({
+          ...prev,
+          additional_fee: finalData.value,
+        }))
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  getDataMaster()
+}, [])
   useEffect(() => {
     // eslint-disable-next-line
     getItem()
