@@ -14,14 +14,15 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 import {formatDateWithTime} from '../../../../../_metronic/helpers'
 
-interface Bank {
-  id: number | null
-  bank_name: string
+interface DataMaster {
+  name:string
+  value: number
 }
 
 interface DataType {
-  bank_id: number
-  bank_name: string
+  nomer: number
+  name: string
+  value: number
   join_date: string
 }
 
@@ -46,44 +47,15 @@ const ListDataMasterHO: React.FC = () => {
   }
 
   // Bank
-  const [bankInfo, setBankInfo] = useState<Bank>({
-    id: null,
-    bank_name: '',
+  const [dataMasterInfo, setDataMasterInfo] = useState<DataMaster>({
+    name: '',
+    value: 0,
   })
 
-  // Fetch API Data
-  useEffect(() => {
-    const getBankId = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/bank/next-code`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        console.log(response.data.data.code)
-
-        if (response.status === 200) {
-          const {data} = response
-          setBankInfo((prev) => ({
-            ...prev,
-            id: data.data.code,
-          }))
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    getBankId()
-  }, [])
 
   // Bank Form Handler
-  const bankInfoFormHandler = (e: any) => {
-    setBankInfo((prevStoreInfo) => ({
+  const dataMasterFormHandler = (e: any) => {
+    setDataMasterInfo((prevStoreInfo) => ({
       ...prevStoreInfo,
       [e.target.name]: e.target.value,
     }))
@@ -93,10 +65,10 @@ const ListDataMasterHO: React.FC = () => {
   const bankValidation = () => {
     let valid = true
 
-    if (!bankInfo.bank_name) {
+    if (!dataMasterInfo.value) {
       Swal.fire({
         title: 'Error',
-        text: 'Please fill Nama Bank form',
+        text: 'Please fill value form',
         icon: 'error',
       })
       valid = false
@@ -113,7 +85,7 @@ const ListDataMasterHO: React.FC = () => {
     setIsLoading(true)
 
     await axios
-      .post(`${apiUrl}/bank`, bankInfo, {
+      .post(`${apiUrl}/data-master`, dataMasterInfo, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -125,7 +97,7 @@ const ListDataMasterHO: React.FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Berhasil menambahkan bank',
+            text: 'Berhasil menambahkan data master',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -161,24 +133,34 @@ const ListDataMasterHO: React.FC = () => {
   const columns: ColumnsType<DataType> = [
     {
       title: 'No.',
-      dataIndex: 'bank_id',
-      key: 'bank_id',
+      dataIndex: 'nomer',
+      key: 'nomer',
       align: 'left',
       // width: 80,
-      sorter: (a, b) => a.bank_id - b.bank_id,
+      sorter: (a, b) => a.nomer - b.nomer,
       render: (text: any, record: any, index: number) => {
         return (currentPage - 1) * pageSize + index + 1
       },
     },
     {
-      title: 'Nama Bank',
-      dataIndex: 'bank_name',
-      key: 'bank_name',
+      title: 'Nama',
+      dataIndex: 'name',
+      key: 'name',
       align: 'left',
       className: 'text-start',
       // width: 150,
-      onFilter: (value, record) => record.bank_name.includes(String(value)),
-      sorter: (a, b) => a.bank_name.length - b.bank_name.length,
+      onFilter: (value, record) => record.name.includes(String(value)),
+      sorter: (a, b) => a.name.length - b.name.length,
+    },
+    {
+      title: 'value',
+      dataIndex: 'value',
+      key: 'value',
+      align: 'left',
+      className: 'text-start',
+      // width: 150,
+      // onFilter: (value, record) => record.value.includes(value),
+      sorter: (a, b) => a.value - b.value,
     },
     {
       title: 'Tanggal dibuat',
@@ -196,15 +178,16 @@ const ListDataMasterHO: React.FC = () => {
       width: 90,
       render: (record) => {
         const handleUpdate = () => {
-          const id = record.bank_id
-          navigate(`/bank/update-bank/${id}`)
+          const id = record.id
+          navigate(`/data-master/update-data-master/${id}`)
         }
 
         const handleDeleteId = () => {
-          const id = record.bank_id
-
+          const id = record.id
+       
+          
           Swal.fire({
-            title: `Apakah anda yakin akan menghapus data Bank ini ?`,
+            title: `Apakah anda yakin akan menghapus data ini ?`,
             icon: 'warning',
             showConfirmButton: true,
             showDenyButton: true,
@@ -214,7 +197,7 @@ const ListDataMasterHO: React.FC = () => {
             .then((willDelete) => {
               if (willDelete.value) {
                 axios
-                  .delete(`${apiUrl}/bank/${id}`, {
+                  .delete(`${apiUrl}/data-master/${id}`, {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -254,7 +237,7 @@ const ListDataMasterHO: React.FC = () => {
             <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Edit Bank')}
+              overlay={renderTooltip('Edit Data Master')}
             >
               <Button variant='primary' className='button-edit' onClick={handleUpdate}>
                 <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
@@ -264,7 +247,7 @@ const ListDataMasterHO: React.FC = () => {
             <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Hapus Bank')}
+              overlay={renderTooltip('Hapus Data Master')}
             >
               <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
                 <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
@@ -277,7 +260,7 @@ const ListDataMasterHO: React.FC = () => {
   ]
 
   const getBanksList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/bank?page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/data-master?page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -314,8 +297,10 @@ const ListDataMasterHO: React.FC = () => {
         const joinDate = formatDateWithTime(item?.created_at)
 
         data = {
-          bank_id: index + 1,
-          bank_name: item?.bank_name ?? '',
+          id: item.id,
+          nomer: index + 1,
+          name: item?.name ?? '',
+          value: item?.value ?? '',
           join_date: joinDate,
         }
 
@@ -384,7 +369,7 @@ const ListDataMasterHO: React.FC = () => {
           <Row className='table-head-wrapper' onKeyDown={handleKeyPress}>
             <Col xs={12} md={12} lg={12} xl={4} xxl={4}>
               <Button variant='primary' onClick={handleShowModal}>
-                Tambah Bank
+                Tambah Data Master
               </Button>
             </Col>
 
@@ -427,7 +412,7 @@ const ListDataMasterHO: React.FC = () => {
                 bordered
                 columns={columns}
                 dataSource={bankData}
-                rowKey={(record) => record.bank_id}
+                rowKey={(record) => record.nomer}
                 pagination={false}
                 sticky={true}
                 tableLayout='auto'
@@ -459,31 +444,30 @@ const ListDataMasterHO: React.FC = () => {
         {/* Modal */}
         <Modal show={showModal} onHide={handleCloseModal} dialogClassName='modal-dialog-centered'>
           <Modal.Header closeButton>
-            <Modal.Title>Formulir Tambah Bank</Modal.Title>
+            <Modal.Title>Formulir Tambah Data Master</Modal.Title>
           </Modal.Header>
 
           <Modal.Body>
             <Form.Group className='mb-5'>
-              <Form.Label>Bank ID</Form.Label>
+              <Form.Label>Name</Form.Label>
 
               <Form.Control
-                name='bank_id'
-                type='number'
-                readOnly
-                value={bankInfo.id?.toString()}
-                onChange={(e) => bankInfoFormHandler(e)}
+                name='name'
+                type='text'
+                value={dataMasterInfo.name}
+                onChange={(e) => dataMasterFormHandler(e)}
               />
             </Form.Group>
 
             <Form.Group className='mb-5'>
-              <Form.Label>Nama Bank</Form.Label>
+              <Form.Label>Value</Form.Label>
 
               <Form.Control
-                name='bank_name'
-                type='text'
-                placeholder='Silahkan isi nama bank'
-                value={bankInfo.bank_name}
-                onChange={(e) => bankInfoFormHandler(e)}
+                name='value'
+                type='number'
+                placeholder='Silahkan isi value'
+                value={dataMasterInfo.value}
+                onChange={(e) => dataMasterFormHandler(e)}
               />
             </Form.Group>
 

@@ -16,7 +16,7 @@ export default function ChatPage(): JSX.Element {
   const [step, setStep] = useState<string>("start");
   const [steps, setSteps] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<{ sender: string; message: string }[]>([]);
+  const [messages, setMessages] = useState<{ sender: string; message: string; }[]>([]);
   const [orderId, setOrderId] = useState<string>("");
   const [chatType, setChatType] = useState<string>("");
   const [groupId, setGroupId] = useState<string>("");
@@ -104,6 +104,11 @@ export default function ChatPage(): JSX.Element {
   useEffect(() => {
     const handleReceiveMessage = (msg: { sender: string; message: string }) => {
       setMessages((prev) => [...prev, msg]);
+
+
+      if (msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole) && !isOpen) {
+        setNewMessages(true);
+      }
     };
 
     socket.on("receiveMessage", handleReceiveMessage);
@@ -128,7 +133,7 @@ export default function ChatPage(): JSX.Element {
   }
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-    
+
       datasss()
     }
   }, [isOpen]);
@@ -519,8 +524,8 @@ export default function ChatPage(): JSX.Element {
     setIsEditModalOpen(true);
   };
 
-  const handleSaveEditedMessage = async(newMessage: string) => {
-    const res = await axios.post(`${apiChat}/chat/organisasi/`,{
+  const handleSaveEditedMessage = async (newMessage: string) => {
+    const res = await axios.post(`${apiChat}/chat/organisasi/`, {
       id: organisasiId,
       deskripsi: newMessage
     }, {
@@ -548,6 +553,7 @@ export default function ChatPage(): JSX.Element {
               if (newMessages) {
                 setIsOpen(true);
                 setStep("previous");
+                setNewMessages(false); // Reset new messages notification
                 setSteps("");
               } else {
                 setIsOpen(true);
@@ -585,19 +591,26 @@ export default function ChatPage(): JSX.Element {
             <span
               style={{
                 position: "absolute",
-                top: "5px",
-                right: "5px",
+                top: "-5px", // Sedikit di luar tombol
+                right: "-5px", // Sedikit di luar tombol
                 backgroundColor: "red",
                 color: "white",
                 borderRadius: "50%",
                 padding: "5px",
+                width: "20px", // Lebar tetap
+                height: "20px", // Tinggi tetap
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
                 fontSize: "12px",
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
               }}
             >
               !
             </span>
           )}
         </button>
+
 
 
         {isOpen && (
@@ -649,7 +662,7 @@ export default function ChatPage(): JSX.Element {
                     alignItems: "center",
                   }}
                 >
-                 <i className="bi bi-arrow-left" style={{ marginRight: "8px", color:'white',fontSize: '24px'}}></i> {/* Icon Kembali */}
+                  <i className="bi bi-arrow-left" style={{ marginRight: "8px", color: 'white', fontSize: '24px' }}></i> {/* Icon Kembali */}
                 </button>
               )}
               <span style={{ flex: 1, textAlign: step !== "start" ? "center" : "left" }}>
