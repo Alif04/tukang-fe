@@ -109,7 +109,7 @@ const NewOrderStoreStaff: FC = () => {
     request_survey: '',
     payment_type: 'gratis',
     is_overdistance: 0,
-    additional_fee: 0,
+    additional_fee: 25000,
     notes: '',
     order_details: [
       {
@@ -215,37 +215,37 @@ const NewOrderStoreStaff: FC = () => {
       console.error(err)
     }
   }
-// Fetch API Data
-useEffect(() => {
-  const getDataMaster= async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/data-master`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+  // Fetch API Data
+  // useEffect(() => {
+  //   const getDataMaster= async () => {
+  //     try {
+  //       const response = await axios.get(`${apiUrl}/data-master`, {
+  //         headers: {
+  //           Accept: 'application/json',
+  //           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  //           'Access-Control-Allow-Origin': '*',
+  //           'ngrok-skip-browser-warning': 'true',
+  //         },
+  //       })
 
+  //       if (response.status === 200) {
+  //         const {data} = response
+  //         const finalData = data.data.find((a:any)=> a.name ==='jarak')
+  //         // console.log(finalData);
 
-      if (response.status === 200) {
-        const {data} = response
-        const finalData = data.data.find((a:any)=> a.name ==='jarak')
-        // console.log(finalData);
-        
-        setOrderForm((prev) => ({
-          ...prev,
-          additional_fee: finalData.value,
-        }))
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
+  //         setOrderForm((prev) => ({
+  //           ...prev,
+  //           additional_fee: finalData.value,
+  //         }))
+  //       }
+  //     } catch (err) {
+  //       console.error(err)
+  //     }
+  //   }
 
-  getDataMaster()
-}, [])
+  //   getDataMaster()
+  // }, [])
+
   useEffect(() => {
     // eslint-disable-next-line
     getItem()
