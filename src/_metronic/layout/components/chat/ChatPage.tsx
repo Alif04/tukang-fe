@@ -536,10 +536,10 @@ export default function ChatPage(): JSX.Element {
     });
     resetChat();
   };
-  const [menuOpen, setMenuOpen] = useState(false); // State untuk dropdown
+  // const [menuOpen, setMenuOpen] = useState(false); // State untuk dropdown
 
-  const toggleMenu = () => setMenuOpen(!menuOpen); // Toggle menu
-  const closeMenu = () => setMenuOpen(false);
+  // const toggleMenu = () => setMenuOpen(!menuOpen); // Toggle menu
+  // const closeMenu = () => setMenuOpen(false);
   return (
     <div>
       <div
@@ -635,6 +635,8 @@ export default function ChatPage(): JSX.Element {
                 position: "relative", // Dibutuhkan untuk dropdown
               }}
             >
+              <div style={{display:'flex', flexDirection:'row',   alignItems: "center",}}>
+              
               {step !== "start" && (
                 <button
                   onClick={() => {
@@ -682,15 +684,15 @@ export default function ChatPage(): JSX.Element {
                   }}
                 />
               </div>
-              <span style={{ flex: 1, textAlign: step !== "start" ? "center" : "left", marginLeft: 20 }}>
+          
+              <span style={{ flex: 1, textAlign: step !== "start" ? "center" : "left", marginLeft: 20, fontSize:16 }}>
                 Layanan Live Chat
               </span>
-
-
+              </div>
               {/* Tombol Titik Tiga */}
               <div style={{ position: "relative" }}>
                 <button
-                  onClick={toggleMenu} // Toggle menu
+                  onClick={resetChat} // Toggle menu
                   style={{
                     background: "none",
                     border: "none",
@@ -699,41 +701,9 @@ export default function ChatPage(): JSX.Element {
                     cursor: "pointer",
                   }}
                 >
-                  ⋮
+                    <i className="bi bi-chevron-down fs-1"></i>
                 </button>
 
-                {/* Dropdown Menu */}
-                {menuOpen && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "40px",
-                      right: "0",
-                      backgroundColor: "white",
-                      color: "black",
-                      borderRadius: "5px",
-                      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
-                      zIndex: 1000,
-                    }}
-                  >
-                    <button
-                      onClick={() => {
-                        resetChat(); // Fungsi untuk menutup chat
-                        closeMenu()// Tutup dropdown
-                      }}
-                      style={{
-                        padding: "10px 20px",
-                        width: "100%",
-                        background: "none",
-                        border: "none",
-                        textAlign: "left",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Close Message
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
             {step !== "previous" && <div
