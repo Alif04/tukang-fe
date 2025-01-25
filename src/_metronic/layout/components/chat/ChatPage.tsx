@@ -535,6 +535,10 @@ export default function ChatPage(): JSX.Element {
     });
     resetChat();
   };
+  const [menuOpen, setMenuOpen] = useState(false); // State untuk dropdown
+
+  const toggleMenu = () => setMenuOpen(!menuOpen); // Toggle menu
+  const closeMenu = () => setMenuOpen(false);
   return (
     <div>
       <div
@@ -545,7 +549,7 @@ export default function ChatPage(): JSX.Element {
           zIndex: 1000,
         }}
       >
-        <button
+        {isOpen === false  &&       <button
           onClick={() => {
             if (isOpen) {
               resetChat();
@@ -573,20 +577,8 @@ export default function ChatPage(): JSX.Element {
             transition: "all 0.3s ease",
           }}
         >
-          {isOpen ? (
-            <span
-              style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                transform: "rotate(90deg)",
-                transition: "transform 0.3s ease",
-              }}
-            >
-              X
-            </span>
-          ) : (
-            "💬"
-          )}
+            💬
+
           {newMessages && !isOpen && (
             <span
               style={{
@@ -610,7 +602,8 @@ export default function ChatPage(): JSX.Element {
             </span>
           )}
         </button>
-
+}
+  
 
 
         {isOpen && (
@@ -631,13 +624,14 @@ export default function ChatPage(): JSX.Element {
             <div
               style={{
                 padding: "10px",
-                backgroundColor: "#007BFF",
+                backgroundColor: "#020080",
                 color: "white",
                 textAlign: "center",
                 fontWeight: "bold",
                 display: "flex", // Untuk membuat layout fleksibel
                 alignItems: "center",
                 justifyContent: "space-between", // Memberi ruang antara ikon dan judul
+                position: "relative", // Dibutuhkan untuk dropdown
               }}
             >
               {step !== "start" && (
@@ -668,6 +662,56 @@ export default function ChatPage(): JSX.Element {
               <span style={{ flex: 1, textAlign: step !== "start" ? "center" : "left" }}>
                 Layanan Chat
               </span>
+
+
+              {/* Tombol Titik Tiga */}
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={toggleMenu} // Toggle menu
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "white",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                  }}
+                >
+                  ⋮
+                </button>
+
+                {/* Dropdown Menu */}
+                {menuOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "40px",
+                      right: "0",
+                      backgroundColor: "white",
+                      color: "black",
+                      borderRadius: "5px",
+                      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
+                      zIndex: 1000,
+                    }}
+                  >
+                    <button
+                      onClick={() => {
+                        resetChat(); // Fungsi untuk menutup chat
+                        closeMenu()// Tutup dropdown
+                      }}
+                      style={{
+                        padding: "10px 20px",
+                        width: "100%",
+                        background: "none",
+                        border: "none",
+                        textAlign: "left",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Close Message
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             {step !== "previous" && <div
               style={{
