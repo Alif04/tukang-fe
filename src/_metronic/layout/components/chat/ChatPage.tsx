@@ -271,7 +271,7 @@ export default function ChatPage(): JSX.Element {
           setStep("chat");
           setMessages((prev) => [
             ...prev,
-            { sender: "Mitra 10", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.` },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -334,7 +334,7 @@ export default function ChatPage(): JSX.Element {
           setStep("chat");
           setMessages((prev) => [
             ...prev,
-            { sender: "Mitra 10", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.` },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -395,7 +395,7 @@ export default function ChatPage(): JSX.Element {
           setStep("chat");
           setMessages((prev) => [
             ...prev,
-            { sender: "Mitra 10", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.` },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
