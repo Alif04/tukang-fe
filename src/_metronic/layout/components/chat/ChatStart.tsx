@@ -30,11 +30,11 @@ const ChatStart: React.FC<ChatStartProps> = ({ handleChatTypeSelection, userRole
 const buttonStyle: React.CSSProperties = {
   width: "100%",
   padding: "10px",
-  backgroundColor: "#020080",
-  color: "white",
-  border: "none",
+  backgroundColor: "white",
+  color: "#020080f",
+  border: "1px solid #020080", 
   marginBottom: "10px",
-
+  borderColor:'#020080',
   cursor: "pointer",
 };
 

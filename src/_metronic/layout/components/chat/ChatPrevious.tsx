@@ -314,21 +314,41 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
               backgroundColor: 'white',
             }}
           >
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                style={{
-                  textAlign:
-                    msg.sender === userRole || msg.sender === vendorName
-                      ? 'right'
-                      : 'left',
-                  margin: '5px 0',
-                }}
-              >
-                <strong>{msg.sender === userRole ? userRole : msg.sender}:</strong>{' '}
-                {msg.message}
-              </div>
-            ))}
+             {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    textAlign: msg.sender === userRole || msg.sender === vendorName ? "right" : "left",
+                    marginBottom: "10px", // Jarak antar pesan
+                  }}
+                >
+                  {/* Nama pengirim */}
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#999", // Warna teks abu-abu
+                      marginBottom: "5px", // Jarak nama ke kotak pesan
+                    }}
+                  >
+                    {msg.sender === userRole ? userRole : msg.sender}
+                  </div>
+
+                  {/* Kotak pesan */}
+                  <div
+                    style={{
+                      display: "inline-block",
+                      backgroundColor: msg.sender === userRole || msg.sender === vendorName ? "#007BFF" : "#f1f1f1", // Warna kotak pesan
+                      color: msg.sender === userRole || msg.sender === vendorName ? "white" : "#333", // Warna teks
+                      padding: "10px",
+                      borderRadius: "8px", // Membuat kotak jadi rounded
+                      maxWidth: "60%", // Maksimal lebar pesan
+                      wordBreak: "break-word", // Memastikan teks panjang tidak melampaui kotak
+                    }}
+                  >
+                    {msg.message}
+                  </div>
+                </div>
+              ))}
           </div>
           <div
             style={{
