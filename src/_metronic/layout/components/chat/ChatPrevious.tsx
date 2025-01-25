@@ -140,7 +140,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             Tidak ada chat sebelumnya.
           </div>
         ) : (
-          <div>
+          <div style={{marginTop:10}}>
             {sortedChats.map((chat) => {
               return <div
                 key={chat._id}
