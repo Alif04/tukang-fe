@@ -8,6 +8,7 @@ import ChatOrderId from "./ChatOrderId";
 import ChatActive from "./ChatActive";
 import ChatPrevious from "./ChatPrevious";
 import EditMessageModal from "./EditMessageModal";
+import { toAbsoluteUrl } from "../../../helpers";
 
 const socket = io(`${process.env.REACT_APP_API_CHAT_URL}`);
 
@@ -549,7 +550,7 @@ export default function ChatPage(): JSX.Element {
           zIndex: 1000,
         }}
       >
-        {isOpen === false  &&       <button
+        {isOpen === false && <button
           onClick={() => {
             if (isOpen) {
               resetChat();
@@ -577,7 +578,7 @@ export default function ChatPage(): JSX.Element {
             transition: "all 0.3s ease",
           }}
         >
-            💬
+          💬
 
           {newMessages && !isOpen && (
             <span
@@ -602,8 +603,8 @@ export default function ChatPage(): JSX.Element {
             </span>
           )}
         </button>
-}
-  
+        }
+
 
 
         {isOpen && (
@@ -659,8 +660,30 @@ export default function ChatPage(): JSX.Element {
                   <i className="bi bi-arrow-left" style={{ marginRight: "8px", color: 'white', fontSize: '24px' }}></i> {/* Icon Kembali */}
                 </button>
               )}
-              <span style={{ flex: 1, textAlign: step !== "start" ? "center" : "left" }}>
-                Layanan Chat
+              <div
+                style={{
+                  width: "50px", // Ukuran lingkaran
+                  height: "50px", // Ukuran lingkaran
+                  borderRadius: "50%", // Membuat area berbentuk lingkaran
+                  overflow: "hidden", // Memastikan gambar hanya terlihat dalam lingkaran
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  alt="Logo"
+                  className="logo"
+                  src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain", // Menyesuaikan gambar agar tidak terpotong
+                  }}
+                />
+              </div>
+              <span style={{ flex: 1, textAlign: step !== "start" ? "center" : "left", marginLeft: 20 }}>
+                Layanan Live Chat
               </span>
 
 
@@ -726,12 +749,35 @@ export default function ChatPage(): JSX.Element {
                 <div
                   key={idx}
                   style={{
-                    textAlign: (msg.sender === userRole || msg.sender === vendorName) ? "right" : "left",
-                    margin: "5px 0",
+                    textAlign: msg.sender === userRole || msg.sender === vendorName ? "right" : "left",
+                    marginBottom: "10px", // Jarak antar pesan
                   }}
                 >
-                  <strong>{msg.sender === userRole ? userRole : msg.sender}:</strong>{" "}
-                  {msg.message}
+                  {/* Nama pengirim */}
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#999", // Warna teks abu-abu
+                      marginBottom: "5px", // Jarak nama ke kotak pesan
+                    }}
+                  >
+                    {msg.sender === userRole ? userRole : msg.sender}
+                  </div>
+
+                  {/* Kotak pesan */}
+                  <div
+                    style={{
+                      display: "inline-block",
+                      backgroundColor: msg.sender === userRole || msg.sender === vendorName ? "#007BFF" : "#f1f1f1", // Warna kotak pesan
+                      color: msg.sender === userRole || msg.sender === vendorName ? "white" : "#333", // Warna teks
+                      padding: "10px",
+                      borderRadius: "8px", // Membuat kotak jadi rounded
+                      maxWidth: "60%", // Maksimal lebar pesan
+                      wordBreak: "break-word", // Memastikan teks panjang tidak melampaui kotak
+                    }}
+                  >
+                    {msg.message}
+                  </div>
                 </div>
               ))}
             </div>}
