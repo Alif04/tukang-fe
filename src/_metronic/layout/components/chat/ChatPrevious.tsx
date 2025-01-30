@@ -46,7 +46,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        const unreadMessages = res.data.unreadCount.filter((msg: any) => msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole));
+        const unreadMessages = res.data.unreadCount.filter((msg: any) => msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole==="Super User"?"Admin HO":userRole));
 
         counts[chat._id] = unreadMessages.length || 0;
       } catch (err) {
@@ -95,7 +95,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
     setSelectedChat(chat);
     handlePreviousChat(chat._id);
     try {
-      const sender = userRole === "Owner Vendor" ? vendorName : userRole;
+      const sender = userRole === "Owner Vendor" ? vendorName :userRole==="Super User"? 'Admin HO':userRole;
       await axios.put(`${apiChat}/chat/status/${chat._id}`, { sender }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -318,7 +318,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                 <div
                   key={idx}
                   style={{
-                    textAlign: msg.sender === userRole || msg.sender === vendorName ? "right" : "left",
+                    textAlign: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "right" : "left",
                     marginBottom: "10px", // Jarak antar pesan
                   }}
                 >
@@ -330,15 +330,15 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                       marginBottom: "5px", // Jarak nama ke kotak pesan
                     }}
                   >
-                    {msg.sender === userRole ? userRole : msg.sender}
+                    {msg.sender === (userRole==="Super User"?"Admin HO":userRole) ? (userRole==="Super User"?"Admin HO":userRole) : msg.sender}
                   </div>
 
                   {/* Kotak pesan */}
                   <div
                     style={{
                       display: "inline-block",
-                      backgroundColor: msg.sender === userRole || msg.sender === vendorName ? "#007BFF" : "#f1f1f1", // Warna kotak pesan
-                      color: msg.sender === userRole || msg.sender === vendorName ? "white" : "#333", // Warna teks
+                      backgroundColor: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "#007BFF" : "#f1f1f1", // Warna kotak pesan
+                      color: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "white" : "#333", // Warna teks
                       padding: "10px",
                       borderRadius: "8px", // Membuat kotak jadi rounded
                       maxWidth: "60%", // Maksimal lebar pesan

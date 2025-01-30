@@ -12,18 +12,15 @@ interface ChatVendorProps {
   startChat: (chatType: string, vendor: Vendor) => void;
   chatType: string;
   vendorListRef: React.RefObject<HTMLDivElement>;
+  setSearchQuery: any
+  searchQuery: any
+  StoreList: Vendor[];
   handleScroll: () => void;
 }
 
-const ChatVendor: React.FC<ChatVendorProps> = ({ vendorList, loadingVendors, startChat, chatType, vendorListRef, handleScroll }) => {
-  const [searchQuery, setSearchQuery] = useState<string>('');
+const ChatVendor: React.FC<ChatVendorProps> = ({ vendorList, loadingVendors, startChat, chatType, vendorListRef, handleScroll, setSearchQuery, searchQuery,StoreList  }) => {
 
-  // Filter vendor list based on search query
-  const filteredVendors = vendorList.filter((vendor) => {
-    const nameToSearch = chatType === "vendor" ? vendor.company_name : vendor.store_name;
-    return nameToSearch?.toLowerCase().includes(searchQuery.toLowerCase());
-  });
-
+const data = chatType === "vendor"?vendorList:StoreList
   return (
     <div style={{ padding: "10px", borderTop: "1px solid #ccc" }}>
       {loadingVendors ? (
@@ -47,10 +44,10 @@ const ChatVendor: React.FC<ChatVendorProps> = ({ vendorList, loadingVendors, sta
 
           {/* Vendor list with scroll */}
           <div style={{ maxHeight: "200px", overflowY: "auto" }} ref={vendorListRef} onScroll={handleScroll}>
-            {filteredVendors.length === 0 ? (
+            {data.length === 0 ? (
               <div>No vendors found</div>
             ) : (
-              filteredVendors.map((vendor) => (
+              data.map((vendor) => (
                 <button
                   key={vendor.id}
                   onClick={() => startChat(chatType, vendor)}

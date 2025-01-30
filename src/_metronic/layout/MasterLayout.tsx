@@ -42,7 +42,7 @@ const MasterLayout = () => {
                 <Outlet />
             
               </Content>
-              {(userRole ==="Admin HO" || userRole === "Store CS" || userRole === "Owner Vendor") && <ChatPage/>}
+              {(userRole ==="Admin HO" || userRole === "Store CS" || userRole === "Owner Vendor"|| userRole === "Super User") && <ChatPage/>}
             </div>
           </div>
         </div>

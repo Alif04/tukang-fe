@@ -11,7 +11,7 @@ const ChatStart: React.FC<ChatStartProps> = ({ handleChatTypeSelection, userRole
   return (
     <div style={{ padding: "10px", borderTop: "1px solid #ccc" }}>
       <button onClick={() => handleChatTypeSelection("id")} style={buttonStyle}>1. Masukkan Order ID</button>
-      {userRole === "Admin HO" ? (
+      {userRole === "Admin HO" ||userRole === 'Super User' ? (
         <button onClick={() => handleChatTypeSelection("store")} style={buttonStyle}>2. Chat dengan Store</button>
       ) : (
         <button onClick={() => handleChatTypeSelection("ho")} style={buttonStyle}>2. Chat dengan HO</button>
