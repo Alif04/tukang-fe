@@ -453,6 +453,7 @@ export default function ChatPage(): JSX.Element {
     setMessages([]);
     setOrderId("");
     setChatType("");
+    setSearchQuery("")
     setGroupId("");
     setLoadingVendors(false);
   };
@@ -675,6 +676,7 @@ console.log(msg);
                     setChatType("");
                     setGroupId("");
                     setLoadingVendors(false);
+                    setSearchQuery('')
                   }}
                   style={{
                     background: "none",
