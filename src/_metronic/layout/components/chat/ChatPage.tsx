@@ -23,6 +23,7 @@ export default function ChatPage(): JSX.Element {
   const [groupId, setGroupId] = useState<string>("");
   const [organisasiId, setOrganisasiId] = useState<string>("");
   const [vendorList, setVendorList] = useState<{ id: string; store_name: string }[]>([]);
+  const [StoreList, setStoreList] = useState<{ id: string; store_name: string }[]>([]);
   const [loadingVendors, setLoadingVendors] = useState<boolean>(false);
   const [previousChats, setPreviousChats] = useState<any>([]);
   const [page, setPage] = useState(1); // Pagination state
@@ -33,6 +34,7 @@ export default function ChatPage(): JSX.Element {
   const storeId = localStorage.getItem("storeId") as string;
   const vendorName = localStorage.getItem("vendorName") as string;
   const vendorId = localStorage.getItem("vendor_id") as string;
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const vendorListRef = useRef<HTMLDivElement>(null); // Reference for vendor list container
   const poveuesiListRef = useRef<HTMLDivElement>(null); // Reference for vendor list container
@@ -79,7 +81,12 @@ export default function ChatPage(): JSX.Element {
       });
 
       if (res.data && res.data.data) {
-        setVendorList((prevList) => [...prevList, ...res.data.data]); // Append new vendors to the list
+        if (chatType === "vendor") {
+          setVendorList((prevList) => [...prevList, ...res.data.data]); // Append new vendors to the list
+        } else {
+          setStoreList((prevList) => [...prevList, ...res.data.data]);
+        }
+      
       }
     } catch (err) {
       console.error("Error fetching vendors:", err);
@@ -89,6 +96,52 @@ export default function ChatPage(): JSX.Element {
     }
   };
 
+  const GetVendor = async()=>{
+    // setLoadingVendors(true);
+    let apiUrlWithParams = `${apiUrl}/vendor?order_by=desc&page=${page}&take=10`; // Update query parameters as needed
+    if (userRole === "Store CS") {
+      apiUrlWithParams += `&store_id=${storeId}`;
+    }
+
+    if (searchQuery) {
+      apiUrlWithParams += `&search=${searchQuery}`;
+    }
+    const res = await axios.get(apiUrlWithParams, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    });
+    setVendorList(res.data.data);
+    // setLoadingVendors(false);
+  }
+  const getStore = async()=>{
+    // setLoadingVendors(true);
+    let apiUrlWithParams = `${apiUrl}/stores?order_by=desc&page=${page}&take=10`; // Update query parameters as needed
+    if (userRole === "Owner Vendor") {
+      apiUrlWithParams += `&vendor_id=${vendorId}`;
+    }
+    if (searchQuery) {
+      apiUrlWithParams += `&search=${searchQuery}`;
+    }
+    const res = await axios.get(apiUrlWithParams, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    });
+
+    setStoreList(res.data.data);
+    // setLoadingVendors(false);
+  }
+  useEffect(()=>{
+    getStore()
+    GetVendor()
+  },[searchQuery])
   // Handle scrolling behavior
   const handleScroll = () => {
     const container = vendorListRef.current;
@@ -107,7 +160,7 @@ export default function ChatPage(): JSX.Element {
       setMessages((prev) => [...prev, msg]);
 
 
-      if (msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole) && !isOpen) {
+      if (msg.sender !== (userRole === "Owner Vendor" ? vendorName : (userRole==="Super User"?"Admin HO":userRole)) && !isOpen) {
         setNewMessages(true);
       }
     };
@@ -153,19 +206,7 @@ export default function ChatPage(): JSX.Element {
     } else if (option === "vendor") {
       setLoadingVendors(true);
       try {
-        let apiUrlWithParams = `${apiUrl}/vendor?order_by=desc&page=${page}&take=10`; // Update query parameters as needed
-        if (userRole === "Store CS") {
-          apiUrlWithParams += `&store_id=${storeId}`;
-        }
-        const res = await axios.get(apiUrlWithParams, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        });
-        setVendorList(res.data.data);
+        
         setMessages([
           { sender: "Mitra 10", message: "Silakan pilih vendor:" },
         ]);
@@ -180,20 +221,7 @@ export default function ChatPage(): JSX.Element {
       setLoadingVendors(true);
 
       try {
-        let apiUrlWithParams = `${apiUrl}/stores?order_by=desc&page=${page}&take=10`; // Update query parameters as needed
-        if (userRole === "Owner Vendor") {
-          apiUrlWithParams += `&vendor_id=${vendorId}`;
-        }
-        const res = await axios.get(apiUrlWithParams, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        });
-
-        setVendorList(res.data.data);
+      
         setMessages([
           { sender: "Mitra 10", message: "Silakan pilih store:" },
         ]);
@@ -217,10 +245,10 @@ export default function ChatPage(): JSX.Element {
   const startChat = async (type: string, datas: any) => {
 
     try {
-      if (userRole === "Admin HO" && (type === "store" || type === "vendor" || type === "id")) {
+      if ((userRole === "Admin HO" ||userRole === "Super User") && (type === "store" || type === "vendor" || type === "id")) {
         let payload: any = {
           role_admin: "Admin HO",
-          role: userRole,
+          role: userRole === "Super User"?"Admin HO":userRole,
           option: type,
         };
         if (type === "vendor") {
@@ -425,8 +453,8 @@ export default function ChatPage(): JSX.Element {
     setMessages([]);
     setOrderId("");
     setChatType("");
+    setSearchQuery("")
     setGroupId("");
-    setVendorList([]);
     setLoadingVendors(false);
   };
 
@@ -436,9 +464,10 @@ export default function ChatPage(): JSX.Element {
     const msg = {
       groupId,
       organisasi: 'Mitra 10',
-      sender: userRole === "Owner Vendor" ? vendorName : userRole,
+      sender: userRole === "Owner Vendor" ? vendorName : userRole === "Super User"?"Admin HO":userRole,
       message,
     };
+console.log(msg);
 
     socket.emit("sendMessage", msg);
     setMessage("");
@@ -447,7 +476,7 @@ export default function ChatPage(): JSX.Element {
   const fetchPreviousChats = async () => {
     try {
 
-      const role = userRole === "Admin HO" ? userRole : userRole === "Store CS" ? storeName : vendorName
+      const role = userRole === "Admin HO" ? userRole : userRole === "Super User"?"Admin HO": userRole === "Store CS" ? storeName : vendorName 
       const res = await axios.get(`${apiChat}/chat/previousChats/${role}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -646,8 +675,8 @@ export default function ChatPage(): JSX.Element {
                     setOrderId("");
                     setChatType("");
                     setGroupId("");
-                    setVendorList([]);
                     setLoadingVendors(false);
+                    setSearchQuery('')
                   }}
                   style={{
                     background: "none",
@@ -719,7 +748,7 @@ export default function ChatPage(): JSX.Element {
                 <div
                   key={idx}
                   style={{
-                    textAlign: msg.sender === userRole || msg.sender === vendorName ? "right" : "left",
+                    textAlign: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "right" : "left",
                     marginBottom: "10px", // Jarak antar pesan
                   }}
                 >
@@ -731,15 +760,15 @@ export default function ChatPage(): JSX.Element {
                       marginBottom: "5px", // Jarak nama ke kotak pesan
                     }}
                   >
-                    {msg.sender === userRole ? userRole : msg.sender}
+                    {msg.sender === (userRole==="Super User"?"Admin HO":userRole) ? (userRole==="Super User"?"Admin HO":userRole) : msg.sender}
                   </div>
 
                   {/* Kotak pesan */}
                   <div
                     style={{
                       display: "inline-block",
-                      backgroundColor: msg.sender === userRole || msg.sender === vendorName ? "#007BFF" : "#f1f1f1", // Warna kotak pesan
-                      color: msg.sender === userRole || msg.sender === vendorName ? "white" : "#333", // Warna teks
+                      backgroundColor: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "#007BFF" : "#f1f1f1", // Warna kotak pesan
+                      color: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "white" : "#333", // Warna teks
                       padding: "10px",
                       borderRadius: "8px", // Membuat kotak jadi rounded
                       maxWidth: "60%", // Maksimal lebar pesan
@@ -753,7 +782,7 @@ export default function ChatPage(): JSX.Element {
             </div>}
             {step === "start" && <ChatStart handleChatTypeSelection={handleChatTypeSelection} userRole={userRole} handleEditMessage={handleEditMessage} />}
             {step === "previous" && <ChatPrevious vendorName={vendorName} setMessage={setMessage} sendMessage={sendMessage} messages={messages} message={message} previousChats={previousChats} handlePreviousChat={handlePreviousChat} handleDeleteChat={handleDeleteChat} unreadChats={unreadChats} userRole={userRole} />}
-            {step === "vendor" && <ChatVendor vendorList={vendorList} loadingVendors={loadingVendors} startChat={startChat} chatType={chatType} vendorListRef={vendorListRef} handleScroll={handleScroll} />}
+          {step === "vendor" && <ChatVendor  vendorList={vendorList} StoreList={StoreList}  searchQuery={searchQuery} setSearchQuery={setSearchQuery} loadingVendors={loadingVendors} startChat={startChat} chatType={chatType} vendorListRef={vendorListRef} handleScroll={handleScroll} />}
             {step === "orderId" && <ChatOrderId orderId={orderId} setOrderId={setOrderId} startChat={startChat} />}
             {step === "chat" && <ChatActive messages={messages} message={message} setMessage={setMessage} sendMessage={sendMessage} />}
             <EditMessageModal
