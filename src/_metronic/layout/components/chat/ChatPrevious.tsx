@@ -5,6 +5,7 @@ interface Chat {
   _id: string;
   members: string[];
   sender: string;
+
 }
 
 interface ChatPreviousProps {
@@ -13,7 +14,7 @@ interface ChatPreviousProps {
   handleDeleteChat: (chatId: string) => void;
   unreadChats: string[]; // Optional, but can be managed here
   userRole: string;
-  messages: { sender: string; message: string }[];
+  messages: any;
   message: string;
   setMessage: (msg: string) => void;
   sendMessage: () => void;
@@ -46,7 +47,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        const unreadMessages = res.data.unreadCount.filter((msg: any) => msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole==="Super User"?"Admin HO":userRole));
+        const unreadMessages = res.data.unreadCount.filter((msg: any) => msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole === "Super User" ? "Admin HO" : userRole));
 
         counts[chat._id] = unreadMessages.length || 0;
       } catch (err) {
@@ -95,7 +96,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
     setSelectedChat(chat);
     handlePreviousChat(chat._id);
     try {
-      const sender = userRole === "Owner Vendor" ? vendorName :userRole==="Super User"? 'Admin HO':userRole;
+      const sender = userRole === "Owner Vendor" ? vendorName : userRole === "Super User" ? 'Admin HO' : userRole;
       await axios.put(`${apiChat}/chat/status/${chat._id}`, { sender }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -140,7 +141,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             Tidak ada chat sebelumnya.
           </div>
         ) : (
-          <div style={{marginTop:10}}>
+          <div style={{ marginTop: 10 }}>
             {sortedChats.map((chat) => {
               return <div
                 key={chat._id}
@@ -155,7 +156,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                   style={{
                     width: '100%',
                     padding: '15px',
-                    backgroundColor: unreadChats.includes(chat.sender)
+                    backgroundColor: selectedChat?._id === chat._id
                       ? '#e0f7fa'
                       : '#f7f7f7', // Highlight for unread
                     border: '1px solid #ccc',
@@ -238,38 +239,40 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
           }}
         >
           <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "10px",
-      }}
-    >
-      <h4 style={{ margin: 0, color: "#333" }}>Chat</h4>
-      <div
-        style={{
-          position: "relative",
-          display: "inline-block",
-        }}
-      >
-        {/* Button for menu */}
-        <button
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "18px",
-          }}
-          onClick={() => {
-            const menu = document.getElementById("chat-menu");
-            if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
-          }}
-        >
-          <i className="bi bi-three-dots"></i>
-        </button>
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+            <h4 style={{ margin: 0, color: "#333" }}>Chat</h4>
+            <div
+              style={{
+                position: "relative",
+                display: "inline-block",
+              }}
+            >
+              {/* Button for menu */}
+              <button
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                }}
+                onClick={() => {
+                  handleDeleteChat(selectedChat._id);
+                  setSelectedChat(null); // Reset selected chat
+                  // const menu = document.getElementById("chat-menu");
+                  // if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
+                }}
+              >
+                <i className="bi bi-trash"></i>
+              </button>
 
-        {/* Dropdown menu */}
-        <div
+              {/* Dropdown menu */}
+              {/* <div
           id="chat-menu"
           style={{
             display: "none",
@@ -301,9 +304,9 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
           >
             Hapus Chat
           </button>
-        </div>
-      </div>
-    </div>
+        </div> */}
+            </div>
+          </div>
           <div
             style={{
               flex: 1,
@@ -314,42 +317,78 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
               backgroundColor: 'white',
             }}
           >
-             {messages.map((msg, idx) => (
+            {messages.map((msg: any, idx: any) => (
+              <div
+                key={idx}
+                style={{
+                  textAlign:
+                    msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
+                      msg.sender === vendorName
+                      ? 'right'
+                      : 'left',
+                  marginBottom: '10px',
+                }}
+              >
+                {/* Nama pengirim */}
                 <div
-                  key={idx}
                   style={{
-                    textAlign: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "right" : "left",
-                    marginBottom: "10px", // Jarak antar pesan
+                    fontSize: '12px',
+                    color: '#999',
+                    marginBottom: '5px',
                   }}
                 >
-                  {/* Nama pengirim */}
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      color: "#999", // Warna teks abu-abu
-                      marginBottom: "5px", // Jarak nama ke kotak pesan
-                    }}
-                  >
-                    {msg.sender === (userRole==="Super User"?"Admin HO":userRole) ? (userRole==="Super User"?"Admin HO":userRole) : msg.sender}
-                  </div>
+                  {msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole)
+                    ? userRole === 'Super User'
+                      ? 'Admin HO'
+                      : userRole
+                    : msg.sender}
+                </div>
 
-                  {/* Kotak pesan */}
+                {/* Kotak pesan */}
+                <div
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor:
+                      msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
+                        msg.sender === vendorName
+                        ? '#007BFF'
+                        : '#f1f1f1',
+                    color:
+                      msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
+                        msg.sender === vendorName
+                        ? 'white'
+                        : '#333',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    maxWidth: '60%',
+                    wordBreak: 'break-word',
+                    position: 'relative',
+                  }}
+                >
+                  {msg.message}
+                  {/* Timestamp */}
                   <div
                     style={{
-                      display: "inline-block",
-                      backgroundColor: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "#007BFF" : "#f1f1f1", // Warna kotak pesan
-                      color: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "white" : "#333", // Warna teks
-                      padding: "10px",
-                      borderRadius: "8px", // Membuat kotak jadi rounded
-                      maxWidth: "60%", // Maksimal lebar pesan
-                      wordBreak: "break-word", // Memastikan teks panjang tidak melampaui kotak
+                      fontSize: '10px',
+                      color: 'rgba(14, 13, 13, 0.7)',
+                      textAlign: 'right',
+                      marginTop: '5px',
                     }}
                   >
-                    {msg.message}
+                    {new Date(msg.timestamp).toLocaleString('id-ID', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })}
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
+
           <div
             style={{
               display: 'flex',
