@@ -475,7 +475,7 @@ export default function ChatPage(): JSX.Element {
 
   
     socket.emit("sendMessage", msg);
-    setMessages((prev) => [...prev, { sender: msg.sender, message: msg.message, timestamp: msg.timestamp }]); // Update local state with the new message
+    // setMessages((prev) => [...prev, { sender: msg.sender, message: msg.message, timestamp: msg.timestamp }]); // Update local state with the new message
     setMessage("");
   };
 
