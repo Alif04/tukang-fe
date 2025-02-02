@@ -17,7 +17,7 @@ export default function ChatPage(): JSX.Element {
   const [step, setStep] = useState<string>("start");
   const [steps, setSteps] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<{ sender: string; message: string; }[]>([]);
+  const [messages, setMessages] = useState<{ sender: string; message: string; timestamp: any }[]>([]);
   const [orderId, setOrderId] = useState<string>("");
   const [chatType, setChatType] = useState<string>("");
   const [groupId, setGroupId] = useState<string>("");
@@ -156,7 +156,7 @@ export default function ChatPage(): JSX.Element {
 
 
   useEffect(() => {
-    const handleReceiveMessage = (msg: { sender: string; message: string }) => {
+    const handleReceiveMessage = (msg: { sender: string; message: string; timestamp: any }) => {
       setMessages((prev) => [...prev, msg]);
 
 
@@ -178,10 +178,13 @@ export default function ChatPage(): JSX.Element {
       },
     });
     setOrganisasiId(res.data.groups._id)
+    const timestamp = new Date();
+    
     setMessages([
       {
-        sender: "Mitra 10", message: res.data.groups.
-          description
+        sender: "Mitra 10", 
+        message: res.data.groups.description,
+        timestamp
       },
     ]);
   }
@@ -194,11 +197,11 @@ export default function ChatPage(): JSX.Element {
 
   const handleChatTypeSelection = async (option: string) => {
     setChatType(option);
-
+    const timestamp = new Date();
     if (option === "id") {
       setMessages((prev) => [
         ...prev,
-        { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
+        { sender: "Mitra 10", message: "Silakan isi Order ID Anda.", timestamp},
       ]);
       setStep("orderId");
     } else if (option === "ho") {
@@ -208,7 +211,7 @@ export default function ChatPage(): JSX.Element {
       try {
         
         setMessages([
-          { sender: "Mitra 10", message: "Silakan pilih vendor:" },
+          { sender: "Mitra 10", message: "Silakan pilih vendor:", timestamp },
         ]);
         setStep("vendor");
       } catch (err) {
@@ -223,7 +226,7 @@ export default function ChatPage(): JSX.Element {
       try {
       
         setMessages([
-          { sender: "Mitra 10", message: "Silakan pilih store:" },
+          { sender: "Mitra 10", message: "Silakan pilih store:", timestamp },
         ]);
         setStep("vendor");
       } catch (err) {
@@ -235,7 +238,7 @@ export default function ChatPage(): JSX.Element {
     } else if (option === "previous") {
       setMessages((prev) => [
         ...prev,
-        { sender: "Mitra 10", message: "Silakan pilih chat sebelumnya:" },
+        { sender: "Mitra 10", message: "Silakan pilih chat sebelumnya:" , timestamp},
       ]);
       fetchPreviousChats();
       setStep("previous");
@@ -243,7 +246,7 @@ export default function ChatPage(): JSX.Element {
   };
 
   const startChat = async (type: string, datas: any) => {
-
+    const timestamp = new Date();
     try {
       if ((userRole === "Admin HO" ||userRole === "Super User") && (type === "store" || type === "vendor" || type === "id")) {
         let payload: any = {
@@ -297,9 +300,10 @@ export default function ChatPage(): JSX.Element {
         if (res.data.success) {
           setGroupId(res.data.groupId);
           setStep("chat");
+  
           setMessages((prev) => [
             ...prev,
-            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.`,timestamp },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -341,11 +345,11 @@ export default function ChatPage(): JSX.Element {
             } else {
               setMessages((prev) => [
                 ...prev,
-                { sender: "Mitra 10", message: "Order ID ini bukan Milik Anda." },
+                { sender: "Mitra 10", message: "Order ID ini bukan Milik Anda.", timestamp },
               ]);
               setMessages((prev) => [
                 ...prev,
-                { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
+                { sender: "Mitra 10", message: "Silakan isi Order ID Anda.", timestamp },
               ]);
               setStep("orderId");
             }
@@ -362,7 +366,7 @@ export default function ChatPage(): JSX.Element {
           setStep("chat");
           setMessages((prev) => [
             ...prev,
-            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.`, timestamp },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -402,11 +406,11 @@ export default function ChatPage(): JSX.Element {
             } else {
               setMessages((prev) => [
                 ...prev,
-                { sender: "Mitra 10", message: "Order ID ini bukan Milik Anda." },
+                { sender: "Mitra 10", message: "Order ID ini bukan Milik Anda.",timestamp },
               ]);
               setMessages((prev) => [
                 ...prev,
-                { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
+                { sender: "Mitra 10", message: "Silakan isi Order ID Anda.", timestamp },
               ]);
               setStep("orderId");
             }
@@ -423,7 +427,7 @@ export default function ChatPage(): JSX.Element {
           setStep("chat");
           setMessages((prev) => [
             ...prev,
-            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.`, timestamp },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -435,11 +439,11 @@ export default function ChatPage(): JSX.Element {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { sender: "Mitra 10", message: "Data order tidak ditemukan" },
+        { sender: "Mitra 10", message: "Data order tidak ditemukan", timestamp },
       ]);
       setMessages((prev) => [
         ...prev,
-        { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
+        { sender: "Mitra 10", message: "Silakan isi Order ID Anda.",timestamp },
       ]);
       setStep("orderId");
       // alert("Terjadi kesalahan.");
@@ -460,16 +464,18 @@ export default function ChatPage(): JSX.Element {
 
   const sendMessage = () => {
     if (!message.trim()) return;
-
+    const timestamp = new Date()
     const msg = {
       groupId,
       organisasi: 'Mitra 10',
       sender: userRole === "Owner Vendor" ? vendorName : userRole === "Super User"?"Admin HO":userRole,
       message,
+      timestamp
     };
-console.log(msg);
 
+  
     socket.emit("sendMessage", msg);
+    setMessages((prev) => [...prev, { sender: msg.sender, message: msg.message, timestamp: msg.timestamp }]); // Update local state with the new message
     setMessage("");
   };
 
@@ -767,8 +773,8 @@ console.log(msg);
                   <div
                     style={{
                       display: "inline-block",
-                      backgroundColor: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "#007BFF" : "#f1f1f1", // Warna kotak pesan
-                      color: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "white" : "#333", // Warna teks
+                      backgroundColor: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "#e0f7fa" : "#f1f1f1", // Warna kotak pesan
+                      color: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "#333" : "#333", // Warna teks
                       padding: "10px",
                       borderRadius: "8px", // Membuat kotak jadi rounded
                       maxWidth: "60%", // Maksimal lebar pesan
@@ -776,6 +782,23 @@ console.log(msg);
                     }}
                   >
                     {msg.message}
+                    <div
+                    style={{
+                      fontSize: '10px',
+                      color: 'rgba(92, 92, 92, 0.7)',
+                      textAlign: 'right',
+                      marginTop: '5px',
+                    }}
+                  >
+                    {new Date(msg.timestamp).toLocaleString('id-ID', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })}
+                  </div>
                   </div>
                 </div>
               ))}

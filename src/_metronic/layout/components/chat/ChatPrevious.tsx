@@ -351,12 +351,12 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     backgroundColor:
                       msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
                         msg.sender === vendorName
-                        ? '#007BFF'
+                        ? '#e0f7fa'
                         : '#f1f1f1',
                     color:
                       msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
                         msg.sender === vendorName
-                        ? 'white'
+                        ? '#333'
                         : '#333',
                     padding: '10px',
                     borderRadius: '8px',
@@ -370,7 +370,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                   <div
                     style={{
                       fontSize: '10px',
-                      color: 'rgba(14, 13, 13, 0.7)',
+                      color: 'rgba(92, 92, 92, 0.7)',
                       textAlign: 'right',
                       marginTop: '5px',
                     }}
