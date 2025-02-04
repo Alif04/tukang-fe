@@ -948,8 +948,13 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
             return response?.data?.complaintGrandTotal ?? 0
 
           case 'refund':
-            setReportGrandTotal(response?.data?.refundGrandTotal ?? 0)
-            return response?.data?.refundGrandTotal ?? 0
+            if (title === 'Laporan Total Penalty') {
+              setReportGrandTotal(response?.data?.totalPenalty ?? 0)
+              return response?.data?.totalPenalty ?? 0
+            } else {
+              setReportGrandTotal(response?.data?.refundGrandTotal ?? 0)
+              return response?.data?.refundGrandTotal ?? 0
+            }
 
           case 'quotation':
             setReportGrandTotal(response?.data?.quotationGrandTotal ?? 0)
