@@ -5,6 +5,7 @@ interface Chat {
   _id: string;
   members: string[];
   sender: string;
+
 }
 
 interface ChatPreviousProps {
@@ -13,7 +14,7 @@ interface ChatPreviousProps {
   handleDeleteChat: (chatId: string) => void;
   unreadChats: string[]; // Optional, but can be managed here
   userRole: string;
-  messages: { sender: string; message: string }[];
+  messages: any;
   message: string;
   setMessage: (msg: string) => void;
   sendMessage: () => void;
@@ -46,8 +47,8 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        const unreadMessages = res.data.unreadCount.filter((msg:any) => msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole));
-        
+        const unreadMessages = res.data.unreadCount.filter((msg: any) => msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole === "Super User" ? "Admin HO" : userRole));
+
         counts[chat._id] = unreadMessages.length || 0;
       } catch (err) {
         console.error(`Failed to fetch unread count for chat ${chat._id}`, err);
@@ -60,42 +61,42 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   const fetchNewChat = async () => {
     const latest: { [key: string]: string } = {};
     for (const chat of previousChats) {
-    try {
-      const res = await axios.get(`${apiChat}/chat/messages/${chat._id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      console.log(res);
-      
-      if (res.data && res.data.length > 0) {
-        res.data.forEach((chats: any) => {
-          const { groupId, timestamp } = chats;
-          if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
-            latest[groupId] = timestamp; // Simpan timestamp terbaru untuk setiap grup
-          }
+      try {
+        const res = await axios.get(`${apiChat}/chat/messages/${chat._id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         });
+        console.log(res);
+
+        if (res.data && res.data.length > 0) {
+          res.data.forEach((chats: any) => {
+            const { groupId, timestamp } = chats;
+            if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
+              latest[groupId] = timestamp; // Simpan timestamp terbaru untuk setiap grup
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch new chats", err);
       }
-    } catch (err) {
-      console.error("Failed to fetch new chats", err);
     }
-  }
     setLatestMessages(latest);
   };
   // console.log(latestMessages);
-  
+
   useEffect(() => {
     // Fetch unread messages for each chat
-    
+
     fetchNewChat()
     fetchUnreadCounts();
   }, [previousChats]);
 
-  const onSelectChat = async(chat: Chat) => {
+  const onSelectChat = async (chat: Chat) => {
     setSelectedChat(chat);
     handlePreviousChat(chat._id);
     try {
-      const sender = userRole === "Owner Vendor" ? vendorName : userRole;
+      const sender = userRole === "Owner Vendor" ? vendorName : userRole === "Super User" ? 'Admin HO' : userRole;
       await axios.put(`${apiChat}/chat/status/${chat._id}`, { sender }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -112,7 +113,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
     const timestampB = latestMessages[b._id] || "1970-01-01T00:00:00.000Z";
     return new Date(timestampB).getTime() - new Date(timestampA).getTime();
   });
-  
+
   return (
     <div
       style={{
@@ -140,7 +141,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             Tidak ada chat sebelumnya.
           </div>
         ) : (
-          <div>
+          <div style={{ marginTop: 10 }}>
             {sortedChats.map((chat) => {
               return <div
                 key={chat._id}
@@ -149,13 +150,13 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                   marginBottom: '10px',
                 }}
               >
-              
+
                 <button
                   onClick={() => onSelectChat(chat)}
                   style={{
                     width: '100%',
                     padding: '15px',
-                    backgroundColor: unreadChats.includes(chat.sender)
+                    backgroundColor: selectedChat?._id === chat._id
                       ? '#e0f7fa'
                       : '#f7f7f7', // Highlight for unread
                     border: '1px solid #ccc',
@@ -178,8 +179,8 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     <span
                       style={{
                         position: 'absolute',
-                        top: '12px',
-                        right: '20px',
+                        top: '0px',
+                        right: '2px',
                         backgroundColor: 'red',
                         color: 'white',
                         padding: '2px 6px',
@@ -192,7 +193,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     </span>
                   )}
                 </button>
-                {userRole === 'Admin HO' && (
+                {/* {userRole === 'Admin HO' && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -219,9 +220,9 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                   >
                     X
                   </button>
-                )}
+                )} */}
               </div>
-})}
+            })}
           </div>
         )}
       </div>
@@ -237,7 +238,75 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             backgroundColor: '#f9f9f9',
           }}
         >
-          <h4 style={{ margin: '0 0 10px', color: '#333' }}>Chat</h4>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+            <h4 style={{ margin: 0, color: "#333" }}>Chat</h4>
+            <div
+              style={{
+                position: "relative",
+                display: "inline-block",
+              }}
+            >
+              {/* Button for menu */}
+              <button
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                }}
+                onClick={() => {
+                  handleDeleteChat(selectedChat._id);
+                  setSelectedChat(null); // Reset selected chat
+                  // const menu = document.getElementById("chat-menu");
+                  // if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
+                }}
+              >
+                <i className="bi bi-trash"></i>
+              </button>
+
+              {/* Dropdown menu */}
+              {/* <div
+          id="chat-menu"
+          style={{
+            display: "none",
+            position: "absolute",
+            top: "20px",
+            right: "0",
+            backgroundColor: "#fff",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
+            zIndex: 1000,
+          }}
+        >
+          <button
+            onClick={() => {
+              handleDeleteChat(selectedChat._id);
+              setSelectedChat(null); // Reset selected chat
+              const menu = document.getElementById("chat-menu");
+              if (menu) menu.style.display = "none";
+            }}
+            style={{
+              padding: "10px",
+              width: "100%",
+              background: "none",
+              border: "none",
+              textAlign: "left",
+              cursor: "pointer",
+            }}
+          >
+            Hapus Chat
+          </button>
+        </div> */}
+            </div>
+          </div>
           <div
             style={{
               flex: 1,
@@ -248,22 +317,78 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
               backgroundColor: 'white',
             }}
           >
-            {messages.map((msg, idx) => (
+            {messages.map((msg: any, idx: any) => (
               <div
                 key={idx}
                 style={{
                   textAlign:
-                    msg.sender === userRole || msg.sender === vendorName
+                    msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
+                      msg.sender === vendorName
                       ? 'right'
                       : 'left',
-                  margin: '5px 0',
+                  marginBottom: '10px',
                 }}
               >
-                <strong>{msg.sender === userRole ? userRole : msg.sender}:</strong>{' '}
-                {msg.message}
+                {/* Nama pengirim */}
+                <div
+                  style={{
+                    fontSize: '12px',
+                    color: '#999',
+                    marginBottom: '5px',
+                  }}
+                >
+                  {msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole)
+                    ? userRole === 'Super User'
+                      ? 'Admin HO'
+                      : userRole
+                    : msg.sender}
+                </div>
+
+                {/* Kotak pesan */}
+                <div
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor:
+                      msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
+                        msg.sender === vendorName
+                        ? '#e0f7fa'
+                        : '#f1f1f1',
+                    color:
+                      msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
+                        msg.sender === vendorName
+                        ? '#333'
+                        : '#333',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    maxWidth: '60%',
+                    wordBreak: 'break-word',
+                    position: 'relative',
+                  }}
+                >
+                  {msg.message}
+                  {/* Timestamp */}
+                  <div
+                    style={{
+                      fontSize: '10px',
+                      color: 'rgba(92, 92, 92, 0.7)',
+                      textAlign: 'right',
+                      marginTop: '5px',
+                    }}
+                  >
+                    {new Date(msg.timestamp).toLocaleString('id-ID', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
+
           <div
             style={{
               display: 'flex',

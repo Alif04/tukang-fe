@@ -8,6 +8,7 @@ import ChatOrderId from "./ChatOrderId";
 import ChatActive from "./ChatActive";
 import ChatPrevious from "./ChatPrevious";
 import EditMessageModal from "./EditMessageModal";
+import { toAbsoluteUrl } from "../../../helpers";
 
 const socket = io(`${process.env.REACT_APP_API_CHAT_URL}`);
 
@@ -16,12 +17,13 @@ export default function ChatPage(): JSX.Element {
   const [step, setStep] = useState<string>("start");
   const [steps, setSteps] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<{ sender: string; message: string; }[]>([]);
+  const [messages, setMessages] = useState<{ sender: string; message: string; timestamp: any }[]>([]);
   const [orderId, setOrderId] = useState<string>("");
   const [chatType, setChatType] = useState<string>("");
   const [groupId, setGroupId] = useState<string>("");
   const [organisasiId, setOrganisasiId] = useState<string>("");
   const [vendorList, setVendorList] = useState<{ id: string; store_name: string }[]>([]);
+  const [StoreList, setStoreList] = useState<{ id: string; store_name: string }[]>([]);
   const [loadingVendors, setLoadingVendors] = useState<boolean>(false);
   const [previousChats, setPreviousChats] = useState<any>([]);
   const [page, setPage] = useState(1); // Pagination state
@@ -32,6 +34,7 @@ export default function ChatPage(): JSX.Element {
   const storeId = localStorage.getItem("storeId") as string;
   const vendorName = localStorage.getItem("vendorName") as string;
   const vendorId = localStorage.getItem("vendor_id") as string;
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const vendorListRef = useRef<HTMLDivElement>(null); // Reference for vendor list container
   const poveuesiListRef = useRef<HTMLDivElement>(null); // Reference for vendor list container
@@ -78,7 +81,12 @@ export default function ChatPage(): JSX.Element {
       });
 
       if (res.data && res.data.data) {
-        setVendorList((prevList) => [...prevList, ...res.data.data]); // Append new vendors to the list
+        if (chatType === "vendor") {
+          setVendorList((prevList) => [...prevList, ...res.data.data]); // Append new vendors to the list
+        } else {
+          setStoreList((prevList) => [...prevList, ...res.data.data]);
+        }
+      
       }
     } catch (err) {
       console.error("Error fetching vendors:", err);
@@ -88,6 +96,52 @@ export default function ChatPage(): JSX.Element {
     }
   };
 
+  const GetVendor = async()=>{
+    // setLoadingVendors(true);
+    let apiUrlWithParams = `${apiUrl}/vendor?order_by=desc&page=${page}&take=10`; // Update query parameters as needed
+    if (userRole === "Store CS") {
+      apiUrlWithParams += `&store_id=${storeId}`;
+    }
+
+    if (searchQuery) {
+      apiUrlWithParams += `&search=${searchQuery}`;
+    }
+    const res = await axios.get(apiUrlWithParams, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    });
+    setVendorList(res.data.data);
+    // setLoadingVendors(false);
+  }
+  const getStore = async()=>{
+    // setLoadingVendors(true);
+    let apiUrlWithParams = `${apiUrl}/stores?order_by=desc&page=${page}&take=10`; // Update query parameters as needed
+    if (userRole === "Owner Vendor") {
+      apiUrlWithParams += `&vendor_id=${vendorId}`;
+    }
+    if (searchQuery) {
+      apiUrlWithParams += `&search=${searchQuery}`;
+    }
+    const res = await axios.get(apiUrlWithParams, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    });
+
+    setStoreList(res.data.data);
+    // setLoadingVendors(false);
+  }
+  useEffect(()=>{
+    getStore()
+    GetVendor()
+  },[searchQuery])
   // Handle scrolling behavior
   const handleScroll = () => {
     const container = vendorListRef.current;
@@ -102,11 +156,11 @@ export default function ChatPage(): JSX.Element {
 
 
   useEffect(() => {
-    const handleReceiveMessage = (msg: { sender: string; message: string }) => {
+    const handleReceiveMessage = (msg: { sender: string; message: string; timestamp: any }) => {
       setMessages((prev) => [...prev, msg]);
 
 
-      if (msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole) && !isOpen) {
+      if (msg.sender !== (userRole === "Owner Vendor" ? vendorName : (userRole==="Super User"?"Admin HO":userRole)) && !isOpen) {
         setNewMessages(true);
       }
     };
@@ -124,10 +178,13 @@ export default function ChatPage(): JSX.Element {
       },
     });
     setOrganisasiId(res.data.groups._id)
+    const timestamp = new Date();
+    
     setMessages([
       {
-        sender: "Mitra 10", message: res.data.groups.
-          description
+        sender: "Mitra 10", 
+        message: res.data.groups.description,
+        timestamp
       },
     ]);
   }
@@ -140,11 +197,11 @@ export default function ChatPage(): JSX.Element {
 
   const handleChatTypeSelection = async (option: string) => {
     setChatType(option);
-
+    const timestamp = new Date();
     if (option === "id") {
       setMessages((prev) => [
         ...prev,
-        { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
+        { sender: "Mitra 10", message: "Silakan isi Order ID Anda.", timestamp},
       ]);
       setStep("orderId");
     } else if (option === "ho") {
@@ -152,21 +209,9 @@ export default function ChatPage(): JSX.Element {
     } else if (option === "vendor") {
       setLoadingVendors(true);
       try {
-        let apiUrlWithParams = `${apiUrl}/vendor?order_by=desc&page=${page}&take=10`; // Update query parameters as needed
-        if (userRole === "Store CS") {
-          apiUrlWithParams += `&store_id=${storeId}`;
-        }
-        const res = await axios.get(apiUrlWithParams, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        });
-        setVendorList(res.data.data);
+        
         setMessages([
-          { sender: "Mitra 10", message: "Silakan pilih vendor:" },
+          { sender: "Mitra 10", message: "Silakan pilih vendor:", timestamp },
         ]);
         setStep("vendor");
       } catch (err) {
@@ -179,22 +224,9 @@ export default function ChatPage(): JSX.Element {
       setLoadingVendors(true);
 
       try {
-        let apiUrlWithParams = `${apiUrl}/stores?order_by=desc&page=${page}&take=10`; // Update query parameters as needed
-        if (userRole === "Owner Vendor") {
-          apiUrlWithParams += `&vendor_id=${vendorId}`;
-        }
-        const res = await axios.get(apiUrlWithParams, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        });
-
-        setVendorList(res.data.data);
+      
         setMessages([
-          { sender: "Mitra 10", message: "Silakan pilih store:" },
+          { sender: "Mitra 10", message: "Silakan pilih store:", timestamp },
         ]);
         setStep("vendor");
       } catch (err) {
@@ -206,7 +238,7 @@ export default function ChatPage(): JSX.Element {
     } else if (option === "previous") {
       setMessages((prev) => [
         ...prev,
-        { sender: "Mitra 10", message: "Silakan pilih chat sebelumnya:" },
+        { sender: "Mitra 10", message: "Silakan pilih chat sebelumnya:" , timestamp},
       ]);
       fetchPreviousChats();
       setStep("previous");
@@ -214,12 +246,12 @@ export default function ChatPage(): JSX.Element {
   };
 
   const startChat = async (type: string, datas: any) => {
-
+    const timestamp = new Date();
     try {
-      if (userRole === "Admin HO" && (type === "store" || type === "vendor" || type === "id")) {
+      if ((userRole === "Admin HO" ||userRole === "Super User") && (type === "store" || type === "vendor" || type === "id")) {
         let payload: any = {
           role_admin: "Admin HO",
-          role: userRole,
+          role: userRole === "Super User"?"Admin HO":userRole,
           option: type,
         };
         if (type === "vendor") {
@@ -268,9 +300,10 @@ export default function ChatPage(): JSX.Element {
         if (res.data.success) {
           setGroupId(res.data.groupId);
           setStep("chat");
+  
           setMessages((prev) => [
             ...prev,
-            { sender: "Mitra 10", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.`,timestamp },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -312,11 +345,11 @@ export default function ChatPage(): JSX.Element {
             } else {
               setMessages((prev) => [
                 ...prev,
-                { sender: "Mitra 10", message: "Order ID ini bukan Milik Anda." },
+                { sender: "Mitra 10", message: "Order ID ini bukan Milik Anda.", timestamp },
               ]);
               setMessages((prev) => [
                 ...prev,
-                { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
+                { sender: "Mitra 10", message: "Silakan isi Order ID Anda.", timestamp },
               ]);
               setStep("orderId");
             }
@@ -333,7 +366,7 @@ export default function ChatPage(): JSX.Element {
           setStep("chat");
           setMessages((prev) => [
             ...prev,
-            { sender: "Mitra 10", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.`, timestamp },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -373,11 +406,11 @@ export default function ChatPage(): JSX.Element {
             } else {
               setMessages((prev) => [
                 ...prev,
-                { sender: "Mitra 10", message: "Order ID ini bukan Milik Anda." },
+                { sender: "Mitra 10", message: "Order ID ini bukan Milik Anda.",timestamp },
               ]);
               setMessages((prev) => [
                 ...prev,
-                { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
+                { sender: "Mitra 10", message: "Silakan isi Order ID Anda.", timestamp },
               ]);
               setStep("orderId");
             }
@@ -394,7 +427,7 @@ export default function ChatPage(): JSX.Element {
           setStep("chat");
           setMessages((prev) => [
             ...prev,
-            { sender: "Mitra 10", message: `Anda telah bergabung ke grup ${res.data.groupId}.` },
+            { sender: "Mitra 10", message: `Anda telah bergabung ke grup.`, timestamp },
           ]);
           socket.emit("joinGroup", res.data.groupId);
         } else {
@@ -406,11 +439,11 @@ export default function ChatPage(): JSX.Element {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { sender: "Mitra 10", message: "Data order tidak ditemukan" },
+        { sender: "Mitra 10", message: "Data order tidak ditemukan", timestamp },
       ]);
       setMessages((prev) => [
         ...prev,
-        { sender: "Mitra 10", message: "Silakan isi Order ID Anda." },
+        { sender: "Mitra 10", message: "Silakan isi Order ID Anda.",timestamp },
       ]);
       setStep("orderId");
       // alert("Terjadi kesalahan.");
@@ -424,29 +457,32 @@ export default function ChatPage(): JSX.Element {
     setMessages([]);
     setOrderId("");
     setChatType("");
+    setSearchQuery("")
     setGroupId("");
-    setVendorList([]);
     setLoadingVendors(false);
   };
 
   const sendMessage = () => {
     if (!message.trim()) return;
-
+    const timestamp = new Date()
     const msg = {
       groupId,
       organisasi: 'Mitra 10',
-      sender: userRole === "Owner Vendor" ? vendorName : userRole,
+      sender: userRole === "Owner Vendor" ? vendorName : userRole === "Super User"?"Admin HO":userRole,
       message,
+      timestamp
     };
 
+  
     socket.emit("sendMessage", msg);
+    // setMessages((prev) => [...prev, { sender: msg.sender, message: msg.message, timestamp: msg.timestamp }]); // Update local state with the new message
     setMessage("");
   };
 
   const fetchPreviousChats = async () => {
     try {
 
-      const role = userRole === "Admin HO" ? userRole : userRole === "Store CS" ? storeName : vendorName
+      const role = userRole === "Admin HO" ? userRole : userRole === "Super User"?"Admin HO": userRole === "Store CS" ? storeName : vendorName 
       const res = await axios.get(`${apiChat}/chat/previousChats/${role}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -535,6 +571,10 @@ export default function ChatPage(): JSX.Element {
     });
     resetChat();
   };
+  // const [menuOpen, setMenuOpen] = useState(false); // State untuk dropdown
+
+  // const toggleMenu = () => setMenuOpen(!menuOpen); // Toggle menu
+  // const closeMenu = () => setMenuOpen(false);
   return (
     <div>
       <div
@@ -545,7 +585,7 @@ export default function ChatPage(): JSX.Element {
           zIndex: 1000,
         }}
       >
-        <button
+        {isOpen === false && <button
           onClick={() => {
             if (isOpen) {
               resetChat();
@@ -573,20 +613,8 @@ export default function ChatPage(): JSX.Element {
             transition: "all 0.3s ease",
           }}
         >
-          {isOpen ? (
-            <span
-              style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                transform: "rotate(90deg)",
-                transition: "transform 0.3s ease",
-              }}
-            >
-              X
-            </span>
-          ) : (
-            "💬"
-          )}
+          💬
+
           {newMessages && !isOpen && (
             <span
               style={{
@@ -610,6 +638,7 @@ export default function ChatPage(): JSX.Element {
             </span>
           )}
         </button>
+        }
 
 
 
@@ -631,15 +660,18 @@ export default function ChatPage(): JSX.Element {
             <div
               style={{
                 padding: "10px",
-                backgroundColor: "#007BFF",
+                backgroundColor: "#020080",
                 color: "white",
                 textAlign: "center",
                 fontWeight: "bold",
                 display: "flex", // Untuk membuat layout fleksibel
                 alignItems: "center",
                 justifyContent: "space-between", // Memberi ruang antara ikon dan judul
+                position: "relative", // Dibutuhkan untuk dropdown
               }}
             >
+              <div style={{display:'flex', flexDirection:'row',   alignItems: "center",}}>
+              
               {step !== "start" && (
                 <button
                   onClick={() => {
@@ -649,8 +681,8 @@ export default function ChatPage(): JSX.Element {
                     setOrderId("");
                     setChatType("");
                     setGroupId("");
-                    setVendorList([]);
                     setLoadingVendors(false);
+                    setSearchQuery('')
                   }}
                   style={{
                     background: "none",
@@ -665,9 +697,49 @@ export default function ChatPage(): JSX.Element {
                   <i className="bi bi-arrow-left" style={{ marginRight: "8px", color: 'white', fontSize: '24px' }}></i> {/* Icon Kembali */}
                 </button>
               )}
-              <span style={{ flex: 1, textAlign: step !== "start" ? "center" : "left" }}>
-                Layanan Chat
+              <div
+                style={{
+                  width: "50px", // Ukuran lingkaran
+                  height: "50px", // Ukuran lingkaran
+                  borderRadius: "50%", // Membuat area berbentuk lingkaran
+                  overflow: "hidden", // Memastikan gambar hanya terlihat dalam lingkaran
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  alt="Logo"
+                  className="logo"
+                  src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain", // Menyesuaikan gambar agar tidak terpotong
+                  }}
+                />
+              </div>
+          
+              <span style={{ flex: 1, textAlign: step !== "start" ? "center" : "left", marginLeft: 20, fontSize:16 }}>
+                Layanan Live Chat
               </span>
+              </div>
+              {/* Tombol Titik Tiga */}
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={resetChat} // Toggle menu
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "white",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                  }}
+                >
+                    <i className="bi bi-chevron-down fs-1"></i>
+                </button>
+
+              </div>
             </div>
             {step !== "previous" && <div
               style={{
@@ -682,18 +754,58 @@ export default function ChatPage(): JSX.Element {
                 <div
                   key={idx}
                   style={{
-                    textAlign: (msg.sender === userRole || msg.sender === vendorName) ? "right" : "left",
-                    margin: "5px 0",
+                    textAlign: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "right" : "left",
+                    marginBottom: "10px", // Jarak antar pesan
                   }}
                 >
-                  <strong>{msg.sender === userRole ? userRole : msg.sender}:</strong>{" "}
-                  {msg.message}
+                  {/* Nama pengirim */}
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#999", // Warna teks abu-abu
+                      marginBottom: "5px", // Jarak nama ke kotak pesan
+                    }}
+                  >
+                    {msg.sender === (userRole==="Super User"?"Admin HO":userRole) ? (userRole==="Super User"?"Admin HO":userRole) : msg.sender}
+                  </div>
+
+                  {/* Kotak pesan */}
+                  <div
+                    style={{
+                      display: "inline-block",
+                      backgroundColor: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "#e0f7fa" : "#f1f1f1", // Warna kotak pesan
+                      color: msg.sender === (userRole==="Super User"?"Admin HO":userRole) || msg.sender === vendorName ? "#333" : "#333", // Warna teks
+                      padding: "10px",
+                      borderRadius: "8px", // Membuat kotak jadi rounded
+                      maxWidth: "60%", // Maksimal lebar pesan
+                      wordBreak: "break-word", // Memastikan teks panjang tidak melampaui kotak
+                    }}
+                  >
+                    {msg.message}
+                    <div
+                    style={{
+                      fontSize: '10px',
+                      color: 'rgba(92, 92, 92, 0.7)',
+                      textAlign: 'right',
+                      marginTop: '5px',
+                    }}
+                  >
+                    {new Date(msg.timestamp).toLocaleString('id-ID', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })}
+                  </div>
+                  </div>
                 </div>
               ))}
             </div>}
             {step === "start" && <ChatStart handleChatTypeSelection={handleChatTypeSelection} userRole={userRole} handleEditMessage={handleEditMessage} />}
             {step === "previous" && <ChatPrevious vendorName={vendorName} setMessage={setMessage} sendMessage={sendMessage} messages={messages} message={message} previousChats={previousChats} handlePreviousChat={handlePreviousChat} handleDeleteChat={handleDeleteChat} unreadChats={unreadChats} userRole={userRole} />}
-            {step === "vendor" && <ChatVendor vendorList={vendorList} loadingVendors={loadingVendors} startChat={startChat} chatType={chatType} vendorListRef={vendorListRef} handleScroll={handleScroll} />}
+          {step === "vendor" && <ChatVendor  vendorList={vendorList} StoreList={StoreList}  searchQuery={searchQuery} setSearchQuery={setSearchQuery} loadingVendors={loadingVendors} startChat={startChat} chatType={chatType} vendorListRef={vendorListRef} handleScroll={handleScroll} />}
             {step === "orderId" && <ChatOrderId orderId={orderId} setOrderId={setOrderId} startChat={startChat} />}
             {step === "chat" && <ChatActive messages={messages} message={message} setMessage={setMessage} sendMessage={sendMessage} />}
             <EditMessageModal
