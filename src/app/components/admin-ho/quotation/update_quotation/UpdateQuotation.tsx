@@ -231,17 +231,14 @@ const UpdateQuotationHO: FC = () => {
 
   const getPromotion = async () => {
     try {
-      const response = await axios.get(
-        `${apiUrl}/promotion?store_id=${storeId}&date_from=${startDate}&date_to=${endDate}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axios.get(`${apiUrl}/promotion?store_id=${storeId}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
 
       if (Array.isArray(response.data.data)) {
         const tempPromotion = response.data.data.map((item: any) => ({
