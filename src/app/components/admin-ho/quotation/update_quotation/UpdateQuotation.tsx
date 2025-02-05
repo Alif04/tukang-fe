@@ -254,7 +254,7 @@ const UpdateQuotationHO: FC = () => {
         const filteredPromotion = tempPromotion.filter((item: any) => {
           const periodicStart = dayjs(item.periodic_start)
           const periodicEnd = dayjs(item.periodic_end)
-          const today = dayjs()
+          const today = dayjs(quotationData.created_at)
 
           return (
             (periodicStart.isBefore(today, 'day') || periodicStart.isSame(today, 'day')) &&
