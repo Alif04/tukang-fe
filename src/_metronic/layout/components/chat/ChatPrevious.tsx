@@ -18,6 +18,7 @@ interface ChatPreviousProps {
   message: string;
   setMessage: (msg: string) => void;
   sendMessage: () => void;
+  fetchNewChats: () => void;
   vendorName: string;
 
 }
@@ -33,7 +34,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   setMessage,
   sendMessage,
   vendorName,
-
+  fetchNewChats
 }) => {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [unreadCounts, setUnreadCounts] = useState<{ [key: string]: number }>({}); // Map for unread counts
@@ -67,9 +68,9 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        console.log(res);
-
+  
         if (res.data && res.data.length > 0) {
+
           res.data.forEach((chats: any) => {
             const { groupId, timestamp } = chats;
             if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
@@ -102,6 +103,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
+      fetchNewChats()
       fetchUnreadCounts()
       console.log('Chat status updated to read');
     } catch (err) {
