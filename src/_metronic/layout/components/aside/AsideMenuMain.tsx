@@ -380,6 +380,38 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
+            {/* Halaman Insentif Manager ( Payroll ) */}
+            <AsideMenuItemWithSub
+        to='/incentive-manager'
+        title='Insentif Store Manager'
+        icon='/media/icons/duotune/finance/fin004.svg'
+        role={['Super User', 'Admin HO', 'Payroll']}
+      >
+        {/* <AsideMenuItem
+          to='/reports/report-insentif-manager'
+          title={
+            ['Super User', 'Admin HO'].includes(userRole)
+              ? 'Laporan Insentif Store Manager'
+              : 'Laporan Insentif'
+          }
+          role={['Admin HO', 'Super User']}
+          hasBullet={true}
+        /> */}
+
+        <AsideMenuItem
+          to='/incentive-manager/list-request-incentive-manager'
+          title='Daftar Pengajuan Insentif Store Manager'
+          role={['Super User', 'Admin HO', 'Payroll']}
+          hasBullet={true}
+        />
+
+        <AsideMenuItem
+          to='/incentive-manager/request-incentive-manager'
+          title='Pengajuan Insentif'
+          role={['Super User', 'Admin HO']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
 
       {/* Halaman Invoice */}
       <AsideMenuItemWithSub
@@ -547,6 +579,27 @@ export function AsideMenuMain() {
             hasBullet={true}
           />
         </AsideMenuItemWithSub>
+        <AsideMenuItemWithSub
+          to='/incentive-manager'
+          title='Insentif Store Manager'
+          hasBullet={true}
+          role={['Admin HO', 'Super User']}
+        >
+          <AsideMenuItem
+            to='/incentive-manager/create-incentive'
+            title='Formulir Insentif Store Manager'
+            role={['Admin HO', 'Super User']}
+            hasBullet={true}
+          />
+
+          <AsideMenuItem
+            to='/incentive-manager/view-incentive'
+            title='Daftar Insentif Store Manager'
+            role={['Admin HO', 'Super User']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
+
 
         {/* <AsideMenuItem
           to='/employee/new-employee'

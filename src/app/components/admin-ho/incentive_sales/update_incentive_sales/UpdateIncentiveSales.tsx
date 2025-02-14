@@ -16,6 +16,7 @@ interface IncentiveSales {
   name: string
   min_order: number
   max_order: number
+  min_invoice: number
   incentive: number
   type: number
   stores: any[]
@@ -51,6 +52,7 @@ const UpdateIncentiveSales: FC = () => {
               name: data?.name,
               min_order: data?.min_order,
               max_order: data?.max_order,
+              min_invoice: data?.min_invoice,
               incentive: parseFloat(data?.incentive),
               type: data?.type,
               stores: promotionStores,
@@ -130,6 +132,7 @@ const UpdateIncentiveSales: FC = () => {
     name: '',
     min_order: 0,
     max_order: 0,
+    min_invoice:0,
     incentive: 0,
     type: 1,
     stores: [],
@@ -255,7 +258,14 @@ const UpdateIncentiveSales: FC = () => {
         icon: 'warning',
       })
       valid = false
-    } else if (!incentive.incentive) {
+    }  else if (!incentive.min_invoice) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Min Invoice form',
+        icon: 'warning',
+      })
+      valid = false
+    }else if (!incentive.incentive) {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill Incentive Sales form',
@@ -359,7 +369,7 @@ const UpdateIncentiveSales: FC = () => {
 
           <Row className='mb-5'>
             <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Intensif Sales :</Form.Label>
+              <Form.Label className='fs-5'>Intensif Store :</Form.Label>
 
               <Form.Control
                 name='incentive'
@@ -401,6 +411,18 @@ const UpdateIncentiveSales: FC = () => {
                 name='max_order'
                 type='number'
                 value={incentive.max_order}
+                onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
+              />
+            </Form.Group>
+          </Row>
+          <Row className='mb-5'>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Min Invoice :</Form.Label>
+
+              <Form.Control
+                name='min_invoice'
+                type='number'
+                value={incentive.min_invoice}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
             </Form.Group>
