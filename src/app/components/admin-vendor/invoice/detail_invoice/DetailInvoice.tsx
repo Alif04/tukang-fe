@@ -50,8 +50,8 @@ const DetailInvoiceVendor: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
-          console.log(data);
-          
+          console.log(data)
+
           setInvoiceDetail(data)
         })
     } catch (error) {
@@ -400,10 +400,13 @@ const DetailInvoiceVendor: FC = () => {
               </div>
 
               <div className='fs-4 fw-normal'>
-                Nama Akun : {invoiceDetail?.vendor?.account_name}
+                Nama Bank : {invoiceDetail?.vendor?.bank_name ?? '-'}
               </div>
               <div className='fs-4 fw-normal'>
-                Nomor Akun : {invoiceDetail?.vendor?.account_number}
+                Nama Akun : {invoiceDetail?.vendor?.account_name ?? '-'}
+              </div>
+              <div className='fs-4 fw-normal'>
+                Nomor Akun : {invoiceDetail?.vendor?.account_number ?? '-'}
               </div>
             </div>
 
