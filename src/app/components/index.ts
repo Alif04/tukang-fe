@@ -122,6 +122,18 @@ export * from './admin-ho/request_incentive/request_incentive_sales/RequestIncen
 // Detail Pengajuan Insentif
 export * from './admin-ho/request_incentive/detail_request_incentive/DetailRequestIncentive'
 
+
+
+// List Pengajuan Insentif
+export * from './admin-ho/request_incentive_manager/list_request_incentive_manager/ListRequestIncentive'
+
+// Permintaan Pengajuan Insentif
+export * from './admin-ho/request_incentive_manager/request_incentive_manager/RequestIncentiveManager'
+
+// Detail Pengajuan Insentif
+export * from './admin-ho/request_incentive_manager/detail_request_incentive_manager/DetailRequestIncentive'
+
+
 // Print Report
 export * from './admin-store/reports/print_report/PrintReport'
 
@@ -483,6 +495,16 @@ export * from './admin-ho/incentive_sales/update_incentive_sales/UpdateIncentive
 
 // List Promotion Quotation
 export * from './admin-ho/incentive_sales/list_incentive/ListIncentive'
+
+// INCENTIVE MANAGER
+// Create Incentive Sales
+export * from './admin-ho/incentive_manager/create_incentive_manager/CreateIncentiveManager'
+
+// Update Incentive manager
+export * from './admin-ho/incentive_manager/update_incentive_manager/UpdateIncentiveManager'
+
+// List Promotion Quotation
+export * from './admin-ho/incentive_manager/list_incentive/ListIncentive'
 
 // PROMOTION QUOTATION
 // Create Promotion Quotation

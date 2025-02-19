@@ -33,7 +33,7 @@ interface StoreSelect {
   store_name: string
 }
 
-const ListIncentiveHO: React.FC<Props> = ({className}) => {
+const ListIncentiveHOManager: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
@@ -100,7 +100,7 @@ const ListIncentiveHO: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.max_order.length - b.max_order.length,
     },
     {
-      title: 'Insentif Manager',
+      title: 'Insentif Sales',
       dataIndex: 'incentive',
       key: 'incentive',
       align: 'start',
@@ -136,7 +136,7 @@ const ListIncentiveHO: React.FC<Props> = ({className}) => {
         const id = record.id
 
         const handleUpdateId = () => {
-          navigate(`/incentive-sales/update-incentive/${id}`)
+          navigate(`/incentive-manager/update-incentive/${id}`)
         }
 
         const handleDelete = () => {
@@ -242,7 +242,7 @@ const ListIncentiveHO: React.FC<Props> = ({className}) => {
   }
 
   const getIncentive = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/incentive?is_manager=${false}&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/incentive?is_manager=${true}&page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -461,4 +461,4 @@ const ListIncentiveHO: React.FC<Props> = ({className}) => {
   )
 }
 
-export {ListIncentiveHO}
+export {ListIncentiveHOManager}
