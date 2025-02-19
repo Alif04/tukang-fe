@@ -1,10 +1,8 @@
 import React, {FC, useState, useEffect, ChangeEvent} from 'react'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import Select from 'react-select'
-import makeAnimated from 'react-select/animated'
 import {Form, Button, Row, Col, Card} from 'react-bootstrap'
 
 interface StoreSelect {
@@ -18,20 +16,56 @@ interface IncentiveSales {
   name: string
   min_order: number
   max_order: number
-  incentive: number
   min_invoice: number
+  incentive: number
+  is_manager: boolean
   type: number
   stores: any[]
 }
 
-const CreateIncentiveSales: FC = () => {
+const UpdateIncentiveManager: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const animatedComponents = makeAnimated()
+  const params = useParams()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // Fetch Data
+  const fetchIncentiveData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/incentive/${params.id}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+
+          if (data) {
+            const promotionStores = data.stores.map((item: any) => item)
+
+            setIncentive((prev) => ({
+              ...prev,
+              name: data?.name,
+              min_order: data?.min_order,
+              max_order: data?.max_order,
+              min_invoice: data?.min_invoice,
+              incentive: parseFloat(data?.incentive),
+              is_manager: data?.is_manager,
+              type: data?.type,
+              stores: promotionStores,
+            }))
+          }
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const getStore = async () => {
     try {
       const response = await axios.get(`${apiUrl}/stores?take=0`, {
@@ -86,6 +120,7 @@ const CreateIncentiveSales: FC = () => {
   }
 
   useEffect(() => {
+    fetchIncentiveData()
     getStore()
     getStoreGroup()
   }, [])
@@ -99,27 +134,33 @@ const CreateIncentiveSales: FC = () => {
     name: '',
     min_order: 0,
     max_order: 0,
-    min_invoice:0,
+    min_invoice: 0,
     incentive: 0,
+    is_manager: true,
     type: 1,
     stores: [],
   })
 
   // Incentive Form Handler
-  const incentiveFormHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const incentiveFormHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {name, value} = e.target
 
-    setIncentive({
-      ...incentive,
-      [name]: name === 'min_order' || name === 'incentive'  || name === 'min_invoice'? Number(value) : value,
-    })
+    setIncentive((prevIncentive) => ({
+      ...prevIncentive,
+      [name]:
+        name === 'min_order' ? parseInt(value) : name === 'incentive' ? parseFloat(value) : value,
+    }))
   }
 
   // Store Handler
   const storeHandler = (selectedOptions: any) => {
+    const updatedStore = selectedOptions.map((option: any) => ({
+      id: option.store_id,
+    }))
+
     setIncentive((prev) => ({
       ...prev,
-      stores: selectedOptions.map((option: any) => option.id),
+      stores: updatedStore,
     }))
   }
 
@@ -182,6 +223,14 @@ const CreateIncentiveSales: FC = () => {
       return cache
     })
   }
+  const handleCheckboxChange2 = (isChecked: boolean) => {
+    console.log(isChecked)
+
+    setIncentive({
+      ...incentive,
+      is_manager: isChecked === false ? false : true,
+    })
+  }
 
   const isStoreChecked = (store_id: any) => {
     return incentive.stores.includes(store_id)
@@ -220,6 +269,13 @@ const CreateIncentiveSales: FC = () => {
         icon: 'warning',
       })
       valid = false
+    } else if (!incentive.min_invoice) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Please fill Min Invoice form',
+        icon: 'warning',
+      })
+      valid = false
     } else if (!incentive.incentive) {
       Swal.fire({
         title: 'Warning',
@@ -231,13 +287,6 @@ const CreateIncentiveSales: FC = () => {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill Assign To Store form',
-        icon: 'warning',
-      })
-      valid = false
-    }else if (!incentive.min_invoice) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill Min Invoice form',
         icon: 'warning',
       })
       valid = false
@@ -259,17 +308,18 @@ const CreateIncentiveSales: FC = () => {
     return cleanedData
   }
 
-  // Handle Create
-  const handleSubmit = async () => {
+  // Handle Update
+  const handleUpdate = async () => {
     if (!IncentiveValidation()) {
       setIsLoading(false)
       return false
     }
 
     setIsLoading(true)
+
     const incentiveData = objectValueCheck(incentive)
     await axios
-      .post(`${apiUrl}/incentive`, incentiveData, {
+      .patch(`${apiUrl}/incentive/${params.id}`, incentiveData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -278,11 +328,11 @@ const CreateIncentiveSales: FC = () => {
         },
       })
       .then((response) => {
-        if (response.data.status === 201) {
+        if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
             icon: 'success',
-            text: 'Success Create Incentive Sales',
+            text: 'Berhasil Update Incentive Sales',
             showConfirmButton: false,
             timer: 1500,
           })
@@ -298,7 +348,7 @@ const CreateIncentiveSales: FC = () => {
           })
         }
 
-        navigate('/incentive-sales/view-incentive')
+        navigate('/incentive-manager/view-incentive')
       })
       .catch((error) => {
         setIsLoading(false)
@@ -322,6 +372,7 @@ const CreateIncentiveSales: FC = () => {
               <Form.Control
                 name='name'
                 type='text'
+                value={incentive.name}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
             </Form.Group>
@@ -334,7 +385,7 @@ const CreateIncentiveSales: FC = () => {
               <Form.Control
                 name='incentive'
                 type='number'
-                defaultValue={0}
+                value={incentive.incentive}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
 
@@ -357,7 +408,7 @@ const CreateIncentiveSales: FC = () => {
               <Form.Control
                 name='min_order'
                 type='number'
-                defaultValue={0}
+                value={incentive.min_order}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
             </Form.Group>
@@ -370,23 +421,39 @@ const CreateIncentiveSales: FC = () => {
               <Form.Control
                 name='max_order'
                 type='number'
-                defaultValue={0}
+                value={incentive.max_order}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
             </Form.Group>
           </Row>
           <Row className='mb-5'>
             <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Minimal Invoice :</Form.Label>
-
-              <Form.Control
-                name='max_invoice'
-                type='number'
-                defaultValue={0}
-                onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
+              <Form.Check
+                inline
+                label='Insetif Manager'
+                name='type'
+                type='checkbox'
+                checked={incentive.is_manager}
+                className='mt-2'
+                onChange={(e) => handleCheckboxChange2(e.target.checked)}
               />
             </Form.Group>
           </Row>
+          {incentive.is_manager && (
+            <Row className='mb-5'>
+              <Form.Group className='form-template'>
+                <Form.Label className='fs-5'>Minimal Invoice :</Form.Label>
+
+                <Form.Control
+                  name='min_invoice'
+                  type='number'
+                  defaultValue={0}
+                  onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
+                />
+              </Form.Group>
+            </Row>
+          )}
+
           <Row className='mb-5'>
             {/* <Form.Group className='form-template'>
               <Form.Label className='fs-5'>Assign To Store :</Form.Label>
@@ -404,6 +471,7 @@ const CreateIncentiveSales: FC = () => {
                   store.find((storeItem) => storeItem.id === option.id)?.store_name ?? ''
                 }
                 getOptionValue={(option) => `${option.id}`}
+                value={incentive.stores}
               />
             </Form.Group> */}
 
@@ -475,7 +543,7 @@ const CreateIncentiveSales: FC = () => {
               variant='dark-primary'
               type='submit'
               disabled={isLoading}
-              onClick={() => handleSubmit()}
+              onClick={() => handleUpdate()}
             >
               {isLoading ? 'Saving...' : 'Save'}
             </Button>
@@ -486,4 +554,4 @@ const CreateIncentiveSales: FC = () => {
   )
 }
 
-export {CreateIncentiveSales}
+export {UpdateIncentiveManager}

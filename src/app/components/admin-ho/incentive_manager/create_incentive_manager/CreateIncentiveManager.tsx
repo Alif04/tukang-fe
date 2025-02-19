@@ -14,17 +14,18 @@ interface StoreSelect {
   store_name: string
 }
 
-interface IncentiveSales {
+interface IncentiveManager {
   name: string
   min_order: number
   max_order: number
   incentive: number
   min_invoice: number
   type: number
+  is_manager: boolean
   stores: any[]
 }
 
-const CreateIncentiveSales: FC = () => {
+const CreateIncentiveManager: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const animatedComponents = makeAnimated()
@@ -95,13 +96,14 @@ const CreateIncentiveSales: FC = () => {
   const [storeGroup, setStoreGroup] = useState<any[]>([])
 
   // Incentive
-  const [incentive, setIncentive] = useState<IncentiveSales>({
+  const [incentive, setIncentive] = useState<IncentiveManager>({
     name: '',
     min_order: 0,
     max_order: 0,
     min_invoice:0,
     incentive: 0,
     type: 1,
+    is_manager: true,
     stores: [],
   })
 
@@ -194,6 +196,14 @@ const CreateIncentiveSales: FC = () => {
       type: isChecked ? 1 : 2,
     })
   }
+  const handleCheckboxChange2= (isChecked: boolean) => {
+    console.log(isChecked);
+    
+    setIncentive({
+      ...incentive,
+      is_manager: isChecked===false? false : true ,
+    })
+  }
 
   // Incentive Validation
   const IncentiveValidation = () => {
@@ -223,7 +233,7 @@ const CreateIncentiveSales: FC = () => {
     } else if (!incentive.incentive) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please fill Incentive Sales form',
+        text: 'Please fill Incentive Manager form',
         icon: 'warning',
       })
       valid = false
@@ -247,12 +257,12 @@ const CreateIncentiveSales: FC = () => {
   }
 
   // Desctructure Object if the value null or empty string
-  const objectValueCheck = (data: IncentiveSales) => {
-    let cleanedData: Partial<IncentiveSales> = {}
+  const objectValueCheck = (data: IncentiveManager) => {
+    let cleanedData: Partial<IncentiveManager> = {}
 
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        cleanedData[key as keyof IncentiveSales] = value
+        cleanedData[key as keyof IncentiveManager] = value
       }
     })
 
@@ -282,7 +292,7 @@ const CreateIncentiveSales: FC = () => {
           Swal.fire({
             title: 'Success',
             icon: 'success',
-            text: 'Success Create Incentive Sales',
+            text: 'Success Create Incentive Manager',
             showConfirmButton: false,
             timer: 1500,
           })
@@ -298,7 +308,7 @@ const CreateIncentiveSales: FC = () => {
           })
         }
 
-        navigate('/incentive-sales/view-incentive')
+        navigate('/incentive-Manager/view-incentive')
       })
       .catch((error) => {
         setIsLoading(false)
@@ -329,7 +339,7 @@ const CreateIncentiveSales: FC = () => {
 
           <Row className='mb-5'>
             <Form.Group className='form-template'>
-              <Form.Label className='fs-5'>Intensif Sales :</Form.Label>
+              <Form.Label className='fs-5'>Intensif Manager :</Form.Label>
 
               <Form.Control
                 name='incentive'
@@ -377,16 +387,30 @@ const CreateIncentiveSales: FC = () => {
           </Row>
           <Row className='mb-5'>
             <Form.Group className='form-template'>
+            <Form.Check
+                inline
+                label='Insetif Manager'
+                name='type'
+                type='checkbox'
+                checked={incentive.is_manager}
+                className='mt-2'
+                onChange={(e) => handleCheckboxChange2(e.target.checked)}
+              />
+            </Form.Group>
+          </Row>
+          {incentive.is_manager &&  <Row className='mb-5'>
+            <Form.Group className='form-template'>
               <Form.Label className='fs-5'>Minimal Invoice :</Form.Label>
 
               <Form.Control
-                name='max_invoice'
+                name='min_invoice'
                 type='number'
                 defaultValue={0}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
             </Form.Group>
-          </Row>
+          </Row>}
+         
           <Row className='mb-5'>
             {/* <Form.Group className='form-template'>
               <Form.Label className='fs-5'>Assign To Store :</Form.Label>
@@ -486,4 +510,4 @@ const CreateIncentiveSales: FC = () => {
   )
 }
 
-export {CreateIncentiveSales}
+export {CreateIncentiveManager}

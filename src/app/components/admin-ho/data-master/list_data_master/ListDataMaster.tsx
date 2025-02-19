@@ -433,11 +433,11 @@ const ListDataMasterHO: React.FC = () => {
             onChange={(page, pageSize) => {
               fetchData(page, pageSize, '')
             }}
-            showTotal={(total, range) => (
-              <span style={{left: 0, position: 'absolute'}}>
-                Showing {range[0]} - {range[1]} of {total} Bank
-              </span>
-            )}
+            // showTotal={(total, range) => (
+            //   <span style={{left: 0, position: 'absolute'}}>
+            //     Showing {range[0]} - {range[1]} of {total} Bank
+            //   </span>
+            // )}
           />
         </div>
 

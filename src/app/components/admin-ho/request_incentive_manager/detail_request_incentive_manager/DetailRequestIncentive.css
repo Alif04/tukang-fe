@@ -1,0 +1,113 @@
+/* Header */
+#detail-incentive .card .card-body {
+  padding: 3rem 3rem !important;
+}
+
+#detail-incentive .card .card-body .vendor-information {
+  padding: 0 150px 0 9.75px;
+}
+
+#detail-incentive .card .card-body .receiver-information {
+  padding: 0 150px 0 9.75px;
+}
+
+#detail-incentive .card .card-body .invoice-information {
+  padding: 0 0 0 200px;
+}
+
+#detail-incentive .card .card-body .notes {
+  padding: 0 9.75px 0 200px;
+}
+
+#detail-incentive .card .card-body .vendor-information h1 {
+  color: #007eb4;
+  font-size: 30px;
+  padding: 0 0 10px 0;
+}
+
+#detail-incentive .invoice-information h1 {
+  color: #484747;
+  font-size: 30px;
+  padding: 0 0 10px 0;
+}
+
+/* Table */
+
+#detail-incentive .table-responsive {
+  padding: 0 !important;
+}
+
+#detail-incentive .detail-table {
+  margin: 0 0 30px 0;
+}
+
+#detail-incentive .detail-table table tr th {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #555555;
+}
+
+#detail-incentive
+  .detail-table
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(even)
+  td {
+  background-color: #e4e9f7;
+}
+
+#detail-incentive
+  .detail-table
+  table.table.table-striped.table-bordered.table-hover
+  tr:nth-child(odd)
+  td {
+  background-color: #ffff;
+}
+
+/* Footer */
+
+#detail-incentive .payment-information .payment-method {
+  margin: 10px 0;
+}
+
+#detail-incentive .payment-information .payment-evidence {
+  margin: 10px 0;
+}
+
+#detail-incentive .signature-label {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+#detail-incentive .signature-name {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.signature-line {
+  width: 200px;
+  margin: 150px 0 10px 0;
+  border-bottom: 1px solid #000;
+}
+
+/* Button */
+#detail-incentive .btn.btn-dark-primary {
+  width: 100% !important;
+  height: 40px;
+  margin: 0;
+  color: white !important;
+  border-color: transparent !important;
+  background-color: #020080 !important;
+  transition: 0.3s ease-in-out;
+}
+
+@media screen and (max-width: 576px) {
+  #detail-incentive .card .card-body .invoice-information {
+    padding: 10px 9.75px 10px 9.75px;
+  }
+
+  #detail-incentive .card .card-body .vendor-information {
+    padding: 10px 9.75px 10px 9.75px;
+  }
+}
