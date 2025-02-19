@@ -184,11 +184,13 @@ const ViewCalendarHO: React.FC = () => {
   }, [dateFrom, dateTo])
 
   const handleDatesSet = (arg: any) => {
-    const start = dayjs(arg.startStr).format('YYYY-MM-DD')
-    const end = dayjs(arg.endStr).format('YYYY-MM-DD')
+    const start = dayjs(arg.view.currentStart).format('YYYY-MM-DD')
+    const end = dayjs(arg.view.currentEnd).format('YYYY-MM-DD')
 
-    setDateFrom(start)
-    setDateTo(end)
+    if (start !== dateFrom || end !== dateTo) {
+      setDateFrom(start)
+      setDateTo(end)
+    }
   }
 
   // MODAL
