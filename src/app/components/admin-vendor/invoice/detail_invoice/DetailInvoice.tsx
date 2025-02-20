@@ -400,7 +400,7 @@ const DetailInvoiceVendor: FC = () => {
               </div>
 
               <div className='fs-4 fw-normal'>
-                Nama Bank : {invoiceDetail?.vendor?.bank_name ?? '-'}
+                Nama Bank : {invoiceDetail?.vendor?.bank?.bank_name ?? '-'}
               </div>
               <div className='fs-4 fw-normal'>
                 Nama Akun : {invoiceDetail?.vendor?.account_name ?? '-'}
