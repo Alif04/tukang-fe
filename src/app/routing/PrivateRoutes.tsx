@@ -33,6 +33,7 @@ const PrivateRoutes = () => {
   const UserManagementPage = lazy(() => import('../modules/user-management/UserManagement'))
   const EmployeePage = lazy(() => import('../modules/employee/EmployeePage'))
   const IncentiveSales = lazy(() => import('../modules/incentive_sales/IncentiveSalesPage'))
+  const IncentiveManager = lazy(() => import('../modules/incentive_manager/IncentiveManagerPage'))
   const PromotionQuotation = lazy(
     () => import('../modules/promotion_quotation/PromotionQuotationPage')
   )
@@ -266,7 +267,14 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
-
+ <Route
+          path='incentive-manager/*'
+          element={
+            <SuspensedView>
+              <IncentiveManager />
+            </SuspensedView>
+          }
+        />
         <Route
           path='promotion-quotation/*'
           element={
