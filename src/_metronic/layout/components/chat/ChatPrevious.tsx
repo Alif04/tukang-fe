@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 interface Chat {
@@ -39,6 +39,19 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [unreadCounts, setUnreadCounts] = useState<{ [key: string]: number }>({}); // Map for unread counts
   const [latestMessages, setLatestMessages] = useState<{ [key: string]: string }>({});
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Function to scroll to the bottom of the chat
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
   const fetchUnreadCounts = async () => {
     const counts: { [key: string]: number } = {};
     for (const chat of previousChats) {
@@ -106,6 +119,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
       fetchNewChats()
       fetchUnreadCounts()
       console.log('Chat status updated to read');
+      scrollToBottom();
     } catch (err) {
       console.error('Failed to update chat status:', err);
     }
@@ -159,7 +173,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     width: '100%',
                     padding: '15px',
                     backgroundColor: selectedChat?._id === chat._id
-                      ? '#e0f7fa'
+                      ? '#1f70f2'
                       : '#f7f7f7', // Highlight for unread
                     border: '1px solid #ccc',
                     borderRadius: '8px',
@@ -310,6 +324,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             </div>
           </div>
           <div
+            ref={chatContainerRef}
             style={{
               flex: 1,
               overflowY: 'auto',

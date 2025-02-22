@@ -152,19 +152,21 @@ export default function ChatPage(): JSX.Element {
 
   useEffect(() => {
     const handleReceiveMessage = (msg: {sender: string; message: string; timestamp: any}) => {
-      setMessages((prev) => [...prev, msg])
-
+      console.log('Received message:', msg);
+      
       if (
         msg.sender !==
           (userRole === 'Owner Vendor'
             ? vendorName
             : userRole === 'Super User'
             ? 'Admin HO'
-            : userRole) &&
-        !isOpen
+            : userRole)
       ) {
         setNewMessages(true)
       }
+      setMessages((prev) => [...prev, msg])
+
+     
     }
 
     socket.on('receiveMessage', handleReceiveMessage)
@@ -172,7 +174,7 @@ export default function ChatPage(): JSX.Element {
     return () => {
       socket.off('receiveMessage', handleReceiveMessage)
     }
-  }, [])
+  }, [socket])
   const datasss = async () => {
     const res = await axios.get(`${apiChat}/chat/organisasi/Mitra 10`, {
       headers: {
@@ -584,13 +586,21 @@ export default function ChatPage(): JSX.Element {
         });
       
         if (res.data && res.data.length > 0) {
-          setNewMessages(true)
+
+          const hasNewMessages = res.data.some((chats: any) => chats.sender !== userRole);
+          
+      if (hasNewMessages) {
+        setNewMessages(true);
+      }
+          // setNewMessages(true)
           // res.data.forEach((chats: any) => {
           //   const { groupId, timestamp } = chats;
           //   if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
           //     latest[groupId] = timestamp; // Simpan timestamp terbaru untuk setiap grup
           //   }
           // });
+        } else {
+          setNewMessages(false);
         }
       } catch (err) {
         console.error("Failed to fetch new chats", err);
@@ -613,41 +623,14 @@ export default function ChatPage(): JSX.Element {
         }}
       >
         {isOpen === false && (
-          <button
-            onClick={() => {
-              if (isOpen) {
-                resetChat()
-              } else {
-                if (newMessages) {
-                  setIsOpen(true)
-                  handleChatTypeSelection("previous")
-                  setNewMessages(false) // Reset new messages notification
-                  setSteps('')
-                } else {
-                  setIsOpen(true)
-                }
-              }
-            }}
-            style={{
-              padding: '10px',
-              backgroundColor: isOpen ? 'transparent' : '#007BFF',
-              color: isOpen ? 'black' : 'white',
-              borderRadius: isOpen ? '0' : '90%',
-              border: isOpen ? 'none' : 'none',
-              cursor: 'pointer',
-              boxShadow: isOpen ? 'none' : '0 2px 5px rgba(0, 0, 0, 0.2)',
-              fontSize: '20px',
-              position: 'relative',
-              transition: 'all 0.3s ease',
-            }}
-          >
-            💬
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <i className="bi bi-chat" style={{ fontSize: '30px', marginBottom: '2px' }}>
             {newMessages && !isOpen && (
               <span
                 style={{
                   position: 'absolute',
                   top: '-5px', // Sedikit di luar tombol
-                  right: '-5px', // Sedikit di luar tombol
+                  right: '-2px', // Sedikit di luar tombol
                   backgroundColor: 'red',
                   color: 'white',
                   borderRadius: '50%',
@@ -664,7 +647,40 @@ export default function ChatPage(): JSX.Element {
                 !
               </span>
             )}
+            </i>
+          <button
+            onClick={() => {
+              if (isOpen) {
+                resetChat()
+              } else {
+                if (newMessages) {
+                  setIsOpen(true)
+                  handleChatTypeSelection("previous")
+                  // setNewMessages(false) // Reset new messages notification
+                  setSteps('')
+                } else {
+                  setIsOpen(true)
+                }
+              }
+            }}
+            style={{
+              padding: '10px',
+              backgroundColor: isOpen ? 'transparent' : '#007BFF',
+              color: isOpen ? 'black' : 'white',
+              borderRadius: isOpen ? '0' : '10%',
+              border: isOpen ? 'none' : 'none',
+              cursor: 'pointer',
+              boxShadow: isOpen ? 'none' : '0 2px 5px rgba(0, 0, 0, 0.2)',
+              fontSize: '15px',
+              position: 'relative',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            Live Chat
+            
           </button>
+          </div>
+         
         )}
 
         {isOpen && (
