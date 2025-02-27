@@ -1,26 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import React, {useState, useEffect, useRef} from 'react'
+import axios from 'axios'
 
 interface Chat {
-  _id: string;
-  members: string[];
-  sender: string;
-
+  _id: string
+  members: string[]
+  sender: string
 }
 
 interface ChatPreviousProps {
-  previousChats: Chat[];
-  handlePreviousChat: (chatId: string) => void;
-  handleDeleteChat: (chatId: string) => void;
-  unreadChats: string[]; // Optional, but can be managed here
-  userRole: string;
-  messages: any;
-  message: string;
-  setMessage: (msg: string) => void;
-  sendMessage: () => void;
-  fetchNewChats: () => void;
-  vendorName: string;
-
+  previousChats: Chat[]
+  handlePreviousChat: (chatId: string) => void
+  handleDeleteChat: (chatId: string) => void
+  unreadChats: string[] // Optional, but can be managed here
+  userRole: string
+  messages: any
+  message: any
+  setMessage: (msg: any) => void
+  sendMessage: () => void
+  fetchNewChats: () => void
+  vendorName: string
 }
 const apiChat = process.env.REACT_APP_API_CHAT_URL
 const ChatPrevious: React.FC<ChatPreviousProps> = ({
@@ -34,101 +32,127 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   setMessage,
   sendMessage,
   vendorName,
-  fetchNewChats
+  fetchNewChats,
 }) => {
-  const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
-  const [unreadCounts, setUnreadCounts] = useState<{ [key: string]: number }>({}); // Map for unread counts
-  const [latestMessages, setLatestMessages] = useState<{ [key: string]: string }>({});
-  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
+  const [unreadCounts, setUnreadCounts] = useState<{[key: string]: number}>({}) // Map for unread counts
+  const [image, setImage] = useState<File | null>(null) // State untuk gambar
+  const [latestMessages, setLatestMessages] = useState<{[key: string]: string}>({})
+  const chatContainerRef = useRef<HTMLDivElement | null>(null)
 
   // Function to scroll to the bottom of the chat
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
     }
-  };
+  }
 
   useEffect(() => {
     scrollToBottom()
   }, [messages])
   const fetchUnreadCounts = async () => {
-    const counts: { [key: string]: number } = {};
+    const counts: {[key: string]: number} = {}
     for (const chat of previousChats) {
       try {
         const res = await axios.get(`${apiChat}/chat/unread/${chat._id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
-        });
-        const unreadMessages = res.data.unreadCount.filter((msg: any) => msg.sender !== (userRole === "Owner Vendor" ? vendorName : userRole === "Super User" ? "Admin HO" : userRole));
+        })
+        const unreadMessages = res.data.unreadCount.filter(
+          (msg: any) =>
+            msg.sender !==
+            (userRole === 'Owner Vendor'
+              ? vendorName
+              : userRole === 'Super User'
+              ? 'Admin HO'
+              : userRole)
+        )
 
-        counts[chat._id] = unreadMessages.length || 0;
+        counts[chat._id] = unreadMessages.length || 0
       } catch (err) {
-        console.error(`Failed to fetch unread count for chat ${chat._id}`, err);
-        counts[chat._id] = 0;
+        console.error(`Failed to fetch unread count for chat ${chat._id}`, err)
+        counts[chat._id] = 0
       }
     }
-    setUnreadCounts(counts);
-  };
+    setUnreadCounts(counts)
+  }
 
   const fetchNewChat = async () => {
-    const latest: { [key: string]: string } = {};
+    const latest: {[key: string]: string} = {}
     for (const chat of previousChats) {
       try {
         const res = await axios.get(`${apiChat}/chat/messages/${chat._id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
-        });
-  
-        if (res.data && res.data.length > 0) {
+        })
 
+        if (res.data && res.data.length > 0) {
           res.data.forEach((chats: any) => {
-            const { groupId, timestamp } = chats;
+            const {groupId, timestamp} = chats
             if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
-              latest[groupId] = timestamp; // Simpan timestamp terbaru untuk setiap grup
+              latest[groupId] = timestamp // Simpan timestamp terbaru untuk setiap grup
             }
-          });
+          })
         }
       } catch (err) {
-        console.error("Failed to fetch new chats", err);
+        console.error('Failed to fetch new chats', err)
       }
     }
-    setLatestMessages(latest);
-  };
+    setLatestMessages(latest)
+  }
   // console.log(latestMessages);
 
   useEffect(() => {
     // Fetch unread messages for each chat
 
     fetchNewChat()
-    fetchUnreadCounts();
-  }, [previousChats]);
+    fetchUnreadCounts()
+  }, [previousChats])
 
   const onSelectChat = async (chat: Chat) => {
-    setSelectedChat(chat);
-    handlePreviousChat(chat._id);
+    setSelectedChat(chat)
+    handlePreviousChat(chat._id)
     try {
-      const sender = userRole === "Owner Vendor" ? vendorName : userRole === "Super User" ? 'Admin HO' : userRole;
-      await axios.put(`${apiChat}/chat/status/${chat._id}`, { sender }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const sender =
+        userRole === 'Owner Vendor' ? vendorName : userRole === 'Super User' ? 'Admin HO' : userRole
+      await axios.put(
+        `${apiChat}/chat/status/${chat._id}`,
+        {sender},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      )
       fetchNewChats()
       fetchUnreadCounts()
-      console.log('Chat status updated to read');
-      scrollToBottom();
+      console.log('Chat status updated to read')
+      scrollToBottom()
     } catch (err) {
-      console.error('Failed to update chat status:', err);
+      console.error('Failed to update chat status:', err)
     }
-  };
+  }
   const sortedChats = [...previousChats].sort((a, b) => {
-    const timestampA = latestMessages[a._id] || "1970-01-01T00:00:00.000Z";
-    const timestampB = latestMessages[b._id] || "1970-01-01T00:00:00.000Z";
-    return new Date(timestampB).getTime() - new Date(timestampA).getTime();
-  });
+    const timestampA = latestMessages[a._id] || '1970-01-01T00:00:00.000Z'
+    const timestampB = latestMessages[b._id] || '1970-01-01T00:00:00.000Z'
+    return new Date(timestampB).getTime() - new Date(timestampA).getTime()
+  })
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setImage(e.target.files[0])
+      const file = e.target.files[0]
+
+      // Simpan file ke dalam setMessage
+      setMessage({
+        type: 'file',
+        file: file,
+        fileName: file.name,
+        fileType: file.type,
+      })
+    }
+  }
 
   return (
     <div
@@ -151,65 +175,63 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
           padding: '10px',
         }}
       >
-        <h4 style={{ margin: '0 0 10px', color: '#333' }}>Daftar Chat</h4>
+        <h4 style={{margin: '0 0 10px', color: '#333'}}>Daftar Chat</h4>
         {previousChats.length === 0 ? (
-          <div style={{ textAlign: 'center', color: '#999', fontSize: '14px' }}>
+          <div style={{textAlign: 'center', color: '#999', fontSize: '14px'}}>
             Tidak ada chat sebelumnya.
           </div>
         ) : (
-          <div style={{ marginTop: 10 }}>
+          <div style={{marginTop: 10}}>
             {sortedChats.map((chat) => {
-              return <div
-                key={chat._id}
-                style={{
-                  position: 'relative',
-                  marginBottom: '10px',
-                }}
-              >
-
-                <button
-                  onClick={() => onSelectChat(chat)}
+              return (
+                <div
+                  key={chat._id}
                   style={{
-                    width: '100%',
-                    padding: '15px',
-                    backgroundColor: selectedChat?._id === chat._id
-                      ? '#1f70f2'
-                      : '#f7f7f7', // Highlight for unread
-                    border: '1px solid #ccc',
-                    borderRadius: '8px',
-                    textAlign: 'left',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    position: 'relative',
+                    marginBottom: '10px',
                   }}
                 >
-                  <span style={{ color: '#333', fontWeight: '500' }}>
-                    {chat.members && chat.members.length > 0
-                      ? chat.members.join(', ')
-                      : 'No members'}
-                  </span>
-                  {/* Unread count in the top right corner */}
-                  {unreadCounts[chat._id] > 0 && (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        top: '0px',
-                        right: '2px',
-                        backgroundColor: 'red',
-                        color: 'white',
-                        padding: '2px 6px',
-                        borderRadius: '50%',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {unreadCounts[chat._id]}
+                  <button
+                    onClick={() => onSelectChat(chat)}
+                    style={{
+                      width: '100%',
+                      padding: '15px',
+                      backgroundColor: selectedChat?._id === chat._id ? '#1f70f2' : '#f7f7f7', // Highlight for unread
+                      border: '1px solid #ccc',
+                      borderRadius: '8px',
+                      textAlign: 'left',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span style={{color: '#333', fontWeight: '500'}}>
+                      {chat.members && chat.members.length > 0
+                        ? chat.members.join(', ')
+                        : 'No members'}
                     </span>
-                  )}
-                </button>
-                {/* {userRole === 'Admin HO' && (
+                    {/* Unread count in the top right corner */}
+                    {unreadCounts[chat._id] > 0 && (
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: '0px',
+                          right: '2px',
+                          backgroundColor: 'red',
+                          color: 'white',
+                          padding: '2px 6px',
+                          borderRadius: '50%',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {unreadCounts[chat._id]}
+                      </span>
+                    )}
+                  </button>
+                  {/* {userRole === 'Admin HO' && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -237,7 +259,8 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     X
                   </button>
                 )} */}
-              </div>
+                </div>
+              )
             })}
           </div>
         )}
@@ -256,36 +279,38 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
         >
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "10px",
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '10px',
             }}
           >
-            <h4 style={{ margin: 0, color: "#333" }}>Chat</h4>
+            <h4 style={{margin: 0, color: '#333'}}>Chat</h4>
             <div
               style={{
-                position: "relative",
-                display: "inline-block",
+                position: 'relative',
+                display: 'inline-block',
               }}
             >
               {/* Button for menu */}
-              <button
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                }}
-                onClick={() => {
-                  handleDeleteChat(selectedChat._id);
-                  setSelectedChat(null); // Reset selected chat
-                  // const menu = document.getElementById("chat-menu");
-                  // if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
-                }}
-              >
-                <i className="bi bi-trash"></i>
-              </button>
+              {userRole === 'Admin HO' && (
+                <button
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                  }}
+                  onClick={() => {
+                    handleDeleteChat(selectedChat._id)
+                    setSelectedChat(null) // Reset selected chat
+                    // const menu = document.getElementById("chat-menu");
+                    // if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
+                  }}
+                >
+                  <i className='bi bi-trash'></i>
+                </button>
+              )}
 
               {/* Dropdown menu */}
               {/* <div
@@ -340,7 +365,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                 style={{
                   textAlign:
                     msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                      msg.sender === vendorName
+                    msg.sender === vendorName
                       ? 'right'
                       : 'left',
                   marginBottom: '10px',
@@ -367,12 +392,12 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     display: 'inline-block',
                     backgroundColor:
                       msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                        msg.sender === vendorName
+                      msg.sender === vendorName
                         ? '#e0f7fa'
                         : '#f1f1f1',
                     color:
                       msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                        msg.sender === vendorName
+                      msg.sender === vendorName
                         ? '#333'
                         : '#333',
                     padding: '10px',
@@ -382,7 +407,26 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     position: 'relative',
                   }}
                 >
-                  {msg.message}
+                  {msg.message.startsWith('http') && msg.message.includes('/uploads/') ? (
+                    msg.message.match(/\.(jpeg|jpg|png|gif)$/) ? (
+                      <img
+                        src={msg.message}
+                        alt='Uploaded File'
+                        style={{maxWidth: '100%', borderRadius: '5px'}}
+                      />
+                    ) : msg.message.match(/\.(mp4|mov|avi)$/) ? (
+                      <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
+                        <source src={msg.message} type='video/mp4' />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <a href={msg.message} target='_blank' rel='noopener noreferrer'>
+                        {msg.message}
+                      </a>
+                    )
+                  ) : (
+                    msg.message
+                  )}
                   {/* Timestamp */}
                   <div
                     style={{
@@ -413,13 +457,13 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             }}
           >
             <input
-              type="text"
-              placeholder="Ketik pesan..."
-              value={message}
+              type='text'
+              placeholder='Ketik pesan...'
+              value={message?.fileName || (typeof message === "string" ? message : "")}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  sendMessage();
+                  sendMessage()
                 }
               }}
               style={{
@@ -429,6 +473,21 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                 border: '1px solid #ccc',
               }}
             />
+            <input
+              type='file'
+              id='imageUpload'
+              onChange={handleImageChange}
+              accept='image/*,video/*'
+              style={{display: 'none'}}
+            />
+
+            {/* Ikon Bootstrap untuk Upload */}
+            <label
+              htmlFor='imageUpload'
+              style={{cursor: 'pointer', marginLeft: '10px', marginTop: 10}}
+            >
+              <i className='bi bi-paperclip' style={{fontSize: '20px', color: '#007BFF'}}></i>
+            </label>
             <button
               onClick={sendMessage}
               style={{
@@ -446,7 +505,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ChatPrevious;
+export default ChatPrevious
