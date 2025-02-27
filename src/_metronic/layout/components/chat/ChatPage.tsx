@@ -16,7 +16,7 @@ export default function ChatPage(): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [step, setStep] = useState<string>('start')
   const [steps, setSteps] = useState<string>('')
-  const [message, setMessage] = useState<string>('')
+  const [message, setMessage] = useState<any>()
   const [messages, setMessages] = useState<{sender: string; message: string; timestamp: any}[]>([])
   const [orderId, setOrderId] = useState<string>('')
   const [chatType, setChatType] = useState<string>('')
@@ -454,9 +454,9 @@ export default function ChatPage(): JSX.Element {
   }
 
   const sendMessage = () => {
-    if (!message.trim()) return
+    // if (!message.trim()) return
     const timestamp = new Date()
-    const msg = {
+    let msg = {
       groupId,
       organisasi: 'Mitra 10',
       sender:
@@ -465,11 +465,36 @@ export default function ChatPage(): JSX.Element {
           : userRole === 'Super User'
           ? 'Admin HO'
           : userRole,
-      message,
       timestamp,
+      message
     }
-
+    if (typeof message === "string") {
+      msg.message = message;
+          
     socket.emit('sendMessage', msg)
+    } else if (message.type === "file") {
+      // Handle upload file sebelum mengirim pesan
+      const formData = new FormData();
+      formData.append("file", message.file);
+      
+      axios.post(`${apiChat}/chat/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      }).then(res => {
+        msg.message = res.data.fileUrl; // URL dari server setelah upload
+         if (res.data.fileUrl) {
+          socket.emit('sendMessage', msg)
+         }
+
+      }).catch(err => {
+        console.error("Upload gagal", err);
+      });
+    } else {
+      return;
+    }
+    console.log(msg);
+
     // setMessages((prev) => [...prev, { sender: msg.sender, message: msg.message, timestamp: msg.timestamp }]); // Update local state with the new message
     setMessage('')
   }
@@ -847,7 +872,26 @@ export default function ChatPage(): JSX.Element {
                         wordBreak: 'break-word', // Memastikan teks panjang tidak melampaui kotak
                       }}
                     >
-                      {msg.message}
+                     {msg.message.startsWith('http') && msg.message.includes('/uploads/') ? (
+                    msg.message.match(/\.(jpeg|jpg|png|gif)$/) ? (
+                      <img
+                        src={msg.message}
+                        alt='Uploaded File'
+                        style={{maxWidth: '100%', borderRadius: '5px'}}
+                      />
+                    ) : msg.message.match(/\.(mp4|mov|avi)$/) ? (
+                      <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
+                        <source src={msg.message} type='video/mp4' />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <a href={msg.message} target='_blank' rel='noopener noreferrer'>
+                        {msg.message}
+                      </a>
+                    )
+                  ) : (
+                    msg.message
+                  )}
                       <div
                         style={{
                           fontSize: '10px',
