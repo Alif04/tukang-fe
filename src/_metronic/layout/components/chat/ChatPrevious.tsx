@@ -43,13 +43,18 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   // Function to scroll to the bottom of the chat
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
+        }, 0);
+      });
     }
-  }
+  };
 
   useEffect(() => {
+    
     scrollToBottom()
-  }, [messages])
+  }, [messages, selectedChat])
   const fetchUnreadCounts = async () => {
     const counts: {[key: string]: number} = {}
     for (const chat of previousChats) {
@@ -128,8 +133,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
       )
       fetchNewChats()
       fetchUnreadCounts()
-      console.log('Chat status updated to read')
-      scrollToBottom()
+      // scrollToBottom()
     } catch (err) {
       console.error('Failed to update chat status:', err)
     }
@@ -269,6 +273,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
       {/* Active Chat Section */}
       {selectedChat && (
         <div
+        
           style={{
             flex: 1,
             padding: '10px',
