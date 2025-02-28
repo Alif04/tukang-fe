@@ -9,6 +9,7 @@ import ChatActive from './ChatActive'
 import ChatPrevious from './ChatPrevious'
 import EditMessageModal from './EditMessageModal'
 import {toAbsoluteUrl} from '../../../helpers'
+import { Modal } from 'react-bootstrap'
 
 const socket = io(`${process.env.REACT_APP_API_CHAT_URL}/live-chat`)
 
@@ -35,7 +36,7 @@ export default function ChatPage(): JSX.Element {
   const vendorName = localStorage.getItem('vendorName') as string
   const vendorId = localStorage.getItem('vendor_id') as string
   const [searchQuery, setSearchQuery] = useState<string>('')
-
+  const [previewImage, setPreviewImage] = useState('')
   const vendorListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const poveuesiListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const apiUrl = process.env.REACT_APP_API_URL
@@ -890,6 +891,7 @@ export default function ChatPage(): JSX.Element {
                         src={msg.message}
                         alt='Uploaded File'
                         style={{maxWidth: '100%', borderRadius: '5px'}}
+                        onClick={() => setPreviewImage(msg.message)}
                       />
                     ) : msg.message.match(/\.(mp4|mov|avi)$/) ? (
                       <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
@@ -922,6 +924,13 @@ export default function ChatPage(): JSX.Element {
                         })}
                       </div>
                     </div>
+                    {previewImage && (
+                  <Modal show={!!previewImage} onHide={() => setPreviewImage('')} centered>
+                    <Modal.Body>
+                      <img src={previewImage} alt='Preview' style={{width: '100%'}} />
+                    </Modal.Body>
+                  </Modal>
+                )}
                   </div>
                 ))}
               </div>
