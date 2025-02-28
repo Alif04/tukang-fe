@@ -57,6 +57,8 @@ export function AsideMenuMain() {
           'Admin Vendor',
           'Owner Vendor',
           'Tukang',
+          'Admin WA',
+          'Admin WA2'
         ]}
       />
 
@@ -469,7 +471,15 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
-
+      <AsideMenuItem
+        to='/chat/view-chat'
+        icon='/media/icons/duotune/communication/com003.svg'
+        title='Chat'
+        fontIcon='bi-app-indicator'
+        role={[
+          'Admin WA',  'Admin WA2'
+        ]}
+      />
       {/* Halaman Payment */}
       {/* <AsideMenuItemWithSub
         to='/payment'
@@ -522,7 +532,7 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/coding/cod009.svg'
         title={userRole === 'Store CS' ? 'Pengaturan' : 'Setting'}
         fontIcon='bi-app-indicator'
-        role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Tukang']}
+        role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Tukang', 'Admin WA']}
       >
         <AsideMenuItemWithSub
           to='/bank'
@@ -716,7 +726,23 @@ export function AsideMenuMain() {
             role={['Admin HO', 'Super User']}
             hasBullet={true}
           />
+           
         </AsideMenuItemWithSub>
+        <AsideMenuItemWithSub
+          to='/data-role'
+          title='Data Role'
+          hasBullet={true}
+          role={['Admin HO', 'Super User', ]}
+        >
+          <AsideMenuItem
+            to='/data-role/view-data-role'
+            title='Daftar Role'
+            role={['Admin HO', 'Super User',]}
+            hasBullet={true}
+          />
+           
+        </AsideMenuItemWithSub>
+       
         <AsideMenuItemWithSub
           to='/user'
           title={userRole === 'Super User' ? 'User Management' : 'Admin Management'}

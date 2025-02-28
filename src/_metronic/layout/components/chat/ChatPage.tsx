@@ -10,7 +10,7 @@ import ChatPrevious from './ChatPrevious'
 import EditMessageModal from './EditMessageModal'
 import {toAbsoluteUrl} from '../../../helpers'
 
-const socket = io(`${process.env.REACT_APP_API_CHAT_URL}`)
+const socket = io(`${process.env.REACT_APP_API_CHAT_URL}/live-chat`)
 
 export default function ChatPage(): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -42,7 +42,7 @@ export default function ChatPage(): JSX.Element {
   const apiChat = process.env.REACT_APP_API_CHAT_URL
   useEffect(() => {
     if (messages.length > 0 && !isOpen) {
-      setNewMessages(true)
+      // setNewMessages(true)
       // Add to unread chats
       setUnreadChats((prev: any) => {
         const lastChat = messages[messages.length - 1]
@@ -160,12 +160,14 @@ export default function ChatPage(): JSX.Element {
             ? vendorName
             : userRole === 'Super User'
             ? 'Admin HO'
+             : userRole === 'Store CS'
+            ? storeName
             : userRole)
       ) {
         setNewMessages(true)
       }
       setMessages((prev) => [...prev, msg])
-
+    
      
     }
 
@@ -464,12 +466,15 @@ export default function ChatPage(): JSX.Element {
           ? vendorName
           : userRole === 'Super User'
           ? 'Admin HO'
+           : userRole === 'Store CS'
+          ? storeName
           : userRole,
       timestamp,
       message
     }
     if (typeof message === "string") {
       msg.message = message;
+     
           
     socket.emit('sendMessage', msg)
     } else if (message.type === "file") {
@@ -493,7 +498,7 @@ export default function ChatPage(): JSX.Element {
     } else {
       return;
     }
-    console.log(msg);
+    // console.log(msg);
 
     // setMessages((prev) => [...prev, { sender: msg.sender, message: msg.message, timestamp: msg.timestamp }]); // Update local state with the new message
     setMessage('')
@@ -612,7 +617,13 @@ export default function ChatPage(): JSX.Element {
       
         if (res.data && res.data.length > 0) {
 
-          const hasNewMessages = res.data.some((chats: any) => chats.sender !== userRole);
+          const hasNewMessages = res.data.some((chats: any) => chats.sender !== (userRole === 'Owner Vendor'
+          ? vendorName
+          : userRole === 'Super User'
+          ? 'Admin HO'
+           : userRole === 'Store CS'
+          ? storeName
+          : userRole));
           
       if (hasNewMessages) {
         setNewMessages(true);
@@ -681,7 +692,7 @@ export default function ChatPage(): JSX.Element {
                 if (newMessages) {
                   setIsOpen(true)
                   handleChatTypeSelection("previous")
-                  // setNewMessages(false) // Reset new messages notification
+                  setNewMessages(false) // Reset new messages notification
                   setSteps('')
                 } else {
                   setIsOpen(true)
@@ -831,7 +842,8 @@ export default function ChatPage(): JSX.Element {
                     style={{
                       textAlign:
                         msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                        msg.sender === vendorName
+                        msg.sender === vendorName||
+                        msg.sender === storeName
                           ? 'right'
                           : 'left',
                       marginBottom: '10px', // Jarak antar pesan
@@ -934,6 +946,7 @@ export default function ChatPage(): JSX.Element {
                 unreadChats={unreadChats}
                 userRole={userRole}
                 fetchNewChats={fetchNewChats}
+                storeName={storeName}
               />
             )}
             {step === 'vendor' && (

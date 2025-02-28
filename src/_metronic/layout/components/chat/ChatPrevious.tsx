@@ -19,6 +19,7 @@ interface ChatPreviousProps {
   sendMessage: () => void
   fetchNewChats: () => void
   vendorName: string
+  storeName: string
 }
 const apiChat = process.env.REACT_APP_API_CHAT_URL
 const ChatPrevious: React.FC<ChatPreviousProps> = ({
@@ -33,6 +34,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   sendMessage,
   vendorName,
   fetchNewChats,
+  storeName
 }) => {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
   const [unreadCounts, setUnreadCounts] = useState<{[key: string]: number}>({}) // Map for unread counts
@@ -370,7 +372,8 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                 style={{
                   textAlign:
                     msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                    msg.sender === vendorName
+                    msg.sender === vendorName||
+                    msg.sender === storeName
                       ? 'right'
                       : 'left',
                   marginBottom: '10px',
@@ -397,12 +400,14 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     display: 'inline-block',
                     backgroundColor:
                       msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                      msg.sender === vendorName
+                      msg.sender === vendorName||
+                      msg.sender === storeName
                         ? '#e0f7fa'
                         : '#f1f1f1',
                     color:
                       msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                      msg.sender === vendorName
+                      msg.sender === vendorName||
+                      msg.sender === storeName
                         ? '#333'
                         : '#333',
                     padding: '10px',
