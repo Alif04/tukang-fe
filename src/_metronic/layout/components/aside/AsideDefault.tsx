@@ -102,6 +102,22 @@ const AsideDefault: FC = () => {
               roles: role,
             })
             break
+            case 'Admin WA':
+              setUser({
+                user_id: data.id,
+                username: data?.username ?? '',
+                full_name: data?.username ?? '',
+                roles: role,
+              })
+              break
+              case 'Admin WA2':
+                setUser({
+                  user_id: data.id,
+                  username: data?.username ?? '',
+                  full_name: data?.username ?? '',
+                  roles: role,
+                })
+                break
           default:
             console.log('user not found!:')
         }
@@ -121,7 +137,6 @@ const AsideDefault: FC = () => {
       asideRef.current?.classList.remove('animating')
     }, 300)
   }
-
   return (
     <div
       id='kt_aside'
@@ -155,9 +170,10 @@ const AsideDefault: FC = () => {
             className='h-75px logo rounded-circle mb-3'
             src={toAbsoluteUrl('/media/avatars/blank.png')}
           />
-
+    
+          
           <h6 className='text-center text-secondary-emphasis'>
-            {['Super User', 'Admin HO', 'Store CS'].includes(user.roles)
+            {['Super User', 'Admin HO', 'Store CS','Admin WA'].includes(user.roles)
               ? user.username
               : user.full_name}
             <br />({user.roles}){' '}

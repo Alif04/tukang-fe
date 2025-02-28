@@ -8,7 +8,7 @@ import { WithChildren } from '../../_metronic/helpers'
 
 const PrivateRoutes = () => {
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
-  const ChatPage = lazy(() => import('../modules/apps/chat/ChatPage'))
+  const ChatPage = lazy(() => import('../modules/chat/ChatPage'))
   const CalendarPage = lazy(() => import('../modules/calendar/CalendarPage'))
   const OrderPage = lazy(() => import('../modules/order/OrderPage'))
   const ComplaintPage = lazy(() => import('../modules/complaint/ComplaintPage'))
@@ -40,6 +40,11 @@ const PrivateRoutes = () => {
   const DataMasterPage = lazy(
     () => import('../modules/data-master/DataMasterPage')
   )
+
+  const DataRolePage = lazy(
+    () => import('../modules/data-role/DataMasterPage')
+  )
+
 
   return (
     <Routes>
@@ -309,14 +314,23 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
-        {/* <Route
-          path='apps/chat/*'
+   <Route
+          path='data-role/*'
+          element={
+            <SuspensedView>
+              <DataRolePage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='chat/*'
           element={
             <SuspensedView>
               <ChatPage />
             </SuspensedView>
           }
-        /> */}
+        />
 
         {/* Page Not Found */}
         <Route path='*' element={<Navigate to='/error/404' />} />

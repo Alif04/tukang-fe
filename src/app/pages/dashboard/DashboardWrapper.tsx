@@ -8,6 +8,7 @@ import {DashboardStore} from '../../components'
 import {DashboardHO} from '../../components'
 import {DashboardVendor} from '../../components'
 import {DashboardTukang} from '../../components'
+import {DashboardAdminWA} from '../../components'
 
 interface Status {
   value: number | null
@@ -79,7 +80,13 @@ const DashboardWrapper: FC = () => {
           <PageTitle>TUKANG DASHBOARD</PageTitle>
           <DashboardTukang />
         </>
-      ) : (
+      ) : userRole === 'Admin WA' || userRole === 'Admin WA2' ? (
+        <>
+          <HeaderWrapper className='bg-header-ho' />
+          <PageTitle>AInstallasi & Service Mitra10 Dashboard</PageTitle>
+          <DashboardAdminWA />
+        </>
+      ) :(
         <></>
       )}
     </>

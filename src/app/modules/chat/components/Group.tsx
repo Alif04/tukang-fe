@@ -1,9 +1,9 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {FC} from 'react'
-import {KTSVG, toAbsoluteUrl} from '../../../../../_metronic/helpers'
-import {ChatInner} from '../../../../../_metronic/partials'
+import {KTSVG, toAbsoluteUrl} from '../../../../_metronic/helpers'
+import {ChatInner} from '../../../../_metronic/partials'
 
-const Private: FC = () => {
+const Group: FC = () => {
   return (
     <div className='d-flex flex-column flex-lg-row'>
       <div className='flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0'>
@@ -266,19 +266,43 @@ const Private: FC = () => {
         <div className='card' id='kt_chat_messenger'>
           <div className='card-header' id='kt_chat_messenger_header'>
             <div className='card-title'>
-              <div className='symbol-group symbol-hover'></div>
-              <div className='d-flex justify-content-center flex-column me-3'>
+              <div className='symbol-group symbol-hover'>
+                <div className='symbol symbol-35px symbol-circle'>
+                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
+                </div>
+                <div className='symbol symbol-35px symbol-circle'>
+                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
+                </div>
+                <div className='symbol symbol-35px symbol-circle'>
+                  <span className='symbol-label bg-light-warning text-warning 40px'>M</span>
+                </div>
+                <div className='symbol symbol-35px symbol-circle'>
+                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
+                </div>
+                <div className='symbol symbol-35px symbol-circle'>
+                  <span className='symbol-label bg-light-danger text-danger 40px'>O</span>
+                </div>
+                <div className='symbol symbol-35px symbol-circle'>
+                  <span className='symbol-label bg-light-primary text-primary 40px'>N</span>
+                </div>
+                <div className='symbol symbol-35px symbol-circle'>
+                  <img alt='Pic' src={toAbsoluteUrl('/media/avatars/blank.png')} />
+                </div>
                 <a
                   href='#'
-                  className='fs-4 fw-bolder text-gray-900 text-hover-primary me-1 mb-2 lh-1'
+                  className='symbol symbol-35px symbol-circle'
+                  // data-bs-toggle='modal'
+                  // data-bs-target='#kt_modal_view_users'
                 >
-                  Brian Cox
+                  <span
+                    className='symbol-label fs-8 fw-bolder'
+                    data-bs-toggle='tooltip'
+                    data-bs-trigger='hover'
+                    title='View more users'
+                  >
+                    +42
+                  </span>
                 </a>
-
-                <div className='mb-0 lh-1'>
-                  <span className='badge badge-success badge-circle w-10px h-10px me-1'></span>
-                  <span className='fs-7 fw-bold text-gray-400'>Active</span>
-                </div>
               </div>
             </div>
 
@@ -295,6 +319,7 @@ const Private: FC = () => {
               </div>
             </div>
           </div>
+
           {/* <ChatInner /> */}
         </div>
       </div>
@@ -302,4 +327,4 @@ const Private: FC = () => {
   )
 }
 
-export {Private}
+export {Group}
