@@ -1,4 +1,5 @@
 import React from 'react';
+import Swal from 'sweetalert2';
 
 interface ChatActiveProps {
   messages: { sender: string; message: string }[];
@@ -12,7 +13,23 @@ const ChatActive: React.FC<ChatActiveProps> = ({ messages, message, setMessage, 
    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
         const file = e.target.files[0]
-  
+        const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
+
+        // Cek tipe file
+        const isImage = file.type.startsWith("image/");
+        const isVideo = file.type.startsWith("video/");
+    
+        if ((isImage && fileSizeMB > 2) || (isVideo && fileSizeMB > 5)) {
+
+          
+        Swal.fire({
+          title: 'Error',
+          text: `File terlalu besar! Maksimum ${isImage ? "2MB" : "5MB"}`,
+          icon: 'error',
+        })
+          // alert(`File terlalu besar! Maksimum ${isImage ? "2MB" : "5MB"}`);
+          return;
+        }
         // Simpan file ke dalam setMessage
         setMessage({
           type: 'file',

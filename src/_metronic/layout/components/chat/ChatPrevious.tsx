@@ -1,5 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react'
 import axios from 'axios'
+import {Modal} from 'react-bootstrap'
+import Swal from 'sweetalert2'
 
 interface Chat {
   _id: string
@@ -34,27 +36,27 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   sendMessage,
   vendorName,
   fetchNewChats,
-  storeName
+  storeName,
 }) => {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
   const [unreadCounts, setUnreadCounts] = useState<{[key: string]: number}>({}) // Map for unread counts
   const [image, setImage] = useState<File | null>(null) // State untuk gambar
   const [latestMessages, setLatestMessages] = useState<{[key: string]: string}>({})
   const chatContainerRef = useRef<HTMLDivElement | null>(null)
+  const [previewImage, setPreviewImage] = useState(null)
 
   // Function to scroll to the bottom of the chat
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       requestAnimationFrame(() => {
         setTimeout(() => {
-          chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
-        }, 0);
-      });
+          chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight
+        }, 0)
+      })
     }
-  };
+  }
 
   useEffect(() => {
-    
     scrollToBottom()
   }, [messages, selectedChat])
   const fetchUnreadCounts = async () => {
@@ -148,8 +150,24 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setImage(e.target.files[0])
+      
+      
       const file = e.target.files[0]
+      const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
+      const isImage = file.type.startsWith("image/");
+        const isVideo = file.type.startsWith("video/");
+    
+        if ((isImage && fileSizeMB > 2) || (isVideo && fileSizeMB > 5)) {
 
+          
+        Swal.fire({
+          title: 'Error',
+          text: `File terlalu besar! Maksimum ${isImage ? "2MB" : "5MB"}`,
+          icon: 'error',
+        })
+          // alert(`File terlalu besar! Maksimum ${isImage ? "2MB" : "5MB"}`);
+          return;
+        }
       // Simpan file ke dalam setMessage
       setMessage({
         type: 'file',
@@ -275,7 +293,6 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
       {/* Active Chat Section */}
       {selectedChat && (
         <div
-        
           style={{
             flex: 1,
             padding: '10px',
@@ -372,7 +389,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                 style={{
                   textAlign:
                     msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                    msg.sender === vendorName||
+                    msg.sender === vendorName ||
                     msg.sender === storeName
                       ? 'right'
                       : 'left',
@@ -400,13 +417,13 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     display: 'inline-block',
                     backgroundColor:
                       msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                      msg.sender === vendorName||
+                      msg.sender === vendorName ||
                       msg.sender === storeName
                         ? '#e0f7fa'
                         : '#f1f1f1',
                     color:
                       msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                      msg.sender === vendorName||
+                      msg.sender === vendorName ||
                       msg.sender === storeName
                         ? '#333'
                         : '#333',
@@ -423,6 +440,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                         src={msg.message}
                         alt='Uploaded File'
                         style={{maxWidth: '100%', borderRadius: '5px'}}
+                        onClick={() => setPreviewImage(msg.message)}
                       />
                     ) : msg.message.match(/\.(mp4|mov|avi)$/) ? (
                       <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
@@ -456,6 +474,13 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     })}
                   </div>
                 </div>
+                {previewImage && (
+                  <Modal show={!!previewImage} onHide={() => setPreviewImage(null)} centered>
+                    <Modal.Body>
+                      <img src={previewImage} alt='Preview' style={{width: '100%'}} />
+                    </Modal.Body>
+                  </Modal>
+                )}
               </div>
             ))}
           </div>
@@ -469,7 +494,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             <input
               type='text'
               placeholder='Ketik pesan...'
-              value={message?.fileName || (typeof message === "string" ? message : "")}
+              value={message?.fileName || (typeof message === 'string' ? message : '')}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
