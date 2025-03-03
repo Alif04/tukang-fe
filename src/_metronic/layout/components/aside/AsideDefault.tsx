@@ -173,7 +173,7 @@ const AsideDefault: FC = () => {
     
           
           <h6 className='text-center text-secondary-emphasis'>
-            {['Super User', 'Admin HO', 'Store CS','Admin WA'].includes(user.roles)
+            {['Super User', 'Admin HO', 'Store CS','Admin WA','Admin WA2'].includes(user.roles)
               ? user.username
               : user.full_name}
             <br />({user.roles}){' '}

@@ -434,15 +434,15 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     position: 'relative',
                   }}
                 >
-                  {msg.message.startsWith('http') && msg.message.includes('/uploads/') ? (
-                    msg.message.match(/\.(jpeg|jpg|png|gif)$/) ? (
+                  {msg?.message?.startsWith('http') && msg?.message?.includes('/uploads/') ? (
+                    msg?.message?.match(/\.(jpeg|jpg|png|gif)$/) ? (
                       <img
                         src={msg.message}
                         alt='Uploaded File'
                         style={{maxWidth: '100%', borderRadius: '5px'}}
                         onClick={() => setPreviewImage(msg.message)}
                       />
-                    ) : msg.message.match(/\.(mp4|mov|avi)$/) ? (
+                    ) : msg?.message?.match(/\.(mp4|mov|avi)$/) ? (
                       <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
                         <source src={msg.message} type='video/mp4' />
                         Your browser does not support the video tag.

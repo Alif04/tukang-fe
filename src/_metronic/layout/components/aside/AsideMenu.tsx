@@ -41,7 +41,7 @@ const AsideMenu: React.FC<Props> = ({asideMenuCSSClasses}) => {
         data-kt-menu='true'
         className={clsx(
           'menu menu-column menu-title-gray-800 menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary menu-arrow-gray-500',
-          asideMenuCSSClasses.join(' ')
+          // asideMenuCSSClasses.join(' ')
         )}
       >
         <AsideMenuMain />

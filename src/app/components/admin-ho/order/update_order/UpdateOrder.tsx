@@ -92,7 +92,7 @@ interface Order {
 
   [key: string]: any
 }
-
+const apiChat = process.env.REACT_APP_API_CHAT_URL
 const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -156,7 +156,9 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   const [visible, setVisible] = useState(false)
   const [visibleQuotationReceipt, setVisibleQuotationReceipt] = useState(false)
   const [visibleQuotationFiles, setVisibleQuotationFiles] = useState(false)
-
+  const [orderStatusLabel, setOrderStatusLabel] = useState('')
+  const [template, setTemplate]= useState([])
+  const userRole = localStorage.getItem('userRole') as string
   // Member
   const [member, setMember] = useState<MemberSelect[]>([])
   const [selectedMember, setSelectedMember] = useState<SingleValue<MemberSelect>>({
@@ -270,7 +272,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           })
           .then((response) => {
             const data = response.data.data
-
+      
             setOrderDetail(data)
 
             if (data?.store) {
@@ -542,10 +544,30 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         console.error(err)
       }
     }
+    const getTemplaye = async ()=>{
+      let apiUrlWithParams = `${apiChat}/templates`
 
+      try {
+        const response = await axios.get(apiUrlWithParams, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        if (response.data) {
+          setTemplate(response.data)
+        }
+        // console.log(response.data.data.data);
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
     fetchOrderData()
     getStore()
     getMember()
+    getTemplaye()
   }, [])
 
   useEffect(() => {
@@ -776,6 +798,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
     const status = determineStatus()
     const desiredStatus = statusData.find((statuses: any) => statuses.category === status)
+    setOrderStatusLabel(desiredStatus?.description)
     const statusId = desiredStatus?.value
 
     setOrderForm({
@@ -957,7 +980,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   }
 
   const handleUpdateOrder = async () => {
-    setIsLoading(true)
+    // setIsLoading(true)
     const url = `${apiUrl}/orders/${params.id}`
 
     let errorBags = []
@@ -1055,6 +1078,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         }
       })
     }
+    // console.log(orderStatusLabel);
+    // console.log(orderForm);
 
     await axios
       .post(url, formData, {
@@ -1069,6 +1094,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         const orderId = response.data.data.id
 
         if (response.data.status === 200 || response.data.status === 201) {
+          sendMessage()
           Swal.fire({
             title: 'Success',
             text: 'Success Update Order',
@@ -1107,7 +1133,38 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         })
       })
   }
+  const sendMessage = async () => {
+    const filteredTemplates:any = template.find((t:any) => 
+      t.subCategory === orderStatusLabel && t.status === "Active"
+  );
+  
+    const data = {
+      message: filteredTemplates?.content,
+      chatId: `62${orderForm.project_number}@c.us`,
+      adminRole: userRole,
+    }
+    await axios
+      .post(`${apiChat}/send-message`, data, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        console.log(response)
+      })
+      .catch((error) => {
+        console.error(error)
 
+        // Swal.fire({
+        //   title: 'Error',
+        //   text: error.response.data.message,
+        //   icon: 'error',
+        // })
+      })
+  }
   // Reprint Order
   const handleCancelOrder = async () => {
     Swal.fire({

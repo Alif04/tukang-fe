@@ -1,10 +1,10 @@
-import { lazy, FC, Suspense } from 'react'
-import { Route, Routes, Navigate } from 'react-router-dom'
-import { MasterLayout } from '../../_metronic/layout/MasterLayout'
+import {lazy, FC, Suspense} from 'react'
+import {Route, Routes, Navigate} from 'react-router-dom'
+import {MasterLayout} from '../../_metronic/layout/MasterLayout'
 import TopBarProgress from 'react-topbar-progress-indicator'
-import { DashboardWrapper } from '../pages/dashboard/DashboardWrapper'
-import { getCSSVariableValue } from '../../_metronic/assets/ts/_utils'
-import { WithChildren } from '../../_metronic/helpers'
+import {DashboardWrapper} from '../pages/dashboard/DashboardWrapper'
+import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
+import {WithChildren} from '../../_metronic/helpers'
 
 const PrivateRoutes = () => {
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
@@ -37,14 +37,10 @@ const PrivateRoutes = () => {
   const PromotionQuotation = lazy(
     () => import('../modules/promotion_quotation/PromotionQuotationPage')
   )
-  const DataMasterPage = lazy(
-    () => import('../modules/data-master/DataMasterPage')
-  )
+  const DataMasterPage = lazy(() => import('../modules/data-master/DataMasterPage'))
 
-  const DataRolePage = lazy(
-    () => import('../modules/data-role/DataMasterPage')
-  )
-
+  const DataRolePage = lazy(() => import('../modules/data-role/DataMasterPage'))
+  const NotifSettingPage = lazy(() => import('../modules/notif-setting/NotifSettingPage'))
 
   return (
     <Routes>
@@ -56,6 +52,14 @@ const PrivateRoutes = () => {
         <Route path='home' element={<DashboardWrapper />} />
 
         {/* Lazy Modules */}
+        <Route
+          path='notif-setting/*'
+          element={
+            <SuspensedView>
+              <NotifSettingPage />
+            </SuspensedView>
+          }
+        />
 
         <Route
           path='calendar/*'
@@ -272,7 +276,7 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
- <Route
+        <Route
           path='incentive-manager/*'
           element={
             <SuspensedView>
@@ -314,7 +318,7 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
-   <Route
+        <Route
           path='data-role/*'
           element={
             <SuspensedView>
@@ -331,7 +335,7 @@ const PrivateRoutes = () => {
             </SuspensedView>
           }
         />
-
+      
         {/* Page Not Found */}
         <Route path='*' element={<Navigate to='/error/404' />} />
       </Route>
@@ -339,7 +343,7 @@ const PrivateRoutes = () => {
   )
 }
 
-const SuspensedView: FC<WithChildren> = ({ children }) => {
+const SuspensedView: FC<WithChildren> = ({children}) => {
   const baseColor = getCSSVariableValue('--kt-primary')
   TopBarProgress.config({
     barColors: {
@@ -351,4 +355,4 @@ const SuspensedView: FC<WithChildren> = ({ children }) => {
   return <Suspense fallback={<TopBarProgress />}>{children}</Suspense>
 }
 
-export { PrivateRoutes }
+export {PrivateRoutes}

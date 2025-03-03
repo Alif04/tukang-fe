@@ -58,7 +58,7 @@ export function AsideMenuMain() {
           'Owner Vendor',
           'Tukang',
           'Admin WA',
-          'Admin WA2'
+          'Admin WA2',
         ]}
       />
 
@@ -382,8 +382,8 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
-            {/* Halaman Insentif Manager ( Payroll ) */}
-            <AsideMenuItemWithSub
+      {/* Halaman Insentif Manager ( Payroll ) */}
+      <AsideMenuItemWithSub
         to='/incentive-manager'
         title='Insentif Store Manager'
         icon='/media/icons/duotune/finance/fin004.svg'
@@ -476,9 +476,7 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/communication/com003.svg'
         title='Chat'
         fontIcon='bi-app-indicator'
-        role={[
-          'Admin WA',  'Admin WA2'
-        ]}
+        role={['Admin WA', 'Admin WA2']}
       />
       {/* Halaman Payment */}
       {/* <AsideMenuItemWithSub
@@ -532,7 +530,15 @@ export function AsideMenuMain() {
         icon='/media/icons/duotune/coding/cod009.svg'
         title={userRole === 'Store CS' ? 'Pengaturan' : 'Setting'}
         fontIcon='bi-app-indicator'
-        role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Tukang', 'Admin WA']}
+        role={[
+          'Store CS',
+          'Admin HO',
+          'Super User',
+          'Admin Vendor',
+          'Owner Vendor',
+          'Tukang',
+          'Admin WA',
+        ]}
       >
         <AsideMenuItemWithSub
           to='/bank'
@@ -610,7 +616,6 @@ export function AsideMenuMain() {
           />
         </AsideMenuItemWithSub>
 
-
         {/* <AsideMenuItem
           to='/employee/new-employee'
           title='Register Staff'
@@ -645,7 +650,23 @@ export function AsideMenuMain() {
           role={['Store CS']}
           hasBullet={true}
         />
-
+        {/* wa chat */}
+        <AsideMenuItemWithSub
+          to='/notif-setting'
+          title='Notif Setting'
+          hasBullet={true}
+          role={['Admin WA', 'Admin WA2']}
+        >
+      <AsideMenuItem
+          to='/notif-setting/view-setting'
+          title='View Notif Setting'
+          role={['Admin WA', 'Admin WA2']}
+          hasBullet={true}
+        />
+        </AsideMenuItemWithSub>
+  
+        
+        {/* </AsideMenuItemWithSub> */}
         <AsideMenuItem
           to={`/profile/update-profile/${userVendor !== null ? userVendor : userTukang}`}
           title={userRole === 'Owner Vendor' ? 'Profile Vendor' : 'Profile Tukang'}
@@ -726,23 +747,21 @@ export function AsideMenuMain() {
             role={['Admin HO', 'Super User']}
             hasBullet={true}
           />
-           
         </AsideMenuItemWithSub>
         <AsideMenuItemWithSub
           to='/data-role'
           title='Data Role'
           hasBullet={true}
-          role={['Admin HO', 'Super User', ]}
+          role={['Admin HO', 'Super User']}
         >
           <AsideMenuItem
             to='/data-role/view-data-role'
             title='Daftar Role'
-            role={['Admin HO', 'Super User',]}
+            role={['Admin HO', 'Super User']}
             hasBullet={true}
           />
-           
         </AsideMenuItemWithSub>
-       
+
         <AsideMenuItemWithSub
           to='/user'
           title={userRole === 'Super User' ? 'User Management' : 'Admin Management'}

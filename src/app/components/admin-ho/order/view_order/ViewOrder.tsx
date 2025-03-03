@@ -806,7 +806,6 @@ const ViewOrders: FC = () => {
             return ''
           }
         })()
-
         data = {
           order_id: item.id,
           store_id: item?.store?.id,
