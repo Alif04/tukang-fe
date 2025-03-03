@@ -650,9 +650,9 @@ export default function ChatPage(): JSX.Element {
         });
       
         if (res.data && res.data.length > 0) {
-
+          
           const hasNewMessages = res.data.some((chat: any) => {
-            let currentUser;
+            let currentUser: string;
           
             switch (userRole) {
               case "Owner Vendor":
@@ -667,9 +667,10 @@ export default function ChatPage(): JSX.Element {
               default:
                 currentUser = userRole;
             }
-          
-            return chat.receiver.includes(currentUser);
-          });
+        
+            // Cek apakah ada receiver yang sesuai dengan currentUser
+            return chat.receiver.some((receiver: any) => receiver.user === currentUser && !receiver.read);
+        });
           // console.log(hasNewMessages);
           
       if (hasNewMessages) {
