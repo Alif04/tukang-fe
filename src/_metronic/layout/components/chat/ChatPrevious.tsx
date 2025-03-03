@@ -22,6 +22,7 @@ interface ChatPreviousProps {
   fetchNewChats: () => void
   vendorName: string
   storeName: string
+  setReciver:any
 }
 const apiChat = process.env.REACT_APP_API_CHAT_URL
 const ChatPrevious: React.FC<ChatPreviousProps> = ({
@@ -37,6 +38,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   vendorName,
   fetchNewChats,
   storeName,
+  setReciver
 }) => {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
   const [unreadCounts, setUnreadCounts] = useState<{[key: string]: number}>({}) // Map for unread counts
@@ -121,11 +123,24 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   }, [previousChats])
 
   const onSelectChat = async (chat: Chat) => {
+    const members = chat.members.filter((member: string) => member !== (
+      userRole === "Owner Vendor"
+        ? vendorName
+        : userRole === "Super User"
+        ? "Admin HO"
+        : userRole === "Store CS"
+        ? storeName
+        : userRole
+    ));
+    setReciver(members)
+    
     setSelectedChat(chat)
     handlePreviousChat(chat._id)
     try {
       const sender =
-        userRole === 'Owner Vendor' ? vendorName : userRole === 'Super User' ? 'Admin HO' : userRole
+        userRole === 'Owner Vendor' ? vendorName : userRole === 'Super User' ? 'Admin HO' : userRole === 'Store CS'
+        ? storeName
+        : userRole
       await axios.put(
         `${apiChat}/chat/status/${chat._id}`,
         {sender},
@@ -137,7 +152,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
       )
       fetchNewChats()
       fetchUnreadCounts()
-      // scrollToBottom()
+      scrollToBottom()
     } catch (err) {
       console.error('Failed to update chat status:', err)
     }

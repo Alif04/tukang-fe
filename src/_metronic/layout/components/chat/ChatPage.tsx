@@ -22,6 +22,7 @@ export default function ChatPage(): JSX.Element {
   const [orderId, setOrderId] = useState<string>('')
   const [chatType, setChatType] = useState<string>('')
   const [groupId, setGroupId] = useState<string>('')
+  const [reciver, setReciver] = useState<any>([])
   const [organisasiId, setOrganisasiId] = useState<string>('')
   const [vendorList, setVendorList] = useState<{id: string; store_name: string}[]>([])
   const [StoreList, setStoreList] = useState<{id: string; store_name: string}[]>([])
@@ -30,7 +31,7 @@ export default function ChatPage(): JSX.Element {
   const [page, setPage] = useState(1) // Pagination state
   const [newMessages, setNewMessages] = useState<any>(false)
   const [unreadChats, setUnreadChats] = useState<any>([])
-  const userRole = localStorage.getItem('userRole') as string
+  const userRole = localStorage.getItem('userRole') as any
   const storeName = localStorage.getItem('storeName') as string
   const storeId = localStorage.getItem('storeId') as string
   const vendorName = localStorage.getItem('vendorName') as string
@@ -153,7 +154,7 @@ export default function ChatPage(): JSX.Element {
 
   useEffect(() => {
     const handleReceiveMessage = (msg: {sender: string; message: string; timestamp: any}) => {
-      console.log('Received message:', msg);
+
       
       if (
         msg.sender !==
@@ -298,6 +299,17 @@ export default function ChatPage(): JSX.Element {
           },
         })
         if (res.data.success) {
+          const dataReciver = res.data.group.members.filter((member:any) => member !== (
+            userRole === 'Owner Vendor'
+              ? vendorName
+              : userRole === 'Super User'
+              ? 'Admin HO'
+               : userRole === 'Store CS'
+              ? storeName
+              : userRole
+
+          ));
+          setReciver(dataReciver)
           setGroupId(res.data.groupId)
           setStep('chat')
 
@@ -357,6 +369,17 @@ export default function ChatPage(): JSX.Element {
           },
         })
         if (res.data.success) {
+          const dataReciver = res.data.group.members.filter((member:any) => member !== (
+            userRole === 'Owner Vendor'
+              ? vendorName
+              : userRole === 'Super User'
+              ? 'Admin HO'
+               : userRole === 'Store CS'
+              ? storeName
+              : userRole
+
+          ));
+          setReciver(dataReciver)
           setGroupId(res.data.groupId)
           setStep('chat')
           setMessages((prev) => [
@@ -418,6 +441,17 @@ export default function ChatPage(): JSX.Element {
           },
         })
         if (res.data.success) {
+          const dataReciver = res.data.group.members.filter((member:any) => member !== (
+            userRole === 'Owner Vendor'
+              ? vendorName
+              : userRole === 'Super User'
+              ? 'Admin HO'
+               : userRole === 'Store CS'
+              ? storeName
+              : userRole
+
+          ));
+          setReciver(dataReciver)
           setGroupId(res.data.groupId)
           setStep('chat')
           setMessages((prev) => [
@@ -471,8 +505,10 @@ export default function ChatPage(): JSX.Element {
           ? storeName
           : userRole,
       timestamp,
+      receiver:reciver,
       message
     }
+    
     if (typeof message === "string") {
       msg.message = message;
      
@@ -603,10 +639,7 @@ export default function ChatPage(): JSX.Element {
     )
     resetChat()
   }
-  // const [menuOpen, setMenuOpen] = useState(false); // State untuk dropdown
 
-  // const toggleMenu = () => setMenuOpen(!menuOpen); // Toggle menu
-  // const closeMenu = () => setMenuOpen(false);
   const fetchNewChats = async () => {
 
       try {
@@ -617,14 +650,28 @@ export default function ChatPage(): JSX.Element {
         });
       
         if (res.data && res.data.length > 0) {
-
-          const hasNewMessages = res.data.some((chats: any) => chats.sender !== (userRole === 'Owner Vendor'
-          ? vendorName
-          : userRole === 'Super User'
-          ? 'Admin HO'
-           : userRole === 'Store CS'
-          ? storeName
-          : userRole));
+          
+          const hasNewMessages = res.data.some((chat: any) => {
+            let currentUser: string;
+          
+            switch (userRole) {
+              case "Owner Vendor":
+                currentUser = vendorName;
+                break;
+              case "Super User":
+                currentUser = "Admin HO";
+                break;
+              case "Store CS":
+                currentUser = storeName;
+                break;
+              default:
+                currentUser = userRole;
+            }
+        
+            // Cek apakah ada receiver yang sesuai dengan currentUser
+            return chat.receiver.some((receiver: any) => receiver.user === currentUser && !receiver.read);
+        });
+          // console.log(hasNewMessages);
           
       if (hasNewMessages) {
         setNewMessages(true);
@@ -947,6 +994,7 @@ export default function ChatPage(): JSX.Element {
                 vendorName={vendorName}
                 setMessage={setMessage}
                 sendMessage={sendMessage}
+                setReciver={setReciver}
                 messages={messages}
                 message={message}
                 previousChats={previousChats}
