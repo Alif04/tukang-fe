@@ -159,14 +159,48 @@ const Private: FC = () => {
       console.error('Error fetching chat data:', error)
     }
   }
- 
+  const handleResolveChat = async () => {
+    Swal.fire({
+      title: "Apakah Anda yakin?",
+      text: "Anda ingin mengakhiri percakapan ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, akhiri!",
+      cancelButtonText: "Batal",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.post(
+            `${apiChat}/end-chat`,
+            { chatId: selectedChats, admin: userRole },
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+          Swal.fire("Selesai!", "Percakapan telah diakhiri.", "success");
+          setSelectedChats(null);
+          setChatData(null);
+          fetchNewChat();
+        } catch (error) {
+          console.error("Error resolving chat:", error);
+          Swal.fire("Error", "Gagal mengakhiri percakapan.", "error");
+        }
+      }
+    });
+  };
+  
   return (
  
     <div className='d-flex flex-column flex-lg-row'>
        {qrCode ? <>
     <div>
       <h1>Scan QR Code WhatsApp</h1>
-      {qrCode ? <img src={qrCode} alt="QR Code" /> : <p>Menunggu QR Code...</p>}
+      <img src={qrCode} alt="QR Code" /> 
     </div>
   </> : <>  <div className='flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0'>
         <div className='card card-flush'>
@@ -385,11 +419,12 @@ const Private: FC = () => {
                 <div className='me-n3'>
                   <button
                     className='btn btn-sm btn-icon btn-active-light-primary'
-                    data-kt-menu-trigger='click'
-                    data-kt-menu-placement='bottom-end'
-                    data-kt-menu-flip='top-end'
+                    onClick={handleResolveChat}
+                    style={{
+                      marginRight: 30
+                    }}
                   >
-                    <i className='bi bi-three-dots fs-2'></i>
+                    <i className='bi bi-check'>Resolved</i>
                   </button>
                 </div>
               </div>
