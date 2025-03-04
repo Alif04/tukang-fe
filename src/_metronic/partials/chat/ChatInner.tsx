@@ -54,14 +54,7 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
     }
     setMessage('')
     await axios
-      .post(`${apiChat}/send-message`, data, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      .post(`${apiChat}/send-message`, data)
       .then((response) => {
         console.log(response)
       })

@@ -1144,14 +1144,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       adminRole: userRole,
     }
     await axios
-      .post(`${apiChat}/send-message-change-status`, data, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      .post(`${apiChat}/send-message-change-status`, data)
       .then((response) => {
         console.log(response)
       })

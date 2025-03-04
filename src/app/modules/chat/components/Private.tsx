@@ -119,14 +119,7 @@ const Private: FC = () => {
       admin: selectedAdmin,
     }
     await axios
-      .post(`${apiChat}/assign-chat`, data, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      .post(`${apiChat}/assign-chat`, data)
       .then((response) => {
         if (response.status === 200) {
           Swal.fire({
@@ -189,12 +182,6 @@ const Private: FC = () => {
           await axios.post(
             `${apiChat}/end-chat`,
             {chatId: selectedChats, admin: userRole},
-            {
-              headers: {
-                Accept: 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              },
-            }
           )
           Swal.fire('Selesai!', 'Percakapan telah diakhiri.', 'success')
           setSelectedChats(null)
