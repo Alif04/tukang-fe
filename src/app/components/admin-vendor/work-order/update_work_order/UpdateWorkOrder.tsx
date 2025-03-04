@@ -601,11 +601,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       message: filteredTemplates?.content,
       chatId: `62${orderDetail?.project_number}@c.us`,
       adminRole: userRole,
-    }
-    console.log(data);
-    
+    }    
     await axios
-      .post(`${apiChat}/send-message`, data, {
+      .post(`${apiChat}/send-message-change-status`, data, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

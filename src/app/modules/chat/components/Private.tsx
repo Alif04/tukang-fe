@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { FC, useEffect, useState } from 'react'
-import { KTSVG, toAbsoluteUrl } from '../../../../_metronic/helpers'
-import { ChatInner } from '../../../../_metronic/partials'
+import React, {FC, useEffect, useState} from 'react'
+import {KTSVG, toAbsoluteUrl} from '../../../../_metronic/helpers'
+import {ChatInner} from '../../../../_metronic/partials'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import io from 'socket.io-client'
@@ -20,7 +20,8 @@ const Private: FC = () => {
   const [roles, setRoles] = useState<any>([])
   const tabs = ['Assigned', 'Unassigned', 'Resolved']
   const [data, setData] = useState<any>([])
-  const [qrCode, setQrCode] = useState("");
+  const [qrCode, setQrCode] = useState('')
+  const [isConnected, setIsConnected] = useState(false)
   const userRole = localStorage.getItem('userRole') as string
   const fetchNewChat = async () => {
     let query = `status=${selectedTab}`
@@ -71,23 +72,36 @@ const Private: FC = () => {
   }, [selectedTab])
 
   useEffect(() => {
-    socket.on("qrCode", (data: any) => {
-      setQrCode(data.qr);
-    });
+    socket.on('qrCode', (data: any) => {
+      setQrCode(data.qr)
+    })
 
-    socket.on("status", (data: any) => {
-      if (data.status === 'successChat') {
+    socket.on('status', (data: any) => {
+      if (data.status === 'isLogged' || data.status === 'successChat') {
+        setIsConnected(true)
         setQrCode('')
+      } else if (data.status === 'disconnected') {
+        setIsConnected(false)
+        requestQrCode()
+      }else if (data.status === 'desconnectedMobile') {
+        setIsConnected(false)
+        requestQrCode()
       }
-      console.log("Status bot:", data.status);
-    });
+      console.log('Status bot:', data.status)
+    })
 
     return () => {
-      socket.off("qrCode");
-      socket.off("status");
-    };
+      socket.off('qrCode')
+      socket.off('status')
+    }
   }, [])
+  const requestQrCode = () => {
+    socket.emit('requestQr')
+  }
 
+  const checkStatus = () => {
+    socket.emit('checkStatus')
+  }
 
   const handleAssignClick = (chatId: any) => {
     setSelectedChat(chatId)
@@ -161,281 +175,285 @@ const Private: FC = () => {
   }
   const handleResolveChat = async () => {
     Swal.fire({
-      title: "Apakah Anda yakin?",
-      text: "Anda ingin mengakhiri percakapan ini?",
-      icon: "warning",
+      title: 'Apakah Anda yakin?',
+      text: 'Anda ingin mengakhiri percakapan ini?',
+      icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Ya, akhiri!",
-      cancelButtonText: "Batal",
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya, akhiri!',
+      cancelButtonText: 'Batal',
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           await axios.post(
             `${apiChat}/end-chat`,
-            { chatId: selectedChats, admin: userRole },
+            {chatId: selectedChats, admin: userRole},
             {
               headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Accept: 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
               },
             }
-          );
-          Swal.fire("Selesai!", "Percakapan telah diakhiri.", "success");
-          setSelectedChats(null);
-          setChatData(null);
-          fetchNewChat();
+          )
+          Swal.fire('Selesai!', 'Percakapan telah diakhiri.', 'success')
+          setSelectedChats(null)
+          setChatData(null)
+          fetchNewChat()
         } catch (error) {
-          console.error("Error resolving chat:", error);
-          Swal.fire("Error", "Gagal mengakhiri percakapan.", "error");
+          console.error('Error resolving chat:', error)
+          Swal.fire('Error', 'Gagal mengakhiri percakapan.', 'error')
         }
       }
-    });
-  };
-  
+    })
+  }
+
   return (
- 
     <div className='d-flex flex-column flex-lg-row'>
-       {qrCode ? <>
-    <div>
-      <h1>Scan QR Code WhatsApp</h1>
-      <img src={qrCode} alt="QR Code" /> 
-    </div>
-  </> : <>  <div className='flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0'>
-        <div className='card card-flush'>
-          <div className='card-header pt-7' id='kt_chat_contacts_header'>
-            <form className='w-100 position-relative' autoComplete='off'>
-              <KTSVG
-                path='/media/icons/duotune/general/gen021.svg'
-                className='svg-icon-2 svg-icon-lg-1 svg-icon-gray-500 position-absolute top-50 ms-5 translate-middle-y'
-              />
-
-              <input
-                type='text'
-                className='form-control form-control-solid px-15'
-                name='search'
-                placeholder='Search by username or email...'
-              />
-            </form>
+      {!isConnected && qrCode ? (
+        <>
+          <div className='text-center'>
+            <h1>Scan QR Code WhatsApp</h1>
+            <img src={qrCode} alt='QR Code' className='my-3' />
+            <br />
+            <button onClick={checkStatus} className='btn btn-primary'>
+              Minta QR Baru
+            </button>
           </div>
+        </>
+      ) : (
+        <>
+          {' '}
+          <div className='flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0'>
+            <div className='card card-flush'>
+              <div className='card-header pt-7' id='kt_chat_contacts_header'>
+                <form className='w-100 position-relative' autoComplete='off'>
+                  <KTSVG
+                    path='/media/icons/duotune/general/gen021.svg'
+                    className='svg-icon-2 svg-icon-lg-1 svg-icon-gray-500 position-absolute top-50 ms-5 translate-middle-y'
+                  />
 
-          <div className='card-body pt-5' id='kt_chat_contacts_body'>
-            <div
-              className='scroll-y me-n5 pe-5 h-200px h-lg-auto'
-              data-kt-scroll='true'
-              data-kt-scroll-activate='{default: false, lg: true}'
-              data-kt-scroll-max-height='auto'
-              data-kt-scroll-dependencies='#kt_header, #kt_toolbar, #kt_footer, #kt_chat_contacts_header'
-              data-kt-scroll-wrappers='#kt_content, #kt_chat_contacts_body'
-              data-kt-scroll-offset='0px'
-            >
-              <div
-                className='flex border-b mb-4'
-                style={{ justifyContent: 'space-between', display: 'flex' }}
-              >
-                {tabs.map((tab) => (
-                  <div
-                    key={tab}
-                    className={`p-2 cursor-pointer flex-1 text-center ${selectedTab === tab
-                        ? 'border-b-2 border-blue-500 text-blue-500'
-                        : 'text-gray-500'
-                      }`}
-                    onClick={() => {
-
-                      setSelectedTab(tab)
-                      setChatData(null)
-                      setSelectedChats(null)
-
-                    }}
-                  >
-                    {tab}
-                  </div>
-                ))}
+                  <input
+                    type='text'
+                    className='form-control form-control-solid px-15'
+                    name='search'
+                    placeholder='Search by username or email...'
+                  />
+                </form>
               </div>
-              {selectedTab === 'Assigned' && (
-                <>
-                  {data.map((a: any, i: any) => {
-                    return (
+
+              <div className='card-body pt-5' id='kt_chat_contacts_body'>
+                <div
+                  className='scroll-y me-n5 pe-5 h-200px h-lg-auto'
+                  data-kt-scroll='true'
+                  data-kt-scroll-activate='{default: false, lg: true}'
+                  data-kt-scroll-max-height='auto'
+                  data-kt-scroll-dependencies='#kt_header, #kt_toolbar, #kt_footer, #kt_chat_contacts_header'
+                  data-kt-scroll-wrappers='#kt_content, #kt_chat_contacts_body'
+                  data-kt-scroll-offset='0px'
+                >
+                  <div
+                    className='flex border-b mb-4'
+                    style={{justifyContent: 'space-between', display: 'flex'}}
+                  >
+                    {tabs.map((tab) => (
                       <div
-                        key={i}
-                        onClick={() => handleChatClick(a.chatId)}
-                        style={{
-                          cursor: "pointer",
-                          backgroundColor: selectedChats === a.chatId ? "blue" : "transparent",
-                          color: selectedChats === a.chatId ? "white" : "inherit",
-                          padding: "10px",
-                          borderRadius: "5px"
+                        key={tab}
+                        className={`p-2 cursor-pointer flex-1 text-center ${
+                          selectedTab === tab
+                            ? 'border-b-2 border-blue-500 text-blue-500'
+                            : 'text-gray-500'
+                        }`}
+                        onClick={() => {
+                          setSelectedTab(tab)
+                          setChatData(null)
+                          setSelectedChats(null)
                         }}
                       >
-                        <div className='d-flex flex-stack py-4'>
-                          <div className='d-flex align-items-center'>
-                            <div className='symbol symbol-45px symbol-circle'>
-                              <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
-                            </div>
-
-                            <div className='ms-5'>
-                              <a
-                                href='#'
-                                className='fs-5 fw-bolder text-gray-900 mb-2'
-                              >
-                                {a.chatId}
-                              </a>
-                            </div>
-                          </div>
-                        </div>
+                        {tab}
                       </div>
-                    )
-                  })}
-                </>
-              )}
+                    ))}
+                  </div>
+                  {selectedTab === 'Assigned' && (
+                    <>
+                      {data.map((a: any, i: any) => {
+                        return (
+                          <div
+                            key={i}
+                            onClick={() => handleChatClick(a.chatId)}
+                            style={{
+                              cursor: 'pointer',
+                              backgroundColor: selectedChats === a.chatId ? 'blue' : 'transparent',
+                              color: selectedChats === a.chatId ? 'white' : 'inherit',
+                              padding: '10px',
+                              borderRadius: '5px',
+                            }}
+                          >
+                            <div className='d-flex flex-stack py-4'>
+                              <div className='d-flex align-items-center'>
+                                <div className='symbol symbol-45px symbol-circle'>
+                                  <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
+                                </div>
 
-              {selectedTab === 'Unassigned' && (
-                <>
-                  {data.map((a: any, i: any) => {
-                    return (
-                      <div key={i}>
-                        <div className='d-flex flex-stack py-4'>
-                          <div className='d-flex align-items-center'>
-                            <div className='symbol symbol-45px symbol-circle'>
-                              <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
-                            </div>
-
-                            <div className='ms-5'>
-                              <a
-                                href='#'
-                                className='fs-5 fw-bolder text-gray-900 text-hover-primary mb-2'
-                              >
-                                {a.chatId}
-                              </a>
-                              {/* <div className='fw-bold text-gray-400'>melody@altbox.com</div> */}
+                                <div className='ms-5'>
+                                  <a href='#' className='fs-5 fw-bolder text-gray-900 mb-2'>
+                                    {a.chatId}
+                                  </a>
+                                </div>
+                              </div>
                             </div>
                           </div>
+                        )
+                      })}
+                    </>
+                  )}
 
-                          <div className='d-flex flex-column align-items-end ms-2'>
+                  {selectedTab === 'Unassigned' && (
+                    <>
+                      {data.map((a: any, i: any) => {
+                        return (
+                          <div key={i}>
+                            <div className='d-flex flex-stack py-4'>
+                              <div className='d-flex align-items-center'>
+                                <div className='symbol symbol-45px symbol-circle'>
+                                  <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
+                                </div>
+
+                                <div className='ms-5'>
+                                  <a
+                                    href='#'
+                                    className='fs-5 fw-bolder text-gray-900 text-hover-primary mb-2'
+                                  >
+                                    {a.chatId}
+                                  </a>
+                                  {/* <div className='fw-bold text-gray-400'>melody@altbox.com</div> */}
+                                </div>
+                              </div>
+
+                              <div className='d-flex flex-column align-items-end ms-2'>
+                                <button
+                                  className='btn btn-sm btn-icon btn-active-light-primary'
+                                  onClick={() => handleAssignClick(a.chatId)}
+                                >
+                                  <i className='bi bi-three-dots fs-2'></i>
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className='separator separator-dashed d-none'></div>
+                          </div>
+                        )
+                      })}
+                    </>
+                  )}
+                  {selectedTab === 'Resolved' && (
+                    <>
+                      {data.map((a: any, i: any) => {
+                        return (
+                          <div key={i}>
+                            <div className='d-flex flex-stack py-4'>
+                              <div className='d-flex align-items-center'>
+                                <div className='symbol symbol-45px symbol-circle'>
+                                  <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
+                                </div>
+
+                                <div className='ms-5'>
+                                  <a
+                                    href='#'
+                                    className='fs-5 fw-bolder text-gray-900 text-hover-primary mb-2'
+                                  >
+                                    {a.chatId}
+                                  </a>
+                                  {/* <div className='fw-bold text-gray-400'>melody@altbox.com</div> */}
+                                </div>
+                              </div>
+
+                              <div className='d-flex flex-column align-items-end ms-2'>
+                                {/* <span className='text-muted fs-7 mb-1'>5 hrs</span> */}
+                              </div>
+                            </div>
+
+                            <div className='separator separator-dashed d-none'></div>
+                          </div>
+                        )
+                      })}
+                    </>
+                  )}
+                  {showPopup && (
+                    <div className='modal show d-block' tabIndex={1}>
+                      <div className='modal-dialog'>
+                        <div className='modal-content'>
+                          <div className='modal-header'>
+                            <h5 className='modal-title'>Pilih Admin</h5>
                             <button
-                              className='btn btn-sm btn-icon btn-active-light-primary'
-                              onClick={() => handleAssignClick(a.chatId)}
+                              type='button'
+                              className='btn-close'
+                              onClick={() => setShowPopup(false)}
+                            ></button>
+                          </div>
+                          <div className='modal-body'>
+                            <select
+                              className='form-select'
+                              onChange={(e) => {
+                                const selectedRole = roles.find(
+                                  (role: any) => role.name === e.target.value
+                                )
+
+                                if (selectedRole) {
+                                  handleAssignAdmin(selectedRole)
+                                }
+                              }}
                             >
-                              <i className='bi bi-three-dots fs-2'></i>
-                            </button>
+                              <option value=''>Pilih Admin</option>
+                              {roles.map((role: any) => (
+                                <option key={role._id} value={role._id}>
+                                  {role.name}
+                                </option>
+                              ))}
+                            </select>
                           </div>
+                          <button onClick={saveAssign}>Simpan</button>
                         </div>
-
-                        <div className='separator separator-dashed d-none'></div>
                       </div>
-                    )
-                  })}
-                </>
-              )}
-              {selectedTab === 'Resolved' && (
-                <>
-                  {data.map((a: any, i: any) => {
-                    return (
-                      <div key={i}>
-                        <div className='d-flex flex-stack py-4'>
-                          <div className='d-flex align-items-center'>
-                            <div className='symbol symbol-45px symbol-circle'>
-                              <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
-                            </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          {selectedChats && chatData && (
+            <div className='flex-lg-row-fluid ms-lg-7 ms-xl-10'>
+              <div className='card' id='kt_chat_messenger'>
+                <div className='card-header' id='kt_chat_messenger_header'>
+                  <div className='card-title'>
+                    <div className='symbol-group symbol-hover'></div>
+                    <div className='d-flex justify-content-center flex-column me-3'>
+                      <div className='mb-0 lh-1'></div>
+                    </div>
+                  </div>
 
-                            <div className='ms-5'>
-                              <a
-                                href='#'
-                                className='fs-5 fw-bolder text-gray-900 text-hover-primary mb-2'
-                              >
-                                {a.chatId}
-                              </a>
-                              {/* <div className='fw-bold text-gray-400'>melody@altbox.com</div> */}
-                            </div>
-                          </div>
-
-                          <div className='d-flex flex-column align-items-end ms-2'>
-                            {/* <span className='text-muted fs-7 mb-1'>5 hrs</span> */}
-                          </div>
-                        </div>
-
-                        <div className='separator separator-dashed d-none'></div>
-                      </div>
-                    )
-                  })}
-                </>
-              )}
-              {showPopup && (
-                <div className='modal show d-block' tabIndex={1}>
-                  <div className='modal-dialog'>
-                    <div className='modal-content'>
-                      <div className='modal-header'>
-                        <h5 className='modal-title'>Pilih Admin</h5>
-                        <button
-                          type='button'
-                          className='btn-close'
-                          onClick={() => setShowPopup(false)}
-                        ></button>
-                      </div>
-                      <div className='modal-body'>
-                        <select
-                          className='form-select'
-                          onChange={(e) => {
-                            const selectedRole = roles.find(
-                              (role: any) => role.name === e.target.value
-                            )
-
-                            if (selectedRole) {
-                              handleAssignAdmin(selectedRole)
-                            }
-                          }}
-                        >
-                          <option value=''>Pilih Admin</option>
-                          {roles.map((role: any) => (
-                            <option key={role._id} value={role._id}>
-                              {role.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <button onClick={saveAssign}>Simpan</button>
+                  <div className='card-toolbar'>
+                    <div className='me-n3'>
+                      <button
+                        className='btn btn-sm btn-icon btn-active-light-primary'
+                        onClick={handleResolveChat}
+                        style={{
+                          marginRight: 30,
+                        }}
+                      >
+                        <i className='bi bi-check'>Resolved</i>
+                      </button>
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {selectedChats && chatData && (
-        <div className='flex-lg-row-fluid ms-lg-7 ms-xl-10'>
-          <div className='card' id='kt_chat_messenger'>
-            <div className='card-header' id='kt_chat_messenger_header'>
-              <div className='card-title'>
-                <div className='symbol-group symbol-hover'></div>
-                <div className='d-flex justify-content-center flex-column me-3'>
-                  <div className='mb-0 lh-1'></div>
-                </div>
-              </div>
-
-              <div className='card-toolbar'>
-                <div className='me-n3'>
-                  <button
-                    className='btn btn-sm btn-icon btn-active-light-primary'
-                    onClick={handleResolveChat}
-                    style={{
-                      marginRight: 30
-                    }}
-                  >
-                    <i className='bi bi-check'>Resolved</i>
-                  </button>
-                </div>
+                <ChatInner chatData={chatData} selectedChats={selectedChats} />
               </div>
             </div>
-            <ChatInner chatData={chatData} selectedChats={selectedChats} />
-          </div>
-        </div>
-      )}</>}
-    
+          )}
+        </>
+      )}
     </div>
   )
 }
 
-export { Private }
+export {Private}
