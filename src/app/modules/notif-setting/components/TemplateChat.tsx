@@ -235,6 +235,8 @@ const TemplateChat: React.FC = () => {
                   <Option value='Status'>Status</Option>
                   <Option value='Reminder'>Reminder</Option>
                   <Option value='Auto Responder'>Auto Responder</Option>
+                  <Option value='CSI'>CSI</Option>
+                  <Option value='Quotation'>Quotation</Option>
                 </Select>
               </Form.Item>
               {category === 'Text' && (
