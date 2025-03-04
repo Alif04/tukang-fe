@@ -30,10 +30,7 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
     try {
       const response = await axios.get(apiUrlWithParams, {
         headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
         },
       })
       if (response.data) {
