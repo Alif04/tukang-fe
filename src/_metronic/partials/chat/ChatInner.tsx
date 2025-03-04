@@ -28,11 +28,7 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
     let apiUrlWithParams = `${apiChat}/templates`
 
     try {
-      const response = await axios.get(apiUrlWithParams, {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      })
+      const response = await axios.get(apiUrlWithParams)
       if (response.data) {
         setTemplates(response.data)
       }
