@@ -83,7 +83,7 @@ const DashboardWrapper: FC = () => {
       ) : userRole === 'Admin WA' || userRole === 'Admin WA2' ? (
         <>
           <HeaderWrapper className='bg-header-ho' />
-          <PageTitle>AInstallasi & Service Mitra10 Dashboard</PageTitle>
+          <PageTitle>Installasi & Service Mitra10 Dashboard</PageTitle>
           <DashboardAdminWA />
         </>
       ) :(

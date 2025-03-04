@@ -325,7 +325,7 @@ const DashboardAdminWA: FC = () => {
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>
-        <Col xl={6}>
+        {/* <Col xl={6}>
           <Card>
             <Card.Body>
               <div className='fs-5 fw-normal mb-5'>Order</div>
@@ -353,7 +353,7 @@ const DashboardAdminWA: FC = () => {
               </Row>
             </Card.Body>
           </Card>
-        </Col>
+        </Col> */}
       </Row>
 
       <Row>
@@ -369,9 +369,9 @@ const DashboardAdminWA: FC = () => {
           />
         </Col>
 
-        <Col lg={7} md={12} className='mb-3'>
+        {/* <Col lg={7} md={12} className='mb-3'>
           <ChartBarSurvey className='card-xl-stretch' orderData={chartDataOrder} />
-        </Col>
+        </Col> */}
       </Row>
     </section>
   )

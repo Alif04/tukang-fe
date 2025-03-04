@@ -552,3 +552,8 @@ export * from './admin-ho/data-role/update_data_role/UpdateDataRole'
 
 // DASHBOARD PAGE ( Admin WA )
 export * from './admin-wa/dashboard/DashboardAdminWA'
+
+
+// Report Admin WA
+export * from './admin-wa/report-log-chat/ReportLogChat'
+export * from './admin-wa/report-notif-status/ReportNotifStatus'
