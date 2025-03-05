@@ -25,7 +25,7 @@ const Private: FC = () => {
   const userRole = localStorage.getItem('userRole') as string
   const fetchNewChat = async () => {
     let query = `status=${selectedTab}`
-    if (selectedTab === 'Assigned') {
+    if (selectedTab === 'Assigned' ||selectedTab === 'Resolved') {
       query += `&user=${userRole}`
     }
     try {
@@ -83,7 +83,7 @@ const Private: FC = () => {
       } else if (data.status === 'disconnected') {
         setIsConnected(false)
         requestQrCode()
-      }else if (data.status === 'desconnectedMobile') {
+      } else if (data.status === 'desconnectedMobile') {
         setIsConnected(false)
         requestQrCode()
       }
@@ -179,10 +179,7 @@ const Private: FC = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.post(
-            `${apiChat}/end-chat`,
-            {chatId: selectedChats, admin: userRole},
-          )
+          await axios.post(`${apiChat}/end-chat`, {chatId: selectedChats, admin: userRole})
           Swal.fire('Selesai!', 'Percakapan telah diakhiri.', 'success')
           setSelectedChats(null)
           setChatData(null)
@@ -214,7 +211,7 @@ const Private: FC = () => {
           <div className='flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0'>
             <div className='card card-flush'>
               <div className='card-header pt-7' id='kt_chat_contacts_header'>
-                <form className='w-100 position-relative' autoComplete='off'>
+                {/* <form className='w-100 position-relative' autoComplete='off'>
                   <KTSVG
                     path='/media/icons/duotune/general/gen021.svg'
                     className='svg-icon-2 svg-icon-lg-1 svg-icon-gray-500 position-absolute top-50 ms-5 translate-middle-y'
@@ -226,7 +223,7 @@ const Private: FC = () => {
                     name='search'
                     placeholder='Search by username or email...'
                   />
-                </form>
+                </form> */}
               </div>
 
               <div className='card-body pt-5' id='kt_chat_contacts_body'>
@@ -267,28 +264,36 @@ const Private: FC = () => {
                         return (
                           <div
                             key={i}
-                            onClick={() => handleChatClick(a.chatId)}
+                            className='d-flex align-items-center'
                             style={{
-                              cursor: 'pointer',
-                              backgroundColor: selectedChats === a.chatId ? 'blue' : 'transparent',
-                              color: selectedChats === a.chatId ? 'white' : 'inherit',
-                              padding: '10px',
-                              borderRadius: '5px',
+                              position: 'relative',
+                              marginBottom: '10px',
                             }}
                           >
-                            <div className='d-flex flex-stack py-4'>
-                              <div className='d-flex align-items-center'>
-                                <div className='symbol symbol-45px symbol-circle'>
-                                  <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
-                                </div>
-
-                                <div className='ms-5'>
-                                  <a href='#' className='fs-5 fw-bolder text-gray-900 mb-2'>
-                                    {a.chatId}
-                                  </a>
-                                </div>
-                              </div>
+                            <div className='symbol symbol-45px symbol-circle'>
+                              <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
                             </div>
+                            <button
+                              onClick={() => handleChatClick(a.chatId)}
+                              style={{
+                                marginLeft:4,
+                                width: '100%',
+                                padding: '15px',
+                                backgroundColor:
+                                  selectedChats === a.chatId ? '#1f70f2' : 'transparent',
+                                color: selectedChats === a.chatId ? 'white' : 'inherit',
+                                border: '1px solid #ccc',
+                                borderRadius: '8px',
+                                textAlign: 'left',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <span style={{color: '#333', fontWeight: '500'}}>{a.chatId}</span>
+                            </button>
                           </div>
                         )
                       })}
@@ -307,12 +312,26 @@ const Private: FC = () => {
                                 </div>
 
                                 <div className='ms-5'>
-                                  <a
-                                    href='#'
-                                    className='fs-5 fw-bolder text-gray-900 text-hover-primary mb-2'
+                                  <button
+                                    style={{
+                                      width: '100%',
+                                      padding: '15px',
+                                      backgroundColor: 'transparent',
+                                      color: 'inherit',
+                                      border: '1px solid #ccc',
+                                      borderRadius: '8px',
+                                      textAlign: 'left',
+                                      fontSize: '14px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                    }}
                                   >
-                                    {a.chatId}
-                                  </a>
+                                    <span style={{color: '#333', fontWeight: '500'}}>
+                                      {a.chatId}
+                                    </span>
+                                  </button>
                                   {/* <div className='fw-bold text-gray-400'>melody@altbox.com</div> */}
                                 </div>
                               </div>
@@ -345,12 +364,26 @@ const Private: FC = () => {
                                 </div>
 
                                 <div className='ms-5'>
-                                  <a
-                                    href='#'
-                                    className='fs-5 fw-bolder text-gray-900 text-hover-primary mb-2'
+                                  <button
+                                    style={{
+                                      width: '100%',
+                                      padding: '15px',
+                                      backgroundColor: 'transparent',
+                                      color: 'inherit',
+                                      border: '1px solid #ccc',
+                                      borderRadius: '8px',
+                                      textAlign: 'left',
+                                      fontSize: '14px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                    }}
                                   >
-                                    {a.chatId}
-                                  </a>
+                                    <span style={{color: '#333', fontWeight: '500'}}>
+                                      {a.chatId}
+                                    </span>
+                                  </button>
                                   {/* <div className='fw-bold text-gray-400'>melody@altbox.com</div> */}
                                 </div>
                               </div>

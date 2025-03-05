@@ -19,6 +19,7 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
   const [chatDatas, setChatDatas] = useState<any[]>(chatData)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [previewImage, setPreviewImage] = useState(null)
+  const chatContainerRef = useRef<any>(null);
   const [previewImages, setPreviewImages] = useState<string | null>(null);
     const [image, setImage] = useState<File | null>(null) // State untuk gambar
   const handleFileClick = () => {
@@ -43,6 +44,9 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
 
   useEffect(() => {
     setChatDatas(chatData)
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [chatData])
   const apiChat = process.env.REACT_APP_API_CHAT_URL
   const userRole = localStorage.getItem('userRole') as string
@@ -137,6 +141,7 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
   return (
     <>
       <div
+            ref={chatContainerRef}
         className='card-body'
         id={isDrawer ? 'kt_drawer_chat_messenger_body' : 'kt_chat_messenger_body'}
         style={{

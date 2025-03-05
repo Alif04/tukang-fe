@@ -14,97 +14,13 @@ import {LoadingOutlined} from '@ant-design/icons'
 
 const {RangePicker} = DatePicker
 
-interface DataType {
-  order_id: number
-  store_name: string
-  costumer_name: string
-  service_name: string
-  order_date: Date
-  status: string
-}
 
-const columns: ColumnsType<DataType> = [
-  {
-    title: 'Order ID',
-    dataIndex: 'order_id',
-    key: 'order_id',
-    align: 'center',
-    width: 'fit-content',
-    sorter: (a, b) => a.order_id - b.order_id,
-  },
-  {
-    title: 'Tanggal Order',
-    dataIndex: 'order_date',
-    key: 'order_date',
-    align: 'left',
-    width: 'fit-content',
-    sorter: (a: DataType, b: DataType) =>
-      new Date(a.order_date).getTime() - new Date(b.order_date).getTime(),
-  },
-  {
-    title: 'Nama Toko',
-    dataIndex: 'store_name',
-    key: 'store_name',
-    align: 'left',
-    className: 'col_order_id',
-    width: 'fit-content',
-    onFilter: (value, record) => record.store_name.includes(String(value)),
-    sorter: (a, b) => a.store_name.length - b.store_name.length,
-  },
-  {
-    title: 'Nama Customer',
-    dataIndex: 'costumer_name',
-    key: 'costumer_name',
-    align: 'left',
-    width: 'fit-content',
-    onFilter: (value, record) => record.costumer_name.includes(String(value)),
-    sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
-  },
-  {
-    title: 'Nama Pemasangan',
-    dataIndex: 'service_name',
-    key: 'service_name',
-    align: 'left',
-    width: 'fit-content',
-    onFilter: (value, record) => record.service_name.includes(String(value)),
-    sorter: (a, b) => a.service_name.length - b.service_name.length,
-  },
-  {
-    title: 'Status Order',
-    dataIndex: 'status',
-    key: 'status',
-    align: 'left',
-    width: 'fit-content',
-    onFilter: (value, record) => record.status.includes(String(value)),
-    sorter: (a, b) => a.status.length - b.status.length,
-  },
-]
-
-const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
-  if (type === 'prev') {
-    return <a>Prev</a>
-  }
-  if (type === 'next') {
-    return <a>Next</a>
-  }
-  return originalElement
-}
-
+const apiChat = process.env.REACT_APP_API_CHAT_URL
 const DashboardAdminWA: FC = () => {
-  const apiUrl = process.env.REACT_APP_API_URL
-  const userTukang = localStorage.getItem('tukang_id')
-  const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
-
-  const [loadData, setLoadData] = useState<boolean>(true)
-  const [pageSize, setPageSize] = useState<number>(10)
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const [totalData, setTotalData] = useState<number>(0)
-
-  const [loadingButton, setLoadingButton] = useState(false)
-
-  const [orderList, setOrderList] = useState<any[]>([])
-  const [chartDataOrder, setChartDataOrder] = useState<any[]>([])
-
+  const userRole = localStorage.getItem('userRole') as string;
+  const [totalAssign, setTotalAssign] = useState<any>(0);
+  const [totalResolve, setTotalResolved] = useState<any>(0);
+  const [totalUnAssign, setTotalUnAssing] = useState<any>(0);
   const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
@@ -115,158 +31,62 @@ const DashboardAdminWA: FC = () => {
     const year = date.getFullYear()
     return `${day}-${month}-${year}`
   }
-
-  const getWorkOrder = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${tukangId}&page=${page}&take=${pageSize}${queryparams}`
-
+  const fetchNewChatAssign = async () => {
+    let query = `status=Assigned&user=${userRole}`
     try {
-      const response = await axios.get(apiUrlWithParams, {
+      const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
         headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       })
 
-      setOrderList(response.data.data)
-      setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
-      setLoadData(false)
-
-      return response.data.data
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  const getReportOrder = async () => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/reports/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${tukangId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
-
-      const chartDatas = response.data.data
-      const periodNumber = chartDatas.some((item: any) => /^\d+$/.test(item.period))
-
-      const fromDate = new Date(dateFrom)
-      const toDate = new Date(dateTo)
-
-      const fromMonth = fromDate.getMonth()
-      const toMonth = toDate.getMonth()
-
-      const startIndex = fromMonth
-      const endIndex = toMonth + 1
-
-      const slicedData = periodNumber ? chartDatas : chartDatas.slice(startIndex, endIndex)
-      setChartDataOrder(slicedData)
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  const ViewOrder = async (page: number, pageSize: number, queryparams: any) => {
-    try {
-      const apiData = await getWorkOrder(page, pageSize, queryparams)
-
-      if (!apiData) {
-        console.error('No data received from getWorkOrder')
-        return []
+      if (res.data) {
+        setTotalAssign(res.data.chats.length)
+        //  console.log(res.data.chats);
       }
-
-      const orderData = apiData.map((item: any) => {
-        let data
-
-        data = {
-          order_id: item?.order?.id,
-          store_name: item?.order?.store?.store_name ?? '-',
-          costumer_name: item?.order?.members?.full_name ?? '-',
-          status: item?.order?.status?.description,
-          order_date: new Date(item?.created_at).toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-          }),
-          service_name:
-            item?.order?.payment_type === 'survey' &&
-            item?.work_order_status[0]?.work_order_items.length === 0
-              ? item?.order?.m_order_details[0]?.item_notes
-              : item?.order?.payment_type === 'survey' &&
-                item?.work_order_status[0]?.work_order_items.length >= 1
-              ? item?.work_order_status[0]?.work_order_items
-                  .map((item: any) => item?.name)
-                  .join(', ')
-              : item?.order?.m_order_details?.map((item: any) => item?.item?.item_name).join(', '),
-        }
-
-        return data
+    } catch (err) {
+      console.error('Failed to fetch new chats', err)
+    }
+  }
+  const fetchNewChatUnAssign = async () => {
+    let query = `status=Unassigned&user=${userRole}`
+    try {
+      const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       })
 
-      return orderData
-    } catch (error) {
-      console.error('Error getting order list data:', error)
-      return []
+      if (res.data) {
+        setTotalUnAssing(res.data.chats.length)
+        //  console.log(res.data.chats);
+      }
+    } catch (err) {
+      console.error('Failed to fetch new chats', err)
     }
   }
+  const fetchNewChatResolve = async () => {
+    let query = `status=Resolved&user=${userRole}`
+    try {
+      const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
 
-  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
-    const data = await ViewOrder(page, pageSize, queryparams)
-    setOrderList(data)
+      if (res.data) {
+        setTotalResolved(res.data.chats.length)
+        //  console.log(res.data.chats);
+      }
+    } catch (err) {
+      console.error('Failed to fetch new chats', err)
+    }
   }
-
-  useEffect(() => {
-    fetchData(1, 10, '')
-  }, [])
-
-  useEffect(() => {
-    getReportOrder()
-  }, [orderList])
-
-  const handleSubmitFilter = async () => {
-    setLoadingButton(true)
-    let queryparams = ''
-
-    const data = await ViewOrder(1, 10, queryparams)
-    setOrderList(data)
-
-    await getReportOrder()
-
-    setLoadingButton(false)
-  }
-
-  const sumTotal = (data: any, key: string) =>
-    data.map((item: any) => item[key] || 0).reduce((a: number, b: number) => a + b, 0)
-
-  const totalOrders = sumTotal(chartDataOrder, 'totalOrder')
-
-  const waitingSurvey = sumTotal(chartDataOrder, 'totalWaitingSurvey')
-  const surveyOrder = sumTotal(chartDataOrder, 'totalSurveyStart')
-  const surveyOrderDone = sumTotal(chartDataOrder, 'totalSurveyDone')
-
-  const waitingQuotations = sumTotal(chartDataOrder, 'totalWaitingQuotationVendor')
-  const unpaidQuotation = sumTotal(chartDataOrder, 'totalWaitingQuotationCustomer')
-
-  const waitingWork = sumTotal(chartDataOrder, 'totalWaitingWork')
-  const workInProgress = sumTotal(chartDataOrder, 'totalWorkStart')
-  const orderDone = sumTotal(chartDataOrder, 'totalOrderDone')
-
-  const totalComplaint = sumTotal(chartDataOrder, 'totalComplaint')
-  const totalRework = sumTotal(chartDataOrder, 'totalRework')
-  const totalResurvey = sumTotal(chartDataOrder, 'totalResurvey')
-
-  const totalReschedule = sumTotal(chartDataOrder, 'totalReschedule')
-  const totalRefund = sumTotal(chartDataOrder, 'totalRefund')
-  const totalCancel = sumTotal(chartDataOrder, 'totalCancel')
+useEffect(() => {
+  fetchNewChatAssign()
+  fetchNewChatUnAssign()
+  fetchNewChatResolve()
+}, [])
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
     <Col className='mb-5'>
@@ -312,10 +132,10 @@ const DashboardAdminWA: FC = () => {
             <Col xxl={4} xl={4} lg={4}>
               <Button
                 className='btn-dark-primary button-submit m-0'
-                disabled={loadingButton}
-                onClick={handleSubmitFilter}
+                // disabled={loadingButton}
+                // onClick={handleSubmitFilter}
               >
-                {loadingButton ? 'Filtering..' : 'Submit'}
+                Sumbit
               </Button>
             </Col>
           </Row>
@@ -360,12 +180,9 @@ const DashboardAdminWA: FC = () => {
         <Col lg={5} md={12} className='mb-3'>
           <MoreInformation
             className='card-xl-stretch'
-            totalComplaint={totalComplaint}
-            totalResurvey={totalResurvey}
-            totalRework={totalRework}
-            totalReschedule={totalReschedule}
-            totalRefund={totalRefund}
-            totalCancel={totalCancel}
+            totalAssign={totalAssign}
+            totalResolve={totalResolve}
+            totalUnAssign={totalUnAssign}
           />
         </Col>
 

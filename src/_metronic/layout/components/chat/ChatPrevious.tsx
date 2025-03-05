@@ -270,34 +270,6 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                       </span>
                     )}
                   </button>
-                  {/* {userRole === 'Admin HO' && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteChat(chat._id);
-                    }}
-                    style={{
-                      position: 'absolute',
-                      top: '0px', // Slightly adjusted for better placement
-                      right: '2px', // Adjust to move to the top right corner
-                      backgroundColor: '#ff4d4f',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '20px',
-                      height: '20px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      lineHeight: '1',
-                      zIndex: 10, // Ensures the button is on top
-                    }}
-                  >
-                    X
-                  </button>
-                )} */}
                 </div>
               )
             })}
