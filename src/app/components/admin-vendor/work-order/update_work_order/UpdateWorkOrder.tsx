@@ -30,7 +30,7 @@ interface OrderHistory {
   created_at: string
   updated_by: string
 }
-
+const apiChat = process.env.REACT_APP_API_CHAT_URL
 const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> = ({
   updatePageTitle,
 }) => {
@@ -48,7 +48,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   // Order History
   const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
-
+  const [orderStatusLabel, setOrderStatusLabel] = useState('')
+  const [template, setTemplate]= useState([])
   // New Work Order
   const [workOrder, setWorkOrder] = useState<WorkOrder>({
     id: null,
@@ -297,7 +298,31 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     value: null,
     label: 'Pilih sesi',
   })
+  const getTemplaye = async ()=>{
+    let apiUrlWithParams = `${apiChat}/templates`
 
+    try {
+      const response = await axios.get(apiUrlWithParams, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      if (response.data) {
+        setTemplate(response.data)
+      }
+      // console.log(response.data.data.data);
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  useEffect(() => {
+    getTemplaye()
+  }, [])
+  
   // Format Date
   const formatInputDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
@@ -351,7 +376,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
     const desiredStatus =
       statusData.find((statuses: StatusStorage) => statuses.category === status)?.value ?? null
-
+    setOrderStatusLabel(desiredStatus?.toString() ??'')
     console.log('desiredStatus', desiredStatus)
 
     setWorkOrder({
@@ -431,6 +456,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   // Handle Update Work Order
   const handleUpdateWorkOrder = async () => {
+
     // TODO: Fix conditional url
     const url = !workOrder.id
       ? `${apiUrl}/work-orders`
@@ -526,6 +552,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       })
       .then((response) => {
         if (response.data.status === 200 || response.data.status === 201) {
+          sendMessage()
           Swal.fire({
             title: 'Success',
             text: 'Work Order Updated',
@@ -556,7 +583,40 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         })
       })
   }
+  const userRole = localStorage.getItem('userRole') as string
+  const sendMessage = async () => {
+  
 
+    const statusAll:any = statusData.find((t:any) => 
+      t.value === Number(orderStatusLabel)
+  );
+
+    
+    
+    const filteredTemplates:any = template.find((t:any) => 
+      t.subCategory === statusAll.description && t.status === "Active"
+  );
+  // console.log(filteredTemplates);
+    const data = {
+      message: filteredTemplates?.content,
+      chatId: `62${orderDetail?.project_number}@c.us`,
+      adminRole: userRole,
+    }    
+    await axios
+      .post(`${apiChat}/send-message-change-status`, data)
+      .then((response) => {
+        console.log(response)
+      })
+      .catch((error) => {
+        console.error(error)
+
+        // Swal.fire({
+        //   title: 'Error',
+        //   text: error.response.data.message,
+        //   icon: 'error',
+        // })
+      })
+  }
   return (
     <section id='update-work-order'>
       <Card className=' mb-5'>

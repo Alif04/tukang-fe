@@ -536,3 +536,24 @@ export * from './admin-ho/data-master/new_data_master/NewDataMaster'
 
 // Update data masrer
 export * from './admin-ho/data-master/update_data_master/UpdateDataMaster'
+
+
+
+// DataRole
+// List data role
+export * from './admin-ho/data-role/list_data_role/ListDataRole'
+
+// New data role
+export * from './admin-ho/data-role/new_data_role/NewDataRole'
+
+// Update data role
+export * from './admin-ho/data-role/update_data_role/UpdateDataRole'
+
+
+// DASHBOARD PAGE ( Admin WA )
+export * from './admin-wa/dashboard/DashboardAdminWA'
+
+
+// Report Admin WA
+export * from './admin-wa/report-log-chat/ReportLogChat'
+export * from './admin-wa/report-notif-status/ReportNotifStatus'

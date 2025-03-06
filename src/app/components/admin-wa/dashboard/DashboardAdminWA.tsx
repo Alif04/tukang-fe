@@ -1,0 +1,197 @@
+import React, {useState, useEffect, FC} from 'react'
+
+import './DashboardAdminWA.css'
+
+import {ChartBarSurvey} from './components/ChartBarSurvey'
+import {MoreInformation} from './components/MoreInformation'
+
+import axios from 'axios'
+import dayjs from 'dayjs'
+import type {ColumnsType} from 'antd/es/table'
+import {Row, Col, Card, Button} from 'react-bootstrap'
+import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {LoadingOutlined} from '@ant-design/icons'
+
+const {RangePicker} = DatePicker
+
+
+const apiChat = process.env.REACT_APP_API_CHAT_URL
+const DashboardAdminWA: FC = () => {
+  const userRole = localStorage.getItem('userRole') as string;
+  const [totalAssign, setTotalAssign] = useState<any>(0);
+  const [totalResolve, setTotalResolved] = useState<any>(0);
+  const [totalUnAssign, setTotalUnAssing] = useState<any>(0);
+  const today = new Date()
+  const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
+
+  const formatDate = (date: any) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}-${month}-${year}`
+  }
+  const fetchNewChatAssign = async () => {
+    let query = `status=Assigned&user=${userRole}`
+    try {
+      const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      if (res.data) {
+        setTotalAssign(res.data.chats.length)
+        //  console.log(res.data.chats);
+      }
+    } catch (err) {
+      console.error('Failed to fetch new chats', err)
+    }
+  }
+  const fetchNewChatUnAssign = async () => {
+    let query = `status=Unassigned&user=${userRole}`
+    try {
+      const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      if (res.data) {
+        setTotalUnAssing(res.data.chats.length)
+        //  console.log(res.data.chats);
+      }
+    } catch (err) {
+      console.error('Failed to fetch new chats', err)
+    }
+  }
+  const fetchNewChatResolve = async () => {
+    let query = `status=Resolved&user=${userRole}`
+    try {
+      const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      if (res.data) {
+        setTotalResolved(res.data.chats.length)
+        //  console.log(res.data.chats);
+      }
+    } catch (err) {
+      console.error('Failed to fetch new chats', err)
+    }
+  }
+useEffect(() => {
+  fetchNewChatAssign()
+  fetchNewChatUnAssign()
+  fetchNewChatResolve()
+}, [])
+
+  const renderStat = (value: number, label: string, className = 'text-center') => (
+    <Col className='mb-5'>
+      <div className='d-flex flex-column align-items-center gap-2'>
+        <h1 className='fw-normal'>{value}</h1>
+        <p className={`fs-6 ${className}`}>{label}</p>
+      </div>
+    </Col>
+  )
+
+  return (
+    <section id='dashboard-tukang'>
+      <Row>
+        <Col xxl={6} xl={6} lg={12} className='mb-5'>
+          <Row>
+            <Col xxl={3} xl={3} lg={3} className='d-flex align-items-center'>
+              <h3 className='title-header fs-5 fw-normal'>Rentang Waktu</h3>
+            </Col>
+
+            <Col xxl={5} xl={5} lg={5}>
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range w-100 mb-3'
+                defaultValue={[
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                  dayjs(`${formatDate(today)}`, 'DD-MM-YYYY'),
+                ]}
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+
+                    setDateFrom(dateFromFormatted)
+                    setDateTo(dateToFormatted)
+                  } else {
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
+                  }
+                }}
+              />
+            </Col>
+
+            <Col xxl={4} xl={4} lg={4}>
+              <Button
+                className='btn-dark-primary button-submit m-0'
+                // disabled={loadingButton}
+                // onClick={handleSubmitFilter}
+              >
+                Sumbit
+              </Button>
+            </Col>
+          </Row>
+        </Col>
+
+        <Col xxl={6} xl={6} lg={12} className='mb-5'></Col>
+      </Row>
+
+      <Row className='g-5 g-xl-8 mb-5'>
+        {/* <Col xl={6}>
+          <Card>
+            <Card.Body>
+              <div className='fs-5 fw-normal mb-5'>Order</div>
+
+              <Row className='justify-content-md-center'>
+                {renderStat(totalOrders, 'Total Order')}
+                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
+                {renderStat(surveyOrder, 'Order sedang dalam survey')}
+                {renderStat(surveyOrderDone, 'Survei Selesai')}
+              </Row>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col xl={6}>
+          <Card>
+            <Card.Body>
+              <div className='fs-5 fw-normal mb-5'>Order</div>
+
+              <Row className='justify-content-md-center'>
+                {renderStat(totalOrders, 'Total Order')}
+                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
+                {renderStat(surveyOrder, 'Order sedang dalam survey')}
+                {renderStat(surveyOrderDone, 'Survei Selesai')}
+            
+              </Row>
+            </Card.Body>
+          </Card>
+        </Col> */}
+      </Row>
+
+      <Row>
+        <Col lg={5} md={12} className='mb-3'>
+          <MoreInformation
+            className='card-xl-stretch'
+            totalAssign={totalAssign}
+            totalResolve={totalResolve}
+            totalUnAssign={totalUnAssign}
+          />
+        </Col>
+
+        {/* <Col lg={7} md={12} className='mb-3'>
+          <ChartBarSurvey className='card-xl-stretch' orderData={chartDataOrder} />
+        </Col> */}
+      </Row>
+    </section>
+  )
+}
+
+export {DashboardAdminWA}
