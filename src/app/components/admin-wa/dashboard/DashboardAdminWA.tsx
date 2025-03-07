@@ -7,24 +7,25 @@ import {MoreInformation} from './components/MoreInformation'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
-import type {ColumnsType} from 'antd/es/table'
+import duration from "dayjs/plugin/duration";
 import {Row, Col, Card, Button} from 'react-bootstrap'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 
 const {RangePicker} = DatePicker
-
+dayjs.extend(duration);
 
 const apiChat = process.env.REACT_APP_API_CHAT_URL
 const DashboardAdminWA: FC = () => {
   const userRole = localStorage.getItem('userRole') as string;
+  const [avgResponseTime, setAvgResponseTime] = useState<number>(0);
   const [totalAssign, setTotalAssign] = useState<any>(0);
   const [totalResolve, setTotalResolved] = useState<any>(0);
   const [totalUnAssign, setTotalUnAssing] = useState<any>(0);
   const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-
+  const userName = localStorage.getItem('username') as string
   const formatDate = (date: any) => {
     const day = date.getDate().toString().padStart(2, '0')
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -32,7 +33,7 @@ const DashboardAdminWA: FC = () => {
     return `${day}-${month}-${year}`
   }
   const fetchNewChatAssign = async () => {
-    let query = `status=Assigned&user=${userRole}`
+    let query = `status=Assigned&user=${userRole}&userName=${userName}`
     try {
       const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
         headers: {
@@ -66,7 +67,7 @@ const DashboardAdminWA: FC = () => {
     }
   }
   const fetchNewChatResolve = async () => {
-    let query = `status=Resolved&user=${userRole}`
+    let query = `status=Resolved&user=${userRole}&userName=${userName}`
     try {
       const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
         headers: {
@@ -76,6 +77,32 @@ const DashboardAdminWA: FC = () => {
 
       if (res.data) {
         setTotalResolved(res.data.chats.length)
+        // console.log(res.data.chats);
+        
+        //  console.log(res.data.chats);
+      }
+    } catch (err) {
+      console.error('Failed to fetch new chats', err)
+    }
+  }
+  const fetchClosedChat = async () => {
+    let query = `userName=${userName}`
+    try {
+      const res = await axios.get(`${apiChat}/all-closed-chat?${query}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      if (res.data) {
+        // setTotalResolved(res.data.chats.length)
+        const totalAvgResponseTime = res.data.closedChats.reduce(
+          (acc: number, chat: { avgResponseTime: number }) => acc + chat.avgResponseTime,
+          0
+        );
+        setAvgResponseTime(totalAvgResponseTime)
+        // console.log("Total Average Response Time:", totalAvgResponseTime);
+        
         //  console.log(res.data.chats);
       }
     } catch (err) {
@@ -86,6 +113,7 @@ useEffect(() => {
   fetchNewChatAssign()
   fetchNewChatUnAssign()
   fetchNewChatResolve()
+  fetchClosedChat()
 }, [])
 
   const renderStat = (value: number, label: string, className = 'text-center') => (
@@ -96,7 +124,14 @@ useEffect(() => {
       </div>
     </Col>
   )
-
+  const formatTime = (ms: number) => {
+    const duration = dayjs.duration(ms);
+    const hours = String(duration.hours()).padStart(2, "0");
+    const minutes = String(duration.minutes()).padStart(2, "0");
+    const seconds = String(duration.seconds()).padStart(2, "0");
+    const milliseconds = String(duration.milliseconds()).padStart(3, "0");
+    return `${hours}h ${minutes}m ${seconds}s ${milliseconds}ms`;
+  };
   return (
     <section id='dashboard-tukang'>
       <Row>
@@ -145,21 +180,14 @@ useEffect(() => {
       </Row>
 
       <Row className='g-5 g-xl-8 mb-5'>
-        {/* <Col xl={6}>
-          <Card>
-            <Card.Body>
-              <div className='fs-5 fw-normal mb-5'>Order</div>
-
-              <Row className='justify-content-md-center'>
-                {renderStat(totalOrders, 'Total Order')}
-                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
-                {renderStat(surveyOrder, 'Order sedang dalam survey')}
-                {renderStat(surveyOrderDone, 'Survei Selesai')}
-              </Row>
-            </Card.Body>
-          </Card>
-        </Col>
+    
         <Col xl={6}>
+        <Card className="text-center p-4 shadow-sm">
+      <h2 className="fw-bold">{formatTime(avgResponseTime)}</h2>
+      <p className="text-muted">Average Response Time</p>
+    </Card>
+        </Col>
+        {/* <Col xl={6}>
           <Card>
             <Card.Body>
               <div className='fs-5 fw-normal mb-5'>Order</div>

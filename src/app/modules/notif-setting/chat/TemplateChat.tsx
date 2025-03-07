@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
-import {Table, Tag, Input, Button, Modal, Form, message, Select, Checkbox} from 'antd'
-import {EditOutlined, DeleteOutlined, PlusOutlined} from '@ant-design/icons'
+import {Table, Tag, Input, Button, Modal, Form, message, Select, Checkbox, Upload} from 'antd'
+import {EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined} from '@ant-design/icons'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
@@ -18,6 +18,9 @@ const TemplateChat: React.FC = () => {
   const [header, setHeader] = useState<any>('')
   const [content, setContent] = useState<any>('')
   const [category, setCategory] = useState('')
+  const [withImage, setWithImage] = useState(false)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [reminderTime, setReminderTime] = useState(null)
   const [subCategory, setSubCategory] = useState('')
   const [isOperationalHours, setIsOperationalHours] = useState(false)
@@ -104,6 +107,8 @@ const TemplateChat: React.FC = () => {
     setIsOperationalHours(
       template && template.isOperationalHours ? template.isOperationalHours : false
     )
+    setWithImage(template ? template.withImage : false)
+    setPreviewImage(template ? template.imageUrl : null)
     form.setFieldsValue({
       templateName: template ? template.templateName : '',
       textHeader: template ? template.textHeader : '',
@@ -112,6 +117,7 @@ const TemplateChat: React.FC = () => {
       reminderTime: template ? template.reminderTime : null,
       subCategory: template ? template.subCategory : null,
       isOperationalHours: template ? template.isOperationalHours : false,
+      withImage: template ? template.withImage : false,
     })
     setIsModalOpen(true)
   }
@@ -119,15 +125,31 @@ const TemplateChat: React.FC = () => {
   const handleOk = async () => {
     try {
       const values = await form.validateFields()
+      let imageUrl = previewImage
+      if (imageFile) {
+        const formData = new FormData()
+        formData.append('image', imageFile)
+        const uploadRes = await axios.post(`${apiUrl}/uploads`, formData)
+        imageUrl = uploadRes.data.imageUrl
+      }
+
+      const requestData = {
+        ...values,
+        imageUrl,
+      }
+      // console.log(requestData);
+      
       if (isEdit) {
-        await axios.put(`${apiUrl}/templates/${currentId}`, values)
+        await axios.put(`${apiUrl}/templates/${currentId}`, requestData)
         message.success('Template berhasil diperbarui')
       } else {
-        await axios.post(`${apiUrl}/templates`, values)
+        await axios.post(`${apiUrl}/templates`, requestData)
         message.success('Template berhasil ditambahkan')
       }
       setIsModalOpen(false)
       form.resetFields()
+      setImageFile(null)
+      setPreviewImage(null)
       fetchTemplates()
     } catch (error) {
       message.error('Gagal menyimpan template')
@@ -178,8 +200,15 @@ const TemplateChat: React.FC = () => {
       title: 'Jam Operasional',
       dataIndex: 'isOperationalHours',
       key: 'isOperationalHours',
-      render: (isOperationalHours:any, record:any) => 
+      render: (isOperationalHours: any, record: any) =>
         record.category === 'Auto Responder' ? (isOperationalHours ? '✅ Ya' : '❌ Tidak') : '-',
+    },
+    {
+      title: 'Image',
+      dataIndex: 'imageUrl',
+      key: 'image',
+      render: (imageUrl: any) =>
+        imageUrl ? <img src={imageUrl} alt="Template" style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 5 }} /> : '-',
     },
     {
       title: 'Action',
@@ -199,6 +228,31 @@ const TemplateChat: React.FC = () => {
     },
   ]
 
+  const beforeUpload = (file: File) => {
+    const isImage = file.type.startsWith('image/')
+    if (!isImage) {
+      message.error('Hanya file gambar yang diperbolehkan!')
+      return Upload.LIST_IGNORE // Mencegah file masuk ke daftar upload
+    }
+    return true
+  }
+  const handleImageChange = (info: any) => {
+
+
+    if (info.file) {
+      const file = info.file.originFileObj || info.file
+
+      setImageFile(file)
+      const reader = new FileReader()
+
+      reader.onload = (e) => {
+        console.log('File preview URL:', e.target?.result)
+        setPreviewImage(e.target?.result as string)
+      }
+
+      reader.readAsDataURL(file)
+    }
+  }
   return (
     <div style={{padding: 20, background: '#fff', borderRadius: 8}}>
       <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 16}}>
@@ -238,6 +292,9 @@ const TemplateChat: React.FC = () => {
                   <Option value='CSI'>CSI</Option>
                   <Option value='Quotation'>Quotation</Option>
                 </Select>
+              </Form.Item>
+              <Form.Item name='withImage' valuePropName='checked'>
+                <Checkbox onChange={(e) => setWithImage(e.target.checked)}>With Image</Checkbox>
               </Form.Item>
               {category === 'Text' && (
                 <Form.Item label='Text Header' name='textHeader'>
@@ -290,6 +347,21 @@ const TemplateChat: React.FC = () => {
                   </Checkbox>
                 </Form.Item>
               )}
+              {/* Checkbox With Image */}
+
+              {withImage && (
+                <Form.Item label='Upload Image'>
+                  <Upload
+                    maxCount={1} // Hanya satu file
+                    beforeUpload={beforeUpload}
+                    onChange={handleImageChange}
+                    showUploadList={false}
+                  >
+                    <Button icon={<UploadOutlined />}>Upload Image</Button>
+                  </Upload>
+                  
+                </Form.Item>
+              )}
             </Form>
           </div>
           <div
@@ -312,7 +384,15 @@ const TemplateChat: React.FC = () => {
                 borderRadius: 8,
                 textAlign: 'left',
               }}
-            >
+            >{previewImage && (
+              <div style={{marginTop: 10, textAlign: 'center'}}>
+                <img
+                  src={previewImage}
+                  alt='Preview'
+                  style={{width: '100%', maxHeight: 200, borderRadius: 8}}
+                />
+              </div>
+            )}
               {category === 'Text' && <strong>{header || 'Pengumuman'}</strong>}
               <p>{content || 'Terjadi perbaikan sistem malam ini...'}</p>
             </div>
