@@ -92,21 +92,21 @@ const columns: ColumnsType<DataType> = [
       return <Tag color='green'>{orderStatus}</Tag>
     },
   },
-  // {
-  //   title: 'Nominal',
-  //   dataIndex: 'grand_total',
-  //   key: 'grand_total',
-  //   align: 'left',
-  //   sorter: (a, b) => Number(a.grand_total) - Number(b.grand_total), // Pastikan angka untuk sorting
-  //   render: (grand_total) => {
-  //     // Pastikan konversi ke angka sebelum diformat
-  //     const numericValue = Number(grand_total);
-  //     if (isNaN(numericValue)) {
-  //       return `Rp 0`; // Jika tidak valid, tampilkan Rp 0
-  //     }
-  //     return `Rp ${numericValue.toLocaleString('id-ID')}`;
-  //   },
-  // }
+  {
+    title: 'Nominal',
+    dataIndex: 'grand_total',
+    key: 'grand_total',
+    align: 'left',
+    sorter: (a, b) => Number(a.grand_total) - Number(b.grand_total), // Pastikan angka untuk sorting
+    render: (grand_total) => {
+      // Pastikan konversi ke angka sebelum diformat
+      const numericValue = Number(grand_total);
+      if (isNaN(numericValue)) {
+        return `Rp 0`; // Jika tidak valid, tampilkan Rp 0
+      }
+      return `Rp ${numericValue.toLocaleString('id-ID')}`;
+    },
+  }
 ]
 
 const NewInvoiceVendor: FC = () => {
@@ -237,7 +237,9 @@ const NewInvoiceVendor: FC = () => {
         console.error('No data received from getOrders')
         return []
       }
-
+      const calculateGrandTotal = (quotations: any[]) => {
+        return quotations?.reduce((total, q) => total + Number(q.quotation_grand_total || 0), 0) || 0;
+      };
       const workOrderData = workOrders
         .filter((x) => {
           const noInvoice = x.invoice_details.length === 0
@@ -263,7 +265,7 @@ const NewInvoiceVendor: FC = () => {
         })
         .map((item: any, index: number) => {
           const orderDate = formatDateWithTimeZone(item?.created_at)
-
+          const grandTotal = calculateGrandTotal(item?.quotation || []);
           return {
             _key: index + 1,
             order_id: item?.id,
@@ -273,7 +275,7 @@ const NewInvoiceVendor: FC = () => {
             order_type: 'Pengerjaan',
             order_status: item?.status?.category,
             order_status_label: item?.status?.description,
-            grand_total: item?.grand_total
+            grand_total: grandTotal
           }
         })
 
@@ -306,7 +308,7 @@ const NewInvoiceVendor: FC = () => {
           const quoteInHistory = item?.order_history?.find(
             (x: any) => x.status.category === 'QUOTEIN'
           )
-
+          const grandTotal = calculateGrandTotal(item?.quotation || []);
           return {
             _key: workOrders.length + index + 1,
             order_id: item?.id,
@@ -316,7 +318,7 @@ const NewInvoiceVendor: FC = () => {
             order_type: 'Survei',
             order_status: quoteInHistory ? quoteInHistory.status.category : null,
             order_status_label: quoteInHistory ? quoteInHistory.status.description : null,
-            grand_total: item?.grand_total
+            grand_total: grandTotal
           }
         })
 
@@ -349,7 +351,7 @@ const NewInvoiceVendor: FC = () => {
           const workStepHistory = item?.order_history?.find(
             (x: any) => x.status.category === 'WORKENDSTEPONE'
           )
-
+          const grandTotal = calculateGrandTotal(item?.quotation || []);
           return {
             _key: workOrders.length + surveyOrders.length + index + 1,
             order_id: item?.id,
@@ -359,7 +361,7 @@ const NewInvoiceVendor: FC = () => {
             order_type: 'Pekerjaan Tahap 1',
             order_status: workStepHistory ? workStepHistory.status.category : null,
             order_status_label: workStepHistory ? workStepHistory.status.description : null,
-            grand_total: item?.grand_total
+            grand_total: grandTotal
           }
         })
 

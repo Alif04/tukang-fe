@@ -19,6 +19,7 @@ const apiChat = process.env.REACT_APP_API_CHAT_URL
 const DashboardAdminWA: FC = () => {
   const userRole = localStorage.getItem('userRole') as string;
   const [avgResponseTime, setAvgResponseTime] = useState<number>(0);
+  const [avgFirstResponseTime, setAvgFirstResponseTime] = useState<number>(0);
   const [totalAssign, setTotalAssign] = useState<any>(0);
   const [totalResolve, setTotalResolved] = useState<any>(0);
   const [totalUnAssign, setTotalUnAssing] = useState<any>(0);
@@ -109,21 +110,43 @@ const DashboardAdminWA: FC = () => {
       console.error('Failed to fetch new chats', err)
     }
   }
+  const fetchFirstChat = async () => {
+    let query = `userName=${userName}`
+    try {
+      const res = await axios.get(`${apiChat}/first-response-handling?${query}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      if (res.data) {
+        console.log(res.data);
+        const totalTime = Object.values(res.data.firstResponseTimes).reduce(
+          (acc: number, chat: any) => acc + chat.responseTime,
+          0
+        );
+        // setTotalResolved(res.data.chats.length)
+        // const totalAvgResponseTime = res.data.closedChats.reduce(
+        //   (acc: number, chat: { avgResponseTime: number }) => acc + chat.avgResponseTime,
+        //   0
+        // );
+        setAvgFirstResponseTime(totalTime)
+        // console.log("Total Average Response Time:", totalAvgResponseTime);
+        
+        //  console.log(res.data.chats);
+      }
+    } catch (err) {
+      console.error('Failed to fetch new chats', err)
+    }
+  }
 useEffect(() => {
   fetchNewChatAssign()
   fetchNewChatUnAssign()
   fetchNewChatResolve()
   fetchClosedChat()
+  fetchFirstChat()
 }, [])
 
-  const renderStat = (value: number, label: string, className = 'text-center') => (
-    <Col className='mb-5'>
-      <div className='d-flex flex-column align-items-center gap-2'>
-        <h1 className='fw-normal'>{value}</h1>
-        <p className={`fs-6 ${className}`}>{label}</p>
-      </div>
-    </Col>
-  )
   const formatTime = (ms: number) => {
     const duration = dayjs.duration(ms);
     const hours = String(duration.hours()).padStart(2, "0");
@@ -183,25 +206,16 @@ useEffect(() => {
     
         <Col xl={6}>
         <Card className="text-center p-4 shadow-sm">
+      <h2 className="fw-bold">{formatTime(avgFirstResponseTime)}</h2>
+      <p className="text-muted">Average First Response Time</p>
+    </Card>
+        </Col>
+        <Col xl={6}>
+        <Card className="text-center p-4 shadow-sm">
       <h2 className="fw-bold">{formatTime(avgResponseTime)}</h2>
       <p className="text-muted">Average Response Time</p>
     </Card>
         </Col>
-        {/* <Col xl={6}>
-          <Card>
-            <Card.Body>
-              <div className='fs-5 fw-normal mb-5'>Order</div>
-
-              <Row className='justify-content-md-center'>
-                {renderStat(totalOrders, 'Total Order')}
-                {renderStat(waitingSurvey, 'Menunggu Survey', 'text-center')}
-                {renderStat(surveyOrder, 'Order sedang dalam survey')}
-                {renderStat(surveyOrderDone, 'Survei Selesai')}
-            
-              </Row>
-            </Card.Body>
-          </Card>
-        </Col> */}
       </Row>
 
       <Row>
