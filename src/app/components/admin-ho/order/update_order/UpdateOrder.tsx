@@ -1080,58 +1080,58 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     }
     // console.log(orderStatusLabel);
     // console.log(orderForm);
-    sendMessage()
-    // await axios
-    //   .post(url, formData, {
-    //     headers: {
-    //       Accept: 'application/json',
-    //       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    //       'Access-Control-Allow-Origin': '*',
-    //       'ngrok-skip-browser-warning': 'true',
-    //     },
-    //   })
-    //   .then((response) => {
-    //     const orderId = response.data.data.id
+    // sendMessage()
+    await axios
+      .post(url, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      .then((response) => {
+        const orderId = response.data.data.id
 
-    //     if (response.data.status === 200 || response.data.status === 201) {
-    //       sendMessage()
-    //       Swal.fire({
-    //         title: 'Success',
-    //         text: 'Success Update Order',
-    //         icon: 'success',
-    //         showConfirmButton: false,
-    //         timer: 1500,
-    //       }).then(() => {
-    //         if (
-    //           orderDetail?.quotation?.length >= 1 &&
-    //           orderDetail?.payment_type === 'survey' &&
-    //           isCanceledOrder === false
-    //         ) {
-    //           navigate(`/order/view-order`)
-    //         } else if (isCanceledOrder === true) {
-    //           navigate(`/refund/new-refund/${orderId}`)
-    //         } else {
-    //           navigate(`/order/preview-email/${orderId}`)
-    //         }
-    //       })
-    //       setIsLoading(false)
-    //     } else {
-    //       setIsLoading(false)
-    //       Swal.fire({
-    //         title: 'Error',
-    //         text: response.data.message,
-    //         icon: 'error',
-    //       })
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     setIsLoading(false)
-    //     Swal.fire({
-    //       title: 'Error',
-    //       text: error.response.data.message,
-    //       icon: 'error',
-    //     })
-    //   })
+        if (response.data.status === 200 || response.data.status === 201) {
+          sendMessage()
+          Swal.fire({
+            title: 'Success',
+            text: 'Success Update Order',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+          }).then(() => {
+            if (
+              orderDetail?.quotation?.length >= 1 &&
+              orderDetail?.payment_type === 'survey' &&
+              isCanceledOrder === false
+            ) {
+              navigate(`/order/view-order`)
+            } else if (isCanceledOrder === true) {
+              navigate(`/refund/new-refund/${orderId}`)
+            } else {
+              navigate(`/order/preview-email/${orderId}`)
+            }
+          })
+          setIsLoading(false)
+        } else {
+          setIsLoading(false)
+          Swal.fire({
+            title: 'Error',
+            text: response.data.message,
+            icon: 'error',
+          })
+        }
+      })
+      .catch((error) => {
+        setIsLoading(false)
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        })
+      })
   }
   const sendMessage = async () => {
     const filteredTemplates:any = template.find((t:any) => 
