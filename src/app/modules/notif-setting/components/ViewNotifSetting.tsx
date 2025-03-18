@@ -1,16 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {  useState } from 'react'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import {TemplateChat} from './TemplateChat'
-import {OfficeHours} from './OfficeHours'
+// import 'bootstrap/dist/css/bootstrap.min.css'
+import {TemplateChat} from '../chat/TemplateChat'
+import {OfficeHours} from '../template/OfficeHours'
 
-const NotifSetting:React.FC= () => {
+const ViewNotifSetting: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('Office Hours')
   const tabs = [ 'Office Hours', 'Template chat']
 
   return (
-    <div>
+    <>
       {/* Tab Navigation */}
       <div className="d-flex border-bottom">
         {tabs.map((tab) => (
@@ -30,12 +30,12 @@ const NotifSetting:React.FC= () => {
       </div>
 
       {/* Tab Content */}
-      <div className="p-4 bg-white shadow-sm border mt-2">
+      <div>
         {selectedTab === 'Office Hours' && <OfficeHours/>}
         {selectedTab === 'Template chat' &&  <TemplateChat />}
       </div>
-    </div>
+    </>
   )
 }
 
-export { NotifSetting }
+export { ViewNotifSetting }

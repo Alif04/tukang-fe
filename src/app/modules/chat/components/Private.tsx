@@ -16,17 +16,18 @@ const Private: FC = () => {
   const [chatData, setChatData] = useState(null)
 
   const [selectedChat, setSelectedChat] = useState(null)
-  const [selectedAdmin, setSelectedAdmin] = useState(null)
+  const [selectedAdmin, setSelectedAdmin] = useState<any>(null)
   const [roles, setRoles] = useState<any>([])
   const tabs = ['Assigned', 'Unassigned', 'Resolved']
   const [data, setData] = useState<any>([])
   const [qrCode, setQrCode] = useState('')
   const [isConnected, setIsConnected] = useState(false)
   const userRole = localStorage.getItem('userRole') as string
+  const userName = localStorage.getItem('username') as string
   const fetchNewChat = async () => {
     let query = `status=${selectedTab}`
-    if (selectedTab === 'Assigned') {
-      query += `&user=${userRole}`
+    if (selectedTab === 'Assigned' ||selectedTab === 'Resolved') {
+      query += `&user=${userRole}&userName=${userName}`
     }
     try {
       const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
@@ -44,7 +45,7 @@ const Private: FC = () => {
     }
   }
   const getRoleList = async () => {
-    let apiUrlWithParams = `${apiUrl}/roles`
+    let apiUrlWithParams = `${apiUrl}/auth/get?role_name=${userRole}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -56,10 +57,12 @@ const Private: FC = () => {
         },
       })
       if (response.data) {
-        const adminWARoles = response.data.data.data.filter((role: any) =>
-          role.name.includes('Admin WA')
-        )
-        setRoles(adminWARoles)
+        // const adminWARoles = response.data.data.data.filter((role: any) =>
+        //   role.name.includes('Admin WA')
+        // )
+        // console.log(response);
+        
+        setRoles(response.data.data)
       }
       // console.log(response.data.data.data);
     } catch (error) {
@@ -83,9 +86,11 @@ const Private: FC = () => {
       } else if (data.status === 'disconnected') {
         setIsConnected(false)
         requestQrCode()
-      }else if (data.status === 'desconnectedMobile') {
+      } else if (data.status === 'desconnectedMobile') {
         setIsConnected(false)
         requestQrCode()
+      } else {
+        setIsConnected(false)
       }
       console.log('Status bot:', data.status)
     })
@@ -109,24 +114,18 @@ const Private: FC = () => {
   }
 
   const handleAssignAdmin = (admin: any) => {
-    setSelectedAdmin(admin.name)
+    setSelectedAdmin(admin)
     // setShowPopup(false)
   }
 
   const saveAssign = async () => {
     const data = {
       chatId: selectedChat,
-      admin: selectedAdmin,
-    }
+      admin: selectedAdmin.roles.name,
+      userName: selectedAdmin.username
+    }    
     await axios
-      .post(`${apiChat}/assign-chat`, data, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      .post(`${apiChat}/assign-chat`, data)
       .then((response) => {
         if (response.status === 200) {
           Swal.fire({
@@ -186,16 +185,7 @@ const Private: FC = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.post(
-            `${apiChat}/end-chat`,
-            {chatId: selectedChats, admin: userRole},
-            {
-              headers: {
-                Accept: 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              },
-            }
-          )
+          await axios.post(`${apiChat}/end-chat`, {chatId: selectedChats, admin: userRole, userName: userName})
           Swal.fire('Selesai!', 'Percakapan telah diakhiri.', 'success')
           setSelectedChats(null)
           setChatData(null)
@@ -227,7 +217,7 @@ const Private: FC = () => {
           <div className='flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0'>
             <div className='card card-flush'>
               <div className='card-header pt-7' id='kt_chat_contacts_header'>
-                <form className='w-100 position-relative' autoComplete='off'>
+                {/* <form className='w-100 position-relative' autoComplete='off'>
                   <KTSVG
                     path='/media/icons/duotune/general/gen021.svg'
                     className='svg-icon-2 svg-icon-lg-1 svg-icon-gray-500 position-absolute top-50 ms-5 translate-middle-y'
@@ -239,7 +229,7 @@ const Private: FC = () => {
                     name='search'
                     placeholder='Search by username or email...'
                   />
-                </form>
+                </form> */}
               </div>
 
               <div className='card-body pt-5' id='kt_chat_contacts_body'>
@@ -280,28 +270,36 @@ const Private: FC = () => {
                         return (
                           <div
                             key={i}
-                            onClick={() => handleChatClick(a.chatId)}
+                            className='d-flex align-items-center'
                             style={{
-                              cursor: 'pointer',
-                              backgroundColor: selectedChats === a.chatId ? 'blue' : 'transparent',
-                              color: selectedChats === a.chatId ? 'white' : 'inherit',
-                              padding: '10px',
-                              borderRadius: '5px',
+                              position: 'relative',
+                              marginBottom: '10px',
                             }}
                           >
-                            <div className='d-flex flex-stack py-4'>
-                              <div className='d-flex align-items-center'>
-                                <div className='symbol symbol-45px symbol-circle'>
-                                  <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
-                                </div>
-
-                                <div className='ms-5'>
-                                  <a href='#' className='fs-5 fw-bolder text-gray-900 mb-2'>
-                                    {a.chatId}
-                                  </a>
-                                </div>
-                              </div>
+                            <div className='symbol symbol-45px symbol-circle'>
+                              <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
                             </div>
+                            <button
+                              onClick={() => handleChatClick(a.chatId)}
+                              style={{
+                                marginLeft:4,
+                                width: '100%',
+                                padding: '15px',
+                                backgroundColor:
+                                  selectedChats === a.chatId ? '#1f70f2' : 'transparent',
+                                color: selectedChats === a.chatId ? 'white' : 'inherit',
+                                border: '1px solid #ccc',
+                                borderRadius: '8px',
+                                textAlign: 'left',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <span style={{color: '#333', fontWeight: '500'}}>{a.chatId}</span>
+                            </button>
                           </div>
                         )
                       })}
@@ -320,12 +318,26 @@ const Private: FC = () => {
                                 </div>
 
                                 <div className='ms-5'>
-                                  <a
-                                    href='#'
-                                    className='fs-5 fw-bolder text-gray-900 text-hover-primary mb-2'
+                                  <button
+                                    style={{
+                                      width: '100%',
+                                      padding: '15px',
+                                      backgroundColor: 'transparent',
+                                      color: 'inherit',
+                                      border: '1px solid #ccc',
+                                      borderRadius: '8px',
+                                      textAlign: 'left',
+                                      fontSize: '14px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                    }}
                                   >
-                                    {a.chatId}
-                                  </a>
+                                    <span style={{color: '#333', fontWeight: '500'}}>
+                                      {a.chatId}
+                                    </span>
+                                  </button>
                                   {/* <div className='fw-bold text-gray-400'>melody@altbox.com</div> */}
                                 </div>
                               </div>
@@ -358,12 +370,26 @@ const Private: FC = () => {
                                 </div>
 
                                 <div className='ms-5'>
-                                  <a
-                                    href='#'
-                                    className='fs-5 fw-bolder text-gray-900 text-hover-primary mb-2'
+                                  <button
+                                    style={{
+                                      width: '100%',
+                                      padding: '15px',
+                                      backgroundColor: 'transparent',
+                                      color: 'inherit',
+                                      border: '1px solid #ccc',
+                                      borderRadius: '8px',
+                                      textAlign: 'left',
+                                      fontSize: '14px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                    }}
                                   >
-                                    {a.chatId}
-                                  </a>
+                                    <span style={{color: '#333', fontWeight: '500'}}>
+                                      {a.chatId}
+                                    </span>
+                                  </button>
                                   {/* <div className='fw-bold text-gray-400'>melody@altbox.com</div> */}
                                 </div>
                               </div>
@@ -396,9 +422,11 @@ const Private: FC = () => {
                               className='form-select'
                               onChange={(e) => {
                                 const selectedRole = roles.find(
-                                  (role: any) => role.name === e.target.value
+                                  (role: any) => role.username === e.target.value
                                 )
-
+                          
+                                
+                                
                                 if (selectedRole) {
                                   handleAssignAdmin(selectedRole)
                                 }
@@ -407,7 +435,7 @@ const Private: FC = () => {
                               <option value=''>Pilih Admin</option>
                               {roles.map((role: any) => (
                                 <option key={role._id} value={role._id}>
-                                  {role.name}
+                                  {role.username}
                                 </option>
                               ))}
                             </select>

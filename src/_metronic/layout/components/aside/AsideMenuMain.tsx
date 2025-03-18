@@ -436,7 +436,14 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
-
+      {/* Halaman Chat Admin WA */}
+      <AsideMenuItem
+        to='/chat/view-chat'
+        icon='/media/icons/duotune/communication/com003.svg'
+        title='Chat'
+        fontIcon='bi-app-indicator'
+        role={['Admin WA', 'Admin WA2']}
+      />
       {/* Halaman Reports */}
       <AsideMenuItemWithSub
         to='/reports'
@@ -454,6 +461,8 @@ export function AsideMenuMain() {
           'Admin Vendor',
           'Owner Vendor',
           'Tukang',
+          'Admin WA',
+          'Admin WA2',
         ]}
         icon='/media/icons/duotune/graphs/gra001.svg'
         fontIcon='bi-person'
@@ -470,14 +479,27 @@ export function AsideMenuMain() {
           role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Tukang']}
           hasBullet={true}
         />
+          <AsideMenuItem
+          to='/reports/log-chat'
+          title='Log chat'
+          role={['Admin WA', 'Admin WA2']}
+          hasBullet={true}
+        />
+        {/* <AsideMenuItem
+          to='/reports/log-notif-quotation'
+          title='Log chat notif quotation'
+          role={['Admin WA', 'Admin WA2']}
+          hasBullet={true}
+        /> */}
+      
+        <AsideMenuItem
+          to='/reports/log-status-chat'
+          title='Log chat notif status'
+          role={['Admin WA', 'Admin WA2']}
+          hasBullet={true}
+        />
       </AsideMenuItemWithSub>
-      <AsideMenuItem
-        to='/chat/view-chat'
-        icon='/media/icons/duotune/communication/com003.svg'
-        title='Chat'
-        fontIcon='bi-app-indicator'
-        role={['Admin WA', 'Admin WA2']}
-      />
+
       {/* Halaman Payment */}
       {/* <AsideMenuItemWithSub
         to='/payment'
@@ -651,21 +673,26 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
         {/* wa chat */}
-        <AsideMenuItemWithSub
+        <AsideMenuItem
+            to='/notif-setting/view-setting'
+            title='Pengaturan WA'
+            role={['Admin WA', 'Admin WA2']}
+            hasBullet={true}
+          />
+        {/* <AsideMenuItemWithSub
           to='/notif-setting'
           title='Notif Setting'
           hasBullet={true}
           role={['Admin WA', 'Admin WA2']}
         >
-      <AsideMenuItem
-          to='/notif-setting/view-setting'
-          title='View Notif Setting'
-          role={['Admin WA', 'Admin WA2']}
-          hasBullet={true}
-        />
-        </AsideMenuItemWithSub>
-  
-        
+          <AsideMenuItem
+            to='/notif-setting/view-setting'
+            title='View Notif Setting'
+            role={['Admin WA', 'Admin WA2']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub> */}
+
         {/* </AsideMenuItemWithSub> */}
         <AsideMenuItem
           to={`/profile/update-profile/${userVendor !== null ? userVendor : userTukang}`}

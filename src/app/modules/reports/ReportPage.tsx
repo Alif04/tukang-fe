@@ -10,6 +10,8 @@ import {
   TotalOrderReportStore,
   DailyFollowUpQuotation,
   DailyFollowUpCSI,
+  ReportLogChat,
+  ReportNotifStatus
 } from '../../components'
 
 import {PrintReport} from './components/PrintReport'
@@ -1237,7 +1239,27 @@ const RefundPage: React.FC = () => {
           </>
         }
       />
-
+        {/* PRINT Admin WA  */}
+        <Route
+        path='log-chat'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>Report Log Chat</PageTitle>
+            <ReportLogChat
+            />
+          </>
+        }
+      />
+      <Route
+        path='log-status-chat'
+        element={
+          <>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>Report Log Notif Status</PageTitle>
+            <ReportNotifStatus
+            />
+          </>
+        }
+      />
       {/* PRINT REPORT  */}
       <Route
         path='print-report'

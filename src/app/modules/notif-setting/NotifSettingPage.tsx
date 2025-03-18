@@ -1,6 +1,6 @@
 import {Navigate, Route, Routes, Outlet} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
-import {NotifSetting} from './components/NotifSetting'
+import {ViewNotifSetting} from './components/ViewNotifSetting'
 import { HeaderWrapper } from '../../../_metronic/layout/components/header/HeaderWrapper'
 
 const notifSettingBreadCrumbs: Array<PageLink> = [
@@ -15,19 +15,16 @@ const notifSettingBreadCrumbs: Array<PageLink> = [
 const NotifSettingPage:React.FC = () => {
   return (
     <Routes>
-      <Route element={<Outlet />}>
-        <Route
+    <Route
           path='view-setting'
           element={
             <>
               <HeaderWrapper className='bg-header-ho' />
               <PageTitle breadcrumbs={notifSettingBreadCrumbs}>Setting</PageTitle>
-              <NotifSetting />
+              <ViewNotifSetting />
             </>
           }
         />
-        <Route index element={<Navigate to='/notif-setting/view-setting' />} />
-      </Route>
     </Routes>
   )
 }

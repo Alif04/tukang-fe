@@ -5,12 +5,10 @@ import './MoreInformation.css'
 
 type Props = {
   className: string
-  totalComplaint: number
-  totalResurvey: number
-  totalRework: number
-  totalReschedule: number
-  totalRefund: number
-  totalCancel: number
+  totalAssign: number
+  totalResolve: number
+  totalUnAssign: number
+
 }
 
 const renderStat = (value: number, label: string) => (
@@ -24,12 +22,9 @@ const renderStat = (value: number, label: string) => (
 
 const MoreInformation: React.FC<Props> = ({
   className,
-  totalComplaint,
-  totalRework,
-  totalResurvey,
-  totalReschedule,
-  totalCancel,
-  totalRefund,
+  totalUnAssign,
+  totalResolve,
+  totalAssign
 }) => {
   return (
     <section id='more-information-vendor'>
@@ -39,15 +34,15 @@ const MoreInformation: React.FC<Props> = ({
             <div className='fs-1 text-gray-800'>Conversation Status</div>
 
             <Row className='justify-content-start'>
-              {renderStat(totalComplaint, 'Unassigned')}
+              {renderStat(totalUnAssign, 'Unassigned')}
             </Row>
 
             <Row className='justify-content-start'>
-              {renderStat(totalResurvey, 'Assigned')}
+              {renderStat(totalAssign, 'Assigned')}
             </Row>
 
             <Row className='justify-content-start'>
-              {renderStat(totalReschedule, 'Resolved')}
+              {renderStat(totalResolve, 'Resolved')}
             </Row>
           </Row>
         </Card.Body>
