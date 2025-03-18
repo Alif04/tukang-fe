@@ -241,9 +241,11 @@ const NewInvoiceVendor: FC = () => {
       }
       const calculateGrandTotal = (quotations: any[]) => {
         return (
-          quotations?.reduce((total, q) => total + Number(q.quotation_grand_total || 0), 0) || 0
-        )
-      }
+          (quotations?.reduce((total, q) => total + Number(q.quotation_grand_total || 0), 0) || 0) * 0.75
+        );
+      };
+
+      
       const workOrderData = workOrders
         .filter((x) => {
           const noInvoice = x.invoice_details.length === 0
@@ -522,7 +524,7 @@ const NewInvoiceVendor: FC = () => {
     }
 
     valueCheck(`&search=`, searchFilter)
-    console.log(valueCheck)
+
     const page = 1
     const pageSize = 10
     await fetchData(page, pageSize, queryparams)
