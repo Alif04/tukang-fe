@@ -16,17 +16,18 @@ const Private: FC = () => {
   const [chatData, setChatData] = useState(null)
 
   const [selectedChat, setSelectedChat] = useState(null)
-  const [selectedAdmin, setSelectedAdmin] = useState(null)
+  const [selectedAdmin, setSelectedAdmin] = useState<any>(null)
   const [roles, setRoles] = useState<any>([])
   const tabs = ['Assigned', 'Unassigned', 'Resolved']
   const [data, setData] = useState<any>([])
   const [qrCode, setQrCode] = useState('')
   const [isConnected, setIsConnected] = useState(false)
   const userRole = localStorage.getItem('userRole') as string
+  const userName = localStorage.getItem('username') as string
   const fetchNewChat = async () => {
     let query = `status=${selectedTab}`
     if (selectedTab === 'Assigned' ||selectedTab === 'Resolved') {
-      query += `&user=${userRole}`
+      query += `&user=${userRole}&userName=${userName}`
     }
     try {
       const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
@@ -44,7 +45,7 @@ const Private: FC = () => {
     }
   }
   const getRoleList = async () => {
-    let apiUrlWithParams = `${apiUrl}/roles`
+    let apiUrlWithParams = `${apiUrl}/auth/get?role_name=${userRole}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -56,10 +57,12 @@ const Private: FC = () => {
         },
       })
       if (response.data) {
-        const adminWARoles = response.data.data.data.filter((role: any) =>
-          role.name.includes('Admin WA')
-        )
-        setRoles(adminWARoles)
+        // const adminWARoles = response.data.data.data.filter((role: any) =>
+        //   role.name.includes('Admin WA')
+        // )
+        // console.log(response);
+        
+        setRoles(response.data.data)
       }
       // console.log(response.data.data.data);
     } catch (error) {
@@ -86,6 +89,8 @@ const Private: FC = () => {
       } else if (data.status === 'desconnectedMobile') {
         setIsConnected(false)
         requestQrCode()
+      } else {
+        setIsConnected(false)
       }
       console.log('Status bot:', data.status)
     })
@@ -109,15 +114,16 @@ const Private: FC = () => {
   }
 
   const handleAssignAdmin = (admin: any) => {
-    setSelectedAdmin(admin.name)
+    setSelectedAdmin(admin)
     // setShowPopup(false)
   }
 
   const saveAssign = async () => {
     const data = {
       chatId: selectedChat,
-      admin: selectedAdmin,
-    }
+      admin: selectedAdmin.roles.name,
+      userName: selectedAdmin.username
+    }    
     await axios
       .post(`${apiChat}/assign-chat`, data)
       .then((response) => {
@@ -179,7 +185,7 @@ const Private: FC = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.post(`${apiChat}/end-chat`, {chatId: selectedChats, admin: userRole})
+          await axios.post(`${apiChat}/end-chat`, {chatId: selectedChats, admin: userRole, userName: userName})
           Swal.fire('Selesai!', 'Percakapan telah diakhiri.', 'success')
           setSelectedChats(null)
           setChatData(null)
@@ -416,9 +422,11 @@ const Private: FC = () => {
                               className='form-select'
                               onChange={(e) => {
                                 const selectedRole = roles.find(
-                                  (role: any) => role.name === e.target.value
+                                  (role: any) => role.username === e.target.value
                                 )
-
+                          
+                                
+                                
                                 if (selectedRole) {
                                   handleAssignAdmin(selectedRole)
                                 }
@@ -427,7 +435,7 @@ const Private: FC = () => {
                               <option value=''>Pilih Admin</option>
                               {roles.map((role: any) => (
                                 <option key={role._id} value={role._id}>
-                                  {role.name}
+                                  {role.username}
                                 </option>
                               ))}
                             </select>

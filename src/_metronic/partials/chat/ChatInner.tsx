@@ -50,11 +50,13 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
   }, [chatData])
   const apiChat = process.env.REACT_APP_API_CHAT_URL
   const userRole = localStorage.getItem('userRole') as string
+  const userName = localStorage.getItem('username') as string
   const sendMessage = async () => {
     const data = {
       message: message,
       chatId: selectedChats,
       adminRole: userRole,
+      userName: userName
     }
     setMessage('')
     await axios

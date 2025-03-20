@@ -1080,7 +1080,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     }
     // console.log(orderStatusLabel);
     // console.log(orderForm);
-
+    // sendMessage()
     await axios
       .post(url, formData, {
         headers: {
@@ -1137,26 +1137,53 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     const filteredTemplates:any = template.find((t:any) => 
       t.subCategory === orderStatusLabel && t.status === "Active"
   );
+    if (filteredTemplates.withImage) {
+      const data = {
+        message: filteredTemplates?.content,
+        chatId: `62${orderForm.project_number}@c.us`,
+        adminRole: userRole,
+        imagePath: filteredTemplates?.imageUrl
+      }
   
-    const data = {
-      message: filteredTemplates?.content,
-      chatId: `62${orderForm.project_number}@c.us`,
-      adminRole: userRole,
+      
+      await axios
+        .post(`${apiChat}/send-message-change-status-image`, data)
+        .then((response) => {
+          console.log(response)
+        })
+        .catch((error) => {
+          console.error(error)
+  
+          // Swal.fire({
+          //   title: 'Error',
+          //   text: error.response.data.message,
+          //   icon: 'error',
+          // })
+        })
+    } else{
+      const data = {
+        message: filteredTemplates?.content,
+        chatId: `62${orderForm.project_number}@c.us`,
+        adminRole: userRole,
+      }
+  
+      
+      await axios
+        .post(`${apiChat}/send-message-change-status`, data)
+        .then((response) => {
+          console.log(response)
+        })
+        .catch((error) => {
+          console.error(error)
+  
+          // Swal.fire({
+          //   title: 'Error',
+          //   text: error.response.data.message,
+          //   icon: 'error',
+          // })
+        })
     }
-    await axios
-      .post(`${apiChat}/send-message-change-status`, data)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((error) => {
-        console.error(error)
-
-        // Swal.fire({
-        //   title: 'Error',
-        //   text: error.response.data.message,
-        //   icon: 'error',
-        // })
-      })
+   
   }
   // Reprint Order
   const handleCancelOrder = async () => {

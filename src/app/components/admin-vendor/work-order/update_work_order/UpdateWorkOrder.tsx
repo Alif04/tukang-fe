@@ -597,11 +597,37 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       t.subCategory === statusAll.description && t.status === "Active"
   );
   // console.log(filteredTemplates);
+  if (filteredTemplates.withImage) {
     const data = {
       message: filteredTemplates?.content,
       chatId: `62${orderDetail?.project_number}@c.us`,
       adminRole: userRole,
-    }    
+      imagePath: filteredTemplates?.imageUrl
+    }
+
+    
+    await axios
+      .post(`${apiChat}/send-message-change-status-image`, data)
+      .then((response) => {
+        console.log(response)
+      })
+      .catch((error) => {
+        console.error(error)
+
+        // Swal.fire({
+        //   title: 'Error',
+        //   text: error.response.data.message,
+        //   icon: 'error',
+        // })
+      })
+  } else{
+    const data = {
+      message: filteredTemplates?.content,
+      chatId: `62${orderDetail?.project_number}@c.us`,
+      adminRole: userRole,
+    }
+
+    
     await axios
       .post(`${apiChat}/send-message-change-status`, data)
       .then((response) => {
@@ -616,6 +642,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         //   icon: 'error',
         // })
       })
+  }
   }
   return (
     <section id='update-work-order'>

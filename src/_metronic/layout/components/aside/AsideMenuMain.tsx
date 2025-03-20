@@ -485,12 +485,12 @@ export function AsideMenuMain() {
           role={['Admin WA', 'Admin WA2']}
           hasBullet={true}
         />
-        <AsideMenuItem
+        {/* <AsideMenuItem
           to='/reports/log-notif-quotation'
           title='Log chat notif quotation'
           role={['Admin WA', 'Admin WA2']}
           hasBullet={true}
-        />
+        /> */}
       
         <AsideMenuItem
           to='/reports/log-status-chat'

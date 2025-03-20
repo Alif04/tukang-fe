@@ -6,12 +6,10 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {Table, PaginationProps, Spin, Pagination} from 'antd'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
-
-const {RangePicker} = DatePicker
 
 type Props = {
   className: string
@@ -42,8 +40,6 @@ const ListUserHO: React.FC<Props> = ({className}) => {
   const [totalData, setTotalData] = useState<number>(0)
   const [pageSize, setPageSize] = useState<number>(10)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
 
   // Handle Change Search Filter
@@ -225,7 +221,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
         },
       })
 
-      setCurrentPage(response?.data?.data?.page ?? 1)
+      setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
       setLoadData(false)
 
@@ -272,6 +268,7 @@ const ListUserHO: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(1, 10, '')
+    // eslint-disable-next-line
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
