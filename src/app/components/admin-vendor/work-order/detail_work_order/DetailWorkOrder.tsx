@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/iframe-has-title */
 import React, {FC, useState, useEffect} from 'react'
 import {Orders} from '../../../../interfaces/order'
 
@@ -6,12 +7,14 @@ import './DetailWorkOrder.css'
 import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import {Steps, Image, Skeleton} from 'antd'
-import {Form, Row, Col, Card, ListGroup, Modal} from 'react-bootstrap'
+import {Form, Row, Col, Card, ListGroup, Modal, Button} from 'react-bootstrap'
 import {
   formatDate,
   formatDateWithTime,
   formatDateWithTimeZone,
 } from '../../../../../_metronic/helpers'
+import {log} from 'node:console'
+import Swal from 'sweetalert2'
 
 interface Status {
   value: number | null
@@ -28,12 +31,13 @@ interface OrderHistory {
 const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
-
+  const userRole = localStorage.getItem('userRole')
   const [orderDetail, setOrderDetail] = useState<any>()
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
   const [visibleReschedule, setVisibleReschedule] = useState(false)
   const [isLoadingPage, setIsLoadingPage] = useState(true)
+  const [editingItemId, setEditingItemId] = useState<any>()
   const handleClose = () => setVisible(false)
 
   // Order History
@@ -147,7 +151,35 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
       value: complaintDoneStatuses,
     },
   ]
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, item: any) => {
+    if (e.target.files && e.target.files[0]) {
+      const newFile = e.target.files[0]
+      const formData = new FormData()
+      formData.append(`work_order_evidences`, newFile)
+      const api = `${apiUrl}/work-orders/${item.id}/replace-foto`
 
+      const res = await axios.post(api, formData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (res.data.status === 201) {
+        Swal.fire({
+          title: 'Success',
+          text: 'Work Order Evidence Updated',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+        })
+        fetchOrderData()
+      }
+      setEditingItemId(null) // Selesai edit
+    }
+  }
   return (
     <section id='detail-work-order'>
       <Card className='mb-5'>
@@ -1024,7 +1056,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             </Col>
           </Row>
 
-          <Skeleton active loading={isLoadingPage}>
+          {/* <Skeleton active loading={isLoadingPage}>
             {orderDetail?.work_orders?.work_order_evidences.length ? (
               <Row>
                 <Col>
@@ -1106,24 +1138,125 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
             ) : (
               <></>
             )}
-          </Skeleton>
+          </Skeleton> */}
 
           <Skeleton active loading={isLoadingPage}>
-            <div className='order-history mt-3 mb-3'>
-              <div className='fs-3 text-uppercase fw-bold text-black mb-4'>Order History</div>
-              <Steps
-                className='order-history-timeline'
-                current={orderHistory.findIndex((step) =>
-                  step.value.includes(
-                    orderDetail?.work_orders?.work_order_status.length > 0
-                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.id
-                      : orderDetail?.project_status_id
-                  )
-                )}
-                labelPlacement='vertical'
-                items={orderHistory}
-              />
-            </div>
+            {orderDetail?.work_orders?.work_order_evidences.length ? (
+              <Row>
+                <Col>
+                  <Form.Label className='mt-3'>Work Before :</Form.Label>
+                  <ListGroup>
+                    {orderDetail?.work_orders?.work_order_evidences
+                      .filter((x: any) => x.type === 2)
+                      .map((item: any) => (
+                        <ListGroup.Item key={item.id} action>
+                          <div className='d-flex justify-content-between align-items-center'>
+                            <span
+                              onClick={() => {
+                                setPreviewImage(item.evidence_location)
+                                setVisible(true)
+                              }}
+                              style={{cursor: 'pointer'}}
+                            >
+                              {item.evidence_location}
+                            </span>
+                            <div>
+                              {userRole === 'Owner Vendor' && (
+                                <>
+                                  {' '}
+                                  <Button
+                                    variant='outline-primary'
+                                    size='sm'
+                                    onClick={() => {
+                                      setEditingItemId(item.evidence_location)
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  {editingItemId === item.evidence_location && (
+                                    <input
+                                      type='file'
+                                      accept='image/*'
+                                      style={{display: 'inline', marginLeft: '10px'}}
+                                      onChange={(e) => handleFileChange(e, item)}
+                                    />
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </ListGroup.Item>
+                      ))}
+                  </ListGroup>
+                </Col>
+
+                <Col>
+                  <Form.Label className='mt-3'>Work After :</Form.Label>
+                  <ListGroup>
+                    {orderDetail?.work_orders?.work_order_evidences
+                      .filter((x: any) => x.type === 3)
+                      .map((item: any) => (
+                        <ListGroup.Item key={item.id} action>
+                          <div className='d-flex justify-content-between align-items-center'>
+                            <span
+                              onClick={() => {
+                                setPreviewImage(item.evidence_location)
+                                setVisible(true)
+                              }}
+                              style={{cursor: 'pointer'}}
+                            >
+                              {item.evidence_location}
+                            </span>
+                            <div>
+                              {userRole === 'Owner Vendor' && (
+                                <>
+                                  {' '}
+                                  <Button
+                                    variant='outline-primary'
+                                    size='sm'
+                                    onClick={() => {
+                                      setEditingItemId(item.evidence_location)
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  {editingItemId === item.evidence_location && (
+                                    <input
+                                      type='file'
+                                      accept='image/*'
+                                      style={{display: 'inline', marginLeft: '10px'}}
+                                      onChange={(e) => handleFileChange(e, item)}
+                                    />
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </ListGroup.Item>
+                      ))}
+                  </ListGroup>
+                  {previewImage && (
+                    <div>
+                      <Image
+                        key={previewImage}
+                        width={200}
+                        style={{display: 'none'}}
+                        src={`${apiUrl}/public/work-orders/${previewImage}`}
+                        preview={{
+                          visible,
+                          src: `${apiUrl}/public/work-orders/${previewImage}`,
+                          onVisibleChange: (value) => {
+                            setVisible(value)
+                          },
+                        }}
+                      />
+                    </div>
+                  )}
+                </Col>
+              </Row>
+            ) : (
+              <></>
+            )}
           </Skeleton>
 
           <Skeleton active loading={isLoadingPage}>
