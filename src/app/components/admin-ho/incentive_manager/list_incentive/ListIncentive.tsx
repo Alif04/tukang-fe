@@ -100,7 +100,7 @@ const ListIncentiveHOManager: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.max_order.length - b.max_order.length,
     },
     {
-      title: 'Insentif Sales',
+      title: 'Insentif Manager',
       dataIndex: 'incentive',
       key: 'incentive',
       align: 'start',
