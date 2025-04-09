@@ -314,7 +314,7 @@ const NewInvoiceVendor: FC = () => {
           const quoteInHistory = item?.order_history?.find(
             (x: any) => x.status.category === 'QUOTEIN'
           )
-          const grandTotal = calculateGrandTotal(item?.quotation || [])
+          const grandTotal = item.vendor.nominal_survey
           return {
             _key: workOrders.length + index + 1,
             order_id: item?.id,
