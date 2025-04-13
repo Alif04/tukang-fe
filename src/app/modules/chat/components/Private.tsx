@@ -79,18 +79,19 @@ const Private: FC = () => {
       setQrCode(data.qr)
     })
 
-    socket.on('status', (data: any) => {
+    socket.on('status', (data: any) => {      
       if (data.status === 'isLogged' || data.status === 'successChat') {
         setIsConnected(true)
         setQrCode('')
       } else if (data.status === 'disconnected') {
         setIsConnected(false)
         requestQrCode()
-      } else if (data.status === 'desconnectedMobile') {
+      } else if (data.status === 'notLogged' || data.status === 'desconnectedMobile' || data.status === 'qrReadFail' || data.status === 'waitForLogin') {
         setIsConnected(false)
         requestQrCode()
       } else {
         setIsConnected(false)
+        requestQrCode()
       }
       console.log('Status bot:', data.status)
     })
@@ -197,7 +198,6 @@ const Private: FC = () => {
       }
     })
   }
-
   return (
     <div className='d-flex flex-column flex-lg-row'>
       {!isConnected && qrCode ? (
@@ -214,6 +214,9 @@ const Private: FC = () => {
       ) : (
         <>
           {' '}
+          <button onClick={checkStatus} className='btn btn-primary'>
+              Check Status WA
+            </button>
           <div className='flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0'>
             <div className='card card-flush'>
               <div className='card-header pt-7' id='kt_chat_contacts_header'>
