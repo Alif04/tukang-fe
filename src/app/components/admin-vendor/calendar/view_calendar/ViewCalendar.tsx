@@ -5,6 +5,7 @@ import './ViewCalendar.css'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import {MoreLinkContentArg} from '@fullcalendar/core'
 import listPlugin from '@fullcalendar/list'
 import idLocale from '@fullcalendar/core/locales/id'
 
@@ -66,7 +67,7 @@ const ViewCalendarVendor: React.FC = () => {
     try {
       while (hasMoreData) {
         const response = await axios.get(
-          `${apiUrl}/orders?vendor_id=${vendorId}&take=${pageSize}&page=${currentPage}&order_by=desc&date_from=${start}&date_to=${end}`,
+          `${apiUrl}/orders/calender?vendor=${vendorId}&take=${pageSize}&page=${currentPage}&order_by=desc&date_from=${start}&date_to=${end}`,
           {
             headers: {
               Accept: 'application/json',
@@ -81,51 +82,35 @@ const ViewCalendarVendor: React.FC = () => {
 
         if (data.length > 0) {
           const orders = data.map((item: any) => {
-            const startDate = item?.work_orders
-              ? item?.work_orders &&
-                item.work_orders.survey_date !== null &&
-                item.work_orders.work_start_date === null
-                ? item.work_orders.survey_date
-                : item?.work_orders &&
-                  item.work_orders.survey_date === null &&
-                  item.work_orders.work_start_date !== null
-                ? item.work_orders.work_start_date
-                : null
-              : item?.request_survey
-
-            const endDate = item?.work_orders
-              ? item?.work_orders &&
-                item.work_orders.survey_date !== null &&
-                item.work_orders.work_end_date === null
-                ? item.work_orders.survey_date
-                : item?.work_orders &&
-                  item.work_orders.survey_date === null &&
-                  item.work_orders.work_end_date !== null
-                ? item.work_orders.work_end_date
-                : null
-              : item?.request_survey
-
-            const orderStatus = (() => {
-              if (item?.work_orders?.work_order_status?.length >= 0) {
-                if (['QUOTEIN', 'QUOTATIONPAID', 'QUOTEOUT'].includes(item?.status?.category)) {
-                  return item?.status?.category
-                } else if (
-                  ['WORKREQ'].includes(item?.status?.category) &&
-                  item?.payment_type === 'survey' &&
-                  !['WORKSTART', 'WORKEND'].includes(
-                    item?.work_orders?.work_order_status[0]?.status?.category
-                  )
-                ) {
-                  return item?.status?.category
-                } else {
-                  return item?.work_orders?.work_order_status[0]?.status?.category
+            const startDate = (() => {
+              if (item?.work_orders) {
+                if (item.work_order_survey_date !== null) {
+                  return item.work_orders.work_start_date === null
+                    ? item.work_orders.survey_date
+                    : item.work_orders.work_start_date
                 }
-              } else if (item?.order?.reschedule?.length > 0) {
-                return 'RESCHEDULE'
-              } else {
-                return item?.status?.category
               }
+              return item?.request_survey
             })()
+
+            const endDate = (() => {
+              if (item?.work_orders) {
+                if (item.work_order_survey_date !== null) {
+                  return item.work_orders.work_end_date === null
+                    ? item.work_orders.survey_date
+                    : item.work_orders.work_end_date
+                }
+                if (
+                  item.work_order_survey_date === null &&
+                  item.work_orders.work_end_date !== null
+                ) {
+                  return item.work_orders.work_end_date
+                }
+              }
+              return item?.request_survey
+            })()
+
+            const orderStatus = item?.reschedule?.length > 0 ? 'RESCHEDULE' : item?.status?.category
 
             const contextualColor = (() => {
               switch (orderStatus) {
@@ -152,7 +137,11 @@ const ViewCalendarVendor: React.FC = () => {
                 case 'RESCHEDULE':
                   return 'bg-calendar-order-reschedule'
                 case 'INVESTIGATED':
+                case 'COMPLAINTAPPROVEDBYHO':
+                case 'COMPLAINTREJECTEDBYHO':
                   return 'bg-calendar-order-complaint'
+                case 'CANCEL':
+                  return 'bg-calendar-order-cancel'
                 default:
                   return 'bg-primary'
               }
@@ -160,9 +149,9 @@ const ViewCalendarVendor: React.FC = () => {
 
             return {
               id: item?.id.toString(),
-              title: `#${item?.id ?? ''} ${item.store ? `- ${item.store.store_name}` : ''} - ${
-                item?.members?.full_name ?? ''
-              } `,
+              title: `#${item?.id ?? ''} - ${
+                item.vendor ? item.vendor.company_name : '- Vendor Belum Ditugaskan'
+              } - ${item?.members?.full_name ?? ''}`,
               start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
               end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
               order_status: orderStatus,
@@ -194,11 +183,13 @@ const ViewCalendarVendor: React.FC = () => {
   }, [dateFrom, dateTo])
 
   const handleDatesSet = (arg: any) => {
-    const start = dayjs(arg.startStr).format('YYYY-MM-DD')
-    const end = dayjs(arg.endStr).format('YYYY-MM-DD')
+    const start = dayjs(arg.view.currentStart).format('YYYY-MM-DD')
+    const end = dayjs(arg.view.currentEnd).format('YYYY-MM-DD')
 
-    setDateFrom(start)
-    setDateTo(end)
+    if (start !== dateFrom || end !== dateTo) {
+      setDateFrom(start)
+      setDateTo(end)
+    }
   }
 
   // MODAL
@@ -293,6 +284,10 @@ const ViewCalendarVendor: React.FC = () => {
     },
   ]
 
+  const renderMoreLink = (arg: MoreLinkContentArg) => {
+    return <a>Read more +{arg.num} Order</a>
+  }
+
   return (
     <section id='view-calendar'>
       <Accordion className='mb-5'>
@@ -382,6 +377,7 @@ const ViewCalendarVendor: React.FC = () => {
           timeZone='Asia/Jakarta'
           datesSet={handleDatesSet}
           eventClick={(info) => handleShowModal(info.event.id)}
+          moreLinkContent={renderMoreLink}
         />
       </Spin>
 
