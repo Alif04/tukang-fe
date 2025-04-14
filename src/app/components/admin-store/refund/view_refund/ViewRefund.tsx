@@ -38,8 +38,9 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
+  const userRole = localStorage.getItem('userRole') as string
   const userStore = localStorage.getItem('storeId')
-  const storeId = userStore ? `&store_id=${userStore}` : ''
+  const storeId = !['Super User', 'Admin HO'].includes(userRole) ? `&store_id=${userStore}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
