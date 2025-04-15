@@ -5,15 +5,12 @@ import './NewMaterial.css'
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
-import makeAnimated from 'react-select/animated'
-import dayjs from 'dayjs'
-import {Image, DatePicker, Steps} from 'antd'
+import {Image, Steps} from 'antd'
 import {useNavigate} from 'react-router-dom'
-import {Form, Button, Card, Row, Col, ListGroup, Table} from 'react-bootstrap'
+import {Form, Button, Card, Row, Col, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faFileArrowUp, faPlus} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faFileArrowUp, faPencil} from '@fortawesome/free-solid-svg-icons'
 import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
-const {RangePicker} = DatePicker
 
 interface StatusStorage {
   value: number
@@ -107,13 +104,20 @@ const NewMaterialVendor: FC = () => {
   const [workOrderBefore, setWorkOrderBefore] = useState<Array<File | null>>([])
   const [workOrderAfter, setWorkOrderAfter] = useState<Array<File | null>>([])
 
+  // Existing Work Order Files
+  const mergedWorkOrderFiles = workOrderBefore.concat(workOrderAfter)
+  const existingWorkOrderFiles = mergedWorkOrderFiles.filter(
+    (item) => item !== null && !(item instanceof File) && 'id' in item && 'name' in item
+  )
+
   const [selectedWorkBeforeFile, setSelectedWorkBeforeFile] = useState<number | null>(null)
   const [selectedWorkAfterFile, setSelectedWorkAfterFile] = useState<number | null>(null)
 
   const [previewWorkBeforeImage, setPreviewWorkBeforeImage] = useState<any>()
   const [previewWorkAfterImage, setPreviewWorkAfterImage] = useState<any>()
 
-  const evidenceRef = useRef<HTMLInputElement>(null)
+  const evidenceBeforeRef = useRef<HTMLInputElement>(null)
+  const evidenceAfterRef = useRef<HTMLInputElement>(null)
 
   const [visibleWorkBefore, setVisibleWorkBefore] = useState(false)
   const [visibleWorkAfter, setVisibleWorkAfter] = useState(false)
@@ -143,6 +147,10 @@ const NewMaterialVendor: FC = () => {
       unit: '',
     },
   ])
+
+  console.log('existing work order files', existingWorkOrderFiles)
+  console.log('work order before', workOrderBefore)
+  console.log('work order after', workOrderAfter)
 
   // Fetch Work Order Data
   const getWorkOrder = async () => {
@@ -415,6 +423,8 @@ const NewMaterialVendor: FC = () => {
           return 'WORKSTART'
         case 'WORKSTART':
           return 'WORKEND'
+        case 'WORKEND':
+          return 'WORKEND'
         case 'REWORKREQ':
           return 'REWORKSTART'
         case 'REWORKSTART':
@@ -432,6 +442,12 @@ const NewMaterialVendor: FC = () => {
         case 'TUKANGWORKSTEPTHREE':
           return 'WORKSTARTSTEPTHREE'
         case 'WORKSTARTSTEPTHREE':
+          return 'WORKENDSTEPTHREE'
+        case 'WORKENDSTEPONE':
+          return 'WORKENDSTEPONE'
+        case 'WORKENDSTEPTWO':
+          return 'WORKENDSTEPTWO'
+        case 'WORKENDSTEPTHREE':
           return 'WORKENDSTEPTHREE'
         default:
           return null
@@ -590,20 +606,29 @@ const NewMaterialVendor: FC = () => {
   // Handle File ( Before ) Change
   const handleFileWorkBefore = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
-    if (fileList) {
-      const file: Array<File | null> = new Array<File>()
-      const existingFiles = [...workOrderBefore]
-      const mergedFiles = existingFiles.concat(file)
+    const input = evidenceBeforeRef.current
 
-      const {length: existingFilesLength} = existingFiles
-      const {length: fileListLength} = fileList
+    if (!fileList || !input) return
 
-      for (let i = 0; i < fileListLength; i++) {
-        mergedFiles[existingFilesLength + i] = fileList.item(i)
+    const editIndexAttr = input.getAttribute('data-edit-index-before')
+    const updatedFiles = [...workOrderBefore]
+
+    if (editIndexAttr !== null) {
+      const index = parseInt(editIndexAttr)
+      if (!isNaN(index) && fileList.length > 0) {
+        updatedFiles[index] = fileList[0]
       }
 
-      setWorkOrderBefore(mergedFiles)
+      input.removeAttribute('data-edit-index-before')
+    } else {
+      for (let i = 0; i < fileList.length; i++) {
+        updatedFiles.push(fileList.item(i))
+      }
     }
+
+    setWorkOrderBefore(updatedFiles)
+
+    input.value = ''
   }
 
   const handleImageWorkBeforeClick = () => {
@@ -617,34 +642,49 @@ const NewMaterialVendor: FC = () => {
     setSelectedWorkBeforeFile(index)
   }
 
+  const handleEditWorkBeforeFile = (index: number) => {
+    if (evidenceBeforeRef.current) {
+      evidenceBeforeRef.current.setAttribute('data-edit-index-before', index.toString())
+      evidenceBeforeRef.current.click()
+    }
+  }
+
   const handleRemoveWorkBeforeFile = (index: number) => {
     const newEvidances = [...workOrderBefore]
     newEvidances.splice(index, 1)
     setWorkOrderBefore(newEvidances)
 
     // Update element value
-    if (evidenceRef.current?.value) {
-      evidenceRef.current.value = ''
+    if (evidenceBeforeRef.current?.value) {
+      evidenceBeforeRef.current.value = ''
     }
   }
 
   // Handle File ( After ) Change
   const handleFileWorkAfter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
-    if (fileList) {
-      const file: Array<File | null> = new Array<File>()
-      const existingFiles = [...workOrderAfter]
-      const mergedFiles = existingFiles.concat(file)
+    const input = evidenceAfterRef.current
 
-      const {length: existingFilesLength} = existingFiles
-      const {length: fileListLength} = fileList
+    if (!fileList || !input) return
 
-      for (let i = 0; i < fileListLength; i++) {
-        mergedFiles[existingFilesLength + i] = fileList.item(i)
+    const editIndexAttr = input.getAttribute('data-edit-index-after')
+    const updatedFiles = [...workOrderAfter]
+
+    if (editIndexAttr !== null) {
+      const index = parseInt(editIndexAttr)
+      if (!isNaN(index) && fileList.length > 0) {
+        updatedFiles[index] = fileList[0]
       }
-
-      setWorkOrderAfter(mergedFiles)
+      input.removeAttribute('data-edit-index-after')
+    } else {
+      for (let i = 0; i < fileList.length; i++) {
+        updatedFiles.push(fileList.item(i))
+      }
     }
+
+    setWorkOrderAfter(updatedFiles)
+
+    input.value = ''
   }
 
   const handleImageWorkAfterClick = () => {
@@ -658,14 +698,21 @@ const NewMaterialVendor: FC = () => {
     setSelectedWorkAfterFile(index)
   }
 
+  const handleEditWorkAfterFile = (index: number) => {
+    if (evidenceAfterRef.current) {
+      evidenceAfterRef.current.setAttribute('data-edit-index-after', index.toString())
+      evidenceAfterRef.current.click()
+    }
+  }
+
   const handleRemoveWorkAfterFile = (index: number) => {
     const newEvidances = [...workOrderAfter]
     newEvidances.splice(index, 1)
     setWorkOrderAfter(newEvidances)
 
     // Update element value
-    if (evidenceRef.current?.value) {
-      evidenceRef.current.value = ''
+    if (evidenceAfterRef.current?.value) {
+      evidenceAfterRef.current.value = ''
     }
   }
 
@@ -764,6 +811,17 @@ const NewMaterialVendor: FC = () => {
       workOrderBefore.forEach((item, index) => {
         if (item instanceof Blob) {
           formData.append(`work_order_before`, item, item?.name)
+        }
+      })
+    }
+
+    if (existingWorkOrderFiles?.length) {
+      existingWorkOrderFiles.forEach((item: any, index: number) => {
+        if (item.id) {
+          formData.append(
+            `existing_work_order_evidences[${index}][work_order_evidence_id]`,
+            item.id
+          )
         }
       })
     }
@@ -1039,7 +1097,7 @@ const NewMaterialVendor: FC = () => {
                               multiple
                               hidden
                               id='work-before-file-input'
-                              ref={evidenceRef}
+                              ref={evidenceBeforeRef}
                               onChange={handleFileWorkBefore}
                             />
 
@@ -1054,10 +1112,11 @@ const NewMaterialVendor: FC = () => {
                                 <ListGroup key={`${stringToHash(item?.name ?? 'randomImageHash')}`}>
                                   <ListGroup.Item className='d-flex justify-content-between align-items-center'>
                                     <FontAwesomeIcon
-                                      className='me-3'
-                                      icon={faFileArrowUp}
-                                      color='#858585'
+                                      icon={faPencil}
                                       size='sm'
+                                      color='#858585'
+                                      style={{cursor: 'pointer'}}
+                                      onClick={(e) => handleEditWorkBeforeFile(index)}
                                     />
 
                                     <span
@@ -1149,7 +1208,7 @@ const NewMaterialVendor: FC = () => {
                                 multiple
                                 hidden
                                 id='work-after-file-input'
-                                ref={evidenceRef}
+                                ref={evidenceAfterRef}
                                 onChange={handleFileWorkAfter}
                               />
 
@@ -1166,10 +1225,11 @@ const NewMaterialVendor: FC = () => {
                                   >
                                     <ListGroup.Item className='d-flex justify-content-between align-items-center'>
                                       <FontAwesomeIcon
-                                        className='me-3'
-                                        icon={faFileArrowUp}
-                                        color='#858585'
+                                        icon={faPencil}
                                         size='sm'
+                                        color='#858585'
+                                        style={{cursor: 'pointer'}}
+                                        onClick={(e) => handleEditWorkAfterFile(index)}
                                       />
 
                                       <span
@@ -1832,11 +1892,6 @@ const NewMaterialVendor: FC = () => {
               'INVESTIGATED',
               'COMPLAINTAPPROVEDBYHO',
               'COMPLAINTREJECTEDBYHO',
-              'SURVEYDONE',
-              'WORKEND',
-              'WORKENDSTEPONE',
-              'WORKENDSTEPTWO',
-              'WORKENDSTEPTHREE',
             ].includes(workOrderDetail?.work_order_status[0]?.status?.category) ? (
               <div className='d-flex justify-content-center align-items-center'>
                 <Button
