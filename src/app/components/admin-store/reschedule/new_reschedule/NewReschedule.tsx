@@ -35,7 +35,7 @@ const NewReschedule: FC = () => {
   const userRole = localStorage.getItem('userRole') as string
   const userStore = localStorage.getItem('storeId')
   const userTukang = localStorage.getItem('tukang_id')
-  const storeId = userStore ? `&store_id=${userStore}` : ''
+  const storeId = !['Super User', 'Admin HO'].includes(userRole) ? `&store_id=${userStore}` : ''
   const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
