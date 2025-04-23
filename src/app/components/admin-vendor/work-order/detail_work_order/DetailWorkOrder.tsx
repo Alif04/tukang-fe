@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/iframe-has-title */
-import React, {FC, useState, useEffect} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 import {Orders} from '../../../../interfaces/order'
 
 import './DetailWorkOrder.css'
@@ -56,7 +56,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
         })
         .then((response) => {
           const data = response.data.data
-
+          
           setOrderDetail(data)
           updatePageTitle(data)
           setIsLoadingPage(false)
@@ -178,6 +178,94 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
         fetchOrderData()
       }
       setEditingItemId(null) // Selesai edit
+    }
+  }
+  const deleteFoto = async (item: any) => {
+    const api = `${apiUrl}/work-orders/${item.id}/delete-foto`
+
+    const res = await axios.delete(api, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
+
+    if (res.data.status === 200) {
+      Swal.fire({
+        title: 'Success',
+        text: 'Work Order Evidence Deleted',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500,
+      })
+      fetchOrderData()
+    }
+  }
+
+  const fileInputRef = useRef<any>(null)
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+  const handleFileChange2 = async(e: any) => {
+    const file = e.target.files[0]
+
+    const formData = new FormData()
+    formData.append(`work_order_before`, file)
+    const api = `${apiUrl}/work-orders/${orderDetail?.work_orders?.id}/add-foto-before`
+
+    const res = await axios.post(api, formData, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
+
+    if (res.data.status === 201) {
+      Swal.fire({
+        title: 'Success',
+        text: 'Work Order Evidence Updated',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500,
+      })
+      fetchOrderData()
+    }
+  }
+
+
+  const fileInputAfterRef = useRef<any>(null)
+  const handleButtonAfterClick = () => {
+    fileInputAfterRef.current?.click();
+  };
+  const handleFileAfterChange2 = async(e: any) => {
+    const file = e.target.files[0]
+
+    const formData = new FormData()
+    formData.append(`work_order_after`, file)
+    const api = `${apiUrl}/work-orders/${orderDetail?.work_orders?.id}/add-foto-after`
+
+    const res = await axios.post(api, formData, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Access-Control-Allow-Origin': '*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
+
+    if (res.data.status === 201) {
+      Swal.fire({
+        title: 'Success',
+        text: 'Work Order Evidence Updated',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500,
+      })
+      fetchOrderData()
     }
   }
   return (
@@ -1145,6 +1233,21 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               <Row>
                 <Col>
                   <Form.Label className='mt-3'>Work Before :</Form.Label>
+                  <Button
+                    variant='outline-primary'
+                    size='sm'
+                    style={{marginLeft: '10px',marginBottom:'10px'}}
+                    onClick={handleButtonClick}
+                  >
+                    Upload File Before
+                  </Button>
+                  <input
+                    type='file'
+                    accept='image/*'
+                    ref={fileInputRef}
+                    style={{display: 'none'}}
+                    onChange={handleFileChange2}
+                  />
                   <ListGroup>
                     {orderDetail?.work_orders?.work_order_evidences
                       .filter((x: any) => x.type === 2)
@@ -1173,6 +1276,29 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                                   >
                                     Edit
                                   </Button>
+                                  <Button
+                                    variant='outline-primary'
+                                    size='sm'
+                                    style={{marginLeft: 5}}
+                                    onClick={() => {
+                                      Swal.fire({
+                                        title: 'Apakah kamu yakin?',
+                                        text: 'Foto ini akan dihapus secara permanen!',
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#d33',
+                                        cancelButtonColor: '#3085d6',
+                                        confirmButtonText: 'Ya, hapus!',
+                                        cancelButtonText: 'Batal',
+                                      }).then((result) => {
+                                        if (result.isConfirmed) {
+                                          deleteFoto(item)
+                                        }
+                                      })
+                                    }}
+                                  >
+                                    Delete Foto
+                                  </Button>
                                   {editingItemId === item.evidence_location && (
                                     <input
                                       type='file'
@@ -1192,6 +1318,21 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
                 <Col>
                   <Form.Label className='mt-3'>Work After :</Form.Label>
+                  <Button
+                    variant='outline-primary'
+                    size='sm'
+                    style={{marginLeft: '10px',marginBottom:'10px'}}
+                    onClick={handleButtonAfterClick}
+                  >
+                    Upload File After
+                  </Button>
+                  <input
+                    type='file'
+                    accept='image/*'
+                    ref={fileInputAfterRef}
+                    style={{display: 'none'}}
+                    onChange={handleFileAfterChange2}
+                  />
                   <ListGroup>
                     {orderDetail?.work_orders?.work_order_evidences
                       .filter((x: any) => x.type === 3)
@@ -1219,6 +1360,29 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                                     }}
                                   >
                                     Edit
+                                  </Button>
+                                  <Button
+                                    variant='outline-primary'
+                                    size='sm'
+                                    style={{marginLeft: 5}}
+                                    onClick={() => {
+                                      Swal.fire({
+                                        title: 'Apakah kamu yakin?',
+                                        text: 'Foto ini akan dihapus secara permanen!',
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#d33',
+                                        cancelButtonColor: '#3085d6',
+                                        confirmButtonText: 'Ya, hapus!',
+                                        cancelButtonText: 'Batal',
+                                      }).then((result) => {
+                                        if (result.isConfirmed) {
+                                          deleteFoto(item)
+                                        }
+                                      })
+                                    }}
+                                  >
+                                    Delete Foto
                                   </Button>
                                   {editingItemId === item.evidence_location && (
                                     <input
