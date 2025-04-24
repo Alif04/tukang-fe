@@ -91,6 +91,12 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const [workOrderBefore, setWorkOrderBefore] = useState<Array<File | null>>([])
   const [workOrderAfter, setWorkOrderAfter] = useState<Array<File | null>>([])
 
+  // Existing Work Order Files
+  const mergedWorkOrderFiles = workOrderBefore.concat(workOrderAfter)
+  const existingWorkOrderFiles = mergedWorkOrderFiles.filter(
+    (item) => item !== null && !(item instanceof File) && 'id' in item && 'name' in item
+  )
+
   const [selectedWorkBeforeFile, setSelectedWorkBeforeFile] = useState<number | null>(null)
   const [selectedWorkAfterFile, setSelectedWorkAfterFile] = useState<number | null>(null)
 
@@ -698,6 +704,17 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       workOrderBefore.forEach((item, index) => {
         if (item instanceof Blob) {
           formData.append(`work_order_before`, item, item?.name)
+        }
+      })
+    }
+
+    if (existingWorkOrderFiles?.length) {
+      existingWorkOrderFiles.forEach((item: any, index: number) => {
+        if (item.id) {
+          formData.append(
+            `existing_work_order_evidences[${index}][work_order_evidence_id]`,
+            item.id
+          )
         }
       })
     }

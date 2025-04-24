@@ -43,30 +43,43 @@ const ReportVendorHO: FC = () => {
   const vendorId = selectedVendor.value ? `&vendor_id=${selectedVendor.value}` : ''
 
   const getVendor = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `${apiUrl}/vendor?take=0&top_best=1&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+    let currentPage = 1
+    let allVendors: any[] = []
+    let hasMoreData = true
+    const pageSize = 20
 
-      if (Array.isArray(response.data.data)) {
-        const tempVendor = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.company_name,
-        }))
+    try {
+      while (hasMoreData) {
+        const response = await axios.get(
+          `${apiUrl}/vendor?page=${currentPage}&take=${pageSize}&top_best=1&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
+
+        const data = response.data.data
+
+        if (data.length > 0) {
+          const tempVendor = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.company_name,
+          }))
+
+          allVendors = [...allVendors, ...tempVendor]
+          currentPage += 1
+        } else {
+          hasMoreData = false
+        }
 
         setVendor(response.data.data)
-        setVendorOption(tempVendor)
-      } else {
-        console.error('API response data is not an array:', response.data)
       }
+
+      setVendorOption(allVendors)
     } catch (err) {
       console.error(err)
     }

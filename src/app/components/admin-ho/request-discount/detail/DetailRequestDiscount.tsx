@@ -680,7 +680,13 @@ const DetailRequestDiscountHO: FC = () => {
                     Nominal Pengajuan Diskon
                   </td>
                   <td className=' fw-bolder'>
-                    {`Rp. ${Number(requestDiscountDetail?.promotion_nominal).toLocaleString('id')}`}
+                    {`${
+                      requestDiscountDetail?.promotion_nominal < 100
+                        ? `${requestDiscountDetail?.promotion_nominal}%`
+                        : `Rp. ${parseInt(requestDiscountDetail?.promotion_nominal).toLocaleString(
+                            'id'
+                          )}`
+                    }`}
                   </td>
                 </tr>
 
@@ -692,10 +698,19 @@ const DetailRequestDiscountHO: FC = () => {
                     Grand Total
                   </td>
                   <td className=' fw-bolder'>
-                    {`Rp. ${(
-                      Number(quotationDetail?.quotation_grand_total || 0) -
-                      Number(requestDiscountDetail?.promotion_nominal || 0)
-                    ).toLocaleString('id')}`}
+                    {(() => {
+                      const grandTotal = Number(quotationDetail?.quotation_grand_total || 0)
+                      const promoValue = Number(requestDiscountDetail?.promotion_nominal || 0)
+
+                      if (promoValue < 100) {
+                        const discount = (grandTotal * promoValue) / 100
+                        const grandTotalAfterDiscount = grandTotal - discount
+                        return `Rp. ${grandTotalAfterDiscount.toLocaleString('id')}`
+                      }
+
+                      const discountedTotal = grandTotal - promoValue
+                      return `Rp. ${discountedTotal.toLocaleString('id')}`
+                    })()}
                   </td>
                 </tr>
               </tbody>
