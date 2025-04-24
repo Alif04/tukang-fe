@@ -350,7 +350,7 @@ const ViewOrders: FC = () => {
               quotation_date: data?.quotation[0]?.quotation_date,
               quotation_validity: data?.quotation[0]?.quotation_validity,
               quotation_disc: data?.quotation[0]?.quotation_disc,
-              quotation_promotion: data?.quotation[0]?.promotion?.id,
+              quotation_promotion: data?.quotation[0]?.promotion?.id ?? null,
               quotation_grand_total: data?.quotation[0]?.quotation_grand_total,
               readiness: data?.quotation[0]?.readiness,
               receipt_quotation: data?.quotation[0]?.receipt_quotation,
@@ -459,18 +459,22 @@ const ViewOrders: FC = () => {
         const data = response.data.data
 
         if (data.length > 0) {
-          const tempVendor = response.data.data.map((item: any) => ({
+          const allVendorData = response.data.data.map((item: any) => {
+            return item
+          })
+
+          const vendorOptions = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.company_name,
           }))
 
-          allVendors = [...allVendors, ...tempVendor]
+          allVendors = [...allVendors, ...vendorOptions]
           currentPage += 1
+
+          setVendor(allVendorData)
         } else {
           hasMoreData = false
         }
-
-        setVendor(response.data.data)
       }
 
       setVendorSelect(allVendors)
@@ -588,6 +592,8 @@ const ViewOrders: FC = () => {
       },
     ],
   })
+
+  console.log('quotation promotion', quotation.quotation_promotion)
 
   const quotationSpecialStatus = (() => {
     if (quotation.quotation_special === 1) {
