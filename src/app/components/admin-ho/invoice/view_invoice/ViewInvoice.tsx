@@ -395,10 +395,15 @@ const ViewInvoiceHO: FC = () => {
     fetchData(1, 10, '')
   }, [])
 
-  useEffect(() => {
-    const getVendor = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/vendor?take=0`, {
+  const getVendor = async () => {
+    let currentPage = 1
+    const pageSize = 20
+    let allVendors: any[] = []
+    let hasMoreData = true
+
+    try {
+      while (hasMoreData) {
+        const response = await axios.get(`${apiUrl}/vendor?page=${currentPage}&take=${pageSize}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -407,22 +412,30 @@ const ViewInvoiceHO: FC = () => {
           },
         })
 
-        if (Array.isArray(response.data.data)) {
+        const data = response.data.data
+
+        if (data.length > 0) {
           const tempVendor = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.company_name,
           }))
 
-          setVendor(tempVendor)
+          allVendors = [...allVendors, ...tempVendor]
+          currentPage += 1
         } else {
-          console.error('API response data is not an array:', response.data)
+          hasMoreData = false
         }
-      } catch (err) {
-        console.error(err)
       }
-    }
 
+      setVendor(allVendors)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
     getVendor()
+    //eslint-disable-next-line
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {

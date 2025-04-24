@@ -350,7 +350,7 @@ const ViewOrders: FC = () => {
               quotation_date: data?.quotation[0]?.quotation_date,
               quotation_validity: data?.quotation[0]?.quotation_validity,
               quotation_disc: data?.quotation[0]?.quotation_disc,
-              quotation_promotion: data?.quotation[0]?.promotion?.id,
+              quotation_promotion: data?.quotation[0]?.promotion?.id ?? null,
               quotation_grand_total: data?.quotation[0]?.quotation_grand_total,
               readiness: data?.quotation[0]?.readiness,
               receipt_quotation: data?.quotation[0]?.receipt_quotation,
@@ -435,29 +435,49 @@ const ViewOrders: FC = () => {
   }
 
   const getVendor = async (store_id?: number | null) => {
+    let currentPage = 1
+    let allVendors: any[] = []
+    let hasMoreData = true
+    const pageSize = 20
+
     const storeId = store_id !== null ? `&store_id=${store_id}` : ''
 
     try {
-      const response = await axios.get(`${apiUrl}/vendor?take=0${storeId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      while (hasMoreData) {
+        const response = await axios.get(
+          `${apiUrl}/vendor?page=${currentPage}&take=${pageSize}${storeId}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
 
-      if (Array.isArray(response.data.data)) {
-        const tempVendor = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.company_name,
-        }))
+        const data = response.data.data
 
-        setVendor(response.data.data)
-        setVendorSelect(tempVendor)
-      } else {
-        console.error('API response data is not an array:', response.data)
+        if (data.length > 0) {
+          const allVendorData = response.data.data.map((item: any) => {
+            return item
+          })
+
+          const vendorOptions = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.company_name,
+          }))
+
+          allVendors = [...allVendors, ...vendorOptions]
+          currentPage += 1
+
+          setVendor(allVendorData)
+        } else {
+          hasMoreData = false
+        }
       }
+
+      setVendorSelect(allVendors)
     } catch (err) {
       console.error(err)
     }
@@ -572,6 +592,8 @@ const ViewOrders: FC = () => {
       },
     ],
   })
+
+  console.log('quotation promotion', quotation.quotation_promotion)
 
   const quotationSpecialStatus = (() => {
     if (quotation.quotation_special === 1) {
@@ -849,7 +871,7 @@ const ViewOrders: FC = () => {
 
   useEffect(() => {
     fetchData(currentPage, pageSize, queryParams)
-  }, [currentPage,pageSize,queryParams])
+  }, [currentPage, pageSize, queryParams])
 
   // Table Handler
   const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -3729,7 +3751,6 @@ const ViewOrders: FC = () => {
               pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
               itemRender={itemRender}
               onChange={(page, pageSize) => {
-                
                 handlePageChange(page, pageSize)
               }}
             />
