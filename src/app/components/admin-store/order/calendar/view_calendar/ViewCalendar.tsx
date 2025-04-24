@@ -73,22 +73,38 @@ const ViewCalendarCS: React.FC = () => {
 
   // Fetch Data
   const getVendor = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/vendor?take=0${storeId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+    let currentPage = 1
+    const pageSize = 20
+    let allVendors: any[] = []
+    let hasMoreData = true
 
-      if (Array.isArray(response.data.data)) {
-        const tempVendor = response.data.data.map((item: any) => item.id)
-        setVendor(tempVendor)
-      } else {
-        console.error('API response data is not an array:', response.data)
+    try {
+      while (hasMoreData) {
+        const response = await axios.get(`${apiUrl}/vendor?page=${currentPage}&take=${pageSize}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+
+        const data = response.data.data
+
+        if (data.length > 0) {
+          const tempVendor = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.company_name,
+          }))
+
+          allVendors = [...allVendors, ...tempVendor]
+          currentPage += 1
+        } else {
+          hasMoreData = false
+        }
       }
+
+      setVendor(allVendors)
     } catch (err) {
       console.error(err)
     }

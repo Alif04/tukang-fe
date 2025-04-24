@@ -1879,8 +1879,7 @@ const NewMaterialVendor: FC = () => {
           })()}
 
           <Row>
-            {workOrderDetail?.work_order_status?.length > 1 &&
-            [
+            {[
               'QUOTEIN',
               'QUOTATIONPAID',
               'QUOTATIONPAIDSTEPONE',
@@ -1892,7 +1891,7 @@ const NewMaterialVendor: FC = () => {
               'INVESTIGATED',
               'COMPLAINTAPPROVEDBYHO',
               'COMPLAINTREJECTEDBYHO',
-            ].includes(workOrderDetail?.work_order_status[0]?.status?.category) ? (
+            ].includes(workOrderDetail?.order?.status?.category) ? (
               <div className='d-flex justify-content-center align-items-center'>
                 <Button
                   className='btn-done d-flex justify-content-center align-items-center'

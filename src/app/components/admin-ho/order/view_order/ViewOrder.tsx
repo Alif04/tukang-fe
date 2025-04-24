@@ -435,29 +435,45 @@ const ViewOrders: FC = () => {
   }
 
   const getVendor = async (store_id?: number | null) => {
+    let currentPage = 1
+    let allVendors: any[] = []
+    let hasMoreData = true
+    const pageSize = 20
+
     const storeId = store_id !== null ? `&store_id=${store_id}` : ''
 
     try {
-      const response = await axios.get(`${apiUrl}/vendor?take=0${storeId}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      while (hasMoreData) {
+        const response = await axios.get(
+          `${apiUrl}/vendor?page=${currentPage}&take=${pageSize}${storeId}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
 
-      if (Array.isArray(response.data.data)) {
-        const tempVendor = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.company_name,
-        }))
+        const data = response.data.data
+
+        if (data.length > 0) {
+          const tempVendor = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.company_name,
+          }))
+
+          allVendors = [...allVendors, ...tempVendor]
+          currentPage += 1
+        } else {
+          hasMoreData = false
+        }
 
         setVendor(response.data.data)
-        setVendorSelect(tempVendor)
-      } else {
-        console.error('API response data is not an array:', response.data)
       }
+
+      setVendorSelect(allVendors)
     } catch (err) {
       console.error(err)
     }
@@ -849,7 +865,7 @@ const ViewOrders: FC = () => {
 
   useEffect(() => {
     fetchData(currentPage, pageSize, queryParams)
-  }, [currentPage,pageSize,queryParams])
+  }, [currentPage, pageSize, queryParams])
 
   // Table Handler
   const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -3729,7 +3745,6 @@ const ViewOrders: FC = () => {
               pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
               itemRender={itemRender}
               onChange={(page, pageSize) => {
-                
                 handlePageChange(page, pageSize)
               }}
             />
