@@ -223,14 +223,7 @@ const CreateIncentiveManager: FC = () => {
         icon: 'warning',
       })
       valid = false
-    } else if (!incentive.max_order) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Please fill Max Order form',
-        icon: 'warning',
-      })
-      valid = false
-    } else if (!incentive.incentive) {
+    }  else if (!incentive.incentive) {
       Swal.fire({
         title: 'Warning',
         text: 'Please fill Incentive Manager form',
@@ -374,7 +367,7 @@ const CreateIncentiveManager: FC = () => {
           </Row>
 
           <Row className='mb-5'>
-            <Form.Group className='form-template'>
+            {/* <Form.Group className='form-template'>
               <Form.Label className='fs-5'>Maksimal Order ( Rupiah ) :</Form.Label>
 
               <Form.Control
@@ -383,7 +376,7 @@ const CreateIncentiveManager: FC = () => {
                 defaultValue={0}
                 onChange={(e) => incentiveFormHandler(e as ChangeEvent<HTMLInputElement>)}
               />
-            </Form.Group>
+            </Form.Group> */}
           </Row>
           <Row className='mb-5'>
             <Form.Group className='form-template'>

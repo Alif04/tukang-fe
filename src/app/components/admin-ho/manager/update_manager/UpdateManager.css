@@ -1,0 +1,36 @@
+#update-sales .costumer-information {
+  width: 345px;
+}
+
+#update-sales .costumer-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  min-height: 70px;
+}
+
+#update-sales .costumer-information .form-body {
+  margin-bottom: 50px;
+}
+
+#update-sales .costumer-information .form-body .field-alamat {
+  min-height: 215px;
+}
+
+#update-sales .costumer-information .form-body .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+#update-sales button.button-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  height: 30px;
+  margin-bottom: 10px;
+  background-color: #04562b;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}

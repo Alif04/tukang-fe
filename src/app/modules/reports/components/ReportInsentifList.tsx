@@ -13,7 +13,7 @@ const ReportInsentifList: React.FC = () => {
         <>
           <ReportInsentifHO className='' />
         </>
-      ) : ['Store Staff', 'Store CS', 'Sales'].includes(userRole) ? (
+      ) : ['Store Staff', 'Store CS', 'Sales', 'Manager Store'].includes(userRole) ? (
         <>
           <ReportInsentifStore className='' />
         </>

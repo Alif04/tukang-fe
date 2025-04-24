@@ -85,7 +85,10 @@ export function Login() {
       .then((res) => {
         if (res.data.status === 200) {
           const user = res.data.data.user
+          console.log(user)
+
           const isSales = user.roles.name === 'Sales'
+          const isManager = user.roles.name === 'Manager Store'
           const isStore = user.roles.name === 'Store CS'
           const isAdminHO = ['Admin Ho', 'Super User'].includes(res.data.data.user.roles.name)
           const isVendor = ['Owner Vendor', 'Admin Vendor'].includes(res.data.data.user.roles.name)
@@ -105,6 +108,8 @@ export function Login() {
             localStorage.setItem('storeId', user?.sales[0]?.store?.id)
             localStorage.setItem('storeName', user?.sales[0]?.store?.store_name)
             localStorage.setItem('areaId', user?.sales[0]?.store?.area?.id)
+          } else if (isManager) {
+            localStorage.setItem('storeId', user?.manager[0]?.store?.id)
           } else if (isStore) {
             localStorage.setItem(
               'storeId',
