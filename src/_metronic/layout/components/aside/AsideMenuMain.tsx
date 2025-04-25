@@ -69,7 +69,7 @@ export function AsideMenuMain() {
         title='Order'
         icon='/media/icons/duotune/files/fil012.svg'
         fontIcon='bi-person'
-        role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Super User',    'Manager Store',]}
+        role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Super User', 'Manager Store']}
       >
         <AsideMenuItem
           to='/order/dashboard-order'
@@ -97,7 +97,7 @@ export function AsideMenuMain() {
         <AsideMenuItem
           to='/order/view-order'
           title='List Order'
-          role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Super User',    'Manager Store',]}
+          role={['Store CS', 'Store Staff', 'Sales', 'Admin HO', 'Super User', 'Manager Store']}
           hasBullet={true}
         />
         <AsideMenuItem
@@ -449,7 +449,10 @@ export function AsideMenuMain() {
       <AsideMenuItemWithSub
         to='/reports'
         title={
-          userRole === 'Store CS' || userRole === 'Store Staff' || userRole === 'Sales' || userRole ==='Manager Store'
+          userRole === 'Store CS' ||
+          userRole === 'Store Staff' ||
+          userRole === 'Sales' ||
+          userRole === 'Manager Store'
             ? 'Laporan'
             : 'Report'
         }
@@ -464,7 +467,7 @@ export function AsideMenuMain() {
           'Tukang',
           'Admin WA',
           'Admin WA2',
-          'Manager Store'
+          'Manager Store',
         ]}
         icon='/media/icons/duotune/graphs/gra001.svg'
         fontIcon='bi-person'
@@ -481,7 +484,7 @@ export function AsideMenuMain() {
           role={['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor', 'Tukang']}
           hasBullet={true}
         />
-          <AsideMenuItem
+        <AsideMenuItem
           to='/reports/log-chat'
           title='Log chat'
           role={['Admin WA', 'Admin WA2']}
@@ -493,7 +496,7 @@ export function AsideMenuMain() {
           role={['Admin WA', 'Admin WA2']}
           hasBullet={true}
         /> */}
-      
+
         <AsideMenuItem
           to='/reports/log-status-chat'
           title='Log chat notif status'
@@ -674,7 +677,7 @@ export function AsideMenuMain() {
           role={['Store CS']}
           hasBullet={true}
         />
-         <AsideMenuItem
+        <AsideMenuItem
           to='/manager/new-manager'
           title='Register Manager'
           role={['Store CS']}
@@ -682,11 +685,11 @@ export function AsideMenuMain() {
         />
         {/* wa chat */}
         <AsideMenuItem
-            to='/notif-setting/view-setting'
-            title='Pengaturan WA'
-            role={['Admin WA', 'Admin WA2']}
-            hasBullet={true}
-          />
+          to='/notif-setting/view-setting'
+          title='Pengaturan WA'
+          role={['Admin WA', 'Admin WA2']}
+          hasBullet={true}
+        />
         {/* <AsideMenuItemWithSub
           to='/notif-setting'
           title='Notif Setting'
@@ -746,6 +749,20 @@ export function AsideMenuMain() {
           <AsideMenuItem
             to='/sales/new-sales'
             title='Register Sales'
+            role={['Admin HO', 'Super User']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
+
+        <AsideMenuItemWithSub
+          to='/manager'
+          title='Manager'
+          role={['Admin HO', 'Super User']}
+          hasBullet={true}
+        >
+          <AsideMenuItem
+            to='/manager/new-manager'
+            title='Register Manager'
             role={['Admin HO', 'Super User']}
             hasBullet={true}
           />
