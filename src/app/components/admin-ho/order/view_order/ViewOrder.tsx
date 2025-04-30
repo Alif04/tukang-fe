@@ -3189,16 +3189,14 @@ const ViewOrders: FC = () => {
   // Vendor Availbility
   const vendorAvailbility = (data: any) => {
     const requestSurvey = orderForm.request_survey
-    const maxOrder = data.max_order
+    const maxOrder = data?.max_order ?? 0
 
-    // Detect Request Survey Date Only
-    const orderVendor = data?.orders?.filter((x: any) => {
+    const orderVendor = (data?.orders || []).filter((x: any) => {
       const surveyDate = new Date(x.request_survey).toISOString().split('T')[0]
       return surveyDate === requestSurvey
     })
 
-    // Detect Survey Date and Work Date
-    const workOrderVendor = data.work_orders.filter((x: any) => {
+    const workOrderVendor = (data?.work_orders || []).filter((x: any) => {
       const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
 
       const workStartDate = x.work_start_date
@@ -3220,14 +3218,12 @@ const ViewOrders: FC = () => {
       }
     })
 
-    // Tukang Active
-    const tukangActive = data?.tukang?.filter((x: any) => {
+    const tukangActive = (data?.tukang || []).filter((x: any) => {
       const isActive = x.is_active === true && x.deleted_at === null
       return isActive
     }).length
 
-    // Tukang Availbility
-    const tukangActiveAvailability = data?.tukang?.filter((x: any) => {
+    const tukangActiveAvailability = (data?.tukang || []).filter((x: any) => {
       const isAvailable =
         x.is_active === true &&
         x.deleted_at === null &&
@@ -3236,10 +3232,9 @@ const ViewOrders: FC = () => {
       return isAvailable
     }).length
 
-    // Vendor Availbility Based On Tukang Active
-    if (tukangActive === 0 && orderVendor?.length >= 0) {
+    if (tukangActive === 0 && orderVendor.length >= 0) {
       return <p className='text-danger'>UNAVAILABLE</p>
-    } else if (tukangActiveAvailability === 0 && orderVendor?.length > 0) {
+    } else if (tukangActiveAvailability === 0 && orderVendor.length > 0) {
       return <p className='text-danger'>FULL BOOKED</p>
     } else {
       return <p className='text-black'>AVAILABLE</p>
