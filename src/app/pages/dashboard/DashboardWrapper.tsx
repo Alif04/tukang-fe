@@ -57,7 +57,7 @@ const DashboardWrapper: FC = () => {
 
   return (
     <>
-      {['Store Staff', 'Store CS', 'Sales'].includes(userRole) ? (
+      {['Store Staff', 'Store CS', 'Sales', 'Manager Store'].includes(userRole) ? (
         <>
           <PageTitle>Instalasi & Service Mitra 10 Performance Report</PageTitle>
           <DashboardStore />

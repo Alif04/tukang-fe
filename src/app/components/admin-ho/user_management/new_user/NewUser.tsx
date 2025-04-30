@@ -264,6 +264,7 @@ const NewUserHO: FC = () => {
       case 'Store Staff':
       case 'Store CS':
       case 'Sales':
+        case 'Manager Store':
         return (
           <>
             <Row className='mb-5'>
