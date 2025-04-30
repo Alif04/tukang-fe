@@ -1,11 +1,11 @@
 import React, {FC} from 'react'
 
-import {ListRequestIncentiveHO} from '../../../components'
+import {ListRequestIncentiveHOManager} from '../../../components'
 
 const ListRequestIncentive: FC = () => {
   return (
     <>
-      <ListRequestIncentiveHO className='' />
+      <ListRequestIncentiveHOManager className='' />
     </>
   )
 }

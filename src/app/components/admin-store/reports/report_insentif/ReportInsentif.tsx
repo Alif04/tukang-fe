@@ -44,6 +44,7 @@ const ReportInsentifStore: React.FC<Props> = ({className}) => {
   const userSales = localStorage.getItem('sales_id') as any
 
   const salesId = userSales ? `&sales_id=${userSales}` : ''
+
   const storeId = userStore ? `&store_id=${userStore}` : ''
 
   const [orderData, setOrderData] = useState<DataType[]>([])

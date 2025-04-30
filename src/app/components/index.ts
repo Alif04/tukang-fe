@@ -557,3 +557,7 @@ export * from './admin-wa/dashboard/DashboardAdminWA'
 // Report Admin WA
 export * from './admin-wa/report-log-chat/ReportLogChat'
 export * from './admin-wa/report-notif-status/ReportNotifStatus'
+
+// Manager
+export * from './admin-ho/manager/new_manager/NewManager'
+export * from './admin-ho/manager/update_manager/UpdateManager'

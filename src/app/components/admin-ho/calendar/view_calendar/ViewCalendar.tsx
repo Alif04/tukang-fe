@@ -121,6 +121,8 @@ const ViewCalendarHO: React.FC = () => {
                 case 'SURVEYDONE':
                 case 'WORKREQ':
                 case 'WORKSTART':
+                case 'TUKANGSURVEY':
+                case 'TUKANGWORK':
                   return 'bg-calendar-order-wip'
                 case 'QUOTATIONDRAFT':
                 case 'QUOTEIN':
@@ -488,42 +490,7 @@ const ViewCalendarHO: React.FC = () => {
                   <Form.Label className='fs-4 fw-bold'>
                     Order Status :
                     <span className='fs-4 ms-2 fw-bold text-success'>
-                      {(() => {
-                        if (
-                          selectedOrder?.order_detail?.work_orders?.work_order_status?.length >= 0
-                        ) {
-                          if (
-                            [
-                              'QUOTEIN',
-                              'QUOTEOUT',
-                              'CANCEL',
-                              'WARRANTYCLAIM',
-                              'INVESTIGATED',
-                              'COMPLAINTAPPROVEDBYHO',
-                              'COMPLAINTREJECTEDBYHO',
-                              'RESCHEDULE',
-                            ].includes(selectedOrder?.order_detail.status?.category ?? '')
-                          ) {
-                            return selectedOrder?.order_detail?.status?.description
-                          } else if (
-                            ['WORKREQ'].includes(
-                              selectedOrder?.order_detail?.status?.category ?? ''
-                            ) &&
-                            selectedOrder?.order_detail?.payment_type === 'survey' &&
-                            !['WORKSTART', 'WORKEND'].includes(
-                              selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.status
-                                ?.category ?? ''
-                            )
-                          ) {
-                            return selectedOrder?.order_detail?.status?.description
-                          } else {
-                            return selectedOrder?.order_detail?.work_orders?.work_order_status[0]
-                              ?.status?.description
-                          }
-                        } else {
-                          return selectedOrder?.order_detail?.status?.description
-                        }
-                      })()}
+                      {selectedOrder?.order_detail?.status?.description ?? '-'}
                     </span>
                   </Form.Label>
                 </Col>

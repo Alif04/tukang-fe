@@ -94,7 +94,7 @@ const ListRequestIncentiveHOManager: React.FC<Props> = ({className}) => {
     ],
   })
 
-  console.log('incentive group', incentiveGroup)
+
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedSearchFilter = event.target.value
@@ -241,7 +241,7 @@ const ListRequestIncentiveHOManager: React.FC<Props> = ({className}) => {
   ]
 
   const getRequestIncentive = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/comission-sales-incentive?order_by=desc&status=2&page=${page}&date_from=${dateFrom}&date_to=${dateTo}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/manager/insentive-manager?page=${page}&date_from=${dateFrom}&date_to=${dateTo}&take=${pageSize}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -283,23 +283,7 @@ const ListRequestIncentiveHOManager: React.FC<Props> = ({className}) => {
             setLoadingModal(false)
           }, 2000)
 
-          setIncentiveGroup((prevIncentive) => ({
-            ...prevIncentive,
-            id: data?.id ?? null,
-            status: data?.status,
-            sales_incentive: data?.sales_incentive?.map((item: any) => ({
-              id: item.id,
-            })),
-          }))
-
-          if (data?.comission_sales_incentive_evidence?.length) {
-            const files = data?.comission_sales_incentive_evidence?.map((item: any) => ({
-              id: item.id,
-              name: item.path,
-            }))
-
-            setUploadFiles(files)
-          }
+       
         })
     } catch (error) {
       console.error(error)
@@ -318,7 +302,7 @@ const ListRequestIncentiveHOManager: React.FC<Props> = ({className}) => {
       const incentiveData = apiData.map((item: any) => {
         let data
 
-        const incentiveIds = item?.sales_incentive?.map((item: any) => `#${item?.id}`).join(', ')
+
         const requestDate = formatDateWithTime(item?.created_at)
 
         const statusIncentive = (status: number) => {
@@ -339,10 +323,9 @@ const ListRequestIncentiveHOManager: React.FC<Props> = ({className}) => {
         }
 
         data = {
-          incentive_group_id: item?.id,
-          incentive_id: incentiveIds,
+          incentive_id: item.incentive_id,
           created_at: requestDate,
-          total_amount: `Rp. ${parseInt(item?.total_amount ?? 0).toLocaleString('id')}`,
+          total_amount: `Rp. ${parseInt(item?.nominal ?? 0).toLocaleString('id')}`,
           status_id: item?.status,
           status_name: statusIncentive(item?.status),
         }
@@ -359,6 +342,8 @@ const ListRequestIncentiveHOManager: React.FC<Props> = ({className}) => {
 
   const fetchData = async (page: number, pageSize: number, queryparams: any) => {
     const data = await ViewIncentive(page, pageSize, queryparams)
+    console.log(data);
+    
     setIncentiveData(data)
   }
 

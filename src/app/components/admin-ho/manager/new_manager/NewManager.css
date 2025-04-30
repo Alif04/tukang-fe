@@ -1,0 +1,96 @@
+/* Form Layout */
+#new-sales .costumer-information {
+  width: 345px;
+}
+
+#new-sales .costumer-information .form-header {
+  display: flex;
+  justify-content: space-between;
+  min-height: 70px;
+}
+
+#new-sales .costumer-information .form-body {
+  margin-bottom: 50px;
+}
+
+#new-sales .costumer-information .form-body .field-alamat {
+  min-height: 215px;
+}
+
+#new-sales .costumer-information .form-body .form-check-request .form-check-input {
+  margin-top: 0;
+  width: 15px;
+  height: 15px;
+}
+
+#new-sales button.button-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  height: 30px;
+  margin-bottom: 10px;
+  background-color: #04562b;
+  color: #ffff;
+  border: none;
+  border-radius: 5px;
+}
+
+/* Table Layout */
+#view-sales .select__control.css-13cymwt-control {
+  height: 44px !important;
+}
+
+#view-sales .table-view-order {
+  margin: 20px 20px 20px 20px;
+}
+
+#view-sales .table-view-order .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#view-sales
+  .table-view-order
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+#view-sales .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#view-sales .table-view-order .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#view-sales .table-view-order .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#view-sales .table-view-order .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #dcdcdc;
+}
+
+#view-sales .table-view-order .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#view-sales .table-striped-rows tr:nth-child(even) td {
+  background-color: #ffff;
+}
+
+#view-sales .table-striped-rows tr:nth-child(odd) td {
+  background-color: #e4e9f7;
+}
+
+#view-sales .form-control.p-0.css-b62m3t-container {
+  z-index: 99 !important;
+}
