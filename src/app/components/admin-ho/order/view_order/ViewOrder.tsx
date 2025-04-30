@@ -3188,63 +3188,59 @@ const ViewOrders: FC = () => {
 
   // Vendor Availbility
   const vendorAvailbility = (data: any) => {
-    const requestSurvey = orderForm.request_survey
-    const maxOrder = data.max_order
-
-    // Detect Request Survey Date Only
-    const orderVendor = data.orders.filter((x: any) => {
-      const surveyDate = new Date(x.request_survey).toISOString().split('T')[0]
-      return surveyDate === requestSurvey
-    })
-
-    // Detect Survey Date and Work Date
-    const workOrderVendor = data.work_orders.filter((x: any) => {
-      const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
-
+    const requestSurvey = orderForm.request_survey;
+    const maxOrder = data?.max_order ?? 0;
+  
+    const orderVendor = (data?.orders || []).filter((x: any) => {
+      const surveyDate = new Date(x.request_survey).toISOString().split("T")[0];
+      return surveyDate === requestSurvey;
+    });
+  
+    const workOrderVendor = (data?.work_orders || []).filter((x: any) => {
+      const surveyDate = new Date(x.survey_date).toISOString().split("T")[0];
+  
       const workStartDate = x.work_start_date
-        ? new Date(x.work_start_date).toISOString().split('T')[0]
-        : null
-
+        ? new Date(x.work_start_date).toISOString().split("T")[0]
+        : null;
+  
       const workEndDate = x.work_end_date
-        ? new Date(x.work_end_date).toISOString().split('T')[0]
-        : null
-
+        ? new Date(x.work_end_date).toISOString().split("T")[0]
+        : null;
+  
       if (surveyDate && !workStartDate && !workEndDate) {
-        return surveyDate === requestSurvey
+        return surveyDate === requestSurvey;
       } else if (surveyDate && workStartDate && workEndDate) {
-        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate;
       } else if (!surveyDate && workStartDate && workEndDate) {
-        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate;
       } else {
-        return surveyDate === requestSurvey
+        return surveyDate === requestSurvey;
       }
-    })
-
-    // Tukang Active
-    const tukangActive = data.tukang.filter((x: any) => {
-      const isActive = x.is_active === true && x.deleted_at === null
-      return isActive
-    }).length
-
-    // Tukang Availbility
-    const tukangActiveAvailability = data.tukang.filter((x: any) => {
+    });
+  
+    const tukangActive = (data?.tukang || []).filter((x: any) => {
+      const isActive = x.is_active === true && x.deleted_at === null;
+      return isActive;
+    }).length;
+  
+    const tukangActiveAvailability = (data?.tukang || []).filter((x: any) => {
       const isAvailable =
         x.is_active === true &&
         x.deleted_at === null &&
         maxOrder > x.slot_order &&
-        x.slot_order < orderVendor.length
-      return isAvailable
-    }).length
-
-    // Vendor Availbility Based On Tukang Active
+        x.slot_order < orderVendor.length;
+      return isAvailable;
+    }).length;
+  
     if (tukangActive === 0 && orderVendor.length >= 0) {
-      return <p className='text-danger'>UNAVAILABLE</p>
+      return <p className="text-danger">UNAVAILABLE</p>;
     } else if (tukangActiveAvailability === 0 && orderVendor.length > 0) {
-      return <p className='text-danger'>FULL BOOKED</p>
+      return <p className="text-danger">FULL BOOKED</p>;
     } else {
-      return <p className='text-black'>AVAILABLE</p>
+      return <p className="text-black">AVAILABLE</p>;
     }
-  }
+  };
+  
 
   // Export PDF Quotation
   const exportToPDF = (order_id: number, receipt_quotation: string, customer_name: string) => {
