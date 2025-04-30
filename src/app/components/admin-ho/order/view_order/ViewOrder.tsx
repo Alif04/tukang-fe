@@ -3192,7 +3192,7 @@ const ViewOrders: FC = () => {
     const maxOrder = data.max_order
 
     // Detect Request Survey Date Only
-    const orderVendor = data.orders.filter((x: any) => {
+    const orderVendor = data?.orders?.filter((x: any) => {
       const surveyDate = new Date(x.request_survey).toISOString().split('T')[0]
       return surveyDate === requestSurvey
     })
@@ -3221,13 +3221,13 @@ const ViewOrders: FC = () => {
     })
 
     // Tukang Active
-    const tukangActive = data.tukang.filter((x: any) => {
+    const tukangActive = data?.tukang?.filter((x: any) => {
       const isActive = x.is_active === true && x.deleted_at === null
       return isActive
     }).length
 
     // Tukang Availbility
-    const tukangActiveAvailability = data.tukang.filter((x: any) => {
+    const tukangActiveAvailability = data?.tukang?.filter((x: any) => {
       const isAvailable =
         x.is_active === true &&
         x.deleted_at === null &&
@@ -3237,9 +3237,9 @@ const ViewOrders: FC = () => {
     }).length
 
     // Vendor Availbility Based On Tukang Active
-    if (tukangActive === 0 && orderVendor.length >= 0) {
+    if (tukangActive === 0 && orderVendor?.length >= 0) {
       return <p className='text-danger'>UNAVAILABLE</p>
-    } else if (tukangActiveAvailability === 0 && orderVendor.length > 0) {
+    } else if (tukangActiveAvailability === 0 && orderVendor?.length > 0) {
       return <p className='text-danger'>FULL BOOKED</p>
     } else {
       return <p className='text-black'>AVAILABLE</p>
