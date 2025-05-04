@@ -1880,6 +1880,11 @@ const NewMaterialVendor: FC = () => {
 
           <Row>
             {[
+              'SURVEYDONE',
+              'WORKEND',
+              'WORKENDSTEPONE',
+              'WORKENDSTEPTWO',
+              'WORKENDSTEPTHREE',
               'QUOTEIN',
               'QUOTATIONPAID',
               'QUOTATIONPAIDSTEPONE',
