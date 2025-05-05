@@ -20,7 +20,7 @@ interface BankSelect {
 }
 
 interface CategorySelect {
-  value: number | null
+  category_id: string
   label: string
 }
 
@@ -129,18 +129,18 @@ const UpdateSales: FC = () => {
             }
 
             if (data) {
-              // const salesBrands = data.sales_brand.map((item: any, index: number) => ({
-              //   index: (Date.now() + index).toString(),
-              //   value: item.brands.id,
-              //   label: item.brands.name,
-              // }))
-
               const salesCategory = data?.sales_categories.map((item: any) => ({
                 category_id: item?.categories.id ?? null,
                 label: item?.categories?.category_name ?? '',
-                commission: item?.commission ?? '',
               }))
 
+              const uniqueCategories = Array.from(
+                new Set(salesCategory.map((item: any) => item.category_id))
+              ).map((category_id) => {
+                return salesCategory.find((item: any) => item.category_id === category_id)
+              })
+
+              setSelectedCategories(uniqueCategories)
               setSalesInfo((prev) => ({
                 ...prev,
                 full_name: data?.full_name,
@@ -149,11 +149,8 @@ const UpdateSales: FC = () => {
                 phone_number: data?.phone_number,
                 account_number: data?.account_number,
                 sales_brand: data?.sales_brand,
-                sales_categories: salesCategory,
+                sales_categories: uniqueCategories,
               }))
-
-              // setSelectedBrands(salesBrands)
-              setSelectedCategories(salesCategory)
             }
           })
       } catch (error) {
@@ -229,7 +226,7 @@ const UpdateSales: FC = () => {
 
         if (Array.isArray(response.data.data)) {
           const tempCategories = response.data.data.map((item: any) => ({
-            value: item.id,
+            category_id: item.id,
             label: item.category_name,
           }))
 
@@ -289,7 +286,7 @@ const UpdateSales: FC = () => {
 
     setSelectedCategories(updatedCategories)
 
-    const updatedCategoriesId = element.map((option: any) => ({
+    const updatedCategoriesId = updatedCategories.map((option: any) => ({
       category_id: option.value,
     }))
 
@@ -297,6 +294,17 @@ const UpdateSales: FC = () => {
       ...prevSalesInfo,
       sales_categories: updatedCategoriesId,
     }))
+  }
+
+  // Handle Change Select Category
+  const handleChangeCategory = (newValue: CategorySelect[]) => {
+    if (newValue) {
+      setSelectedCategories(newValue)
+      setSalesInfo((prevSalesInfo) => ({
+        ...prevSalesInfo,
+        sales_categories: newValue,
+      }))
+    }
   }
 
   // Sales Validation
@@ -545,7 +553,9 @@ const UpdateSales: FC = () => {
                     isMulti
                     options={categories}
                     value={selectedCategories}
-                    onChange={(element) => handleChangeCategories(element)}
+                    getOptionLabel={(option: CategorySelect) => option.label}
+                    getOptionValue={(option: CategorySelect) => option.category_id}
+                    onChange={(newValue) => handleChangeCategory(newValue as CategorySelect[])}
                   />
                 </Form.Group>
               </Col>
