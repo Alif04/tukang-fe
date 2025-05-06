@@ -85,21 +85,21 @@ export function Login() {
       .then((res) => {
         if (res.data.status === 200) {
           const user = res.data.data.user
-          console.log(user)
 
           const isSales = user.roles.name === 'Sales'
           const isManager = user.roles.name === 'Manager Store'
-          const isStore = user.roles.name === 'Store CS'
-          const isAdminHO = ['Admin Ho', 'Super User'].includes(res.data.data.user.roles.name)
-          const isVendor = ['Owner Vendor', 'Admin Vendor'].includes(res.data.data.user.roles.name)
+          const isStore = ['Store Staff', 'Store CS'].includes(user.roles.name)
+          const isAdminHO = ['Admin HO', 'Super User'].includes(user.roles.name)
+          const isVendor = ['Owner Vendor', 'Admin Vendor'].includes(user.roles.name)
           const isTukang = user.roles.name === 'Tukang'
           const isFinance = user.roles.name === 'Finance'
           const isPayroll = user.roles.name === 'Payroll'
-          const isEmployee = user.employee !== null && !isStore && !isSales && !isVendor
+          const isEmployee =
+            user.employee !== null && !isStore && !isSales && !isVendor && !isTukang && !isAdminHO
 
-          localStorage.setItem('user_id', res.data.data.user.id)
-          localStorage.setItem('username', res.data.data.user.username)
-          localStorage.setItem('userRole', res.data.data.user.roles.name)
+          localStorage.setItem('user_id', user.id)
+          localStorage.setItem('username', user.username)
+          localStorage.setItem('userRole', user.roles.name)
           localStorage.setItem('accessToken', res.data.data.accessToken)
 
           if (isSales) {
@@ -146,8 +146,6 @@ export function Login() {
           } else if (!isSales && !isAdminHO && !isEmployee && !isVendor) {
             window.location.reload()
           }
-
-          // handleLoginSuccess()
 
           Swal.fire({
             title: 'Login Success',

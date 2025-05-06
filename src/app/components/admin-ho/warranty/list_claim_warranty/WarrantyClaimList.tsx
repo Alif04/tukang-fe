@@ -66,9 +66,11 @@ const WarrantyClaimListHO: React.FC<Props> = ({className}) => {
   const userVendor = localStorage.getItem('vendor_id')
   const userTukang = localStorage.getItem('tukang_id')
 
-  const storeId = userStore ? `&store_id=${userStore}` : ''
-  const vendorId = userVendor ? `&vendor_id=${userVendor}` : ''
-  const tukangId = userTukang ? `&tukang_id=${userTukang}` : ''
+  const storeId = ['Store Staff', 'Store CS'].includes(userRole) ? `&store_id=${userStore}` : ''
+  const vendorId = ['Owner Vendor', 'Admin Vendor'].includes(userRole)
+    ? `&vendor_id=${userVendor}`
+    : ''
+  const tukangId = ['Tukang'].includes(userRole) ? `&tukang_id=${userTukang}` : ''
 
   const [claimWarrantyData, setClaimWarrantyData] = useState<DataType[]>([])
 
