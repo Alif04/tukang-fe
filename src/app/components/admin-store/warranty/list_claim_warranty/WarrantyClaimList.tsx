@@ -42,8 +42,8 @@ const WarrantyClaimList: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
 
   const userStore = localStorage.getItem('storeId')
-  const userRole = localStorage.getItem('userRole')
-  const storeId = userRole !== 'Admin HO' ? `&store_id=${userStore}` : ''
+  const userRole = localStorage.getItem('userRole') as string
+  const storeId = ['Store Staff', 'Store CS'].includes(userRole) ? `&store_id=${userStore}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
