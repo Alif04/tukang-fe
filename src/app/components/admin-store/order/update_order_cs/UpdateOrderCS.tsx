@@ -229,148 +229,10 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
     getItem()
   }, [paymentTypeValue, searchItem])
 
-  useEffect(() => {
-    const fetchOrderData = async () => {
-      try {
-        await axios
-          .get(`${apiUrl}/orders/${params.id}`, {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          })
-          .then((response) => {
-            const data = response.data.data
-
-            setIsLoadingPage(false)
-            setOrderDetail(data)
-
-            if (data?.payment_type) {
-              if (data.payment_type === 'survey') {
-                setPaymentTypeValue(['berbayar', 'survey'])
-              } else if (data.payment_type === 'gratis') {
-                setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
-              } else if (data.payment_type === 'pemasangan_tanpa_survey') {
-                setPaymentTypeValue(['berbayar', 'pemasangan_tanpa_survey'])
-              } else {
-                setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
-              }
-            }
-
-            if (data?.members) {
-              setSelectedMember((prev) => ({
-                ...prev,
-                value: data.members.id,
-                label: data.members.member_number,
-                full_name: data.members.full_name,
-                email: data.members.email,
-                phone_number: data.members.phone_number,
-                whatsapp_number: data.members.whatsapp_number,
-                address_1: data.members.address_1,
-              }))
-
-              setOrderForm((prev) => ({
-                ...prev,
-                member_id: data.members.id,
-              }))
-            }
-
-            if (data) {
-              setOrderForm((prev) => ({
-                ...prev,
-                project_address: data.project_address ?? '',
-                project_number: data.project_number ?? '',
-                receipt_number: data.receipt_number ?? '',
-                request_survey: new Date(data.request_survey).toISOString().split('T')[0] ?? '',
-                is_overdistance: data?.is_overdistance ?? 0,
-                additional_fee: data?.additional_fee ?? 0,
-                notes: data?.notes ?? '',
-              }))
-
-              setIsOverdistance(data?.is_overdistance ?? 0)
-            }
-
-            if (data?.sales) {
-              setSelectedSales((prev) => ({
-                ...prev,
-                value: data.sales.id,
-                label: data.sales.full_name,
-                full_name: data.sales.full_name,
-              }))
-
-              setOrderForm((prev) => ({
-                ...prev,
-                sales_id: data.sales.id,
-              }))
-            }
-
-            if (data?.order_details) {
-              setOrderForm((prev) => {
-                const previousDetailValues = data.order_details.map((item: any) => {
-                  const previousItem = {
-                    value: item.id,
-                    label:
-                      data.payment_type === 'survey' ? item?.item_code : item?.item?.service_name,
-                    item_code: item?.item_code ?? '',
-                    item_name: item?.item_name ?? '',
-                    category_id: item?.item?.category.id,
-                    default_price: item?.item?.default_price,
-                    type: item?.type,
-                    prices:
-                      item?.item?.prices?.length > 0
-                        ? item?.item?.prices.map((price: any) => ({
-                            id: price?.id,
-                            item_id: price?.item_id,
-                            store_id: price?.store_id,
-                            periodic_start: price?.periodic_start,
-                            periodic_end: price?.periodic_end,
-                            price: price?.price,
-                            min_order: price?.min_order,
-                          }))
-                        : [],
-                  }
-
-                  return {
-                    item: previousItem,
-                    id: item.id,
-                    item_id: item.item_id,
-                    item_code: item?.item_code === 'null' ? '' : item.item_code,
-                    item_name: item?.item_name === 'null' ? '' : item.item_name,
-                    item_notes: item?.item_notes === 'null' ? '' : item.item_notes,
-                    quantity: item.quantity,
-                    unit_price: item.unit_price,
-                    total: item.total,
-                  }
-                })
-
-                return {
-                  ...prev,
-                  order_details: previousDetailValues,
-                }
-              })
-            }
-
-            if (data?.order_files) {
-              const initialOrderFilesValues = data.order_files.map((item: any) => ({
-                id: item.id,
-                name: item.path,
-              }))
-
-              setReceiptFiles(initialOrderFilesValues)
-            }
-
-            updatePageTitle(data)
-          })
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    const getMember = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/member`, {
+  const fetchOrderData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${params.id}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -378,62 +240,203 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
             'ngrok-skip-browser-warning': 'true',
           },
         })
-        if (Array.isArray(response.data.data)) {
-          const tempMember = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.member_number,
-            full_name: item.full_name,
-            email: item.email,
-            phone_number: item.phone_number,
-            whatsapp_number: item.whatsapp_number,
-            address_1: item.address_1,
-          }))
+        .then((response) => {
+          const data = response.data.data
 
-          setMember(tempMember)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
+          setIsLoadingPage(false)
+          setOrderDetail(data)
 
-    const getSales = async () => {
-      const search = searchSales ? `&search=${searchSales}` : ''
-
-      try {
-        const response = await axios.get(
-          `${apiUrl}/sales?take=0&store_id=${staffStoreId}${search}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
+          if (data?.payment_type) {
+            if (data.payment_type === 'survey') {
+              setPaymentTypeValue(['berbayar', 'survey'])
+            } else if (data.payment_type === 'gratis') {
+              setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
+            } else if (data.payment_type === 'pemasangan_tanpa_survey') {
+              setPaymentTypeValue(['berbayar', 'pemasangan_tanpa_survey'])
+            } else {
+              setPaymentTypeValue(['gratis', 'pemasangan_tanpa_survey'])
+            }
           }
-        )
 
-        if (Array.isArray(response.data.data)) {
-          const tempSales = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.full_name,
-            full_name: item.full_name,
-          }))
+          if (data?.members) {
+            setSelectedMember((prev) => ({
+              ...prev,
+              value: data.members.id,
+              label: data.members.member_number,
+              full_name: data.members.full_name,
+              email: data.members.email,
+              phone_number: data.members.phone_number,
+              whatsapp_number: data.members.whatsapp_number,
+              address_1: data.members.address_1,
+            }))
 
-          setSales(tempSales)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
+            setOrderForm((prev) => ({
+              ...prev,
+              member_id: data.members.id,
+            }))
+          }
+
+          if (data) {
+            setOrderForm((prev) => ({
+              ...prev,
+              project_address: data.project_address ?? '',
+              project_number: data.project_number ?? '',
+              receipt_number: data.receipt_number ?? '',
+              request_survey: new Date(data.request_survey).toISOString().split('T')[0] ?? '',
+              is_overdistance: data?.is_overdistance ?? 0,
+              additional_fee: data?.additional_fee ?? 0,
+              notes: data?.notes ?? '',
+            }))
+
+            setIsOverdistance(data?.is_overdistance ?? 0)
+          }
+
+          if (data?.sales) {
+            setSelectedSales((prev) => ({
+              ...prev,
+              value: data.sales.id,
+              label: data.sales.full_name,
+              full_name: data.sales.full_name,
+            }))
+
+            setOrderForm((prev) => ({
+              ...prev,
+              sales_id: data.sales.id,
+            }))
+          }
+
+          if (data?.order_details) {
+            setOrderForm((prev) => {
+              const previousDetailValues = data.order_details.map((item: any) => {
+                const previousItem = {
+                  value: item.id,
+                  label:
+                    data.payment_type === 'survey' ? item?.item_code : item?.item?.service_name,
+                  item_code: item?.item_code ?? '',
+                  item_name: item?.item_name ?? '',
+                  category_id: item?.item?.category.id,
+                  default_price: item?.item?.default_price,
+                  type: item?.type,
+                  prices:
+                    item?.item?.prices?.length > 0
+                      ? item?.item?.prices.map((price: any) => ({
+                          id: price?.id,
+                          item_id: price?.item_id,
+                          store_id: price?.store_id,
+                          periodic_start: price?.periodic_start,
+                          periodic_end: price?.periodic_end,
+                          price: price?.price,
+                          min_order: price?.min_order,
+                        }))
+                      : [],
+                }
+
+                return {
+                  item: previousItem,
+                  id: item.id,
+                  item_id: item.item_id,
+                  item_code: item?.item_code === 'null' ? '' : item.item_code,
+                  item_name: item?.item_name === 'null' ? '' : item.item_name,
+                  item_notes: item?.item_notes === 'null' ? '' : item.item_notes,
+                  quantity: item.quantity,
+                  unit_price: item.unit_price,
+                  total: item.total,
+                }
+              })
+
+              return {
+                ...prev,
+                order_details: previousDetailValues,
+              }
+            })
+          }
+
+          if (data?.order_files) {
+            const initialOrderFilesValues = data.order_files.map((item: any) => ({
+              id: item.id,
+              name: item.path,
+            }))
+
+            setReceiptFiles(initialOrderFilesValues)
+          }
+
+          updatePageTitle(data)
+        })
+    } catch (error) {
+      console.error(error)
     }
+  }
 
+  const getMember = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/member`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      if (Array.isArray(response.data.data)) {
+        const tempMember = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.member_number,
+          full_name: item.full_name,
+          email: item.email,
+          phone_number: item.phone_number,
+          whatsapp_number: item.whatsapp_number,
+          address_1: item.address_1,
+        }))
+
+        setMember(tempMember)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getSales = async () => {
+    const search = searchSales ? `&search=${searchSales}` : ''
+
+    try {
+      const response = await axios.get(`${apiUrl}/sales?take=0&store_id=${staffStoreId}${search}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempSales = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.full_name,
+          full_name: item.full_name,
+        }))
+
+        setSales(tempSales)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
     fetchOrderData()
-    getMember()
-    getSales()
   }, [])
+
+  useEffect(() => {
+    getMember()
+  }, [])
+
+  useEffect(() => {
+    getSales()
+  }, [searchSales])
 
   // Order Form Handler
   const orderFormHandler = (e: any) => {
@@ -1138,12 +1141,6 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                   </Form.Label>
 
                   <Col sm='8'>
-                    {/* <Form.Control
-                      type='text'
-                      disabled
-                      value={userRole === 'SALES' ? username : selectedSales?.full_name || ''}
-                    /> */}
-
                     <Select
                       name='sales_id'
                       id='sales_id'
@@ -1153,6 +1150,7 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
                       isSearchable={true}
                       isClearable={true}
                       options={sales}
+                      value={selectedSales}
                       onChange={(newValue) => setSelectedSales(newValue)}
                       onInputChange={(newValue) => setSearchSales(newValue)}
                     />
