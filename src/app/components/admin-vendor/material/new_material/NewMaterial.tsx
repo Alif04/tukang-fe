@@ -908,6 +908,59 @@ const NewMaterialVendor: FC = () => {
       })
   }
 
+  // Category Statuses
+  const notAssignedStatuses = ['SURVEYREQ', 'WORKREQ']
+  const complaintStatuses = [
+    'CANCEL',
+    'WARRANTYCLAIM',
+    'INVESTIGATED',
+    'COMPLAINTAPPROVEDBYHO',
+    'COMPLAINTREJECTEDBYHO',
+  ]
+  const completedStatuses = [
+    'SURVEYREQ',
+    'WORKREQ',
+    'SURVEYDONE',
+    'WORKEND',
+    'WORKENDSTEPONE',
+    'WORKENDSTEPTWO',
+    'WORKENDSTEPTHREE',
+    'QUOTEIN',
+    'QUOTATIONPAID',
+    'QUOTATIONPAIDSTEPONE',
+    'QUOTATIONPAIDSTEPTWO',
+    'QUOTATIONPAIDSTEPTHREE',
+    'QUOTEOUT',
+  ]
+
+  const isNotAssigned = notAssignedStatuses.includes(workOrderDetail?.order?.status?.category)
+  const isComplaint = complaintStatuses.includes(workOrderDetail?.order?.status?.category)
+  const isCompleted = completedStatuses.includes(workOrderDetail?.order?.status?.category)
+
+  // Button Conditional Props
+  const getButtonProps = () => {
+    if (isNotAssigned) {
+      return {label: 'Order ini belum ditugaskan tukangnya', disabled: true, variant: 'warning'}
+    }
+    if (isComplaint) {
+      return {label: 'Order ini dalam status komplain', disabled: true, variant: 'dark-danger'}
+    }
+    if (isCompleted) {
+      return {
+        label: 'Order ini sudah selesai survei/pengerjaan',
+        disabled: true,
+        variant: 'dark-success',
+      }
+    }
+    return {
+      label: isLoading ? 'Loading..' : 'Update Pengerjaan',
+      disabled: isLoading,
+      onClick: handleUpdateWorkOrder,
+      variant: 'dark-primary',
+    }
+  }
+  const {label, disabled, onClick, variant} = getButtonProps()
+
   return (
     <section id='new-material'>
       <Card className='mb-5'>
@@ -1879,46 +1932,17 @@ const NewMaterialVendor: FC = () => {
           })()}
 
           <Row>
-            {[
-              'SURVEYDONE',
-              'WORKEND',
-              'WORKENDSTEPONE',
-              'WORKENDSTEPTWO',
-              'WORKENDSTEPTHREE',
-              'QUOTEIN',
-              'QUOTATIONPAID',
-              'QUOTATIONPAIDSTEPONE',
-              'QUOTATIONPAIDSTEPTWO',
-              'QUOTATIONPAIDSTEPTHREE',
-              'QUOTEOUT',
-              'CANCEL',
-              'WARRANTYCLAIM',
-              'INVESTIGATED',
-              'COMPLAINTAPPROVEDBYHO',
-              'COMPLAINTREJECTEDBYHO',
-            ].includes(workOrderDetail?.order?.status?.category) ? (
-              <div className='d-flex justify-content-center align-items-center'>
-                <Button
-                  className='btn-done d-flex justify-content-center align-items-center'
-                  type='submit'
-                  disabled
-                >
-                  Order Ini Pengerjaannya Telah Selesai
-                </Button>
-              </div>
-            ) : (
-              <div className='d-flex justify-content-center align-items-center'>
-                <Button
-                  className='d-flex justify-content-center align-items-center m-0'
-                  variant='dark-primary'
-                  type='submit'
-                  disabled={isLoading}
-                  onClick={handleUpdateWorkOrder}
-                >
-                  {isLoading ? 'Submitting Order...' : 'Save'}
-                </Button>
-              </div>
-            )}
+            <div className='d-flex justify-content-center align-items-center'>
+              <Button
+                className='d-flex justify-content-center align-items-center m-0'
+                type='submit'
+                disabled={disabled}
+                onClick={onClick}
+                variant={variant}
+              >
+                {label}
+              </Button>
+            </div>
           </Row>
         </Card.Body>
       </Card>
