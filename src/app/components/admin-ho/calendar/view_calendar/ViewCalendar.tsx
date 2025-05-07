@@ -436,7 +436,7 @@ const ViewCalendarHO: React.FC = () => {
           initialView={initialView}
           displayEventTime={false}
           eventDisplay=''
-          dayMaxEvents={7}
+          dayMaxEventRows={6}
           weekends={true}
           events={order}
           eventOrder={''}

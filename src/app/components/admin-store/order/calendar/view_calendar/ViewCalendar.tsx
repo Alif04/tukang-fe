@@ -571,7 +571,7 @@ const ViewCalendarCS: React.FC = () => {
           eventDisplay=''
           weekends={true}
           events={order}
-          dayMaxEvents={7}
+          dayMaxEventRows={6}
           eventOrder={''}
           locale={idLocale}
           timeZone='Asia/Jakarta'

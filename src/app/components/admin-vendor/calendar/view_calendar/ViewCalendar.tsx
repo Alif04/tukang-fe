@@ -397,6 +397,7 @@ const ViewCalendarVendor: React.FC = () => {
           initialView={initialView}
           displayEventTime={false}
           eventDisplay=''
+          dayMaxEventRows={6}
           weekends={true}
           events={order}
           locale={idLocale}
