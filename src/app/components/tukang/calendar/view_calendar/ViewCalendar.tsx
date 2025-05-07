@@ -388,6 +388,7 @@ const ViewCalendarTukang: React.FC = () => {
           weekends={true}
           displayEventTime={false}
           eventDisplay=''
+          dayMaxEventRows={6}
           locale={idLocale}
           timeZone='Asia/Jakarta'
           events={workOrder}
