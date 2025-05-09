@@ -157,8 +157,9 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   const [visibleQuotationReceipt, setVisibleQuotationReceipt] = useState(false)
   const [visibleQuotationFiles, setVisibleQuotationFiles] = useState(false)
   const [orderStatusLabel, setOrderStatusLabel] = useState('')
-  const [template, setTemplate]= useState([])
+  const [template, setTemplate] = useState([])
   const userRole = localStorage.getItem('userRole') as string
+
   // Member
   const [member, setMember] = useState<MemberSelect[]>([])
   const [selectedMember, setSelectedMember] = useState<SingleValue<MemberSelect>>({
@@ -176,6 +177,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Sales
   const [sales, setSales] = useState<SalesSelect[]>([])
+  const [searchSales, setSearchSales] = useState('')
   const [selectedSales, setSelectedSales] = useState<SingleValue<SalesSelect>>({
     value: null,
     label: '',
@@ -272,7 +274,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           })
           .then((response) => {
             const data = response.data.data
-      
             setOrderDetail(data)
 
             if (data?.store) {
@@ -544,7 +545,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         console.error(err)
       }
     }
-    const getTemplaye = async ()=>{
+    const getTemplaye = async () => {
       let apiUrlWithParams = `${apiChat}/templates`
 
       try {
@@ -564,72 +565,79 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         console.error('Error fetching data:', error)
       }
     }
+
     fetchOrderData()
     getStore()
     getMember()
     getTemplaye()
   }, [])
 
+  const getSales = async () => {
+    const search = searchSales ? `&search=${searchSales}` : ''
+    const orderStore = selectedStore?.value ? `&store_id=${selectedStore.value}` : ``
+
+    try {
+      const response = await axios.get(`${apiUrl}/sales?take=0${search}${orderStore}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempSales = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.full_name,
+          full_name: item.full_name,
+        }))
+
+        setSales(tempSales)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getVendor = async () => {
+    const orderStore = selectedStore?.value ? `&store_id=${selectedStore.value}` : ``
+
+    try {
+      const response = await axios.get(`${apiUrl}/vendor?vendor_with_max_order=1${orderStore}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+
+      if (Array.isArray(response.data.data)) {
+        const tempVendor = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.company_name,
+        }))
+
+        setIsLoadingPage(false)
+        setVendor(tempVendor)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
-    const orderStore = orderDetail?.store_id ? `store_id=${orderDetail.store_id}` : ''
-
-    const getSales = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/sales?${orderStore}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempSales = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.full_name,
-            full_name: item.full_name,
-          }))
-
-          setSales(tempSales)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    const getVendor = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/vendor?vendor_with_max_order=1&${orderStore}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempVendor = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.company_name,
-          }))
-
-          setIsLoadingPage(false)
-          setVendor(tempVendor)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     getVendor()
+  }, [selectedStore?.value])
+
+  useEffect(() => {
     getSales()
-  }, [orderDetail])
+  }, [selectedStore?.value, searchSales])
 
   // Order Form Handler
   const orderFormHandler = (e: any) => {
@@ -1134,18 +1142,17 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       })
   }
   const sendMessage = async () => {
-    const filteredTemplates:any = template.find((t:any) => 
-      t.subCategory === orderStatusLabel && t.status === "Active"
-  );
+    const filteredTemplates: any = template.find(
+      (t: any) => t.subCategory === orderStatusLabel && t.status === 'Active'
+    )
     if (filteredTemplates.withImage) {
       const data = {
         message: filteredTemplates?.content,
         chatId: `62${orderForm.project_number}@c.us`,
         adminRole: userRole,
-        imagePath: filteredTemplates?.imageUrl
+        imagePath: filteredTemplates?.imageUrl,
       }
-  
-      
+
       await axios
         .post(`${apiChat}/send-message-change-status-image`, data)
         .then((response) => {
@@ -1153,21 +1160,20 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         })
         .catch((error) => {
           console.error(error)
-  
+
           // Swal.fire({
           //   title: 'Error',
           //   text: error.response.data.message,
           //   icon: 'error',
           // })
         })
-    } else{
+    } else {
       const data = {
         message: filteredTemplates?.content,
         chatId: `62${orderForm.project_number}@c.us`,
         adminRole: userRole,
       }
-  
-      
+
       await axios
         .post(`${apiChat}/send-message-change-status`, data)
         .then((response) => {
@@ -1175,7 +1181,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         })
         .catch((error) => {
           console.error(error)
-  
+
           // Swal.fire({
           //   title: 'Error',
           //   text: error.response.data.message,
@@ -1183,7 +1189,6 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           // })
         })
     }
-   
   }
   // Reprint Order
   const handleCancelOrder = async () => {
@@ -1458,7 +1463,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   </Form.Label>
 
                   <Col sm='8'>
-                    <Form.Control readOnly type='number' value={selectedSales?.value || ''} />
+                    <Form.Control disabled type='number' value={selectedSales?.value || ''} />
                   </Col>
                 </Form.Group>
 
@@ -1486,6 +1491,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                           full_name: selectedSales?.full_name ?? '',
                         }}
                         onChange={(newValue) => setSelectedSales(newValue)}
+                        onInputChange={(newValue) => setSearchSales(newValue)}
                       />
                     )}
                   </Col>
