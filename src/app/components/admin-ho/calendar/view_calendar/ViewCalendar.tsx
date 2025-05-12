@@ -60,10 +60,9 @@ const ViewCalendarHO: React.FC = () => {
     let currentPage = 1
     const pageSize = 100
     let allOrders: Order[] = []
-    let hasMoreData = true
 
     try {
-      while (hasMoreData) {
+      while (true) {
         const response = await axios.get(
           `${apiUrl}/orders/calender?page=${currentPage}&take=${pageSize}&date_from=${start}&date_to=${end}`,
           {
@@ -78,96 +77,94 @@ const ViewCalendarHO: React.FC = () => {
 
         const data = response.data.data
 
-        if (data.length > 0) {
-          const orders = data.map((item: any) => {
-            const startDate = (() => {
-              if (item?.work_orders) {
-                if (item.work_order_survey_date !== null) {
-                  return item.work_orders.work_start_date === null
-                    ? item.work_orders.survey_date
-                    : item.work_orders.work_start_date
-                }
+        if (!data || data.length === 0) break
+
+        const orders = data.map((item: any) => {
+          const startDate = (() => {
+            if (item?.work_orders) {
+              if (item.work_order_survey_date !== null) {
+                return item.work_orders.work_start_date === null
+                  ? item.work_orders.survey_date
+                  : item.work_orders.work_start_date
               }
-              return item?.request_survey
-            })()
-
-            const endDate = (() => {
-              if (item?.work_orders) {
-                if (item.work_order_survey_date !== null) {
-                  return item.work_orders.work_end_date === null
-                    ? item.work_orders.survey_date
-                    : item.work_orders.work_end_date
-                }
-                if (
-                  item.work_order_survey_date === null &&
-                  item.work_orders.work_end_date !== null
-                ) {
-                  return item.work_orders.work_end_date
-                }
-              }
-              return item?.request_survey
-            })()
-
-            const orderStatus = item?.reschedule?.length > 0 ? 'RESCHEDULE' : item?.status?.category
-
-            const contextualColor = (() => {
-              switch (orderStatus) {
-                case 'PICKLIST':
-                  return 'bg-primary'
-                case 'BOOKED':
-                  return 'bg-calendar-order-booked'
-                case 'SURVEYREQ':
-                case 'SURVEYSTART':
-                case 'SURVEYDONE':
-                case 'WORKREQ':
-                case 'WORKSTART':
-                case 'TUKANGSURVEY':
-                case 'TUKANGWORK':
-                  return 'bg-calendar-order-wip'
-                case 'QUOTATIONDRAFT':
-                case 'QUOTEIN':
-                case 'QUOTEOUT':
-                case 'QUOTATIONPAID':
-                case 'QUOTATIONPAIDSTEPONE':
-                case 'QUOTATIONPAIDSTEPTWO':
-                case 'QUOTATIONPAIDSTEPTHREE':
-                case 'WORKEND':
-                case 'WORKENDSTEPONE':
-                case 'WORKENDSTEPTWO':
-                case 'WORKENDSTEPTHREE':
-                case 'REWORKEND':
-                  return 'bg-calendar-order-done'
-                case 'RESCHEDULE':
-                  return 'bg-calendar-order-reschedule'
-                case 'INVESTIGATED':
-                case 'COMPLAINTAPPROVEDBYHO':
-                case 'COMPLAINTREJECTEDBYHO':
-                  return 'bg-calendar-order-complaint'
-                case 'CANCEL':
-                  return 'bg-calendar-order-cancel'
-                default:
-                  return 'bg-primary'
-              }
-            })()
-
-            return {
-              id: item?.id.toString(),
-              title: `#${item?.id ?? ''} - ${
-                item.vendor ? item.vendor.company_name : '- Vendor Belum Ditugaskan'
-              } - ${item?.members?.full_name ?? ''}`,
-              start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
-              end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
-              order_status: orderStatus,
-              className: contextualColor,
-              order_detail: item,
             }
-          })
+            return item?.request_survey
+          })()
 
-          allOrders = [...allOrders, ...orders]
-          currentPage += 1
-        } else {
-          hasMoreData = false
-        }
+          const endDate = (() => {
+            if (item?.work_orders) {
+              if (item.work_order_survey_date !== null) {
+                return item.work_orders.work_end_date === null
+                  ? item.work_orders.survey_date
+                  : item.work_orders.work_end_date
+              }
+              if (item.work_order_survey_date === null && item.work_orders.work_end_date !== null) {
+                return item.work_orders.work_end_date
+              }
+            }
+            return item?.request_survey
+          })()
+
+          const orderStatus = item?.reschedule?.length > 0 ? 'RESCHEDULE' : item?.status?.category
+
+          const contextualColor = (() => {
+            switch (orderStatus) {
+              case 'PICKLIST':
+                return 'bg-primary'
+              case 'BOOKED':
+                return 'bg-calendar-order-booked'
+              case 'SURVEYREQ':
+              case 'SURVEYSTART':
+              case 'SURVEYDONE':
+              case 'WORKREQ':
+              case 'WORKSTART':
+              case 'TUKANGSURVEY':
+              case 'TUKANGWORK':
+                return 'bg-calendar-order-wip'
+              case 'QUOTATIONDRAFT':
+              case 'QUOTEIN':
+              case 'QUOTEOUT':
+              case 'QUOTATIONPAID':
+              case 'QUOTATIONPAIDSTEPONE':
+              case 'QUOTATIONPAIDSTEPTWO':
+              case 'QUOTATIONPAIDSTEPTHREE':
+              case 'WORKEND':
+              case 'WORKENDSTEPONE':
+              case 'WORKENDSTEPTWO':
+              case 'WORKENDSTEPTHREE':
+              case 'REWORKEND':
+                return 'bg-calendar-order-done'
+              case 'RESCHEDULE':
+                return 'bg-calendar-order-reschedule'
+              case 'INVESTIGATED':
+              case 'COMPLAINTAPPROVEDBYHO':
+              case 'COMPLAINTREJECTEDBYHO':
+                return 'bg-calendar-order-complaint'
+              case 'CANCEL':
+                return 'bg-calendar-order-cancel'
+              default:
+                return 'bg-primary'
+            }
+          })()
+
+          return {
+            id: item?.id.toString(),
+            title: `#${item?.id ?? ''} - ${
+              item.vendor ? item.vendor.company_name : '- Vendor Belum Ditugaskan'
+            } - ${item?.members?.full_name ?? ''}`,
+            start: dayjs(startDate).format('YYYY-MM-DD HH:mm:ss'),
+            end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
+            order_status: orderStatus,
+            className: contextualColor,
+            order_detail: item,
+          }
+        })
+
+        allOrders = [...allOrders, ...orders]
+
+        if (data.length < pageSize) break
+
+        currentPage += 1
       }
 
       setOrder(allOrders)
@@ -189,10 +186,8 @@ const ViewCalendarHO: React.FC = () => {
     const start = dayjs(arg.view.currentStart).format('YYYY-MM-DD')
     const end = dayjs(arg.view.currentEnd).format('YYYY-MM-DD')
 
-    if (start !== dateFrom || end !== dateTo) {
-      setDateFrom(start)
-      setDateTo(end)
-    }
+    setDateFrom(start)
+    setDateTo(end)
   }
 
   // MODAL
@@ -436,10 +431,12 @@ const ViewCalendarHO: React.FC = () => {
           initialView={initialView}
           displayEventTime={false}
           eventDisplay=''
-          dayMaxEventRows={6}
+          dayMaxEventRows={4}
+          dayMaxEvents={4}
+          eventOrder=''
+          height={'auto'}
           weekends={true}
           events={order}
-          eventOrder={''}
           locale={idLocale}
           timeZone='Asia/Jakarta'
           datesSet={handleDatesSet}
