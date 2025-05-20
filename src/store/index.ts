@@ -1,14 +1,18 @@
 // src/store/index.ts
 import {configureStore} from '@reduxjs/toolkit'
-import tableReducer from './tableSlice'
 import workOrderReducer from './workOrderSlice'
 import itemReducer from './itemSlice'
+import invoiceReducer from './invoiceSlice'
+import quotationReducer from './quotationSlice'
+import tableReducer from './tableSlice'
 
 export const store = configureStore({
   reducer: {
     table: tableReducer,
     workOrder: workOrderReducer,
     item: itemReducer,
+    invoice: invoiceReducer,
+    quotation: quotationReducer,
   },
 })
 
