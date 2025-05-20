@@ -1,6 +1,17 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect, FC, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
+import {useSelector, useDispatch} from 'react-redux'
+import {RootState} from '../../../../../store'
+import {
+  setQueryParams,
+  setCurrentPage,
+  setPageSize,
+  setDateFrom,
+  setDateTo,
+  setSearchFilter,
+  setSelectedVendor,
+} from '../../../../../store/invoiceSlice'
 
 import './ViewInvoice.css'
 
@@ -13,9 +24,7 @@ import {Table, Tag, DatePicker, PaginationProps, Spin, Pagination, Upload, Image
 import {InboxOutlined} from '@ant-design/icons'
 import {
   Form,
-  InputGroup,
   Row,
-  Col,
   Button,
   OverlayTrigger,
   Tooltip,
@@ -36,7 +45,7 @@ import {
   faFile,
   faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
+import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 const {Dragger} = Upload
@@ -50,12 +59,6 @@ interface DataType {
   invoice_status: string
 }
 
-interface Status {
-  value: any
-  category: string
-  label: string
-}
-
 interface VendorItem {
   value: number | null
   label: string
@@ -64,46 +67,65 @@ interface VendorItem {
 const ViewInvoiceHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const userRole = localStorage.getItem('userRole') as string
-  const navigate = useNavigate()
 
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  // Loading State
   const [loadingTemplate, setLoadingTemplate] = useState<boolean>(false)
   const [loadingUploadExcel, setLoadingUploadExcel] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loadingButton, setLoadingButton] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
+  // Table State
   const [invoiceData, setInvoiceData] = useState<DataType[]>([])
-  const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
-
-  const [dateFrom, setDateFrom] = useState<any>(
-    new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
-  )
-  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-  const [searchFilter, setSearchFilter] = useState<string>('')
+  const {queryParams, searchFilter, currentPage, pageSize, dateFrom, dateTo, selectedVendor} =
+    useSelector((state: RootState) => state.invoice)
 
   // Vendor
   const [vendor, setVendor] = useState<VendorItem[]>([])
   const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendor]
-  const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorItem>>({
-    value: null,
-    label: 'All Vendor',
-  })
-
-  // Status
-  const storedStatus = localStorage.getItem('statusData')
-  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
 
   // Update Invoice
   const [invoiceId, setInvoiceId] = useState<any>()
   const [invoiceNotes, setInvoiceNotes] = useState<any>()
 
   // Filter Table
-  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchFilter = event.target.value
-    setSearchFilter(updatedSearchFilter)
+  const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchFilter(e.target.value))
   }
 
+  const handleVendorChange = (newValue: SingleValue<VendorItem>) => {
+    const selectedVendor: VendorItem = newValue || {value: null, label: 'All Vendor'}
+    dispatch(setSelectedVendor(selectedVendor))
+  }
+
+  const handlePageChange = (page: number, size?: number) => {
+    dispatch(setCurrentPage(page))
+    if (size) {
+      dispatch(setPageSize(size))
+    }
+  }
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
+  // Table
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
   const columns: ColumnsType<DataType> = [
     {
@@ -202,9 +224,18 @@ const ViewInvoiceHO: FC = () => {
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Detail Invoice')}
             >
-              <Button variant='primary' className='button-detail' onClick={handleDetailInvoicePage}>
-                <FontAwesomeIcon className='text-white' icon={faBook} fontSize='13px' />
-              </Button>
+              <a
+                href={`/invoice/detail-invoice/${id}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='btn btn-primary button-detail'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleDetailInvoicePage()
+                }}
+              >
+                <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
+              </a>
             </OverlayTrigger>
 
             {[6].includes(record.status) && (
@@ -231,13 +262,18 @@ const ViewInvoiceHO: FC = () => {
                     delay={{show: 250, hide: 400}}
                     overlay={renderTooltip('Edit Invoice')}
                   >
-                    <Button
-                      variant='primary'
-                      className='button-edit'
-                      onClick={handleUpdateInvoicePage}
+                    <a
+                      href={`/order/update-order/${id}`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='btn btn-primary button-edit'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleUpdateInvoicePage()
+                      }}
                     >
-                      <FontAwesomeIcon className='text-white' icon={faPen} fontSize='13px' />
-                    </Button>
+                      <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
+                    </a>
                   </OverlayTrigger>
                 )}
 
@@ -392,8 +428,8 @@ const ViewInvoiceHO: FC = () => {
   }
 
   useEffect(() => {
-    fetchData(1, 10, '')
-  }, [])
+    fetchData(currentPage, pageSize, queryParams)
+  }, [currentPage, pageSize, queryParams])
 
   const getVendor = async () => {
     let currentPage = 1
@@ -438,16 +474,6 @@ const ViewInvoiceHO: FC = () => {
     //eslint-disable-next-line
   }, [])
 
-  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
-    if (type === 'prev') {
-      return <a>Prev</a>
-    }
-    if (type === 'next') {
-      return <a>Next</a>
-    }
-    return originalElement
-  }
-
   // Filter
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
@@ -461,8 +487,9 @@ const ViewInvoiceHO: FC = () => {
 
     valueCheck(`&search=`, searchFilter)
     valueCheck(`&vendor_id=`, selectedVendor?.value)
+    dispatch(setQueryParams(queryparams))
 
-    const data = await ViewInvoice(1, 10, queryparams)
+    const data = await ViewInvoice(currentPage, pageSize, queryparams)
     setInvoiceData(data)
 
     setLoadingButton(false)
@@ -704,10 +731,6 @@ const ViewInvoiceHO: FC = () => {
       })
   }
 
-  const handleUploadExcel = () => {
-    setModalUpload(true)
-  }
-
   // Export Template Excel
   const exportTemplate = () => {
     setLoadingTemplate(true)
@@ -798,12 +821,6 @@ const ViewInvoiceHO: FC = () => {
     })
   }
 
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter') {
-      handleSubmitFilter()
-    }
-  }
-
   return (
     <section id='view-invoice'>
       <div className='card'>
@@ -829,14 +846,14 @@ const ViewInvoiceHO: FC = () => {
                 defaultValue={[dayjs().subtract(30, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
 
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
+                    dispatch(setDateFrom(dateFromFormatted))
+                    dispatch(setDateTo(dateToFormatted))
                   } else {
-                    setDateFrom(new Date().toISOString().split('T')[0])
-                    setDateTo(new Date().toISOString().split('T')[0])
+                    dispatch(setDateFrom(''))
+                    dispatch(setDateTo(''))
                   }
                 }}
               />
@@ -864,7 +881,7 @@ const ViewInvoiceHO: FC = () => {
                 isClearable={true}
                 options={vendorOptions}
                 value={selectedVendor}
-                onChange={(newValue) => setSelectedVendor(newValue)}
+                onChange={handleVendorChange}
               />
 
               <Button
@@ -897,23 +914,25 @@ const ViewInvoiceHO: FC = () => {
             </div>
           </Spin>
 
-          <Pagination
-            className='mt-5'
-            style={{textAlign: 'right', position: 'relative'}}
-            current={currentPage}
-            total={totalData}
-            showSizeChanger
-            pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
-            itemRender={itemRender}
-            onChange={(page, pageSize) => {
-              fetchData(page, pageSize, '')
-            }}
-            showTotal={(total, range) => (
-              <span style={{left: 0, position: 'absolute'}}>
-                Showing {range[0]} - {range[1]} of {total} Total Invoice
-              </span>
-            )}
-          />
+          <div className='pagination-container mt-5'>
+            <span className='total-text'>
+              Showing {(currentPage - 1) * pageSize + 1} -{' '}
+              {Math.min(currentPage * pageSize, totalData)} of {totalData} Invoice
+            </span>
+
+            <Pagination
+              className='pagination'
+              pageSize={pageSize}
+              current={currentPage}
+              total={totalData}
+              showSizeChanger
+              pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+              itemRender={itemRender}
+              onChange={(page, pageSize) => {
+                handlePageChange(page, pageSize)
+              }}
+            />
+          </div>
         </div>
       </div>
 
