@@ -241,49 +241,10 @@ const NewInvoiceVendor: FC = () => {
       }
       const calculateGrandTotal = (quotations: any[]) => {
         return (
-          (quotations?.reduce((total, q) => total + Number(q.quotation_grand_total || 0), 0) || 0) * 0.75
-        );
-      };
-
-      
-      const workOrderData = workOrders
-        .filter((x) => {
-          const noInvoice = x.invoice_details.length === 0
-
-          const sortedInvoices = x.invoice_details
-            .sort((a: any, b: any) => a.type - b.type)
-            .sort((a: any, b: any) => {
-              if (a.type === b.type) {
-                return b.invoices.id - a.invoices.id
-              }
-
-              return 0
-            })
-
-          const hasInvoiceSent =
-            x.invoice_details.length >= 1 &&
-            sortedInvoices.filter((inv: any) => inv.type === 2)[0]?.invoices.status === 1
-
-          const hasInvoiceRejected =
-            sortedInvoices.filter((inv: any) => inv.type === 2)[0]?.invoices.status === 3
-
-          return noInvoice || hasInvoiceRejected || !hasInvoiceSent
-        })
-        .map((item: any, index: number) => {
-          const orderDate = formatDateWithTimeZone(item?.created_at)
-          const grandTotal = calculateGrandTotal(item?.quotation || [])
-          return {
-            _key: index + 1,
-            order_id: item?.id,
-            store_name: item?.store?.store_name,
-            date_order: orderDate,
-            member_name: item?.members?.full_name,
-            order_type: 'Pengerjaan',
-            order_status: item?.status?.category,
-            order_status_label: item?.status?.description,
-            grand_total: grandTotal,
-          }
-        })
+          (quotations?.reduce((total, q) => total + Number(q.quotation_grand_total || 0), 0) || 0) *
+          0.75
+        )
+      }
 
       const surveyOrderData = surveyOrders
         .filter((x) => {
@@ -302,7 +263,9 @@ const NewInvoiceVendor: FC = () => {
 
           const hasInvoiceSent =
             x.invoice_details.length >= 1 &&
-            sortedInvoices.filter((inv: any) => inv.type === 1)[0]?.invoices.status === 1
+            [1, 2, 4, 5, 6, 7].includes(
+              sortedInvoices.filter((inv: any) => inv.type === 1)[0]?.invoices.status
+            )
 
           const hasInvoiceRejected =
             sortedInvoices.filter((inv: any) => inv.type === 1)[0]?.invoices.status === 3
@@ -328,6 +291,47 @@ const NewInvoiceVendor: FC = () => {
           }
         })
 
+      const workOrderData = workOrders
+        .filter((x) => {
+          const noInvoice = x.invoice_details.length === 0
+
+          const sortedInvoices = x.invoice_details
+            .sort((a: any, b: any) => a.type - b.type)
+            .sort((a: any, b: any) => {
+              if (a.type === b.type) {
+                return b.invoices.id - a.invoices.id
+              }
+
+              return 0
+            })
+
+          const hasInvoiceSent =
+            x.invoice_details.length >= 1 &&
+            [1, 2, 4, 5, 6, 7].includes(
+              sortedInvoices.filter((inv: any) => inv.type === 2)[0]?.invoices.status
+            )
+
+          const hasInvoiceRejected =
+            sortedInvoices.filter((inv: any) => inv.type === 2)[0]?.invoices.status === 3
+
+          return noInvoice || hasInvoiceRejected || !hasInvoiceSent
+        })
+        .map((item: any, index: number) => {
+          const orderDate = formatDateWithTimeZone(item?.created_at)
+          const grandTotal = calculateGrandTotal(item?.quotation || [])
+          return {
+            _key: index + 1,
+            order_id: item?.id,
+            store_name: item?.store?.store_name,
+            date_order: orderDate,
+            member_name: item?.members?.full_name,
+            order_type: 'Pengerjaan',
+            order_status: item?.status?.category,
+            order_status_label: item?.status?.description,
+            grand_total: grandTotal,
+          }
+        })
+
       const workStepData = workStepOrders
         .filter((x) => {
           const orderHistory = x.order_history.length >= 1
@@ -345,7 +349,9 @@ const NewInvoiceVendor: FC = () => {
 
           const hasInvoiceSent =
             x.invoice_details.length >= 1 &&
-            sortedInvoices.filter((inv: any) => inv.type === 3)[0]?.invoices.status === 1
+            [1, 2, 4, 5, 6, 7].includes(
+              sortedInvoices.filter((inv: any) => inv.type === 3)[0]?.invoices.status
+            )
 
           const hasInvoiceRejected =
             sortedInvoices.filter((inv: any) => inv.type === 3)[0]?.invoices.status === 3
@@ -483,9 +489,9 @@ const NewInvoiceVendor: FC = () => {
         setIsLoading(false)
       } else {
         Swal.fire({
-          title: 'Error',
+          title: 'Warning',
           text: response.data.message,
-          icon: 'error',
+          icon: 'warning',
         })
 
         setIsLoading(false)
