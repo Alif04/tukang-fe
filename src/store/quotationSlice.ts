@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 
-interface quotationSlice {
+interface quotationFilter {
   queryParams: string
   searchFilter: string
   currentPage: number
@@ -9,7 +9,7 @@ interface quotationSlice {
   dateTo: string
 }
 
-const initialState: quotationSlice = {
+const initialState: quotationFilter = {
   queryParams: '',
   searchFilter: '',
   currentPage: 1,

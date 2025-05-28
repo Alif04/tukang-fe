@@ -916,6 +916,9 @@ const NewMaterialVendor: FC = () => {
     'INVESTIGATED',
     'COMPLAINTAPPROVEDBYHO',
     'COMPLAINTREJECTEDBYHO',
+    'REFUND',
+    'REFUNDAPPROVEDBYHO',
+    'REFUNDREJECTEDBYHO',
   ]
   const completedStatuses = [
     'SURVEYREQ',

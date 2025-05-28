@@ -17,13 +17,16 @@ import './ViewWorkOrder.css'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
-import type {ColumnsType} from 'antd/es/table'
+
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {Row, Form, FormGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch, faPrint} from '@fortawesome/free-solid-svg-icons'
 import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
+
+import type {ColumnsType} from 'antd/es/table'
+import type {FilterValue, SorterResult, TableCurrentDataSource} from 'antd/es/table/interface'
 
 const {RangePicker} = DatePicker
 
@@ -64,6 +67,14 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     (state: RootState) => state.workOrder
   )
 
+  // Status
+  const storedStatus = localStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
+  const statusFilters = statusData.map((item: any) => ({
+    text: item.description,
+    value: item.value,
+  }))
+
   // Columns Table
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
   const columns: ColumnsType<DataType> = [
@@ -84,8 +95,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       key: 'date_order',
       align: 'center',
       width: 'fit-content',
-      onFilter: (value, record) => record.date_order.includes(String(value)),
-      sorter: (a, b) => a.date_order.length - b.date_order.length,
+      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
       title: 'Nama Toko',
@@ -130,28 +140,17 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       key: 'order_status_label',
       align: 'left',
       width: 'fit-content',
+      filters: statusFilters,
+      filterMultiple: true,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
 
         switch (orderStatus) {
-          case 'BOOK':
-            color = 'green'
+          case 'UNPAID':
+            color = 'red'
             break
-          case 'BOOKED':
-            color = 'lime'
-            break
-          case 'SURVEYREQ':
-            color = 'blue'
-            break
-          case 'SURVEYSTART':
-          case 'SURVEYDONE':
-          case 'QUOTE IN':
-          case 'QUOTE OUT':
-          case 'WORKREQ':
-          case 'WORKSTART':
-          case 'WORKEND':
-          case 'CISOUT':
+          case 'PAID':
             color = 'green'
             break
           default:
@@ -172,6 +171,10 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       width: 120,
       onFilter: (value, record) => record.payment_quotation.includes(String(value)),
       sorter: (a, b) => a.payment_quotation.length - b.payment_quotation.length,
+      filters: [
+        {text: 'UNPAID', value: '0'},
+        {text: 'PAID', value: '1'},
+      ],
     },
     {
       title: 'Action',
@@ -264,10 +267,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
   ]
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&vendor_id=${vendorId}&page=${page}&take=${pageSize}${queryparams}`
-    if (dateFrom && dateTo) {
-      apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
-    }
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -277,11 +277,18 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
           'Access-Control-Allow-Origin': '*',
           'ngrok-skip-browser-warning': 'true',
         },
+        params: {
+          search: searchFilter || null,
+          page: page,
+          take: pageSize,
+          dateFrom: dateFrom || null,
+          dateTo: dateTo || null,
+          vendor_id: vendorId || null,
+        },
       })
 
       setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
-      setLoadData(false)
 
       return response.data.data
     } catch (error: any) {
@@ -295,6 +302,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       } else {
         console.log('error when fetching data', error)
       }
+    } finally {
+      setLoadData(false)
     }
   }
 
@@ -363,7 +372,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(currentPage, pageSize, queryParams)
-  }, [currentPage, queryParams])
+  }, [currentPage, pageSize, queryParams])
 
   // Table Handler
   const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -387,24 +396,46 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
-  const handleSubmitFilter = async () => {
-    setLoadingButton(true)
+  const handleFilterTable = (
+    pagination: PaginationProps,
+    filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<DataType> | SorterResult<DataType>[],
+    extra: TableCurrentDataSource<DataType>
+  ) => {
+    const newQueryParams: string[] = []
 
-    let queryparams = ``
+    if (filters.order_status_label && filters.order_status_label.length > 0) {
+      const statusFilters = filters.order_status_label.join(',')
+      newQueryParams.push(`&status=${statusFilters}`)
+    }
 
-    const valueCheck = (key: any, value: any) => {
-      if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        queryparams += `${key}${value}`
+    if (filters.payment_quotation) {
+      const quotationStatus = filters.payment_quotation[0]
+      if (quotationStatus) {
+        newQueryParams.push(`&is_receipt_quotation=${quotationStatus}`)
       }
     }
 
-    valueCheck(`&search=`, searchFilter)
-    dispatch(setQueryParams(queryparams))
+    const finalQueryParams = newQueryParams.join('')
 
-    const data = await ViewOrder(currentPage, pageSize, queryparams)
-    setOrderData(data)
+    dispatch(setQueryParams(finalQueryParams))
+    dispatch(setCurrentPage(1))
 
-    setLoadingButton(false)
+    fetchData(currentPage, pageSize, finalQueryParams)
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    dispatch(setCurrentPage(1))
+
+    try {
+      const data = await ViewOrder(currentPage, pageSize, queryParams)
+      setOrderData(data)
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+    } finally {
+      setLoadingButton(false)
+    }
   }
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -515,6 +546,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
                 sticky={true}
                 tableLayout='auto'
                 scroll={{x: 1700}}
+                onChange={handleFilterTable}
               />
             </div>
           </Spin>
