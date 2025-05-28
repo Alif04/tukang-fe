@@ -13,7 +13,7 @@ import {
   setSearchFilter,
   setSelectedStore,
   setSelectedVendor,
-} from '../../../../../store/tableSlice'
+} from '../../../../../store/orderSlice'
 
 import './ViewOrder.css'
 
@@ -155,14 +155,9 @@ const ViewOrders: FC = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const salesId = localStorage.getItem('sales_id')
   const userRole = localStorage.getItem('userRole') as string
-  const userStore = localStorage.getItem('storeId')
-
-  const storeId = !['Super User', 'Admin HO'].includes(userRole ?? '')
-    ? `&store_id=${userStore}`
-    : ''
-  const userSales = userRole === 'Sales' ? `&sales_id=${salesId}` : ''
+  const salesId = localStorage.getItem('sales_id')
+  const storeId = localStorage.getItem('storeId')
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -183,7 +178,7 @@ const ViewOrders: FC = () => {
     dateTo,
     selectedStore,
     selectedVendor,
-  } = useSelector((state: RootState) => state.table)
+  } = useSelector((state: RootState) => state.order)
 
   const [activeKey, setActiveKey] = useState<number>(1)
 
@@ -409,12 +404,15 @@ const ViewOrders: FC = () => {
 
   const getStore = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/stores?take=0`, {
+      const response = await axios.get(`${apiUrl}/stores`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           'Access-Control-Allow-Origin': '*',
           'ngrok-skip-browser-warning': 'true',
+        },
+        params: {
+          take: 0,
         },
       })
 
@@ -440,21 +438,21 @@ const ViewOrders: FC = () => {
     let hasMoreData = true
     const pageSize = 20
 
-    const storeId = store_id !== null ? `&store_id=${store_id}` : ''
-
     try {
       while (hasMoreData) {
-        const response = await axios.get(
-          `${apiUrl}/vendor?page=${currentPage}&take=${pageSize}${storeId}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
+        const response = await axios.get(`${apiUrl}/vendor`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            page: currentPage,
+            take: pageSize,
+            store_id: store_id || null,
+          },
+        })
 
         const data = response.data.data
 
@@ -485,12 +483,15 @@ const ViewOrders: FC = () => {
 
   const getCSI = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/csi?take=0`, {
+      const response = await axios.get(`${apiUrl}/csi`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           'Access-Control-Allow-Origin': '*',
           'ngrok-skip-browser-warning': 'true',
+        },
+        params: {
+          take: 0,
         },
       })
 
@@ -592,8 +593,6 @@ const ViewOrders: FC = () => {
       },
     ],
   })
-
-  console.log('quotation promotion', quotation.quotation_promotion)
 
   const quotationSpecialStatus = (() => {
     if (quotation.quotation_special === 1) {
@@ -752,10 +751,7 @@ const ViewOrders: FC = () => {
   }
 
   const fetchOrderList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc&page=${page}&take=${pageSize}${queryparams}${storeId}${userSales}`
-    if (dateFrom && dateTo) {
-      apiUrlWithParams += `&date_from=${dateFrom}&date_to=${dateTo}`
-    }
+    let apiUrlWithParams = `${apiUrl}/orders?order_by=desc${queryparams}`
 
     try {
       const response = await axiosInstance.get(apiUrlWithParams, {
@@ -765,15 +761,26 @@ const ViewOrders: FC = () => {
           'Access-Control-Allow-Origin': '*',
           'ngrok-skip-browser-warning': 'true',
         },
+        params: {
+          search: searchFilter || null,
+          page: currentPage,
+          take: pageSize,
+          date_from: dateFrom || null,
+          date_to: dateTo || null,
+          sales_id: salesId || null,
+          store_id: storeId ? storeId : selectedStore.value ? selectedStore.value : null,
+          vendor_id: selectedVendor.value ? selectedVendor.value : null,
+        },
       })
 
-      setCurrentPage(response.data.page)
+      setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response.data?.total ?? 0)
-      setLoadData(false)
 
       return response.data.data
     } catch (error: any) {
       console.log('error when fetching data', error)
+    } finally {
+      setLoadData(false)
     }
   }
 
@@ -923,32 +930,25 @@ const ViewOrders: FC = () => {
     }
 
     const finalQueryParams = newQueryParams.join('')
+
     dispatch(setQueryParams(finalQueryParams))
+    dispatch(setCurrentPage(1))
 
     fetchData(currentPage, pageSize, finalQueryParams)
   }
 
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
+    dispatch(setCurrentPage(1))
 
-    let newQueryParams = ''
-
-    const valueCheck = (key: any, value: any) => {
-      if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        newQueryParams += `${key}${value}`
-      }
+    try {
+      const data = await ViewOrder(currentPage, pageSize, queryParams)
+      setOrderData(data)
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+    } finally {
+      setLoadingButton(false)
     }
-
-    valueCheck(`&search=`, searchFilter)
-    valueCheck(`&store_id=`, selectedStore?.value)
-    valueCheck(`&vendor_id=`, selectedVendor?.value)
-
-    dispatch(setQueryParams(newQueryParams))
-
-    const data = await ViewOrder(currentPage, pageSize, newQueryParams)
-    setOrderData(data)
-
-    setLoadingButton(false)
   }
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {

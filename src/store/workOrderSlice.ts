@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 
-interface workOrderSlice {
+interface workOrderFilter {
   queryParams: string
   searchFilter: string
   currentPage: number
@@ -9,7 +9,7 @@ interface workOrderSlice {
   dateTo: string
 }
 
-const initialState: workOrderSlice = {
+const initialState: workOrderFilter = {
   queryParams: '',
   searchFilter: '',
   currentPage: 1,

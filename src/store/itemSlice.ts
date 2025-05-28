@@ -5,7 +5,7 @@ interface StoreItem {
   label: string
 }
 
-interface itemSlice {
+interface itemFilter {
   queryParams: string
   searchFilter: string
   currentPage: number
@@ -15,7 +15,7 @@ interface itemSlice {
   selectedStore: StoreItem
 }
 
-const initialState: itemSlice = {
+const initialState: itemFilter = {
   queryParams: '',
   searchFilter: '',
   currentPage: 1,

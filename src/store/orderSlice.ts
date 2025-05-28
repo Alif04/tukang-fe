@@ -10,7 +10,7 @@ interface VendorItem {
   label: string
 }
 
-interface tableSlice {
+interface orderFilter {
   queryParams: string
   searchFilter: string
   currentPage: number
@@ -23,7 +23,7 @@ interface tableSlice {
 
 const userRole = localStorage.getItem('userRole') as string
 
-const initialState: tableSlice = {
+const initialState: orderFilter = {
   queryParams: '',
   searchFilter: '',
   currentPage: 1,
@@ -36,8 +36,8 @@ const initialState: tableSlice = {
   selectedVendor: {value: null, label: 'All Vendor'},
 }
 
-const tableSlice = createSlice({
-  name: 'table',
+const orderSlice = createSlice({
+  name: 'order',
   initialState,
   reducers: {
     setQueryParams(state, action: PayloadAction<string>) {
@@ -89,6 +89,6 @@ export const {
   setSelectedStore,
   setSelectedVendor,
   resetFilters,
-} = tableSlice.actions
+} = orderSlice.actions
 
-export default tableSlice.reducer
+export default orderSlice.reducer

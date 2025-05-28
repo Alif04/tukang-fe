@@ -205,30 +205,30 @@ const UpdateRefundCS: FC = () => {
 
     if (!refundValues.notes) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill refund notes form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!refundValues.reason) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill refund reason',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!refundValues.date_of_filing) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill refund date form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!refundFiles) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill refund file form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     }

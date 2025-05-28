@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useState, useEffect, FC, useRef} from 'react'
+import React, {useState, useEffect, FC, useRef, useCallback} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {useSelector, useDispatch} from 'react-redux'
 import {RootState} from '../../../../../store'
@@ -732,33 +732,40 @@ const ViewInvoiceHO: FC = () => {
   }
 
   // Export Template Excel
-  const exportTemplate = () => {
+  const exportTemplate = useCallback(() => {
     setLoadingTemplate(true)
 
     axios
-      .get(
-        `${apiUrl}/invoices/export-excel${userRole === 'Finance' ? `?status=5,6` : ''}${
-          dateFrom ? `&date_from=${dateFrom}` : ''
-        }${dateTo ? `&date_to=${dateTo}` : ''}`,
-        {
-          method: 'GET',
-          responseType: 'blob',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          },
-        }
-      )
+      .get(`${apiUrl}/invoices/export-excel`, {
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+        params: {
+          date_from: dateFrom,
+          date_to: dateTo,
+          vendor_id: selectedVendor ? selectedVendor.value : null,
+        },
+      })
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `Invoice.xlsx`)
+        link.setAttribute('download', `Invoice Periode ${dateFrom} - ${dateTo}.xlsx`)
         document.body.appendChild(link)
         link.click()
-
+        link.remove()
+        window.URL.revokeObjectURL(url)
+      })
+      .catch((error) => {
+        console.error('Export failed:', error)
+      })
+      .finally(() => {
         setLoadingTemplate(false)
       })
-  }
+
+    // eslint-disable-next-line
+  }, [dateFrom, dateTo, selectedVendor?.value])
 
   // Handle Update Status
   const handleUpdateInvoice = async (id: number, status: number, statusName: string) => {

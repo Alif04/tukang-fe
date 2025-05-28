@@ -5,7 +5,7 @@ interface VendorItem {
   label: string
 }
 
-interface invoiceSlice {
+interface invoiceFilter {
   queryParams: string
   searchFilter: string
   currentPage: number
@@ -15,7 +15,7 @@ interface invoiceSlice {
   selectedVendor: VendorItem
 }
 
-const initialState: invoiceSlice = {
+const initialState: invoiceFilter = {
   queryParams: '',
   searchFilter: '',
   currentPage: 1,
