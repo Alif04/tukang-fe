@@ -19,7 +19,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 import {formatDate, formatDateWithTime} from '../../../../../_metronic/helpers'
 
 interface Order {
-  id: any
+  id: string
   title: string
   start: string
   end: string
@@ -39,6 +39,7 @@ const ViewCalendarHO: React.FC = () => {
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(false)
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+
   const [order, setOrder] = useState<Order[]>([
     {
       id: '',
@@ -50,6 +51,7 @@ const ViewCalendarHO: React.FC = () => {
     },
   ])
 
+  const [orderDetail, setOrderDetail] = useState<any>(null)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [initialView] = useState(window.innerWidth <= 768 ? 'listMonth' : 'dayGridMonth')
 
@@ -156,7 +158,7 @@ const ViewCalendarHO: React.FC = () => {
             end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
             order_status: orderStatus,
             className: contextualColor,
-            order_detail: item,
+            // order_detail: item,
           }
         })
 
@@ -175,12 +177,42 @@ const ViewCalendarHO: React.FC = () => {
     }
   }
 
+  const getOrderDetail = async (orderId: string) => {
+    if (!orderId) return
+
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${orderId}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+          setOrderDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     if (dateFrom && dateTo) {
       getOrder(dateFrom, dateTo)
     }
     // eslint-disable-next-line
   }, [dateFrom, dateTo])
+
+  useEffect(() => {
+    if (selectedOrder) {
+      getOrderDetail(selectedOrder.id)
+    }
+
+    // eslint-disable-next-line
+  }, [selectedOrder])
 
   const handleDatesSet = (arg: any) => {
     const start = dayjs(arg.view.currentStart).format('YYYY-MM-DD')
@@ -431,8 +463,8 @@ const ViewCalendarHO: React.FC = () => {
           initialView={initialView}
           displayEventTime={false}
           eventDisplay=''
-          dayMaxEventRows={3}
-          dayMaxEvents={3}
+          dayMaxEventRows={12}
+          dayMaxEvents={12}
           eventOrder=''
           height={'auto'}
           weekends={true}
@@ -462,14 +494,14 @@ const ViewCalendarHO: React.FC = () => {
                 <Form.Label className='fs-4 fw-bold'>
                   Nama Toko :{' '}
                   <span className='fs-4 ms-2 fw-normal'>
-                    {selectedOrder?.order_detail?.store?.store_name ?? ''}
+                    {orderDetail?.store?.store_name ?? ''}
                   </span>
                 </Form.Label>
               </Col>
 
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Label className='fs-4 fw-bold'>
-                  Order ID : <span className='fs-4 ms-2 fw-normal'>{selectedOrder?.id}</span>
+                  Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id}</span>
                 </Form.Label>
               </Col>
 
@@ -478,7 +510,7 @@ const ViewCalendarHO: React.FC = () => {
                   <Form.Label className='fs-4 fw-bold'>
                     Receipt Number :
                     <span className='fs-4 ms-2 fw-normal'>
-                      {selectedOrder?.order_detail?.receipt_number ?? '-'}
+                      {orderDetail?.receipt_number ?? '-'}
                     </span>
                   </Form.Label>
                 </Col>
@@ -487,7 +519,7 @@ const ViewCalendarHO: React.FC = () => {
                   <Form.Label className='fs-4 fw-bold'>
                     Order Status :
                     <span className='fs-4 ms-2 fw-bold text-success'>
-                      {selectedOrder?.order_detail?.status?.description ?? '-'}
+                      {orderDetail?.status?.description ?? '-'}
                     </span>
                   </Form.Label>
                 </Col>
@@ -506,9 +538,7 @@ const ViewCalendarHO: React.FC = () => {
                       </Form.Label>
 
                       <Col sm='7'>
-                        <p className='fs-7'>
-                          {selectedOrder?.order_detail?.members?.member_number}
-                        </p>
+                        <p className='fs-7'>{orderDetail?.members?.member_number}</p>
                       </Col>
                     </Form.Group>
 
@@ -518,7 +548,7 @@ const ViewCalendarHO: React.FC = () => {
                       </Form.Label>
 
                       <Col sm='7'>
-                        <p className='fs-7'>{selectedOrder?.order_detail?.members?.full_name}</p>
+                        <p className='fs-7'>{orderDetail?.members?.full_name}</p>
                       </Col>
                     </Form.Group>
 
@@ -528,7 +558,7 @@ const ViewCalendarHO: React.FC = () => {
                       </Form.Label>
 
                       <Col sm='7'>
-                        <p className='fs-7'>{selectedOrder?.order_detail?.project_address}</p>
+                        <p className='fs-7'>{orderDetail?.project_address}</p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -541,8 +571,8 @@ const ViewCalendarHO: React.FC = () => {
 
                       <Col sm='8'>
                         <p className='fs-7'>
-                          {!selectedOrder?.order_detail?.project_number.startsWith('0')
-                            ? `+62${selectedOrder?.order_detail?.members?.whatsapp_number}`
+                          {!orderDetail?.project_number.startsWith('0')
+                            ? `+62${orderDetail?.members?.whatsapp_number}`
                             : '-'}
                         </p>
                       </Col>
@@ -554,8 +584,8 @@ const ViewCalendarHO: React.FC = () => {
                       </Form.Label>
                       <Col sm='8'>
                         <p className='fs-7'>
-                          {selectedOrder?.order_detail?.project_number.startsWith('0')
-                            ? selectedOrder?.order_detail?.members?.phone_number
+                          {orderDetail?.project_number.startsWith('0')
+                            ? orderDetail?.members?.phone_number
                             : '-'}
                         </p>
                       </Col>
@@ -566,7 +596,7 @@ const ViewCalendarHO: React.FC = () => {
                         Alamat Email :
                       </Form.Label>
                       <Col sm='8'>
-                        <p className='fs-7'>{selectedOrder?.order_detail?.members?.email} </p>
+                        <p className='fs-7'>{orderDetail?.members?.email} </p>
                       </Col>
                     </Form.Group>
                   </Col>
@@ -582,7 +612,7 @@ const ViewCalendarHO: React.FC = () => {
                   </Form.Label>
 
                   <Col sm='8'>
-                    <p className='fs-7'>{selectedOrder?.order_detail?.sales?.id} </p>
+                    <p className='fs-7'>{orderDetail?.sales?.id} </p>
                   </Col>
                 </Form.Group>
 
@@ -592,7 +622,7 @@ const ViewCalendarHO: React.FC = () => {
                   </Form.Label>
 
                   <Col sm='8'>
-                    <p className='fs-7'>{selectedOrder?.order_detail?.sales?.full_name} </p>
+                    <p className='fs-7'>{orderDetail?.sales?.full_name} </p>
                   </Col>
                 </Form.Group>
               </Col>
@@ -607,7 +637,7 @@ const ViewCalendarHO: React.FC = () => {
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Form.Label column>
                     {(() => {
-                      if (selectedOrder?.order_detail?.payment_type === 'survey') {
+                      if (orderDetail?.payment_type === 'survey') {
                         return `Tanggal Request Survey`
                       } else {
                         return `Tanggal request pemasangan`
@@ -615,19 +645,17 @@ const ViewCalendarHO: React.FC = () => {
                     })()}
                   </Form.Label>
                   <Col>
-                    <p className='fs-7 p-0'>
-                      {formatDate(selectedOrder?.order_detail?.request_survey)}
-                    </p>
+                    <p className='fs-7 p-0'>{formatDate(orderDetail?.request_survey)}</p>
                   </Col>
                 </Form.Group>
 
-                {selectedOrder?.order_detail?.payment_type === 'survey' && (
+                {orderDetail?.payment_type === 'survey' && (
                   <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                     <Form.Label column>Tanggal request pemasangan</Form.Label>
                     <Col>
                       <p className='fs-7 p-0'>
-                        {selectedOrder?.order_detail?.request_work
-                          ? formatDate(selectedOrder?.order_detail?.request_work)
+                        {orderDetail?.request_work
+                          ? formatDate(orderDetail?.request_work)
                           : 'Tanggal belum diset oleh toko'}
                       </p>
                     </Col>
@@ -637,9 +665,7 @@ const ViewCalendarHO: React.FC = () => {
                 <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
                   <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
                   <Col>
-                    <p className='fs-7 p-0'>
-                      {selectedOrder?.order_detail?.vendor?.company_name ?? '-'}
-                    </p>
+                    <p className='fs-7 p-0'>{orderDetail?.vendor?.company_name ?? '-'}</p>
                   </Col>
                 </Form.Group>
 
@@ -648,13 +674,11 @@ const ViewCalendarHO: React.FC = () => {
                   <Col>
                     <p className='fs-7 p-0'>
                       {(() => {
-                        if (selectedOrder?.order_detail?.payment_type === 'survey') {
+                        if (orderDetail?.payment_type === 'survey') {
                           return `Berbayar & Survey`
-                        } else if (selectedOrder?.order_detail?.payment_type === 'gratis') {
+                        } else if (orderDetail?.payment_type === 'gratis') {
                           return `Gratis`
-                        } else if (
-                          selectedOrder?.order_detail?.payment_type === 'pemasangan_tanpa_survey'
-                        ) {
+                        } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
                           return `Berbayar & Pemasangan Tanpa Survey`
                         } else {
                           return ``
@@ -669,24 +693,21 @@ const ViewCalendarHO: React.FC = () => {
             {/* Newest */}
             {(() => {
               if (
-                (selectedOrder?.order_detail?.payment_type === 'survey' &&
-                  selectedOrder?.order_detail?.work_orders === null &&
-                  selectedOrder?.order_detail?.quotation?.length === 0) ||
-                (selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.work_order_items
-                  .length === 0 &&
-                  selectedOrder?.order_detail?.payment_type === 'survey' &&
-                  selectedOrder?.order_detail?.quotation?.length === 0)
+                (orderDetail?.payment_type === 'survey' &&
+                  orderDetail?.work_orders === null &&
+                  orderDetail?.quotation?.length === 0) ||
+                (orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length === 0 &&
+                  orderDetail?.payment_type === 'survey' &&
+                  orderDetail?.quotation?.length === 0)
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {selectedOrder?.order_detail?.is_overdistance === 1 && (
-                      <>
-                        <Form.Text className='fs-8 text-dark'>
-                          *Order ini lebih dari{' '}
-                          <span className='fw-bolder text-decoration-underline'>10 KM</span> dari
-                          toko sehingga dikenakan biaya tambahan
-                        </Form.Text>
-                      </>
+                    {orderDetail?.is_overdistance === 1 && (
+                      <Form.Text className='fs-8 text-dark'>
+                        *Order ini lebih dari{' '}
+                        <span className='fw-bolder text-decoration-underline'>10 KM</span> dari toko
+                        sehingga dikenakan biaya tambahan
+                      </Form.Text>
                     )}
 
                     <table className='table hover responsive'>
@@ -700,16 +721,14 @@ const ViewCalendarHO: React.FC = () => {
                       </thead>
 
                       <tbody>
-                        {selectedOrder?.order_detail?.m_order_details?.map(
-                          (item: any, index: any) => (
-                            <tr key={`${index} - order_detail`}>
-                              <td>{item?.item_code}</td>
-                              <td>{item?.item_name}</td>
-                              <td>{item?.item_notes}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                            </tr>
-                          )
-                        )}
+                        {orderDetail?.order_details?.map((item: any, index: any) => (
+                          <tr key={`${index} - order_detail`}>
+                            <td>{item?.item_code}</td>
+                            <td>{item?.item_name}</td>
+                            <td>{item?.item_notes}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                          </tr>
+                        ))}
 
                         <tr>
                           <td colSpan={3} className='text-end fw-bolder'>
@@ -719,7 +738,7 @@ const ViewCalendarHO: React.FC = () => {
                           <td className=' fw-bolder'>Rp. 99.000</td>
                         </tr>
 
-                        {selectedOrder?.order_detail?.is_overdistance === 1 && (
+                        {orderDetail?.is_overdistance === 1 && (
                           <>
                             <tr>
                               <td colSpan={3} className='text-end fw-bolder align-middle'>
@@ -727,7 +746,7 @@ const ViewCalendarHO: React.FC = () => {
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
-                                selectedOrder?.order_detail?.additional_fee
+                                orderDetail?.additional_fee
                               ).toLocaleString('id')}`}</td>
                             </tr>
 
@@ -737,7 +756,7 @@ const ViewCalendarHO: React.FC = () => {
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
-                                selectedOrder?.order_detail?.grand_total
+                                orderDetail?.grand_total
                               ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
@@ -748,12 +767,11 @@ const ViewCalendarHO: React.FC = () => {
                 )
               } else if (
                 ['SURVEYREQ', 'TUKANGSURVEY', 'SURVEYSTART', 'SURVEYDONE'].includes(
-                  selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.status?.category
+                  orderDetail?.work_orders?.work_order_status[0]?.status?.category
                 ) &&
-                selectedOrder?.order_detail?.payment_type === 'survey' &&
-                selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.work_order_items
-                  .length >= 1 &&
-                selectedOrder?.order_detail?.quotation?.length === 0
+                orderDetail?.payment_type === 'survey' &&
+                orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length >= 1 &&
+                orderDetail?.quotation?.length === 0
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -767,9 +785,8 @@ const ViewCalendarHO: React.FC = () => {
                       </thead>
 
                       <tbody>
-                        {selectedOrder?.order_detail?.work_orders?.work_order_status[0]
-                          ?.work_order_items.length ? (
-                          selectedOrder?.order_detail.work_orders.work_order_status[0].work_order_items.map(
+                        {orderDetail?.work_orders?.work_order_status[0]?.work_order_items.length ? (
+                          orderDetail?.work_orders.work_order_status[0].work_order_items.map(
                             (item: any, index: any) => (
                               <tr key={`${index}-work_order_detail`}>
                                 <td>
@@ -793,13 +810,13 @@ const ViewCalendarHO: React.FC = () => {
                   </div>
                 )
               } else if (
-                selectedOrder?.order_detail?.quotation?.length >= 1 &&
-                selectedOrder?.order_detail?.payment_type === 'survey'
+                orderDetail?.quotation?.length >= 1 &&
+                orderDetail?.payment_type === 'survey'
               ) {
                 return (
                   <div className='table-warranty-content'>
                     <div className='table-warranty-content'>
-                      {selectedOrder?.order_detail?.is_overdistance === 1 && (
+                      {orderDetail?.is_overdistance === 1 && (
                         <>
                           <Form.Text className='fs-8 text-dark'>
                             *Order ini lebih dari{' '}
@@ -819,16 +836,14 @@ const ViewCalendarHO: React.FC = () => {
                         </thead>
 
                         <tbody>
-                          {selectedOrder?.order_detail?.m_order_details?.map(
-                            (item: any, index: any) => (
-                              <tr key={`${index} - order_detail`}>
-                                <td>{item?.item_code}</td>
-                                <td>{item?.item_name}</td>
-                                <td>{item?.item_notes}</td>
-                                <td>{item?.quantity ?? 0}</td>
-                              </tr>
-                            )
-                          )}
+                          {orderDetail?.order_details?.map((item: any, index: any) => (
+                            <tr key={`${index} - order_detail`}>
+                              <td>{item?.item_code}</td>
+                              <td>{item?.item_name}</td>
+                              <td>{item?.item_notes}</td>
+                              <td>{item?.quantity ?? 0}</td>
+                            </tr>
+                          ))}
 
                           <tr>
                             <td colSpan={3} className='text-end fw-bolder'>
@@ -838,7 +853,7 @@ const ViewCalendarHO: React.FC = () => {
                             <td className=' fw-bolder'>Rp. 99.000</td>
                           </tr>
 
-                          {selectedOrder?.order_detail?.is_overdistance === 1 && (
+                          {orderDetail?.is_overdistance === 1 && (
                             <>
                               <tr>
                                 <td colSpan={3} className='text-end fw-bolder align-middle'>
@@ -846,7 +861,7 @@ const ViewCalendarHO: React.FC = () => {
                                 </td>
 
                                 <td className=' fw-bolder'>{`Rp. ${Number(
-                                  selectedOrder?.order_detail?.additional_fee
+                                  orderDetail?.additional_fee
                                 ).toLocaleString('id')}`}</td>
                               </tr>
 
@@ -856,7 +871,7 @@ const ViewCalendarHO: React.FC = () => {
                                 </td>
 
                                 <td className=' fw-bolder'>{`Rp. ${Number(
-                                  selectedOrder?.order_detail?.grand_total
+                                  orderDetail?.grand_total
                                 ).toLocaleString('id')}`}</td>
                               </tr>
                             </>
@@ -865,7 +880,7 @@ const ViewCalendarHO: React.FC = () => {
                       </table>
                     </div>
 
-                    {selectedOrder?.order_detail?.quotation?.[0]?.quotation_special === 0 ? (
+                    {orderDetail?.quotation?.[0]?.quotation_special === 0 ? (
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
@@ -888,7 +903,7 @@ const ViewCalendarHO: React.FC = () => {
                         </thead>
 
                         <tbody>
-                          {selectedOrder?.order_detail?.quotation[0]?.quotation_details
+                          {orderDetail?.quotation[0]?.quotation_details
                             .filter((x: any) => x.item_type === 2)
                             .map((item: any, index: any) => (
                               <tr key={`${index}-quotation`}>
@@ -909,13 +924,12 @@ const ViewCalendarHO: React.FC = () => {
                       <>
                         <div className='fs-6 fw-bold mb-2'>Jasa Pemasangan Tahap 1</div>
 
-                        {selectedOrder?.order_detail?.quotation[0]?.quotation_receipt[0]
-                          ?.receipt_quotation &&
-                          selectedOrder?.order_detail?.quotation[0]?.quotation_special === 1 && (
+                        {orderDetail?.quotation[0]?.quotation_receipt[0]?.receipt_quotation &&
+                          orderDetail?.quotation[0]?.quotation_special === 1 && (
                             <div className='fs-6 fw-bold'>
                               Receipt Quotation Tahap 1 :{' '}
                               <span className='fs-6 fw-semibold'>
-                                {selectedOrder?.order_detail?.quotation[0]?.quotation_receipt[0]
+                                {orderDetail?.quotation[0]?.quotation_receipt[0]
                                   ?.receipt_quotation ?? '-'}
                               </span>
                             </div>
@@ -943,7 +957,7 @@ const ViewCalendarHO: React.FC = () => {
                           </thead>
 
                           <tbody>
-                            {selectedOrder?.order_detail?.quotation[0]?.quotation_details
+                            {orderDetail?.quotation[0]?.quotation_details
                               .filter((x: any) => x.item_type === 2 && x.work_step === 1)
                               .map((item: any, index: any) => (
                                 <tr key={`${index}-quotation`}>
@@ -965,13 +979,12 @@ const ViewCalendarHO: React.FC = () => {
 
                         <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 2</div>
 
-                        {selectedOrder?.order_detail?.quotation[0]?.quotation_receipt[1]
-                          ?.receipt_quotation &&
-                          selectedOrder?.order_detail?.quotation[0]?.quotation_special === 1 && (
+                        {orderDetail?.quotation[0]?.quotation_receipt[1]?.receipt_quotation &&
+                          orderDetail?.quotation[0]?.quotation_special === 1 && (
                             <div className='fs-6 fw-bold'>
                               Receipt Quotation Tahap 1 :{' '}
                               <span className='fs-6 fw-semibold'>
-                                {selectedOrder?.order_detail?.quotation[0]?.quotation_receipt[1]
+                                {orderDetail?.quotation[0]?.quotation_receipt[1]
                                   ?.receipt_quotation ?? '-'}
                               </span>
                             </div>
@@ -999,7 +1012,7 @@ const ViewCalendarHO: React.FC = () => {
                           </thead>
 
                           <tbody>
-                            {selectedOrder?.order_detail?.quotation[0]?.quotation_details
+                            {orderDetail?.quotation[0]?.quotation_details
                               .filter((x: any) => x.item_type === 2 && x.work_step === 2)
                               .map((item: any, index: any) => (
                                 <tr key={`${index}-quotation`}>
@@ -1021,13 +1034,12 @@ const ViewCalendarHO: React.FC = () => {
 
                         <div className='fs-6 fw-bold'>Jasa Pemasangan Tahap 3</div>
 
-                        {selectedOrder?.order_detail?.quotation[0]?.quotation_receipt[2]
-                          ?.receipt_quotation &&
-                          selectedOrder?.order_detail?.quotation[0]?.quotation_special === 1 && (
+                        {orderDetail?.quotation[0]?.quotation_receipt[2]?.receipt_quotation &&
+                          orderDetail?.quotation[0]?.quotation_special === 1 && (
                             <div className='fs-6 fw-bold'>
                               Receipt Quotation Tahap 1 :{' '}
                               <span className='fs-6 fw-semibold'>
-                                {selectedOrder?.order_detail?.quotation[0]?.quotation_receipt[2]
+                                {orderDetail?.quotation[0]?.quotation_receipt[2]
                                   ?.receipt_quotation ?? '-'}
                               </span>
                             </div>
@@ -1055,7 +1067,7 @@ const ViewCalendarHO: React.FC = () => {
                           </thead>
 
                           <tbody>
-                            {selectedOrder?.order_detail?.quotation[0]?.quotation_details
+                            {orderDetail?.quotation[0]?.quotation_details
                               .filter((x: any) => x.item_type === 2 && x.work_step === 3)
                               .map((item: any, index: any) => (
                                 <tr key={`${index}-quotation`}>
@@ -1099,7 +1111,7 @@ const ViewCalendarHO: React.FC = () => {
                       </thead>
 
                       <tbody>
-                        {selectedOrder?.order_detail?.quotation[0]?.quotation_details
+                        {orderDetail?.quotation[0]?.quotation_details
                           .filter((x: any) => x.item_type === 1)
                           .map((item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
@@ -1120,7 +1132,7 @@ const ViewCalendarHO: React.FC = () => {
                             Total Jasa
                           </td>
                           <td className='fw-bolder'>{`Rp. ${parseInt(
-                            selectedOrder?.order_detail?.quotation[0]?.quotation_details
+                            orderDetail?.quotation[0]?.quotation_details
                               .filter((x: any) => x.item_type === 2)
                               .reduce(
                                 (total: any, item: any) => total + parseInt(item.final_price || 0),
@@ -1134,7 +1146,7 @@ const ViewCalendarHO: React.FC = () => {
                             Total Material
                           </td>
                           <td className='fw-bolder'>{`Rp. ${parseInt(
-                            selectedOrder?.order_detail?.quotation[0]?.quotation_details
+                            orderDetail?.quotation[0]?.quotation_details
                               .filter((x: any) => x.item_type === 1)
                               .reduce(
                                 (total: any, item: any) => total + parseInt(item.final_price || 0),
@@ -1149,7 +1161,7 @@ const ViewCalendarHO: React.FC = () => {
                           </td>
                           <td className=' fw-bolder'>
                             {`Rp. ${parseInt(
-                              selectedOrder?.order_detail?.quotation[0]?.quotation_disc ?? 0
+                              orderDetail?.quotation[0]?.quotation_disc ?? 0
                             ).toLocaleString('id')}`}
                           </td>
                         </tr>
@@ -1157,19 +1169,17 @@ const ViewCalendarHO: React.FC = () => {
                         <tr>
                           <td colSpan={3} className='text-end fw-bolder'>
                             {`${
-                              selectedOrder?.order_detail?.quotation[0]?.promotion
-                                ? `Additional Promotion (${selectedOrder?.order_detail?.quotation[0]?.promotion?.name})`
+                              orderDetail?.quotation[0]?.promotion
+                                ? `Additional Promotion (${orderDetail?.quotation[0]?.promotion?.name})`
                                 : `Additional Promotion`
                             }`}
                           </td>
 
                           <td className=' fw-bolder'>
-                            {selectedOrder?.order_detail?.quotation[0]?.promotion
-                              ?.promotion_type === 1
-                              ? `${selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion} %`
+                            {orderDetail?.quotation[0]?.promotion?.promotion_type === 1
+                              ? `${orderDetail?.quotation[0]?.promotion?.promotion} %`
                               : `Rp. ${parseInt(
-                                  selectedOrder?.order_detail?.quotation[0]?.promotion?.promotion ??
-                                    0
+                                  orderDetail?.quotation[0]?.promotion?.promotion ?? 0
                                 ).toLocaleString('id')}`}
                           </td>
                         </tr>
@@ -1180,7 +1190,7 @@ const ViewCalendarHO: React.FC = () => {
                           </td>
                           <td className=' fw-bolder'>
                             {`Rp. ${parseInt(
-                              selectedOrder?.order_detail?.quotation[0]?.quotation_grand_total ?? 0
+                              orderDetail?.quotation[0]?.quotation_grand_total ?? 0
                             ).toLocaleString('id')}`}
                           </td>
                         </tr>
@@ -1189,12 +1199,12 @@ const ViewCalendarHO: React.FC = () => {
                   </div>
                 )
               } else if (
-                selectedOrder?.order_detail?.payment_type === 'gratis' ||
-                selectedOrder?.order_detail?.payment_type === 'pemasangan_tanpa_survey'
+                orderDetail?.payment_type === 'gratis' ||
+                orderDetail?.payment_type === 'pemasangan_tanpa_survey'
               ) {
                 return (
                   <div className='table-warranty-content'>
-                    {selectedOrder?.order_detail?.is_overdistance === 1 && (
+                    {orderDetail?.is_overdistance === 1 && (
                       <>
                         <Form.Text className='fs-8 text-dark'>
                           *Order ini lebih dari{' '}
@@ -1211,7 +1221,7 @@ const ViewCalendarHO: React.FC = () => {
                           <th>Item Name</th>
                           <th>Nama Pemasangan</th>
                           <th>QTY Pemasangan</th>
-                          {!(selectedOrder?.order_detail?.payment_type === 'gratis') && (
+                          {!(orderDetail?.payment_type === 'gratis') && (
                             <>
                               <th>Harga Jasa</th>
                               <th>Jumlah</th>
@@ -1220,41 +1230,35 @@ const ViewCalendarHO: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedOrder?.order_detail?.m_order_details?.map(
-                          (item: any, index: any) => (
-                            <tr key={`${index} - order_detail`}>
-                              <td>{item?.item_code}</td>
-                              <td>{item?.item_name}</td>
-                              <td>{item?.item?.service_name}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              {!(selectedOrder?.order_detail?.payment_type === 'gratis') && (
-                                <>
-                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                </>
-                              )}
-                            </tr>
-                          )
-                        )}
+                        {orderDetail?.order_details?.map((item: any, index: any) => (
+                          <tr key={`${index} - order_detail`}>
+                            <td>{item?.item_code}</td>
+                            <td>{item?.item_name}</td>
+                            <td>{item?.item?.service_name}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            {!(orderDetail?.payment_type === 'gratis') && (
+                              <>
+                                <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                  'id'
+                                )}`}</td>
+                                <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                              </>
+                            )}
+                          </tr>
+                        ))}
 
-                        {selectedOrder?.order_detail?.is_overdistance === 1 && (
+                        {orderDetail?.is_overdistance === 1 && (
                           <>
                             <tr>
                               <td
-                                colSpan={
-                                  selectedOrder?.order_detail?.payment_type !== 'gratis' ? 5 : 3
-                                }
+                                colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
                                 className='text-end fw-bolder align-middle'
                               >
                                 Biaya Tambahan
                               </td>
 
                               <td className=' fw-bolder'>{`Rp. ${Number(
-                                selectedOrder?.order_detail?.additional_fee
+                                orderDetail?.additional_fee
                               ).toLocaleString('id')}`}</td>
                             </tr>
                           </>
@@ -1262,14 +1266,14 @@ const ViewCalendarHO: React.FC = () => {
 
                         <tr>
                           <td
-                            colSpan={selectedOrder?.order_detail?.payment_type !== 'gratis' ? 5 : 3}
+                            colSpan={orderDetail?.payment_type !== 'gratis' ? 5 : 3}
                             className='text-end fw-bolder'
                           >
                             Grand Total
                           </td>
 
                           <td className=' fw-bolder'>{`Rp. ${Number(
-                            selectedOrder?.order_detail?.grand_total
+                            orderDetail?.grand_total
                           ).toLocaleString('id')}`}</td>
                         </tr>
                       </tbody>
@@ -1280,7 +1284,7 @@ const ViewCalendarHO: React.FC = () => {
             })()}
           </Row>
 
-          {selectedOrder?.order_detail?.quotation?.[0]?.quotation_special === 1 && (
+          {orderDetail?.quotation?.[0]?.quotation_special === 1 && (
             <Row className='information-detail mb-3'>
               <Col>
                 <div className='fs-3 fw-bold'>Preview Pembayaran</div>
@@ -1322,14 +1326,11 @@ const ViewCalendarHO: React.FC = () => {
                     <p className='fs-5 fw-bold'>Survey dikerjakan pada:</p>
 
                     <p className='fs-7 p-0'>
-                      {selectedOrder?.order_detail?.payment_type === 'survey' ? (
+                      {orderDetail?.payment_type === 'survey' ? (
                         <>
-                          {selectedOrder?.order_detail?.work_orders?.work_order_status.length ? (
+                          {orderDetail?.work_orders?.work_order_status.length ? (
                             <p className='fs-7'>
-                              Tanggal :{' '}
-                              {formatDateWithTime(
-                                selectedOrder?.order_detail?.work_orders?.survey_date
-                              )}
+                              Tanggal : {formatDateWithTime(orderDetail?.work_orders?.survey_date)}
                             </p>
                           ) : (
                             <p className='fs-7'>Jadwal belum ditentukan oleh vendor</p>
@@ -1344,11 +1345,11 @@ const ViewCalendarHO: React.FC = () => {
                   <div className='detail-info mb-3'>
                     <p className='fs-5 fw-bold'>Oleh:</p>
 
-                    {selectedOrder?.order_detail?.payment_type === 'survey' ? (
+                    {orderDetail?.payment_type === 'survey' ? (
                       <>
-                        {selectedOrder?.order_detail?.work_orders?.work_order_status.length ? (
+                        {orderDetail?.work_orders?.work_order_status.length ? (
                           <p className='fs-7'>
-                            {selectedOrder?.order_detail?.work_orders?.work_order_tukang
+                            {orderDetail?.work_orders?.work_order_tukang
                               .filter((x: any) => x.type === 1)
                               .map((item: any) => item?.tukang?.full_name)
                               .join(', ')}
@@ -1365,15 +1366,15 @@ const ViewCalendarHO: React.FC = () => {
                   <div className='detail-info mb-3'>
                     <p className='fs-5 fw-bold'>Sesi:</p>
 
-                    {selectedOrder?.order_detail?.work_orders?.work_order_status.length ? (
+                    {orderDetail?.work_orders?.work_order_status.length ? (
                       <p className='fs-7'>
-                        {selectedOrder?.order_detail?.work_orders?.session === 1
+                        {orderDetail?.work_orders?.session === 1
                           ? 'Sesi Pagi'
-                          : selectedOrder?.order_detail?.work_orders?.session === 2
+                          : orderDetail?.work_orders?.session === 2
                           ? 'Sesi Siang'
-                          : selectedOrder?.order_detail?.work_orders?.session === 3
+                          : orderDetail?.work_orders?.session === 3
                           ? 'Sesi Sore'
-                          : selectedOrder?.order_detail?.work_orders?.session === 4
+                          : orderDetail?.work_orders?.session === 4
                           ? 'Sesi Malam'
                           : 'Sesi belum ditentukan oleh vendor'}
                       </p>
@@ -1393,24 +1394,20 @@ const ViewCalendarHO: React.FC = () => {
                   <p className='fs-5 fw-bold'>Pekerjaan dilakukan pada:</p>
 
                   <div className='detail-info mb-3'>
-                    {selectedOrder?.order_detail?.work_orders !== null &&
-                    selectedOrder?.order_detail?.work_orders?.work_start_date !== null ? (
+                    {orderDetail?.work_orders !== null &&
+                    orderDetail?.work_orders?.work_start_date !== null ? (
                       <div>
                         <p className='fs-7'>
                           MULAI{' '}
                           <span className='ms-5'>
-                            {formatDateWithTime(
-                              selectedOrder?.order_detail?.work_orders?.work_start_date
-                            )}
+                            {formatDateWithTime(orderDetail?.work_orders?.work_start_date)}
                           </span>
                         </p>
 
                         <p className='fs-7'>
                           SELESAI{' '}
                           <span className='ms-3'>
-                            {formatDateWithTime(
-                              selectedOrder?.order_detail?.work_orders?.work_end_date
-                            )}
+                            {formatDateWithTime(orderDetail?.work_orders?.work_end_date)}
                           </span>
                         </p>
                       </div>
@@ -1422,11 +1419,10 @@ const ViewCalendarHO: React.FC = () => {
                   <div className='detail-info mb-3'>
                     <p className='fs-5 fw-bold'>Oleh:</p>
 
-                    {selectedOrder?.order_detail?.work_orders?.work_order_tukang?.filter(
-                      (x: any) => x.type === 2
-                    )?.length ? (
+                    {orderDetail?.work_orders?.work_order_tukang?.filter((x: any) => x.type === 2)
+                      ?.length ? (
                       <p className='fs-7'>
-                        {selectedOrder?.order_detail?.work_orders?.work_order_tukang
+                        {orderDetail?.work_orders?.work_order_tukang
                           ?.filter((x: any) => x.type === 2)
                           ?.map((item: any) => item?.tukang?.full_name)
                           .join(', ')}
@@ -1439,15 +1435,15 @@ const ViewCalendarHO: React.FC = () => {
                   <div className='detail-info mb-3'>
                     <p className='fs-5 fw-bold'>Sesi:</p>
 
-                    {selectedOrder?.order_detail?.work_orders?.work_order_status.length ? (
+                    {orderDetail?.work_orders?.work_order_status.length ? (
                       <p className='fs-7'>
-                        {selectedOrder?.order_detail?.work_orders?.session === 1
+                        {orderDetail?.work_orders?.session === 1
                           ? 'Sesi Pagi'
-                          : selectedOrder?.order_detail?.work_orders?.session === 2
+                          : orderDetail?.work_orders?.session === 2
                           ? 'Sesi Siang'
-                          : selectedOrder?.order_detail?.work_orders?.session === 3
+                          : orderDetail?.work_orders?.session === 3
                           ? 'Sesi Sore'
-                          : selectedOrder?.order_detail?.work_orders?.session === 4
+                          : orderDetail?.work_orders?.session === 4
                           ? 'Sesi Malam'
                           : 'Sesi belum ditentukan oleh vendor'}
                       </p>
@@ -1467,9 +1463,9 @@ const ViewCalendarHO: React.FC = () => {
                 className='order-history-timeline'
                 current={orderHistory.findIndex((step) =>
                   step.value.includes(
-                    selectedOrder?.order_detail?.work_orders?.work_order_status.length > 0
-                      ? selectedOrder?.order_detail?.work_orders?.work_order_status[0]?.status?.id
-                      : selectedOrder?.order_detail?.project_status_id
+                    orderDetail?.work_orders?.work_order_status.length > 0
+                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.id
+                      : orderDetail?.project_status_id
                   )
                 )}
                 labelPlacement='vertical'
