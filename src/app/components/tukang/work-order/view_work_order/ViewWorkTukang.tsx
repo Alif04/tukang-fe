@@ -1,13 +1,23 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
+import {useSelector, useDispatch} from 'react-redux'
+import {RootState} from '../../../../../store'
+import {
+  setQueryParams,
+  setCurrentPage,
+  setPageSize,
+  setDateFrom,
+  setDateTo,
+  setSearchFilter,
+} from '../../../../../store/workOrderSlice'
 
 import './ViewWorkOrder.css'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
-import type {ColumnsType} from 'antd/es/table'
+
 import {LoadingOutlined} from '@ant-design/icons'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker, Image} from 'antd'
 import {
@@ -21,7 +31,6 @@ import {
   Modal,
   ListGroup,
 } from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
   faBook,
   faPen,
@@ -30,7 +39,11 @@ import {
   faFileImage,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
+
+import type {ColumnsType} from 'antd/es/table'
+import type {FilterValue, SorterResult, TableCurrentDataSource} from 'antd/es/table/interface'
 
 const {RangePicker} = DatePicker
 
@@ -43,9 +56,7 @@ interface DataType {
   work_order_id: number
   store_name: string
   date_order: string
-  // costumer_id: number
   costumer_name: string
-  // phone_number: number
   order_status: string
   order_status_label: string
 }
@@ -53,30 +64,32 @@ interface DataType {
 const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
+  // Session Storage
   const tukangId = localStorage.getItem('tukang_id') as number | null
 
+  // Loading
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [totalData, setTotalData] = useState<number>(0)
   const [loadData, setLoadData] = useState<boolean>(true)
 
+  // Table State
   const [workOrderData, setWorkOrderData] = useState<DataType[]>([])
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(10)
-  const [totalData, setTotalData] = useState<number>(0)
-
-  const [dateFrom, setDateFrom] = useState<any>(
-    new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+  const {queryParams, searchFilter, currentPage, pageSize, dateFrom, dateTo} = useSelector(
+    (state: RootState) => state.workOrder
   )
-  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
-  const [searchFilter, setSearchFilter] = useState<string>('')
 
-  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchFilter = event.target.value
-    setSearchFilter(updatedSearchFilter)
-  }
+  // Status
+  const storedStatus = localStorage.getItem('statusData')
+  const statusData = storedStatus ? JSON.parse(storedStatus) : []
+  const statusFilters = statusData.map((item: any) => ({
+    text: item.description,
+    value: item.value,
+  }))
 
+  // Columns Table
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
-
   const columns: ColumnsType<DataType> = [
     {
       title: 'Order ID',
@@ -105,16 +118,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.store_name.includes(String(value)),
       sorter: (a, b) => a.store_name.length - b.store_name.length,
     },
-    // {
-    //   title: 'No Member',
-    //   dataIndex: 'costumer_id',
-    //   key: 'costumer_id',
-    //   align: 'center',
-    //   width: 110,
-    //   className: 'col_order_id',
-    //   defaultSortOrder: 'descend',
-    //   sorter: (a, b) => a.costumer_id - b.costumer_id,
-    // },
     {
       title: 'Nama Customer',
       dataIndex: 'costumer_name',
@@ -124,42 +127,23 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       onFilter: (value, record) => record.costumer_name.includes(String(value)),
       sorter: (a, b) => a.costumer_name.length - b.costumer_name.length,
     },
-    // {
-    //   title: 'No. Telp/WA',
-    //   dataIndex: 'phone_number',
-    //   key: 'phone_number',
-    //   align: 'center',
-    //   width: 120,
-    //   sorter: (a, b) => a.phone_number - b.phone_number,
-    // },
     {
       title: 'Status Order',
       dataIndex: 'order_status_label',
       key: 'order_status_label',
       align: 'left',
+      filters: statusFilters,
+      filterMultiple: true,
       width: 120,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
 
         switch (orderStatus) {
-          case 'BOOK':
-            color = 'green'
+          case 'UNPAID':
+            color = 'red'
             break
-          case 'BOOKED':
-            color = 'lime'
-            break
-          case 'SURVEYREQ':
-            color = 'blue'
-            break
-          case 'SURVEYSTART':
-          case 'SURVEYDONE':
-          case 'QUOTE IN':
-          case 'QUOTE OUT':
-          case 'WORKREQ':
-          case 'WORKSTART':
-          case 'WORKEND':
-          case 'CISOUT':
+          case 'PAID':
             color = 'green'
             break
           default:
@@ -238,7 +222,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   ]
 
   const fetchWorkOrder = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&tukang_id=${tukangId}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {
@@ -248,11 +232,17 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
           'Access-Control-Allow-Origin': '*',
           'ngrok-skip-browser-warning': 'true',
         },
+        params: {
+          page: page,
+          take: pageSize,
+          tukang_id: tukangId || null,
+          date_from: dateFrom || null,
+          date_to: dateTo || null,
+        },
       })
 
       setCurrentPage(response?.data?.page ?? 1)
       setTotalData(response?.data?.total ?? 0)
-      setLoadData(false)
 
       return response.data.data
     } catch (error: any) {
@@ -266,6 +256,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       } else {
         console.log('error when fetching data', error)
       }
+    } finally {
+      setLoadData(false)
     }
   }
 
@@ -315,9 +307,20 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   }
 
   useEffect(() => {
-    fetchData(1, 10, '')
-    // eslint-disable-next-line
-  }, [])
+    fetchData(currentPage, pageSize, queryParams)
+  }, [currentPage, pageSize, queryParams])
+
+  // Table Handler
+  const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchFilter(e.target.value))
+  }
+
+  const handlePageChange = (page: number, size?: number) => {
+    dispatch(setCurrentPage(page))
+    if (size) {
+      dispatch(setPageSize(size))
+    }
+  }
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
     if (type === 'prev') {
@@ -329,22 +332,46 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     return originalElement
   }
 
-  const handleSubmitFilter = async () => {
-    setLoadingButton(true)
-    let queryparams = ``
+  const handleFilterTable = (
+    pagination: PaginationProps,
+    filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<DataType> | SorterResult<DataType>[],
+    extra: TableCurrentDataSource<DataType>
+  ) => {
+    const newQueryParams: string[] = []
 
-    const valueCheck = (key: any, value: any) => {
-      if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        queryparams += `${key}${value}`
+    if (filters.order_status_label && filters.order_status_label.length > 0) {
+      const statusFilters = filters.order_status_label.join(',')
+      newQueryParams.push(`&status=${statusFilters}`)
+    }
+
+    if (filters.payment_quotation) {
+      const quotationStatus = filters.payment_quotation[0]
+      if (quotationStatus) {
+        newQueryParams.push(`&is_receipt_quotation=${quotationStatus}`)
       }
     }
 
-    valueCheck(`&search=`, searchFilter)
+    const finalQueryParams = newQueryParams.join('')
 
-    const data = await ViewWorkOrder(1, 10, queryparams)
-    setWorkOrderData(data)
+    dispatch(setQueryParams(finalQueryParams))
+    dispatch(setCurrentPage(1))
 
-    setLoadingButton(false)
+    fetchData(currentPage, pageSize, finalQueryParams)
+  }
+
+  const handleSubmitFilter = async () => {
+    setLoadingButton(true)
+    dispatch(setCurrentPage(1))
+
+    try {
+      const data = await ViewWorkOrder(1, 10, queryParams)
+      setWorkOrderData(data)
+    } catch (error) {
+      console.error('Error getting order list data:', error)
+    } finally {
+      setLoadingButton(false)
+    }
   }
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -489,17 +516,20 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
               <RangePicker
                 format={'DD-MM-YYYY'}
                 className='date-range'
-                defaultValue={[dayjs().subtract(7, 'day'), dayjs()]}
+                value={[
+                  dateFrom ? dayjs(dateFrom, 'YYYY-MM-DD') : null,
+                  dateTo ? dayjs(dateTo, 'YYYY-MM-DD') : null,
+                ]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
-                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                    const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
 
-                    setDateFrom(dateFromFormatted)
-                    setDateTo(dateToFormatted)
+                    dispatch(setDateFrom(dateFromFormatted))
+                    dispatch(setDateTo(dateToFormatted))
                   } else {
-                    setDateFrom(new Date().toISOString().split('T')[0])
-                    setDateTo(new Date().toISOString().split('T')[0])
+                    dispatch(setDateFrom(''))
+                    dispatch(setDateTo(''))
                   }
                 }}
               />
@@ -509,6 +539,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
+                    value={searchFilter ?? ''}
                     onChange={handleChangeSearchFilter}
                   />
 
@@ -545,6 +576,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
                 sticky={true}
                 scroll={{x: 1200}}
                 pagination={false}
+                onChange={handleFilterTable}
               />
             </div>
           </Spin>

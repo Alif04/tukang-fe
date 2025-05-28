@@ -179,23 +179,23 @@ const NewRefundCS: FC = () => {
 
     if (!refundValues.notes) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill refund notes form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!refundValues.reason) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill refund reason',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     } else if (!refundFiles) {
       Swal.fire({
-        title: 'Error',
+        title: 'Warning',
         text: 'Please fill refund file form',
-        icon: 'error',
+        icon: 'warning',
       })
       valid = false
     }
@@ -310,8 +310,8 @@ const NewRefundCS: FC = () => {
                   LAST ORDER STATUS :{' '}
                   <span className='fs-4 ms-2 fw-bold text-success'>
                     {orderDetail?.work_orders?.work_order_status.length > 0
-                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                      : orderDetail?.status?.category}
+                      ? orderDetail?.work_orders?.work_order_status[0]?.status?.description
+                      : orderDetail?.status?.description}
                   </span>
                 </Form.Label>
               </Col>

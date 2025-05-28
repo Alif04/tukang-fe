@@ -4,11 +4,11 @@ import workOrderReducer from './workOrderSlice'
 import itemReducer from './itemSlice'
 import invoiceReducer from './invoiceSlice'
 import quotationReducer from './quotationSlice'
-import tableReducer from './tableSlice'
+import orderReducer from './orderSlice'
 
 export const store = configureStore({
   reducer: {
-    table: tableReducer,
+    order: orderReducer,
     workOrder: workOrderReducer,
     item: itemReducer,
     invoice: invoiceReducer,

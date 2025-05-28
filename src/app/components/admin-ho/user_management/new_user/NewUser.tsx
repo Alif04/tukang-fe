@@ -264,27 +264,25 @@ const NewUserHO: FC = () => {
       case 'Store Staff':
       case 'Store CS':
       case 'Sales':
-        case 'Manager Store':
+      case 'Manager Store':
         return (
-          <>
-            <Row className='mb-5'>
-              <Form.Group className='form-template'>
-                <Form.Label className='fs-5'>Assign To Store :</Form.Label>
+          <Row className='mb-5'>
+            <Form.Group className='form-template'>
+              <Form.Label className='fs-5'>Assign To Store :</Form.Label>
 
-                <Select
-                  name='store_id'
-                  id='store_id'
-                  className='form-control p-0 form-item-name'
-                  classNamePrefix='select'
-                  placeholder='Pilih/Ketik Role'
-                  isSearchable={true}
-                  isClearable={true}
-                  options={store}
-                  onChange={(newValue) => setSelectedStore(newValue)}
-                />
-              </Form.Group>
-            </Row>
-          </>
+              <Select
+                name='store_id'
+                id='store_id'
+                className='form-control p-0 form-item-name'
+                classNamePrefix='select'
+                placeholder='Pilih/Ketik Role'
+                isSearchable={true}
+                isClearable={true}
+                options={store}
+                onChange={(newValue) => setSelectedStore(newValue)}
+              />
+            </Form.Group>
+          </Row>
         )
 
       default:
@@ -329,18 +327,6 @@ const NewUserHO: FC = () => {
                   <Form.Control
                     name='pic_name'
                     value={userForm.pic_name}
-                    onChange={(e) => userFormHandler(e)}
-                  />
-                </Form.Group>
-              </Row>
-
-              <Row className='mb-5'>
-                <Form.Group className='form-template'>
-                  <Form.Label className='fs-5'>Email :</Form.Label>
-
-                  <Form.Control
-                    name='email'
-                    value={userForm.email}
                     onChange={(e) => userFormHandler(e)}
                   />
                 </Form.Group>
