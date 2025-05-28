@@ -572,10 +572,9 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
                 columns={columns}
                 dataSource={workOrderData}
                 rowKey={(record) => record.work_order_id}
-                tableLayout='auto'
-                sticky={true}
-                scroll={{x: 1200}}
                 pagination={false}
+                sticky={true}
+                tableLayout='auto'
                 onChange={handleFilterTable}
               />
             </div>
@@ -583,22 +582,20 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
           <div className='pagination-container mt-5'>
             <span className='total-text'>
-              Showing {(currentPage - 1) * pageSize + 1} -{' '}
+              Showing {(currentPage - 1) * pageSize + 1} -
               {Math.min(currentPage * pageSize, totalData)} of {totalData} Work Order
             </span>
 
             <Pagination
               className='pagination'
+              pageSize={pageSize}
               current={currentPage}
               total={totalData}
               showSizeChanger
-              pageSizeOptions={[5, 10, 20, 50, 100]}
+              pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
               itemRender={itemRender}
-              onShowSizeChange={(current, size) => {
-                setPageSize(size)
-              }}
               onChange={(page, pageSize) => {
-                fetchData(page, pageSize, '')
+                handlePageChange(page, pageSize)
               }}
             />
           </div>
