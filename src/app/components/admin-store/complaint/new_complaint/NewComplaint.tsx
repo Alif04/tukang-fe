@@ -262,9 +262,10 @@ const NewComplaintForm: FC = () => {
       ...complaintForm,
       order_id: selectedOrderId?.value ?? null,
       complaint_channel: selectedComplaintChannel?.value ?? null,
+      crm_type: selectedCrmType?.value ?? 1,
     })
     // eslint-disable-next-line
-  }, [selectedOrderId, selectedComplaintChannel])
+  }, [selectedOrderId, selectedComplaintChannel, selectedCrmType])
 
   // Complaint Status
   useEffect(() => {
