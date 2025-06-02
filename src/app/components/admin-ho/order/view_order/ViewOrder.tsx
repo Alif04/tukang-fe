@@ -1017,6 +1017,11 @@ const ViewOrders: FC = () => {
       }
     } catch (error) {
       console.error(error)
+      Swal.fire({
+        icon: 'error',
+        title: 'Terjadi kesalahan dari sisi server, mohon hubungi Administrator.',
+        showConfirmButton: false,
+      })
     }
   }
 
