@@ -194,7 +194,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
   // Reason Rejected
   const [showModal, setShowModal] = useState(false)
   const [modalType, setModalType] = useState<number | null>(null)
-  const [reasonRejected, setReasonRejected] = useState<string>('')
+  const [reason, setReason] = useState<string>('')
 
   const handleShowModal = (type: number) => {
     setShowModal(true)
@@ -212,9 +212,9 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     })
   }
 
-  const handleInputReasonReject = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputReason = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedInputValue = event.target.value
-    setReasonRejected(updatedInputValue)
+    setReason(updatedInputValue)
   }
 
   // Handle Approve & Cancel
@@ -231,7 +231,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     formData.append('complaint_date', complaintForm.complaint_date)
     formData.append('type', complaintForm.complaint_type.toString())
     formData.append('crm_type', complaintForm.crm_type.toString())
-    formData.append('reason', reasonRejected)
+    formData.append('complaint_histories[reason]', reason)
 
     await axios
       .post(`${apiUrl}/complaints/${complaintForm.id}`, formData, {
@@ -2039,6 +2039,24 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
             </>
           )}
 
+          {['COMPLAINTAPPROVEDBYHO'].includes(complaintDetail?.status?.category) && (
+            <>
+              <hr />
+
+              <Alert variant='success' className='d-flex align-items-center'>
+                <FontAwesomeIcon className='text-black' icon={faCircleInfo} fontSize={'15px'} />
+
+                <p className='fw-normal text-black'>
+                  Komplain telah ditolak oleh HO dengan alasan{' '}
+                  <span className='fw-bold text-black'>
+                    {complaintDetail?.complaint_histories[0].reason} (Komplain sedang
+                    ditindaklanjuti)
+                  </span>
+                </p>
+              </Alert>
+            </>
+          )}
+
           {['COMPLAINTREJECTEDBYHO'].includes(complaintDetail?.status?.category) && (
             <>
               <hr />
@@ -2049,8 +2067,8 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                 <p className='fw-normal text-black'>
                   Komplain telah ditolak oleh HO dengan alasan{' '}
                   <span className='fw-bold text-black'>
-                    {complaintDetail?.complaint_histories[0].reason}
-                    Komplain ini sudah ditindaklanjuti
+                    {complaintDetail?.complaint_histories[0].reason} (Komplain ini sudah
+                    ditindaklanjuti)
                   </span>
                 </p>
               </Alert>
@@ -2065,7 +2083,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
             <Modal.Body>
               <Form.Label className='fs-5 fw-bolder'>Reason Rejected :</Form.Label>
               <Form.Group>
-                <Form.Control as='textarea' rows={3} onChange={handleInputReasonReject} />
+                <Form.Control as='textarea' rows={3} onChange={handleInputReason} />
               </Form.Group>
             </Modal.Body>
 
@@ -2078,8 +2096,9 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                 className='d-flex justify-content-center align-items-center'
                 variant='dark-primary'
                 onClick={() => handleApprovalComplaint(complaintStatusCancel)}
+                disabled={isLoading}
               >
-                Submit
+                {isLoading ? 'Rejected..' : 'Rejected'}
               </Button>
             </Modal.Footer>
           </>
@@ -2110,8 +2129,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
               <Form.Group className='mb-3'>
                 <Form.Label>Alasan :</Form.Label>
-
-                <Form.Control as='textarea' />
+                <Form.Control rows={3} as='textarea' onChange={handleInputReason} />
               </Form.Group>
 
               <Button
