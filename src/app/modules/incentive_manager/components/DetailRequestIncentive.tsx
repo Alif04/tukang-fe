@@ -1,11 +1,11 @@
 import React, {FC} from 'react'
 
-import {DetailRequestIncentiveHO} from '../../../components'
+import {DetailRequestIncentiveHOManager} from '../../../components'
 
 const DetailRequestIncentive: FC = () => {
   return (
     <>
-      <DetailRequestIncentiveHO />
+      <DetailRequestIncentiveHOManager />
     </>
   )
 }
