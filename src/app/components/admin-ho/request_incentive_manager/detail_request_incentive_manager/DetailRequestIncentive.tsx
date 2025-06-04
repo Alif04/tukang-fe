@@ -38,7 +38,7 @@ const DetailRequestIncentiveHOManager: FC = () => {
   const getIncentiveData = async () => {
     try {
       await axios
-        .get(`${apiUrl}/comission-sales-incentive/${params.id}`, {
+        .get(`${apiUrl}/manager/insentive-manager/${params.id}`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -48,6 +48,8 @@ const DetailRequestIncentiveHOManager: FC = () => {
         })
         .then((response) => {
           const data = response.data.data
+    
+          
           setIncentiveDetail(data)
         })
     } catch (error) {
@@ -110,7 +112,7 @@ const DetailRequestIncentiveHOManager: FC = () => {
   const generatePDF = () => {
     setLoadingPDF(true)
     axios
-      .get(`${apiUrl}/comission-sales-incentive/${params.id}/pdf`, {
+      .get(`${apiUrl}/manager/insentive-manager/${params.id}/pdf`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -138,7 +140,7 @@ const DetailRequestIncentiveHOManager: FC = () => {
     setLoadingTemplate(true)
 
     axios
-      .get(`${apiUrl}/comission-sales-incentive/${params.id}/export-excel`, {
+      .get(`${apiUrl}/manager/insentive-manager/${params.id}/export-excel`, {
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -187,11 +189,10 @@ const DetailRequestIncentiveHOManager: FC = () => {
             <Table responsive hover>
               <thead>
                 <tr>
-                  <th className='text-center'>Order ID</th>
-                  <th className='text-center'>Tanggal Order</th>
+
                   <th className='text-center'>Nama Toko</th>
-                  <th className='text-center'>Nomor Receipt</th>
-                  <th className='text-center'>Nama Sales</th>
+
+                  <th className='text-center'>Nama Manager</th>
                   <th className='text-center'>Nama Bank</th>
                   <th className='text-center'>Nomor Akun</th>
                   <th className='text-center'>Total Insentif</th>
@@ -199,35 +200,30 @@ const DetailRequestIncentiveHOManager: FC = () => {
               </thead>
 
               <tbody>
-                {incentiveDetail?.sales_incentive?.map((item: any) => (
-                  <tr key={item?.id}>
-                    <td align='center'>{item?.quotation?.order?.id}</td>
-                    <td align='center'>{formatDate(item?.quotation?.order?.request_survey)}</td>
+      
+                  <tr>
+
                     <td>
                       {
-                        store.find((x: any) => x.store_id === item?.quotation?.order?.store_id)
+                        store.find((x: any) => x.store_id === incentiveDetail?.store_id)
                           ?.store_name
                       }
                     </td>
-                    <td>
-                      <Link to={`/order/detail-order/${item?.quotation?.order?.id}`}>
-                        {item?.quotation?.order?.receipt_number}
-                      </Link>
-                    </td>
-                    <td>{item?.sales?.full_name}</td>
-                    <td>{item?.sales?.bank?.bank_name}</td>
-                    <td>{item?.sales?.account_number}</td>
-                    <td>{`Rp. ${parseInt(item?.nominal).toLocaleString('id')}`}</td>
+
+                    <td>{incentiveDetail?.full_name}</td>
+                    <td>{incentiveDetail?.bank?.bank_name}</td>
+                    <td>{incentiveDetail?.account_number}</td>
+                    <td>{`Rp. ${parseInt(incentiveDetail?.nominal).toLocaleString('id')}`}</td>
                   </tr>
-                ))}
+               
 
                 <tr>
-                  <td colSpan={7} className='text-end fw-bolder'>
+                  <td colSpan={4} className='text-end fw-bolder'>
                     Grand Total
                   </td>
 
                   <td className='fw-bolder'>{`Rp. ${parseInt(
-                    incentiveDetail?.total_amount ?? 0
+                    incentiveDetail?.nominal ?? 0
                   ).toLocaleString('id')}`}</td>
                 </tr>
               </tbody>
