@@ -56,7 +56,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
         })
         .then((response) => {
           const data = response.data.data
-          
+
           setOrderDetail(data)
           updatePageTitle(data)
           setIsLoadingPage(false)
@@ -206,9 +206,9 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
   const fileInputRef = useRef<any>(null)
   const handleButtonClick = () => {
-    fileInputRef.current?.click();
-  };
-  const handleFileChange2 = async(e: any) => {
+    fileInputRef.current?.click()
+  }
+  const handleFileChange2 = async (e: any) => {
     const file = e.target.files[0]
 
     const formData = new FormData()
@@ -236,12 +236,11 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     }
   }
 
-
   const fileInputAfterRef = useRef<any>(null)
   const handleButtonAfterClick = () => {
-    fileInputAfterRef.current?.click();
-  };
-  const handleFileAfterChange2 = async(e: any) => {
+    fileInputAfterRef.current?.click()
+  }
+  const handleFileAfterChange2 = async (e: any) => {
     const file = e.target.files[0]
 
     const formData = new FormData()
@@ -272,283 +271,280 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
     <section id='detail-work-order'>
       <Card className='mb-5'>
         <Card.Body>
-          <div className='form-wrapper'>
-            <Row className='form-header'>
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+          <Row className='form-header mb-5'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                <Form.Label className='fs-4 fw-bold'>
+                  Nama Toko :{' '}
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {orderDetail?.store?.store_name ?? ''}
+                  </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                <Col>
                   <Form.Label className='fs-4 fw-bold'>
-                    Nama Toko :{' '}
+                    Order ID : <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id ?? ''}</span>
+                  </Form.Label>
+                </Col>
+
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Work Order ID :{' '}
                     <span className='fs-4 ms-2 fw-normal'>
-                      {orderDetail?.store?.store_name ?? ''}
+                      {orderDetail?.work_orders?.id ?? '-'}
                     </span>
                   </Form.Label>
-                </Skeleton>
-              </Col>
+                </Col>
+              </Skeleton>
+            </Col>
 
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                  <Col>
-                    <Form.Label className='fs-4 fw-bold'>
-                      Order ID :{' '}
-                      <span className='fs-4 ms-2 fw-normal'>{orderDetail?.id ?? ''}</span>
-                    </Form.Label>
-                  </Col>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Receipt Number :
+                    <span className='fs-4 ms-2 fw-normal'>
+                      {orderDetail?.receipt_number ?? '-'}
+                    </span>
+                  </Form.Label>
+                </Col>
 
-                  <Col>
-                    <Form.Label className='fs-4 fw-bold'>
-                      Work Order ID :{' '}
-                      <span className='fs-4 ms-2 fw-normal'>
-                        {orderDetail?.work_orders?.id ?? '-'}
-                      </span>
-                    </Form.Label>
-                  </Col>
-                </Skeleton>
-              </Col>
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Order Status :
+                    <span className='fs-4 ms-2 fw-bold text-success'>
+                      {orderDetail?.status?.description}
+                    </span>
+                  </Form.Label>
+                </Col>
+              </Skeleton>
+            </Col>
+          </Row>
 
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                  <Col>
-                    <Form.Label className='fs-4 fw-bold'>
-                      Receipt Number :
-                      <span className='fs-4 ms-2 fw-normal'>
-                        {orderDetail?.receipt_number ?? '-'}
-                      </span>
-                    </Form.Label>
-                  </Col>
+          <Row className='information-detail'>
+            <Col xs={12} sm={12} md={8} lg={8} xl={8} xxl={8} className='costumer-info mb-5'>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                <div className='fs-4 fw-bold'>Informasi Pembeli</div>
+              </Skeleton>
 
-                  <Col>
-                    <Form.Label className='fs-4 fw-bold'>
-                      Order Status :
-                      <span className='fs-4 ms-2 fw-bold text-success'>
-                        {orderDetail?.status?.description}
-                      </span>
-                    </Form.Label>
-                  </Col>
-                </Skeleton>
-              </Col>
-            </Row>
-
-            <Row className='information-detail'>
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
-                <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
-                  <div className='fs-4 fw-bold'>Informasi Pembeli</div>
-                </Skeleton>
-
-                <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
-                  <Row>
-                    <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='6'>
-                          No Member :
-                        </Form.Label>
-                        <Col sm='6'>
-                          <p className='fs-7'>{orderDetail?.members?.member_number ?? ''}</p>
-                        </Col>
-                      </Form.Group>
-
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='6'>
-                          Customer Name :
-                        </Form.Label>
-                        <Col sm='6'>
-                          <p className='fs-7'>{orderDetail?.members?.full_name ?? ''}</p>
-                        </Col>
-                      </Form.Group>
-
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='6'>
-                          Alamat Pemasangan
-                        </Form.Label>
-                        <Col sm='6'>
-                          <p className='fs-7'>{orderDetail?.project_address ?? ''}</p>
-                        </Col>
-                      </Form.Group>
-                    </Col>
-
-                    <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='4'>
-                          Nomor Telp/WA
-                        </Form.Label>
-
-                        <Col sm='8'>
-                          <p className='fs-7'>{orderDetail?.project_number ?? ''}</p>
-                        </Col>
-                      </Form.Group>
-
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='4'>
-                          Alamat Email
-                        </Form.Label>
-
-                        <Col sm='8'>
-                          <p className='fs-7'>{orderDetail?.members?.email ?? ''} </p>
-                        </Col>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                </Skeleton>
-              </Col>
-
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
                 <Row>
-                  {[
-                    'SURVEYREQ',
-                    'TUKANGSURVEY',
-                    'SURVEYSTART',
-                    'SURVEYDONE',
-                    'RESURVEYREQ',
-                    'RESURVEYSTART',
-                    'RESURVEYDONE',
-                  ].includes(orderDetail?.status?.category) && (
-                    <Col>
-                      <div className='survey mb-3'>
-                        <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
-                          <div className='fs-4 fw-bold'>Survey</div>
-                        </Skeleton>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        No Member :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <p className='fs-7'>{orderDetail?.members?.member_number ?? ''}</p>
+                      </Col>
+                    </Form.Group>
 
-                        <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
-                          <Form.Group className='detail-info mb-3'>
-                            <Form.Label>Tanggal Survey :</Form.Label>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Customer Name :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <p className='fs-7'>{orderDetail?.members?.full_name ?? ''}</p>
+                      </Col>
+                    </Form.Group>
 
-                            {orderDetail?.work_orders !== null &&
-                            orderDetail?.work_orders?.survey_date !== null ? (
-                              <p>{formatDateWithTime(orderDetail?.work_orders?.survey_date)}</p>
-                            ) : (
-                              <p>Tanggal survey belum diset oleh vendor</p>
-                            )}
-                          </Form.Group>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Alamat Pemasangan
+                      </Form.Label>
+                      <Col sm='6'>
+                        <p className='fs-7'>{orderDetail?.project_address ?? ''}</p>
+                      </Col>
+                    </Form.Group>
+                  </Col>
 
-                          <Form.Group className='detail-info mb-3'>
-                            <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='4'>
+                        Nomor Telp/WA
+                      </Form.Label>
 
-                            {orderDetail?.work_orders !== null ? (
-                              <p>
-                                {Array.from(
-                                  new Set(
-                                    orderDetail?.work_orders?.work_order_tukang
-                                      ?.filter((x: any) => x.type === 1)
-                                      ?.map((x: any) => x?.tukang?.full_name ?? '-')
-                                  )
-                                ).join(', ')}
-                              </p>
-                            ) : (
-                              <p>Tukang belum diset oleh vendor</p>
-                            )}
-                          </Form.Group>
+                      <Col sm='8'>
+                        <p className='fs-7'>{orderDetail?.project_number ?? ''}</p>
+                      </Col>
+                    </Form.Group>
 
-                          <Form.Group className='detail-info mb-3'>
-                            <Form.Label>Sesi :</Form.Label>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='4'>
+                        Alamat Email
+                      </Form.Label>
 
-                            {orderDetail?.work_orders !== null ? (
-                              <p>
-                                {orderDetail?.work_orders?.session === 1
-                                  ? 'Sesi Pagi'
-                                  : orderDetail?.work_orders?.session === 2
-                                  ? 'Sesi Siang'
-                                  : orderDetail?.work_orders?.session === 3
-                                  ? 'Sesi Sore'
-                                  : 'Sesi belum ditentukan oleh vendor'}
-                              </p>
-                            ) : (
-                              <p>Sesi belum ditentukan oleh vendor</p>
-                            )}
-                          </Form.Group>
-                        </Skeleton>
-                      </div>
-                    </Col>
-                  )}
-
-                  {[
-                    'WORKREQ',
-                    'TUKANGWORK',
-                    'WORKSTART',
-                    'WORKEND',
-                    'REWORKREQ',
-                    'REWORKSTART',
-                    'REWORKEND',
-                    'RESCHEDULE',
-                    'DONE',
-                    'WORKREQSTEPONE',
-                    'WORKREQSTEPTWO',
-                    'WORKREQSTEPTHREE',
-                    'WORKSTARTSTEPONE',
-                    'WORKSTARTSTEPTWO',
-                    'WORKSTARTSTEPTHREE',
-                    'WORKENDSTEPONE',
-                    'WORKENDSTEPTWO',
-                    'WORKENDSTEPTHREE',
-                    'TUKANGWORKSTEPONE',
-                    'TUKANGWORKSTEPTWO',
-                    'TUKANGWORKSTEPTHREE',
-                  ].includes(orderDetail?.status?.category) && (
-                    <Col>
-                      <div className='work-date'>
-                        <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
-                          <div className='fs-4 fw-bold'>Pengerjaan</div>
-                        </Skeleton>
-
-                        <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
-                          <Form.Group className='detail-info mb-3'>
-                            <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
-
-                            {orderDetail?.work_orders !== null &&
-                            orderDetail?.work_orders?.work_start_date !== null &&
-                            orderDetail?.work_orders?.work_end_date !== null ? (
-                              <p>
-                                {formatDateWithTime(orderDetail?.work_orders?.work_start_date)}{' '}
-                                sampai {formatDateWithTime(orderDetail?.work_orders?.work_end_date)}
-                              </p>
-                            ) : (
-                              <p>Tanggal Pengerjaan belum diset oleh vendor</p>
-                            )}
-                          </Form.Group>
-
-                          <Form.Group className='detail-info mb-3'>
-                            <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
-
-                            {orderDetail?.work_orders?.work_order_tukang?.filter(
-                              (x: any) => x.type === 2
-                            ).length ? (
-                              <p>
-                                {Array.from(
-                                  new Set(
-                                    orderDetail?.work_orders?.work_order_tukang
-                                      ?.filter((x: any) => x.type === 2)
-                                      ?.map((x: any) => x?.tukang?.full_name ?? '-')
-                                  )
-                                ).join(', ')}
-                              </p>
-                            ) : (
-                              <p>Tukang belum diset oleh vendor</p>
-                            )}
-                          </Form.Group>
-
-                          <Form.Group className='detail-info mb-3'>
-                            <Form.Label>Sesi :</Form.Label>
-
-                            {orderDetail?.work_orders !== null ? (
-                              <p>
-                                {orderDetail?.work_orders?.session === 1
-                                  ? 'Sesi Pagi'
-                                  : orderDetail?.work_orders?.session === 2
-                                  ? 'Sesi Siang'
-                                  : orderDetail?.work_orders?.session === 3
-                                  ? 'Sesi Sore'
-                                  : 'Sesi belum ditentukan oleh vendor'}
-                              </p>
-                            ) : (
-                              <p>Sesi belum ditentukan oleh vendor</p>
-                            )}
-                          </Form.Group>
-                        </Skeleton>
-                      </div>
-                    </Col>
-                  )}
+                      <Col sm='8'>
+                        <p className='fs-7'>{orderDetail?.members?.email ?? ''} </p>
+                      </Col>
+                    </Form.Group>
+                  </Col>
                 </Row>
-              </Col>
-            </Row>
-          </div>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} sm={12} md={4} lg={4} xl={4} xxl={4} className='sales-info mb-5'>
+              <Row>
+                {[
+                  'SURVEYREQ',
+                  'TUKANGSURVEY',
+                  'SURVEYSTART',
+                  'SURVEYDONE',
+                  'RESURVEYREQ',
+                  'RESURVEYSTART',
+                  'RESURVEYDONE',
+                ].includes(orderDetail?.status?.category) && (
+                  <Col>
+                    <div className='survey mb-3'>
+                      <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                        <div className='fs-4 fw-bold'>Survey</div>
+                      </Skeleton>
+
+                      <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Tanggal Survey :</Form.Label>
+
+                          {orderDetail?.work_orders !== null &&
+                          orderDetail?.work_orders?.survey_date !== null ? (
+                            <p>{formatDateWithTime(orderDetail?.work_orders?.survey_date)}</p>
+                          ) : (
+                            <p>Tanggal survey belum diset oleh vendor</p>
+                          )}
+                        </Form.Group>
+
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+
+                          {orderDetail?.work_orders !== null ? (
+                            <p>
+                              {Array.from(
+                                new Set(
+                                  orderDetail?.work_orders?.work_order_tukang
+                                    ?.filter((x: any) => x.type === 1)
+                                    ?.map((x: any) => x?.tukang?.full_name ?? '-')
+                                )
+                              ).join(', ')}
+                            </p>
+                          ) : (
+                            <p>Tukang belum diset oleh vendor</p>
+                          )}
+                        </Form.Group>
+
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Sesi :</Form.Label>
+
+                          {orderDetail?.work_orders !== null ? (
+                            <p>
+                              {orderDetail?.work_orders?.session === 1
+                                ? 'Sesi Pagi'
+                                : orderDetail?.work_orders?.session === 2
+                                ? 'Sesi Siang'
+                                : orderDetail?.work_orders?.session === 3
+                                ? 'Sesi Sore'
+                                : 'Sesi belum ditentukan oleh vendor'}
+                            </p>
+                          ) : (
+                            <p>Sesi belum ditentukan oleh vendor</p>
+                          )}
+                        </Form.Group>
+                      </Skeleton>
+                    </div>
+                  </Col>
+                )}
+
+                {[
+                  'WORKREQ',
+                  'TUKANGWORK',
+                  'WORKSTART',
+                  'WORKEND',
+                  'REWORKREQ',
+                  'REWORKSTART',
+                  'REWORKEND',
+                  'RESCHEDULE',
+                  'DONE',
+                  'WORKREQSTEPONE',
+                  'WORKREQSTEPTWO',
+                  'WORKREQSTEPTHREE',
+                  'WORKSTARTSTEPONE',
+                  'WORKSTARTSTEPTWO',
+                  'WORKSTARTSTEPTHREE',
+                  'WORKENDSTEPONE',
+                  'WORKENDSTEPTWO',
+                  'WORKENDSTEPTHREE',
+                  'TUKANGWORKSTEPONE',
+                  'TUKANGWORKSTEPTWO',
+                  'TUKANGWORKSTEPTHREE',
+                ].includes(orderDetail?.status?.category) && (
+                  <Col>
+                    <div className='work-date'>
+                      <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                        <div className='fs-4 fw-bold'>Pengerjaan</div>
+                      </Skeleton>
+
+                      <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Tanggal mulai pengerjaan :</Form.Label>
+
+                          {orderDetail?.work_orders !== null &&
+                          orderDetail?.work_orders?.work_start_date !== null &&
+                          orderDetail?.work_orders?.work_end_date !== null ? (
+                            <p>
+                              {formatDateWithTime(orderDetail?.work_orders?.work_start_date)} sampai{' '}
+                              {formatDateWithTime(orderDetail?.work_orders?.work_end_date)}
+                            </p>
+                          ) : (
+                            <p>Tanggal Pengerjaan belum diset oleh vendor</p>
+                          )}
+                        </Form.Group>
+
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+
+                          {orderDetail?.work_orders?.work_order_tukang?.filter(
+                            (x: any) => x.type === 2
+                          ).length ? (
+                            <p>
+                              {Array.from(
+                                new Set(
+                                  orderDetail?.work_orders?.work_order_tukang
+                                    ?.filter((x: any) => x.type === 2)
+                                    ?.map((x: any) => x?.tukang?.full_name ?? '-')
+                                )
+                              ).join(', ')}
+                            </p>
+                          ) : (
+                            <p>Tukang belum diset oleh vendor</p>
+                          )}
+                        </Form.Group>
+
+                        <Form.Group className='detail-info mb-3'>
+                          <Form.Label>Sesi :</Form.Label>
+
+                          {orderDetail?.work_orders !== null ? (
+                            <p>
+                              {orderDetail?.work_orders?.session === 1
+                                ? 'Sesi Pagi'
+                                : orderDetail?.work_orders?.session === 2
+                                ? 'Sesi Siang'
+                                : orderDetail?.work_orders?.session === 3
+                                ? 'Sesi Sore'
+                                : 'Sesi belum ditentukan oleh vendor'}
+                            </p>
+                          ) : (
+                            <p>Sesi belum ditentukan oleh vendor</p>
+                          )}
+                        </Form.Group>
+                      </Skeleton>
+                    </div>
+                  </Col>
+                )}
+              </Row>
+            </Col>
+          </Row>
 
           <Row className='table-warranty d-flex align-items-center mb-3'>
             <div className='table-title-warranty'>
@@ -557,69 +553,77 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
               </Skeleton>
 
               <Row>
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                    <Form.Label column>
-                      {(() => {
-                        if (orderDetail?.payment_type === 'survey') {
-                          return `Tanggal request survey`
-                        } else {
-                          return `Tanggal request pemasangan`
-                        }
-                      })()}
-                    </Form.Label>
-
-                    <Col>
-                      <p className='fs-7 p-0'>{formatDate(orderDetail?.request_survey)}</p>
-                    </Col>
-                  </Skeleton>
-                </Form.Group>
-
-                {orderDetail?.payment_type === 'survey' && (
-                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                <Col md={3} sm={12}>
+                  <Form.Group className='mb-3' controlId='formPlaintextEmail'>
                     <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                      <Form.Label column>Tanggal request pemasangan :</Form.Label>
+                      <Form.Label column>
+                        {(() => {
+                          if (orderDetail?.payment_type === 'survey') {
+                            return `Tanggal request survey`
+                          } else {
+                            return `Tanggal request pemasangan`
+                          }
+                        })()}
+                      </Form.Label>
 
                       <Col>
+                        <p className='fs-7 p-0'>{formatDate(orderDetail?.request_survey)}</p>
+                      </Col>
+                    </Skeleton>
+                  </Form.Group>
+                </Col>
+
+                <Col md={3} sm={12}>
+                  {orderDetail?.payment_type === 'survey' && (
+                    <Form.Group className='mb-3' controlId='formPlaintextEmail'>
+                      <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                        <Form.Label column>Tanggal request pemasangan :</Form.Label>
+
+                        <Col>
+                          <p className='fs-7 p-0'>
+                            {orderDetail?.request_work
+                              ? formatDate(orderDetail?.request_work)
+                              : 'Tanggal belum diset oleh toko'}
+                          </p>
+                        </Col>
+                      </Skeleton>
+                    </Form.Group>
+                  )}
+                </Col>
+
+                <Col md={3} sm={12}>
+                  <Form.Group className='mb-3' controlId='formPlaintextEmail'>
+                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                      <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                      <Col>
+                        <p className='fs-7 p-0'>{orderDetail?.vendor?.company_name ?? '-'}</p>
+                      </Col>
+                    </Skeleton>
+                  </Form.Group>
+                </Col>
+
+                <Col md={3} sm={12}>
+                  <Form.Group className='mb-3' controlId='formPlaintextEmail'>
+                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                      <Form.Label column>Payment Type:</Form.Label>
+                      <Col>
                         <p className='fs-7 p-0'>
-                          {orderDetail?.request_work
-                            ? formatDate(orderDetail?.request_work)
-                            : 'Tanggal belum diset oleh toko'}
+                          {(() => {
+                            if (orderDetail?.payment_type === 'survey') {
+                              return `Berbayar & Survey`
+                            } else if (orderDetail?.payment_type === 'gratis') {
+                              return `Gratis`
+                            } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
+                              return `Berbayar & Pemasangan Tanpa Survey`
+                            } else {
+                              return ``
+                            }
+                          })()}
                         </p>
                       </Col>
                     </Skeleton>
                   </Form.Group>
-                )}
-
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                    <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
-                    <Col>
-                      <p className='fs-7 p-0'>{orderDetail?.vendor?.company_name ?? '-'}</p>
-                    </Col>
-                  </Skeleton>
-                </Form.Group>
-
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                    <Form.Label column>Payment Type:</Form.Label>
-                    <Col>
-                      <p className='fs-7 p-0'>
-                        {(() => {
-                          if (orderDetail?.payment_type === 'survey') {
-                            return `Berbayar & Survey`
-                          } else if (orderDetail?.payment_type === 'gratis') {
-                            return `Gratis`
-                          } else if (orderDetail?.payment_type === 'pemasangan_tanpa_survey') {
-                            return `Berbayar & Pemasangan Tanpa Survey`
-                          } else {
-                            return ``
-                          }
-                        })()}
-                      </p>
-                    </Col>
-                  </Skeleton>
-                </Form.Group>
+                </Col>
               </Row>
             </div>
 
@@ -1236,7 +1240,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   <Button
                     variant='outline-primary'
                     size='sm'
-                    style={{marginLeft: '10px',marginBottom:'10px'}}
+                    style={{marginLeft: '10px', marginBottom: '10px'}}
                     onClick={handleButtonClick}
                   >
                     Upload File Before
@@ -1321,7 +1325,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
                   <Button
                     variant='outline-primary'
                     size='sm'
-                    style={{marginLeft: '10px',marginBottom:'10px'}}
+                    style={{marginLeft: '10px', marginBottom: '10px'}}
                     onClick={handleButtonAfterClick}
                   >
                     Upload File After

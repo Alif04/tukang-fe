@@ -2047,7 +2047,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                 <FontAwesomeIcon className='text-black' icon={faCircleInfo} fontSize={'15px'} />
 
                 <p className='fw-normal text-black'>
-                  Komplain telah ditolak oleh HO dengan alasan{' '}
+                  Komplain telah disetujui oleh HO
                   <span className='fw-bold text-black'>
                     {complaintDetail?.complaint_histories[0].reason} (Komplain sedang
                     ditindaklanjuti)

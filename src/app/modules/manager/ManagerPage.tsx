@@ -51,7 +51,7 @@ const ManagerPage: React.FC = () => {
               <></>
             )}
 
-            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE SALES</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE MANAGER</PageTitle>
             <EditManager />
           </>
         }

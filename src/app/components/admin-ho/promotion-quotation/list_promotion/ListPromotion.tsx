@@ -5,11 +5,12 @@ import {useNavigate} from 'react-router-dom'
 import axios from 'axios'
 import type {ColumnsType} from 'antd/es/table'
 import {LoadingOutlined} from '@ant-design/icons'
-import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import {Table, PaginationProps, Spin, Pagination} from 'antd'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
 import Swal from 'sweetalert2'
+import {formatDate} from '../../../../../_metronic/helpers'
 
 type Props = {
   className: string
@@ -19,6 +20,7 @@ interface DataType {
   index: number
   id: number
   name: string
+  period: string
   min_order: string
   promotion: string
   promotion_type: string
@@ -71,6 +73,15 @@ const ListPromotionHO: React.FC<Props> = ({className}) => {
       width: 110,
       onFilter: (value, record) => record.name.includes(String(value)),
       sorter: (a, b) => a.name.length - b.name.length,
+    },
+    {
+      title: 'Periode',
+      dataIndex: 'period',
+      key: 'period',
+      align: 'start',
+      width: 110,
+      onFilter: (value, record) => record.period.includes(String(value)),
+      sorter: (a, b) => a.period.length - b.period.length,
     },
     {
       title: 'Minimal Belanja',
@@ -247,6 +258,7 @@ const ListPromotionHO: React.FC<Props> = ({className}) => {
           index: index + 1,
           id: item.id,
           name: item.name,
+          period: `${formatDate(item.periodic_start)} - ${formatDate(item.periodic_end)}`,
           min_order: formattedPrice(parseInt(item.min_order)),
           promotion:
             item.promotion_type === 1
