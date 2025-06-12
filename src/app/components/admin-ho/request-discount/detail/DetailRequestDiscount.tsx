@@ -1,5 +1,5 @@
 import React, {FC, useState, useEffect} from 'react'
-import {useParams} from 'react-router-dom'
+import {useParams, useNavigate} from 'react-router-dom'
 import {formatDate, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import './DetailRequestDiscount.css'
@@ -11,6 +11,7 @@ import Swal from 'sweetalert2'
 const DetailRequestDiscountHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
+  const navigate = useNavigate()
   const userRole = localStorage.getItem('userRole') as string
 
   // Loader
@@ -157,9 +158,13 @@ const DetailRequestDiscountHO: FC = () => {
               icon: 'success',
               showConfirmButton: false,
               timer: 1500,
-            }).then(() => {
-              handleUpdateQuotation()
             })
+              .then(() => {
+                handleUpdateQuotation()
+              })
+              .finally(() => {
+                navigate('/quotation/update-quotation/' + quotationID)
+              })
 
             setIsLoading(false)
           } else {

@@ -1,19 +1,16 @@
-import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 
 import './DetailRefund.css'
 
 import axios from 'axios'
-import {useNavigate, useParams} from 'react-router-dom'
-import {Row, Col, Form, Table, ListGroup} from 'react-bootstrap'
+import {useParams} from 'react-router-dom'
+import {Row, Col, Form, ListGroup} from 'react-bootstrap'
 import {Image} from 'antd'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 import {formatDate, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const DetailRefundCS: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
-  const navigate = useNavigate()
 
   // Refund Detail
   const [refundDetail, setRefundDetail] = useState<any>()
@@ -44,6 +41,7 @@ const DetailRefundCS: FC = () => {
 
   useEffect(() => {
     fetchRefundData()
+    // eslint-disable-next-line
   }, [])
 
   return (
@@ -79,11 +77,9 @@ const DetailRefundCS: FC = () => {
                 </Form.Label>
                 <br></br>
                 <Form.Label className='fs-4 fw-bold'>
-                  LAST ORDER STATUS :{' '}
+                  Order Status :{' '}
                   <span className='fs-4 ms-2 fw-bold text-success'>
-                    {refundDetail?.orders?.work_orders?.work_order_status?.length > 0
-                      ? refundDetail?.orders?.work_orders?.work_order_status[0]?.status?.description
-                      : refundDetail?.orders?.status?.description}
+                    {refundDetail?.orders?.status?.description}
                   </span>
                 </Form.Label>
               </Col>

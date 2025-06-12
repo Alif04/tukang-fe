@@ -1,20 +1,15 @@
-import React, {FC, useState, useEffect, KeyboardEventHandler} from 'react'
+import React, {FC, useState, useEffect} from 'react'
 
 import './DetailRefund.css'
 
 import axios from 'axios'
-import Select from 'react-select'
-import CreatableSelect from 'react-select/creatable'
-import Swal from 'sweetalert2'
-import {useNavigate, useParams} from 'react-router-dom'
-import {Row, Col, Form, Button, Table} from 'react-bootstrap'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {useParams} from 'react-router-dom'
+import {Row, Col, Form, Table} from 'react-bootstrap'
+import {formatDate} from '../../../../../_metronic/helpers'
 
 const DetailRefundHO: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
-  const navigate = useNavigate()
 
   // Refund Detail
   const [refundDetail, setRefundDetail] = useState<any>()
@@ -48,13 +43,6 @@ const DetailRefundHO: FC = () => {
     refundDetail?.orders.members.phone_number !== null
       ? refundDetail?.orders.members.phone_number
       : refundDetail?.orders.members.whatsapp_number
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
 
   return (
     <section id='detail-refund'>

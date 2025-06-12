@@ -151,300 +151,288 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
     <section id='detail-work-order'>
       <Card className='mb-5'>
         <Card.Body className='card-body'>
-          <div className='form-wrapper'>
-            <Row className='form-header'>
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+          <Row className='form-header mb-5'>
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                <Form.Label className='fs-4 fw-bold'>
+                  Nama Toko :{' '}
+                  <span className='fs-4 ms-2 fw-normal'>
+                    {workOrderDetail?.order?.store?.store_name ?? ''}
+                  </span>
+                </Form.Label>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                <Col>
                   <Form.Label className='fs-4 fw-bold'>
-                    Nama Toko :{' '}
+                    Order ID :{' '}
+                    <span className='fs-4 ms-2 fw-normal'>{workOrderDetail?.order_id ?? ''}</span>
+                  </Form.Label>
+                </Col>
+
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Work Order ID :{' '}
+                    <span className='fs-4 ms-2 fw-normal'>{workOrderDetail?.id ?? '-'}</span>
+                  </Form.Label>
+                </Col>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Receipt Number :
                     <span className='fs-4 ms-2 fw-normal'>
-                      {workOrderDetail?.order?.store?.store_name ?? ''}
+                      {workOrderDetail?.order?.receipt_number ?? '-'}
                     </span>
                   </Form.Label>
-                </Skeleton>
-              </Col>
+                </Col>
 
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                  <Col>
-                    <Form.Label className='fs-4 fw-bold'>
-                      Order ID :{' '}
-                      <span className='fs-4 ms-2 fw-normal'>{workOrderDetail?.order_id ?? ''}</span>
-                    </Form.Label>
-                  </Col>
-
-                  <Col>
-                    <Form.Label className='fs-4 fw-bold'>
-                      Work Order ID :{' '}
-                      <span className='fs-4 ms-2 fw-normal'>{workOrderDetail?.id ?? '-'}</span>
-                    </Form.Label>
-                  </Col>
-                </Skeleton>
-              </Col>
-
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
-                <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                  <Col>
-                    <Form.Label className='fs-4 fw-bold'>
-                      Receipt Number :
-                      <span className='fs-4 ms-2 fw-normal'>
-                        {workOrderDetail?.order?.receipt_number ?? '-'}
-                      </span>
-                    </Form.Label>
-                  </Col>
-
-                  <Col>
-                    <Form.Label className='fs-4 fw-bold'>
-                      Order Status :
-                      <span className='fs-4 ms-2 fw-bold text-success'>
-                        {(() => {
-                          if (workOrderDetail?.work_order_status?.length >= 0) {
-                            if (
-                              [
-                                'QUOTEIN',
-                                'QUOTEOUT',
-                                'WARRANTYCLAIM',
-                                'INVESTIGATED',
-                                'RESCHEDULE',
-                                'CANCEL',
-                              ].includes(workOrderDetail?.order?.status?.category ?? '')
-                            ) {
-                              return workOrderDetail?.order?.status?.description
-                            } else if (
-                              ['WORKREQ'].includes(
-                                workOrderDetail?.order?.status?.category ?? ''
-                              ) &&
-                              workOrderDetail?.order?.payment_type === 'survey' &&
-                              !['WORKSTART', 'WORKEND'].includes(
-                                workOrderDetail?.work_order_status[0]?.status?.category ?? ''
-                              )
-                            ) {
-                              return workOrderDetail?.order?.status?.description
-                            } else {
-                              return workOrderDetail?.work_order_status[0]?.status?.description
-                            }
-                          } else {
+                <Col>
+                  <Form.Label className='fs-4 fw-bold'>
+                    Order Status :
+                    <span className='fs-4 ms-2 fw-bold text-success'>
+                      {(() => {
+                        if (workOrderDetail?.work_order_status?.length >= 0) {
+                          if (
+                            [
+                              'QUOTEIN',
+                              'QUOTEOUT',
+                              'WARRANTYCLAIM',
+                              'INVESTIGATED',
+                              'RESCHEDULE',
+                              'CANCEL',
+                            ].includes(workOrderDetail?.order?.status?.category ?? '')
+                          ) {
                             return workOrderDetail?.order?.status?.description
+                          } else if (
+                            ['WORKREQ'].includes(workOrderDetail?.order?.status?.category ?? '') &&
+                            workOrderDetail?.order?.payment_type === 'survey' &&
+                            !['WORKSTART', 'WORKEND'].includes(
+                              workOrderDetail?.work_order_status[0]?.status?.category ?? ''
+                            )
+                          ) {
+                            return workOrderDetail?.order?.status?.description
+                          } else {
+                            return workOrderDetail?.work_order_status[0]?.status?.description
                           }
-                        })()}
-                      </span>
-                    </Form.Label>
-                  </Col>
-                </Skeleton>
-              </Col>
-            </Row>
+                        } else {
+                          return workOrderDetail?.order?.status?.description
+                        }
+                      })()}
+                    </span>
+                  </Form.Label>
+                </Col>
+              </Skeleton>
+            </Col>
+          </Row>
 
-            <Row className='information-detail'>
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='costumer-info mb-5'>
-                <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
-                  <div className='fs-4 fw-bold'>Informasi Pembeli</div>
-                </Skeleton>
+          <Row className='information-detail'>
+            <Col xs={12} sm={12} md={8} lg={8} xl={8} xxl={8} className='costumer-info mb-5'>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
+                <div className='fs-4 fw-bold'>Informasi Pembeli</div>
+              </Skeleton>
 
-                <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
-                  <Row>
-                    <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='6'>
-                          Customer Name :
-                        </Form.Label>
-                        <Col sm='6'>
-                          <p className='fs-7'>{workOrderDetail?.order?.members?.full_name ?? ''}</p>
-                        </Col>
-                      </Form.Group>
-                    </Col>
-
-                    <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
-                      <Form.Group as={Row} className='detail-info'>
-                        <Form.Label column sm='4'>
-                          Alamat Email
-                        </Form.Label>
-
-                        <Col sm='8'>
-                          <p className='fs-7'>{workOrderDetail?.order?.members?.email ?? ''} </p>
-                        </Col>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                </Skeleton>
-              </Col>
-
-              <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='sales-info mb-5'>
+              <Skeleton active loading={isLoadingPage} paragraph={{rows: 3}}>
                 <Row>
-                  {[
-                    'SURVEYREQ',
-                    'TUKANGSURVEY',
-                    'SURVEYSTART',
-                    'SURVEYDONE',
-                    'RESURVEYREQ',
-                    'RESURVEYSTART',
-                    'RESURVEYDONE',
-                  ].includes(
-                    workOrderDetail?.work_order_status.length
-                      ? workOrderDetail?.work_order_status[0]?.status?.category
-                      : workOrderDetail?.order?.status?.category
-                  ) && (
-                    <Col>
-                      <div className='survey mb-3'>
-                        <div className='detail-info mb-3'>
-                          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                            <p className='fs-4 fw-bold'>Survey dikerjakan pada:</p>
-                            <p className='fs-7'>
-                              {workOrderDetail?.order?.payment_type === 'survey' ? (
-                                <>
-                                  {workOrderDetail?.work_order_status.length ? (
-                                    <>{formatDateWithTime(workOrderDetail?.survey_date)}</>
-                                  ) : (
-                                    'Jadwal belum ditentukan oleh vendor'
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  <p>Order ini tanpa survey</p>
-                                </>
-                              )}
-                            </p>
-                          </Skeleton>
-                        </div>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Nama Konsumen :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <p className='fs-7'>{workOrderDetail?.order?.members?.full_name ?? ''}</p>
+                      </Col>
+                    </Form.Group>
+                  </Col>
 
-                        <div className='detail-info mb-3'>
-                          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                            <p className='fs-5 fw-bold'>Oleh:</p>
-                            {workOrderDetail?.order?.payment_type === 'survey' ? (
-                              <>
-                                {workOrderDetail?.work_order_status.length ? (
-                                  <p className='fs-7'>
-                                    {workOrderDetail?.work_order_tukang
-                                      .filter((x: any) => x.type === 1)
-                                      .map((item: any) => item?.tukang?.full_name)
-                                      .join(', ')}
-                                  </p>
-                                ) : (
-                                  'Jadwal belum ditentukan oleh vendor'
-                                )}
-                              </>
+                  <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='4'>
+                        Alamat Email :
+                      </Form.Label>
+
+                      <Col sm='8'>
+                        <p className='fs-7'>{workOrderDetail?.order?.members?.email ?? ''} </p>
+                      </Col>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Skeleton>
+            </Col>
+
+            <Col xs={12} sm={12} md={4} lg={4} xl={4} xxl={4} className='sales-info mb-5'>
+              {[
+                'SURVEYREQ',
+                'TUKANGSURVEY',
+                'SURVEYSTART',
+                'SURVEYDONE',
+                'RESURVEYREQ',
+                'RESURVEYSTART',
+                'RESURVEYDONE',
+              ].includes(
+                workOrderDetail?.work_order_status.length
+                  ? workOrderDetail?.work_order_status[0]?.status?.category
+                  : workOrderDetail?.order?.status?.category
+              ) && (
+                <div className='survey mb-3'>
+                  <div className='detail-info mb-3'>
+                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                      <p className='fs-4 fw-bold'>Survey dikerjakan pada:</p>
+                      <p className='fs-7'>
+                        {workOrderDetail?.order?.payment_type === 'survey' ? (
+                          <>
+                            {workOrderDetail?.work_order_status.length ? (
+                              <>{formatDateWithTime(workOrderDetail?.survey_date)}</>
                             ) : (
-                              <>
-                                <p>Order ini tanpa survey</p>
-                              </>
+                              'Jadwal belum ditentukan oleh vendor'
                             )}
-                          </Skeleton>
-                        </div>
+                          </>
+                        ) : (
+                          <>
+                            <p>Order ini tanpa survey</p>
+                          </>
+                        )}
+                      </p>
+                    </Skeleton>
+                  </div>
 
-                        <div className='detail-info mb-3'>
-                          <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                            <p className='fs-5 fw-bold'>Sesi :</p>
-                            {workOrderDetail?.session !== null ? (
-                              <p>
-                                {workOrderDetail?.session === 1
-                                  ? 'Sesi Pagi'
-                                  : workOrderDetail?.session === 2
-                                  ? 'Sesi Siang'
-                                  : workOrderDetail?.session === 3
-                                  ? 'Sesi Sore'
-                                  : 'Sesi belum ditentukan oleh vendor'}
-                              </p>
-                            ) : (
-                              <p>Sesi belum diset oleh vendor</p>
-                            )}
-                          </Skeleton>
-                        </div>
-                      </div>
-                    </Col>
-                  )}
-
-                  {[
-                    'WORKREQ',
-                    'TUKANGWORK',
-                    'WORKSTART',
-                    'WORKEND',
-                    'REWORKREQ',
-                    'REWORKSTART',
-                    'REWORKEND',
-                    'RESCHEDULE',
-                    'DONE',
-                    'WORKREQSTEPONE',
-                    'WORKREQSTEPTWO',
-                    'WORKREQSTEPTHREE',
-                    'WORKSTARTSTEPONE',
-                    'WORKSTARTSTEPTWO',
-                    'WORKSTARTSTEPTHREE',
-                    'WORKENDSTEPONE',
-                    'WORKENDSTEPTWO',
-                    'WORKENDSTEPTHREE',
-                    'TUKANGWORKSTEPONE',
-                    'TUKANGWORKSTEPTWO',
-                    'TUKANGWORKSTEPTHREE',
-                  ].includes(
-                    workOrderDetail?.work_order_status.length
-                      ? workOrderDetail?.work_order_status[0]?.status?.category
-                      : workOrderDetail?.order?.status?.category
-                  ) && (
-                    <Col>
-                      <div className='work-date'>
-                        <Skeleton active loading={isLoadingPage} paragraph={{rows: 5}}>
-                          <p className='fs-4 fw-bold'>Pekerjaan dilakukan pada:</p>
-
-                          <Form.Group as={Row} className='detail-info'>
-                            <Form.Label column sm='3'>
-                              MULAI
-                            </Form.Label>
-
-                            <Col sm='9'>
-                              <p className='fs-7'>
-                                {formatDateWithTime(workOrderDetail?.work_start_date)}
-                              </p>
-                            </Col>
-                          </Form.Group>
-
-                          <Form.Group as={Row} className='detail-info'>
-                            <Form.Label column sm='3'>
-                              SELESAI
-                            </Form.Label>
-
-                            <Col sm='9'>
-                              <p className='fs-7'>
-                                {formatDateWithTime(workOrderDetail?.work_end_date)}
-                              </p>
-                            </Col>
-                          </Form.Group>
-
-                          <div className='detail-info mb-3'>
-                            <p className='fs-5 fw-bold'>Oleh:</p>
-
+                  <div className='detail-info mb-3'>
+                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                      <p className='fs-5 fw-bold'>Oleh:</p>
+                      {workOrderDetail?.order?.payment_type === 'survey' ? (
+                        <>
+                          {workOrderDetail?.work_order_status.length ? (
                             <p className='fs-7'>
                               {workOrderDetail?.work_order_tukang
-                                .filter((x: any) => x.type === 2)
+                                .filter((x: any) => x.type === 1)
                                 .map((item: any) => item?.tukang?.full_name)
                                 .join(', ')}
                             </p>
-                          </div>
-                        </Skeleton>
-                      </div>
-
-                      <div className='detail-info mb-3'>
-                        <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                          <p className='fs-5 fw-bold'>Sesi :</p>
-                          {workOrderDetail?.session !== null ? (
-                            <p>
-                              {workOrderDetail?.session === 1
-                                ? 'Sesi Pagi'
-                                : workOrderDetail?.session === 2
-                                ? 'Sesi Siang'
-                                : workOrderDetail?.session === 3
-                                ? 'Sesi Sore'
-                                : 'Sesi belum ditentukan oleh vendor'}
-                            </p>
                           ) : (
-                            <p>Sesi belum diset oleh vendor</p>
+                            'Jadwal belum ditentukan oleh vendor'
                           )}
-                        </Skeleton>
-                      </div>
-                    </Col>
-                  )}
-                </Row>
-              </Col>
-            </Row>
-          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p>Order ini tanpa survey</p>
+                        </>
+                      )}
+                    </Skeleton>
+                  </div>
+
+                  <div className='detail-info mb-3'>
+                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                      <p className='fs-5 fw-bold'>Sesi :</p>
+                      {workOrderDetail?.session !== null ? (
+                        <p>
+                          {workOrderDetail?.session === 1
+                            ? 'Sesi Pagi'
+                            : workOrderDetail?.session === 2
+                            ? 'Sesi Siang'
+                            : workOrderDetail?.session === 3
+                            ? 'Sesi Sore'
+                            : 'Sesi belum ditentukan oleh vendor'}
+                        </p>
+                      ) : (
+                        <p>Sesi belum diset oleh vendor</p>
+                      )}
+                    </Skeleton>
+                  </div>
+                </div>
+              )}
+
+              {[
+                'WORKREQ',
+                'TUKANGWORK',
+                'WORKSTART',
+                'WORKEND',
+                'REWORKREQ',
+                'REWORKSTART',
+                'REWORKEND',
+                'RESCHEDULE',
+                'DONE',
+                'WORKREQSTEPONE',
+                'WORKREQSTEPTWO',
+                'WORKREQSTEPTHREE',
+                'WORKSTARTSTEPONE',
+                'WORKSTARTSTEPTWO',
+                'WORKSTARTSTEPTHREE',
+                'WORKENDSTEPONE',
+                'WORKENDSTEPTWO',
+                'WORKENDSTEPTHREE',
+                'TUKANGWORKSTEPONE',
+                'TUKANGWORKSTEPTWO',
+                'TUKANGWORKSTEPTHREE',
+              ].includes(
+                workOrderDetail?.work_order_status.length
+                  ? workOrderDetail?.work_order_status[0]?.status?.category
+                  : workOrderDetail?.order?.status?.category
+              ) && (
+                <div className='work-date'>
+                  <Skeleton active loading={isLoadingPage} paragraph={{rows: 5}}>
+                    <p className='fs-4 fw-bold'>Pekerjaan dilakukan pada:</p>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='3'>
+                        MULAI
+                      </Form.Label>
+
+                      <Col sm='9'>
+                        <p className='fs-7'>
+                          {formatDateWithTime(workOrderDetail?.work_start_date)}
+                        </p>
+                      </Col>
+                    </Form.Group>
+
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='3'>
+                        SELESAI
+                      </Form.Label>
+
+                      <Col sm='9'>
+                        <p className='fs-7'>{formatDateWithTime(workOrderDetail?.work_end_date)}</p>
+                      </Col>
+                    </Form.Group>
+
+                    <div className='detail-info mb-3'>
+                      <p className='fs-5 fw-bold'>Oleh:</p>
+
+                      <p className='fs-7'>
+                        {workOrderDetail?.work_order_tukang
+                          .filter((x: any) => x.type === 2)
+                          .map((item: any) => item?.tukang?.full_name)
+                          .join(', ')}
+                      </p>
+                    </div>
+
+                    <div className='detail-info mb-3'>
+                      <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                        <p className='fs-5 fw-bold'>Sesi :</p>
+                        {workOrderDetail?.session !== null ? (
+                          <p>
+                            {workOrderDetail?.session === 1
+                              ? 'Sesi Pagi'
+                              : workOrderDetail?.session === 2
+                              ? 'Sesi Siang'
+                              : workOrderDetail?.session === 3
+                              ? 'Sesi Sore'
+                              : 'Sesi belum ditentukan oleh vendor'}
+                          </p>
+                        ) : (
+                          <p>Sesi belum diset oleh vendor</p>
+                        )}
+                      </Skeleton>
+                    </div>
+                  </Skeleton>
+                </div>
+              )}
+            </Col>
+          </Row>
 
           <Row className='table-warranty d-flex align-items-center mb-5'>
             <div className='table-title-warranty'>
@@ -453,73 +441,81 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
               </Skeleton>
 
               <Row>
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                    <Form.Label column>
-                      {(() => {
-                        if (workOrderDetail?.order?.payment_type === 'survey') {
-                          return `Tanggal request survey`
-                        } else {
-                          return `Tanggal request pemasangan`
-                        }
-                      })()}
-                    </Form.Label>
-
-                    <Col>
-                      <p className='fs-7 p-0'>
-                        {formatDate(workOrderDetail?.order?.request_survey)}
-                      </p>
-                    </Col>
-                  </Skeleton>
-                </Form.Group>
-
-                {workOrderDetail?.order?.payment_type === 'survey' && (
-                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                <Col md={3} sm={12}>
+                  <Form.Group className='mb-3' controlId='formPlaintextEmail'>
                     <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                      <Form.Label column>Tanggal request pemasangan :</Form.Label>
+                      <Form.Label column>
+                        {(() => {
+                          if (workOrderDetail?.order?.payment_type === 'survey') {
+                            return `Tanggal Request Survey :`
+                          } else {
+                            return `Tanggal Request Pemasangan :`
+                          }
+                        })()}
+                      </Form.Label>
 
                       <Col>
                         <p className='fs-7 p-0'>
-                          {workOrderDetail?.order?.request_work
-                            ? formatDate(workOrderDetail?.order?.request_work)
-                            : 'Tanggal belum diset oleh toko'}
+                          {formatDate(workOrderDetail?.order?.request_survey)}
                         </p>
                       </Col>
                     </Skeleton>
                   </Form.Group>
-                )}
+                </Col>
 
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                    <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
-                    <Col>
-                      <p className='fs-7 p-0'>{workOrderDetail?.vendor?.company_name ?? '-'}</p>
-                    </Col>
-                  </Skeleton>
-                </Form.Group>
+                <Col md={3} sm={12}>
+                  {workOrderDetail?.order?.payment_type === 'survey' && (
+                    <Form.Group className='mb-3' controlId='formPlaintextEmail'>
+                      <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                        <Form.Label column>Tanggal Request Pemasangan :</Form.Label>
 
-                <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
-                  <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                    <Form.Label column>Payment Type:</Form.Label>
-                    <Col>
-                      <p className='fs-7 p-0'>
-                        {(() => {
-                          if (workOrderDetail?.order?.payment_type === 'survey') {
-                            return `Berbayar & Survey`
-                          } else if (workOrderDetail?.order?.payment_type === 'gratis') {
-                            return `Gratis`
-                          } else if (
-                            workOrderDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
-                          ) {
-                            return `Berbayar & Pemasangan Tanpa Survey`
-                          } else {
-                            return ``
-                          }
-                        })()}
-                      </p>
-                    </Col>
-                  </Skeleton>
-                </Form.Group>
+                        <Col>
+                          <p className='fs-7 p-0'>
+                            {workOrderDetail?.order?.request_work
+                              ? formatDate(workOrderDetail?.order?.request_work)
+                              : 'Tanggal belum diset oleh toko'}
+                          </p>
+                        </Col>
+                      </Skeleton>
+                    </Form.Group>
+                  )}
+                </Col>
+
+                <Col md={3} sm={12}>
+                  <Form.Group className='mb-3' controlId='formPlaintextEmail'>
+                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                      <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                      <Col>
+                        <p className='fs-7 p-0'>{workOrderDetail?.vendor?.company_name ?? '-'}</p>
+                      </Col>
+                    </Skeleton>
+                  </Form.Group>
+                </Col>
+
+                <Col md={3} sm={12}>
+                  <Form.Group className='mb-3' controlId='formPlaintextEmail'>
+                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
+                      <Form.Label column>Payment Type:</Form.Label>
+                      <Col>
+                        <p className='fs-7 p-0'>
+                          {(() => {
+                            if (workOrderDetail?.order?.payment_type === 'survey') {
+                              return `Berbayar & Survey`
+                            } else if (workOrderDetail?.order?.payment_type === 'gratis') {
+                              return `Gratis`
+                            } else if (
+                              workOrderDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
+                            ) {
+                              return `Berbayar & Pemasangan Tanpa Survey`
+                            } else {
+                              return ``
+                            }
+                          })()}
+                        </p>
+                      </Col>
+                    </Skeleton>
+                  </Form.Group>
+                </Col>
               </Row>
             </div>
 
