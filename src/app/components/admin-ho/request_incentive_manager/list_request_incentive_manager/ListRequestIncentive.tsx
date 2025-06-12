@@ -105,13 +105,13 @@ const ListRequestIncentiveHOManager: React.FC<Props> = ({className}) => {
   const columns: ColumnsType<DataType> = [
     {
       title: 'Insentif ID',
-      dataIndex: 'incentive_id',
-      key: 'incentive_id',
+      dataIndex: 'id',
+      key: 'id',
       align: 'center',
       width: 110,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.incentive_id - b.incentive_id,
+      sorter: (a:any, b:any) => a.id - b.id,
     },
     {
       title: 'Tanggal Pengajuan Insentif',
@@ -145,10 +145,15 @@ const ListRequestIncentiveHOManager: React.FC<Props> = ({className}) => {
       width: 70,
       align: 'center',
       render: (record) => {
-        const id = record.incentive_group_id
 
+        
+        const id = record.id
+        // console.log(record);
+        
         const handleDetailIncentiveGroup = () => {
-          navigate(`/incentive-sales/detail-request-incentive/${id}`)
+          // console.log(record);
+          
+          navigate(`/incentive-manager/detail-request-incentive-manager/${id}`)
         }
 
         const findOneData = async (id: number) => {
@@ -321,8 +326,10 @@ const ListRequestIncentiveHOManager: React.FC<Props> = ({className}) => {
               return ''
           }
         }
-
+    
+        
         data = {
+          id: item.id,
           incentive_id: item.incentive_id,
           created_at: requestDate,
           total_amount: `Rp. ${parseInt(item?.nominal ?? 0).toLocaleString('id')}`,

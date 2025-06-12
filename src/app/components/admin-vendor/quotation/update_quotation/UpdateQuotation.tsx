@@ -754,7 +754,7 @@ const UpdateQuotationVendor: FC = () => {
                 checked={quotation.quotation_special === 1}
                 onChange={(e) => handleChangeQuotationType(e.target.checked)}
               />
-              <Form.Text className='fs-7 text-black'>Keterangan : </Form.Text>
+              <Form.Text className='fs-7 text-black'>Catatan : </Form.Text>
               <br></br>
               <Form.Text className='fs-7 text-black'>
                 *Quotation spesial merupakan quotation yang nominalnya diatas 20.000.000
@@ -762,6 +762,11 @@ const UpdateQuotationVendor: FC = () => {
               <br></br>
               <Form.Text className='fs-7 text-danger'>
                 *Ceklis checkbox diatas untuk mengaktifkan quotation spesial
+              </Form.Text>
+              <br></br>
+              <Form.Text className='fs-7 text-danger'>
+                *Harap masukkan angka tanpa tanda koma (,) sebagai pengganti gunakan tanda titik
+                (.).
               </Form.Text>
             </Col>
           </Row>
@@ -807,6 +812,11 @@ const UpdateQuotationVendor: FC = () => {
                                   name='quantity'
                                   type='number'
                                   value={element.quantity}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     validateQtyInput(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -827,6 +837,11 @@ const UpdateQuotationVendor: FC = () => {
                                   type='number'
                                   name='unit_price'
                                   value={element.unit_price}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -847,7 +862,7 @@ const UpdateQuotationVendor: FC = () => {
                                   plaintext
                                   value={`Rp. ${(
                                     Number(element.quantity) * Number(element.unit_price)
-                                  ).toLocaleString()}`}
+                                  ).toLocaleString('id')}`}
                                 />
                               </Form.Group>
                             </Col>
@@ -882,6 +897,11 @@ const UpdateQuotationVendor: FC = () => {
                                   type='number'
                                   name='margin'
                                   value={element.margin}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -990,6 +1010,11 @@ const UpdateQuotationVendor: FC = () => {
                                   name='quantity'
                                   type='number'
                                   value={element.quantity}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -1017,6 +1042,11 @@ const UpdateQuotationVendor: FC = () => {
                                   type='number'
                                   name='unit_price'
                                   value={element.unit_price}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -1038,7 +1068,7 @@ const UpdateQuotationVendor: FC = () => {
                                   plaintext
                                   value={`Rp. ${(
                                     Number(element.quantity) * Number(element.unit_price)
-                                  ).toLocaleString()}`}
+                                  ).toLocaleString('id')}`}
                                 />
                               </Form.Group>
                             </Col>
@@ -1074,6 +1104,11 @@ const UpdateQuotationVendor: FC = () => {
                                   type='number'
                                   name='margin'
                                   value={element.margin}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -1179,6 +1214,11 @@ const UpdateQuotationVendor: FC = () => {
                                   name='quantity'
                                   type='number'
                                   value={element.quantity}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -1206,6 +1246,11 @@ const UpdateQuotationVendor: FC = () => {
                                   type='number'
                                   name='unit_price'
                                   value={element.unit_price}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -1227,7 +1272,7 @@ const UpdateQuotationVendor: FC = () => {
                                   plaintext
                                   value={`Rp. ${(
                                     Number(element.quantity) * Number(element.unit_price)
-                                  ).toLocaleString()}`}
+                                  ).toLocaleString('id')}`}
                                 />
                               </Form.Group>
                             </Col>
@@ -1263,6 +1308,11 @@ const UpdateQuotationVendor: FC = () => {
                                   type='number'
                                   name='margin'
                                   value={element.margin}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -1368,6 +1418,11 @@ const UpdateQuotationVendor: FC = () => {
                                   name='quantity'
                                   type='number'
                                   value={element.quantity}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -1395,6 +1450,11 @@ const UpdateQuotationVendor: FC = () => {
                                   type='number'
                                   name='unit_price'
                                   value={element.unit_price}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ',') {
+                                      e.preventDefault()
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     handleChangeQuotationDetails(
                                       e as ChangeEvent<HTMLInputElement>,
@@ -1416,7 +1476,7 @@ const UpdateQuotationVendor: FC = () => {
                                   plaintext
                                   value={`Rp. ${(
                                     Number(element.quantity) * Number(element.unit_price)
-                                  ).toLocaleString()}`}
+                                  ).toLocaleString('id')}`}
                                 />
                               </Form.Group>
                             </Col>
@@ -1571,6 +1631,11 @@ const UpdateQuotationVendor: FC = () => {
                               name='quantity'
                               value={element.quantity}
                               disabled={element.is_user === 1 ? true : false}
+                              onKeyDown={(e) => {
+                                if (e.key === ',') {
+                                  e.preventDefault()
+                                }
+                              }}
                               onChange={(e) => {
                                 handleChangeQuotationDetails(
                                   e as ChangeEvent<HTMLInputElement>,
@@ -1597,6 +1662,11 @@ const UpdateQuotationVendor: FC = () => {
                               name='unit_price'
                               value={element.unit_price}
                               disabled={element.is_user === 1 ? true : false}
+                              onKeyDown={(e) => {
+                                if (e.key === ',') {
+                                  e.preventDefault()
+                                }
+                              }}
                               onChange={(e) => {
                                 handleChangeQuotationDetails(
                                   e as ChangeEvent<HTMLInputElement>,
@@ -1617,7 +1687,7 @@ const UpdateQuotationVendor: FC = () => {
                               plaintext
                               value={`Rp. ${(
                                 Number(element.quantity) * Number(element.unit_price)
-                              ).toLocaleString()}`}
+                              ).toLocaleString('id')}`}
                             />
                           </Form.Group>
                         </Col>
@@ -1654,6 +1724,11 @@ const UpdateQuotationVendor: FC = () => {
                               name='margin'
                               value={element.margin}
                               disabled={element.is_user === 1 ? true : false}
+                              onKeyDown={(e) => {
+                                if (e.key === ',') {
+                                  e.preventDefault()
+                                }
+                              }}
                               onChange={(e) => {
                                 handleChangeQuotationDetails(
                                   e as ChangeEvent<HTMLInputElement>,

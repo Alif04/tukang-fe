@@ -1354,12 +1354,20 @@ const UpdateQuotationHO: FC = () => {
                 </Card.Body>
               </Card>
             )}
-
-            <h4 className='fs-8 fw-normal text-danger'>
-              *Jika <span className='fw-bolder text-decoration-underline'>Material</span> diceklis,
-              maka material tersebut disediakan oleh customer
-            </h4>
           </div>
+
+          <hr />
+
+          <Form.Text className='fs-7 text-black'>Catatan : </Form.Text>
+          <br></br>
+          <Form.Text className='fs-8 fw-normal text-danger'>
+            *Jika <span className='fw-bolder text-decoration-underline'>Material</span> diceklis,
+            maka material tersebut disediakan oleh customer
+          </Form.Text>
+          <br></br>
+          <Form.Text className='fs-8 text-danger'>
+            *Harap masukkan angka tanpa tanda koma (,) sebagai pengganti gunakan tanda titik (.).
+          </Form.Text>
 
           <hr />
 
@@ -1398,6 +1406,11 @@ const UpdateQuotationHO: FC = () => {
                   id='promosi'
                   type='number'
                   value={promosiDiscount}
+                  onKeyDown={(e) => {
+                    if (e.key === ',') {
+                      e.preventDefault()
+                    }
+                  }}
                   onChange={(e) => handlePromosiChange(e.target.value)}
                 />
               </tr>

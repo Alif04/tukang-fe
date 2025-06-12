@@ -540,7 +540,7 @@ const UpdateItemHO: FC = () => {
           setIsLoading(false)
         }
 
-        navigate('/item/view-item?tab=item_promotion')
+        navigate('/item/view-item?type=item_promotion')
       })
       .catch((error) => {
         console.error(error)
