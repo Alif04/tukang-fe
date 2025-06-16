@@ -531,6 +531,14 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           sorter: (a, b) => a.penalty_vendor - b.penalty_vendor,
         },
         {
+          title: 'Status Penalti',
+          dataIndex: 'paid_status',
+          key: 'paid_status',
+          align: 'center',
+          width: 110,
+          sorter: (a, b) => a.paid_status - b.paid_status,
+        },
+        {
           title: 'Nama Pemasangan',
           dataIndex: 'service_name',
           key: 'service_name',
@@ -1069,7 +1077,6 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
       let quotationData
       let refundData
       let rescheduleData
-      let csiData
       let salesComissionData
       let invoicesData
 
@@ -1209,6 +1216,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
                   ? item?.orders?.m_order_details[0]?.item_notes ?? '-'
                   : item?.orders?.m_order_details[0]?.item?.service_name ?? '-',
               voucher: item?.voucher ?? '-',
+              paid_status: item?.paid_status === 1 ? 'Sudah Dibayar' : 'Belum Dibayar',
               penalty_vendor: `Rp. ${parseInt(item?.penalty_nominal ?? 0).toLocaleString('id')}`,
               payment_status: paymentStatus,
               order_status: item?.status?.description,
