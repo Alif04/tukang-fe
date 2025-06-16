@@ -5,14 +5,14 @@ import {useNavigate} from 'react-router-dom'
 
 import './ViewRefund.css'
 
-import axios from 'axios'
-import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
+import dayjs from 'dayjs'
 import type {ColumnsType} from 'antd/es/table'
+import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faPen, faBook, faSearch} from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
+import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -31,6 +31,7 @@ interface DataType {
   vendor_name: string
   payment_status: string
   order_status: string
+  paid_status: string
   refund_status: string
 }
 
@@ -38,9 +39,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
-  const userRole = localStorage.getItem('userRole') as string
   const userStore = localStorage.getItem('storeId')
-  const storeId = !['Super User', 'Admin HO'].includes(userRole) ? `&store_id=${userStore}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -49,8 +48,10 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
+  const [dateFrom, setDateFrom] = useState<any>(
+    new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
+  )
+  const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
   const [searchFilter, setSearchFilter] = useState<string>('')
 
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,17 +74,17 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       dataIndex: 'order_id',
       key: 'order_id',
       align: 'center',
-      width: 80,
+      width: 100,
       className: 'col_order_id',
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.order_id - b.order_id,
     },
     {
-      title: 'Refund Id',
+      title: 'Refund ID',
       dataIndex: 'refund_id',
       key: 'refund_id',
       align: 'center',
-      width: 80,
+      width: 100,
       sorter: (a, b) => a.refund_id - b.refund_id,
     },
     {
@@ -142,10 +143,19 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       title: 'Nama Vendor',
       dataIndex: 'vendor_name',
       key: 'vendor_name',
-      align: 'center',
+      align: 'left',
       width: 150,
       onFilter: (value, record) => record.vendor_name.includes(String(value)),
       sorter: (a, b) => a.vendor_name.length - b.vendor_name.length,
+    },
+    {
+      title: 'Status Penalti',
+      dataIndex: 'paid_status',
+      key: 'paid_status',
+      align: 'center',
+      width: 150,
+      onFilter: (value, record) => record.paid_status.includes(String(value)),
+      sorter: (a, b) => a.paid_status.length - b.paid_status.length,
     },
     {
       title: 'Status Order',
@@ -232,10 +242,17 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
   ]
 
   const fetchRefundList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/refund?order_by=desc&page=${page}&take=${pageSize}${queryparams}${storeId}`
+    let apiUrlWithParams = `${apiUrl}/refund?order_by=desc${queryparams}`
 
     try {
       const response = await axiosInstance.get(apiUrlWithParams, {
+        params: {
+          page: page,
+          pageSize: pageSize,
+          date_from: dateFrom,
+          date_to: dateTo,
+          storeId: userStore ? userStore : null,
+        },
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -245,7 +262,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       })
 
       setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
+      setTotalData(response?.data?.takeTotal ?? 0)
       setLoadData(false)
 
       return response.data.data
@@ -291,6 +308,7 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
           phone_number: item?.orders?.project_number,
           payment_status: paymentStatus,
           refund_status: item?.status?.description,
+          paid_status: item?.paid_status === 1 ? 'Sudah Dibayar' : 'Belum Dibayar',
           order_status:
             item?.orders?.work_orders?.work_order_status?.length > 0 &&
             item?.status?.category !== 'QUOTEOUT'
@@ -346,8 +364,6 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
 
     const data = await ViewRefund(1, 10, queryparams)
@@ -368,7 +384,8 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
 
               <RangePicker
                 format={'DD-MM-YYYY'}
-                className='date-range ms-3'
+                className='date-range'
+                defaultValue={[dayjs().subtract(30, 'day'), dayjs()]}
                 onChange={(values) => {
                   if (values && values.length === 2) {
                     const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
@@ -377,8 +394,8 @@ const ViewRefundCS: React.FC<Props> = ({className}) => {
                     setDateFrom(dateFromFormatted)
                     setDateTo(dateToFormatted)
                   } else {
-                    setDateFrom('')
-                    setDateTo('')
+                    setDateFrom(new Date().toISOString().split('T')[0])
+                    setDateTo(new Date().toISOString().split('T')[0])
                   }
                 }}
               />

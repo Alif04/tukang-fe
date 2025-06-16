@@ -5,12 +5,11 @@ import {useNavigate} from 'react-router-dom'
 
 import './ViewComplaint.css'
 
-import axios from 'axios'
 import dayjs from 'dayjs'
 import {Table, Tag, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
-import {Form, FormGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {Form, FormGroup, Row, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
 import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
@@ -238,10 +237,10 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           navigate(`/complaint/detail-complaint/${id}`)
         }
 
-        const handleEdit = () => {
-          const id = record.complaint_id
-          navigate(`/complaint/update-complaint/${id}`)
-        }
+        // const handleEdit = () => {
+        //   const id = record.complaint_id
+        //   navigate(`/complaint/update-complaint/${id}`)
+        // }
 
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>

@@ -13,11 +13,6 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faBook, faNoteSticky, faSearch} from '@fortawesome/free-solid-svg-icons'
 import {Row, Card, Form, FormGroup, OverlayTrigger, Tooltip, Button, Modal} from 'react-bootstrap'
 
-interface Status {
-  value: number | null
-  category: string
-}
-
 interface DataType {
   order_id: number
   work_order_id: number
@@ -64,14 +59,8 @@ const ViewReportTukang = () => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  // Status
-  const storedStatus = localStorage.getItem('statusData')
-  const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const desiredStatus = statusData.filter((status: any) => ['WORKEND'].includes(status.category))
-  const statuses = desiredStatus.map((x) => x.value)
-
   const getWorkOrder = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${tukangId}&status=${statuses}&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/work-orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}${tukangId}&page=${page}&take=${pageSize}${queryparams}`
 
     try {
       const response = await axios.get(apiUrlWithParams, {

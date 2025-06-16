@@ -1028,7 +1028,7 @@ const ReportVendor: React.FC<Props> = ({endpoint, statusName, headerColor, title
               phone_number: item?.orders?.project_number,
               voucher: item?.voucher ?? '-',
               penalty_vendor: `Rp. ${parseInt(item?.penalty_nominal ?? 0).toLocaleString('id')}`,
-              payment_status_penalty: item?.paid_status === 1 ? 'PAID' : 'UNPAID',
+              payment_status_penalty: item?.paid_status === 1 ? 'Sudah Dibayar' : 'Belum Dibayar',
               order_status: item?.status?.description,
             }
 
