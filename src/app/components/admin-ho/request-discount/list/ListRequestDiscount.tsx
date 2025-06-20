@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useState, useEffect, FC, useRef} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import axios from 'axios'
@@ -25,9 +25,6 @@ import {
   faImage,
   faFileImage,
   faTrash,
-  faFile,
-  faCheckCircle,
-  faXmarkCircle,
   faPen,
 } from '@fortawesome/free-solid-svg-icons'
 import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
@@ -36,12 +33,6 @@ const {RangePicker} = DatePicker
 
 type Props = {
   className: string
-}
-
-interface StoreItem {
-  value: number | null
-  label: string
-  city_id: number | null
 }
 
 interface DataType {
@@ -68,7 +59,7 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
   const userRole = localStorage.getItem('userRole')
 
-  const [isLoading, setIsLoading] = useState(false)
+  const [, setIsLoading] = useState(false)
   const [loadingExport, setLoadingExport] = useState(false)
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -161,29 +152,28 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
       align: 'center',
       render: (record) => {
         const id = record.request_discount_id
-        const status = record.status_id
 
         const handleDetailIncentiveGroup = () => {
           navigate(`/quotation/detail-request-discount/${id}`)
         }
 
-        const findOneData = async (id: number) => {
-          const selected = incentiveData.find((incentive) => incentive.request_discount_id === id)
+        // const findOneData = async (id: number) => {
+        //   const selected = incentiveData.find((incentive) => incentive.request_discount_id === id)
 
-          if (selected) {
-            findOneIncentiveGroup(selected.request_discount_id)
-          }
-        }
+        //   if (selected) {
+        //     findOneIncentiveGroup(selected.request_discount_id)
+        //   }
+        // }
 
-        const handleShowModal = (id: number, type: number) => {
-          const selected = incentiveData.find((incentive) => incentive.request_discount_id === id)
+        // const handleShowModal = (id: number, type: number) => {
+        //   const selected = incentiveData.find((incentive) => incentive.request_discount_id === id)
 
-          if (selected) {
-            findOneIncentiveGroup(selected.request_discount_id)
-            setShowModal(true)
-            setModalType(type)
-          }
-        }
+        //   if (selected) {
+        //     findOneIncentiveGroup(selected.request_discount_id)
+        //     setShowModal(true)
+        //     setModalType(type)
+        //   }
+        // }
 
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>
@@ -382,6 +372,7 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(1, 10, '')
+    // eslint-disable-next-line
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -448,7 +439,7 @@ const ListRequestDiscountHO: React.FC<Props> = ({className}) => {
   const [loadingUpdate, setLoadingUpdate] = useState(false)
   const [loadingModal, setLoadingModal] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [modalType, setModalType] = useState<number | null>(null)
+  const [modalType] = useState<number | null>(null)
   const handleCloseModal = () => {
     setShowModal(false)
   }
