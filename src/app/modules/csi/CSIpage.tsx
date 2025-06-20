@@ -4,12 +4,10 @@ import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 
 import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderWrapper'
 
-import {ViewCSI} from './components/ViewCSI'
-import {ListCSI} from './components/ListCSI'
 import {ListFormatCSI} from '../../components'
+import {ViewCSI} from './components/ViewCSI'
 import {NewCSI} from './components/NewCSI'
 import {UpdateCSI} from './components/UpdateCSI'
-import {ReportCSI} from './components/ReportCSI'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -21,33 +19,15 @@ const orderBreadCrumbs: Array<PageLink> = [
 ]
 
 const CSIpage: React.FC = () => {
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') as string
 
   return (
     <Routes>
       <Route
-        path='list-csi'
-        element={
-          <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>SURVEY KEPUASAN PELANGGAN</PageTitle>
-            <ListCSI />
-          </>
-        }
-      />
-
-      <Route
         path='view-csi/:id'
         element={
           <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+            {['Super User', 'Admin HO'].includes(userRole) ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -65,7 +45,7 @@ const CSIpage: React.FC = () => {
         path='format-pertanyaan-csi'
         element={
           <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+            {['Super User', 'Admin HO'].includes(userRole) ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -83,7 +63,7 @@ const CSIpage: React.FC = () => {
         path='new-csi'
         element={
           <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+            {['Super User', 'Admin HO'].includes(userRole) ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -103,7 +83,7 @@ const CSIpage: React.FC = () => {
         path='update-csi/:id'
         element={
           <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+            {['Super User', 'Admin HO'].includes(userRole) ? (
               <>
                 <HeaderWrapper className='bg-header-ho' />
               </>
@@ -113,24 +93,6 @@ const CSIpage: React.FC = () => {
 
             <PageTitle breadcrumbs={orderBreadCrumbs}>UPDATE SURVEY KEPUASAN PELANGGAN</PageTitle>
             <UpdateCSI />
-          </>
-        }
-      />
-
-      <Route
-        path='report-csi'
-        element={
-          <>
-            {userRole == 'Admin HO' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <PageTitle breadcrumbs={orderBreadCrumbs}>CSI DASHBOARD</PageTitle>
-            <ReportCSI />
           </>
         }
       />

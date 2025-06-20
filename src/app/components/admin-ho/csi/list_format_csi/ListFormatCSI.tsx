@@ -1,11 +1,10 @@
 import React, {FC, useState, useEffect} from 'react'
-import {useNavigate} from 'react-router-dom'
 import {formatDateWithTime, toAbsoluteUrl} from '../../../../../_metronic/helpers'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import {List, Space, PaginationProps} from 'antd'
-import {Card} from 'react-bootstrap'
+import {Button, Card} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
   faPen,
@@ -25,7 +24,11 @@ const ListFormatCSI: FC = () => {
 
   const getCSI = async (page: number, pageSize: number) => {
     try {
-      const response = await axios.get(`${apiUrl}/csi?page=${page}&take=${pageSize}`, {
+      const response = await axios.get(`${apiUrl}/csi`, {
+        params: {
+          page: page,
+          take: pageSize,
+        },
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -46,6 +49,7 @@ const ListFormatCSI: FC = () => {
 
   useEffect(() => {
     getCSI(1, 10)
+    // eslint-disable-next-line
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -73,9 +77,14 @@ const ListFormatCSI: FC = () => {
       <FontAwesomeIcon icon={icon} />
 
       <div className='text-link'>
-        <a className='fs-6 text-black' href={link} target={openNewTab ? '_blank' : ''}>
+        <Button
+          variant='link'
+          className='fs-6 text-black'
+          href={link}
+          target={openNewTab ? '_blank' : ''}
+        >
           {text}
-        </a>
+        </Button>
       </div>
     </Space>
   )
@@ -85,9 +94,13 @@ const ListFormatCSI: FC = () => {
       <FontAwesomeIcon icon={icon} style={{color: 'red'}} />
 
       <div className='text-link'>
-        <a className='fs-6 text-black' onClick={() => handleDelete(`${csi_id}`)}>
+        <Button
+          variant='link'
+          className='fs-6 text-black'
+          onClick={() => handleDelete(`${csi_id}`)}
+        >
           {text}
-        </a>
+        </Button>
       </div>
     </Space>
   )
@@ -168,7 +181,7 @@ const ListFormatCSI: FC = () => {
               extra={
                 <img
                   width={200}
-                  alt='image'
+                  alt='media-csi'
                   src={toAbsoluteUrl('/media/csi/Formulir Kepuasan Pelanggan.png')}
                 />
               }
@@ -220,15 +233,6 @@ const ListFormatCSI: FC = () => {
           </Card>
         )}
       />
-
-      {/* <iframe
-        className='csi-frame'
-        src='https://docs.google.com/forms/d/e/1FAIpQLScigS6VCCMrZZkTzDsIjgLFRx8F_7ka8dVzNPmd9SLbHO6Bjg/viewform?embedded=true'
-        width='2000px'
-        height='100%'
-      >
-        Memuat…
-      </iframe> */}
     </section>
   )
 }
