@@ -22,7 +22,7 @@ interface ChatPreviousProps {
   fetchNewChats: () => void
   vendorName: string
   storeName: string
-  setReciver:any
+  setReciver: any
 }
 const apiChat = process.env.REACT_APP_API_CHAT_URL
 const ChatPrevious: React.FC<ChatPreviousProps> = ({
@@ -38,11 +38,11 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   vendorName,
   fetchNewChats,
   storeName,
-  setReciver
+  setReciver,
 }) => {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
   const [unreadCounts, setUnreadCounts] = useState<{[key: string]: number}>({}) // Map for unread counts
-  const [image, setImage] = useState<File | null>(null) // State untuk gambar
+  const [, setImage] = useState<File | null>(null) // State untuk gambar
   const [latestMessages, setLatestMessages] = useState<{[key: string]: string}>({})
   const chatContainerRef = useRef<HTMLDivElement | null>(null)
   const [previewImage, setPreviewImage] = useState(null)
@@ -120,27 +120,34 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
 
     fetchNewChat()
     fetchUnreadCounts()
+    // eslint-disable-next-line
   }, [previousChats])
 
   const onSelectChat = async (chat: Chat) => {
-    const members = chat.members.filter((member: string) => member !== (
-      userRole === "Owner Vendor"
-        ? vendorName
-        : userRole === "Super User"
-        ? "Admin HO"
-        : userRole === "Store CS"
-        ? storeName
-        : userRole
-    ));
+    const members = chat.members.filter(
+      (member: string) =>
+        member !==
+        (userRole === 'Owner Vendor'
+          ? vendorName
+          : userRole === 'Super User'
+          ? 'Admin HO'
+          : userRole === 'Store CS'
+          ? storeName
+          : userRole)
+    )
     setReciver(members)
-    
+
     setSelectedChat(chat)
     handlePreviousChat(chat._id)
     try {
       const sender =
-        userRole === 'Owner Vendor' ? vendorName : userRole === 'Super User' ? 'Admin HO' : userRole === 'Store CS'
-        ? storeName
-        : userRole
+        userRole === 'Owner Vendor'
+          ? vendorName
+          : userRole === 'Super User'
+          ? 'Admin HO'
+          : userRole === 'Store CS'
+          ? storeName
+          : userRole
       await axios.put(
         `${apiChat}/chat/status/${chat._id}`,
         {sender},
@@ -165,24 +172,21 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setImage(e.target.files[0])
-      
-      
-      const file = e.target.files[0]
-      const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
-      const isImage = file.type.startsWith("image/");
-        const isVideo = file.type.startsWith("video/");
-    
-        if ((isImage && fileSizeMB > 2) || (isVideo && fileSizeMB > 5)) {
 
-          
+      const file = e.target.files[0]
+      const fileSizeMB = file.size / (1024 * 1024) // Convert bytes to MB
+      const isImage = file.type.startsWith('image/')
+      const isVideo = file.type.startsWith('video/')
+
+      if ((isImage && fileSizeMB > 2) || (isVideo && fileSizeMB > 5)) {
         Swal.fire({
           title: 'Error',
-          text: `File terlalu besar! Maksimum ${isImage ? "2MB" : "5MB"}`,
+          text: `File terlalu besar! Maksimum ${isImage ? '2MB' : '5MB'}`,
           icon: 'error',
         })
-          // alert(`File terlalu besar! Maksimum ${isImage ? "2MB" : "5MB"}`);
-          return;
-        }
+        // alert(`File terlalu besar! Maksimum ${isImage ? "2MB" : "5MB"}`);
+        return
+      }
       // Simpan file ke dalam setMessage
       setMessage({
         type: 'file',

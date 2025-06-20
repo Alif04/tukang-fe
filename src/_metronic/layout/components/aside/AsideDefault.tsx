@@ -137,6 +137,7 @@ const AsideDefault: FC = () => {
 
   useEffect(() => {
     getUser()
+    // eslint-disable-next-line
   }, [])
 
   const minimize = () => {
