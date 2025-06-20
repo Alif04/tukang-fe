@@ -8,7 +8,7 @@ import Select from 'react-select'
 import Swal from 'sweetalert2'
 import makeAnimated from 'react-select/animated'
 import {useNavigate} from 'react-router-dom'
-import {Form, Row, Col, Button, ListGroup, Card} from 'react-bootstrap'
+import {Form, Row, Col, Button, ListGroup, Card, Badge} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faUpload, faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -342,6 +342,14 @@ const NewVendorHO: FC = () => {
     suip: false,
     ptkp: false,
   })
+
+  useEffect(() => {
+    if (isActive.ptkp === true) {
+      setVendorType(1)
+    } else {
+      setVendorType(0)
+    }
+  }, [vendorType, isActive.ptkp])
 
   const handleFormCheckbox = (element: keyof CheckStates) => {
     setisActive({...isActive, [element]: !isActive[element]})
@@ -918,7 +926,9 @@ const NewVendorHO: FC = () => {
 
               <Row className='form-body'>
                 <Form.Group>
-                  <Form.Label>Nama Perusahaan</Form.Label>
+                  <Form.Label>
+                    Nama Perusahaan <Badge bg='primary'>{isActive.ptkp ? 'PKP' : 'Non-PKP'}</Badge>
+                  </Form.Label>
 
                   <Form.Control type='text' onChange={handleChangeVendorName} value={vendorName} />
                 </Form.Group>
@@ -1212,12 +1222,24 @@ const NewVendorHO: FC = () => {
                     onChange={handleFileChangePtkpEvidence}
                   />
 
-                  <div className='upload d-flex align-items-center'>
+                  <div className='upload d-flex flex-column align-items-start p-0'>
                     <Form.Check
-                      checked={isActive.ptkp}
+                      id='radio-ptkp'
+                      label={<Form.Label className=''>PKP</Form.Label>}
+                      name='true'
+                      type='radio'
+                      checked={isActive.ptkp === true}
                       onChange={() => handleFormCheckbox('ptkp')}
                     />
-                    <Form.Label className='ms-2'>PKP</Form.Label>
+
+                    <Form.Check
+                      id='radio-ptkp'
+                      label={<Form.Label className=''>Non PKP</Form.Label>}
+                      name='ptkp_false'
+                      type='radio'
+                      checked={isActive.ptkp === false}
+                      onChange={() => handleFormCheckbox('ptkp')}
+                    />
                   </div>
 
                   <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>

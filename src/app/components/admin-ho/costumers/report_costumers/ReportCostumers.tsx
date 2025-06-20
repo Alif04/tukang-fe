@@ -5,7 +5,7 @@ import {BestCostumers} from './components/BestCostumers'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import Select from 'react-select'
-import {Card, Row, Col, Button} from 'react-bootstrap'
+import {Card, Row, Col, Button, Tab, Nav} from 'react-bootstrap'
 
 import {DatePicker} from 'antd'
 const {RangePicker} = DatePicker
@@ -24,9 +24,11 @@ const ReportCostumerHO: FC = () => {
   const [totalMember, setTotalMember] = useState(0)
   const [singleOrder, setSingleOrder] = useState<number>(0)
   const [multiOrder, setMultiOrder] = useState<number>(0)
+  const [isPromotion, setIsPromotion] = useState<number>(1)
 
   const [storeOption, setStoreOption] = useState<any[]>([])
   const storeOptions = [{value: null, label: 'All Toko'}, ...storeOption]
+
   const [selectedStore, setSelectedStore] = useState<any>({
     value: null,
     label: 'All Toko',
@@ -59,10 +61,10 @@ const ReportCostumerHO: FC = () => {
     }
   }
 
-  const getMember = async () => {
+  const getMember = async (promotionType: number) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/member?take=1000&top_best=1${storeId}&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
+        `${apiUrl}/member?take=0&is_promotion=${promotionType}${storeId}&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
         {
           headers: {
             Accept: 'application/json',
@@ -119,15 +121,27 @@ const ReportCostumerHO: FC = () => {
   }
 
   useEffect(() => {
+    getMember(isPromotion)
+
+    // eslint-disable-next-line
+  }, [isPromotion])
+
+  useEffect(() => {
     getStore()
-    getMember()
     getReportOrder()
+
+    // eslint-disable-next-line
   }, [])
 
+  // Change value
+  const handleSelectTab = (key: any) => {
+    setIsPromotion(Number(key))
+  }
+
+  // Filter
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
-    await getMember()
     await getReportOrder()
 
     setLoadingButton(false)
@@ -266,19 +280,70 @@ const ReportCostumerHO: FC = () => {
       {/* end::Row */}
 
       {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
-        <div className='col-xl-12'>
-          <BestCostumers
-            className='card-xl-stretch mb-5 mb-xl-8'
-            memberData={member}
-            totalMember={totalMember}
-            storeId={selectedStore?.value ?? null}
-            storeName={selectedStore?.label ?? 'All Store'}
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-          />
-        </div>
-      </div>
+      <Row className='g-5 g-xl-8'>
+        <Col>
+          <Tab.Container defaultActiveKey='1' onSelect={handleSelectTab}>
+            <Nav fill variant='tabs'>
+              <Nav.Item>
+                <Nav.Link eventKey='1' style={{cursor: 'pointer'}}>
+                  Pemasangan Tanpa Survei
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey='2' style={{cursor: 'pointer'}}>
+                  Survei
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey='3' style={{cursor: 'pointer'}}>
+                  Gratis
+                </Nav.Link>
+              </Nav.Item>
+            </Nav>
+
+            <Tab.Content className='mt-4'>
+              <Tab.Pane eventKey='1'>
+                <BestCostumers
+                  className='card-xl-stretch mb-5 mb-xl-8'
+                  memberData={member}
+                  isPromotion={1}
+                  totalMember={totalMember}
+                  storeId={selectedStore?.value ?? null}
+                  storeName={selectedStore?.label ?? 'All Store'}
+                  dateFrom={dateFrom}
+                  dateTo={dateTo}
+                />
+              </Tab.Pane>
+
+              <Tab.Pane eventKey='2'>
+                <BestCostumers
+                  className='card-xl-stretch mb-5 mb-xl-8'
+                  memberData={member}
+                  isPromotion={2}
+                  totalMember={totalMember}
+                  storeId={selectedStore?.value ?? null}
+                  storeName={selectedStore?.label ?? 'All Store'}
+                  dateFrom={dateFrom}
+                  dateTo={dateTo}
+                />
+              </Tab.Pane>
+
+              <Tab.Pane eventKey='3'>
+                <BestCostumers
+                  className='card-xl-stretch mb-5 mb-xl-8'
+                  memberData={member}
+                  isPromotion={3}
+                  totalMember={totalMember}
+                  storeId={selectedStore?.value ?? null}
+                  storeName={selectedStore?.label ?? 'All Store'}
+                  dateFrom={dateFrom}
+                  dateTo={dateTo}
+                />
+              </Tab.Pane>
+            </Tab.Content>
+          </Tab.Container>
+        </Col>
+      </Row>
       {/* end::Row */}
     </>
   )

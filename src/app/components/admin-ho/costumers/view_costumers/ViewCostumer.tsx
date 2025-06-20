@@ -299,6 +299,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(1, 10, '')
+    // eslint-disable-next-line
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {

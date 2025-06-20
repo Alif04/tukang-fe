@@ -10,7 +10,7 @@ import Swal from 'sweetalert2'
 import {Spin} from 'antd'
 import makeAnimated from 'react-select/animated'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Form, Row, Col, Button, ListGroup, Card} from 'react-bootstrap'
+import {Form, Row, Col, Button, ListGroup, Card, Tooltip, Badge} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faUpload, faImage, faFileImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
@@ -102,10 +102,10 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
             setVendorType(data.type ?? 0)
           }
 
-          if (data.type === 1) {
+          if (data.type) {
             setisActive((prevState) => ({
               ...prevState,
-              ptkp: true,
+              ptkp: data.type === 1 ? true : false,
             }))
           }
 
@@ -365,10 +365,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [serviceType, setServiceType] = useState<ServiceType[]>([])
   const [serviceTypeValues, setServiceTypeValues] = useState<ServiceTypeValues[]>([])
 
-  console.log('service_area', serviceAreaValues)
-  console.log('service_type', serviceTypeValues)
-  console.log('store', storeValues)
-
   // File Upload
   const [ktpEvidence, setKtpEvidence] = useState<FileList | []>()
   const [npwpEvidence, setNpwpEvidence] = useState<FileList | []>()
@@ -504,11 +500,11 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   }
 
   const [isActive, setisActive] = useState<CheckStates>({
-    compro: true,
-    suratPermohonan: true,
-    pks: true,
-    suip: true,
-    ptkp: true,
+    compro: false,
+    suratPermohonan: false,
+    pks: false,
+    suip: false,
+    ptkp: false,
   })
 
   useEffect(() => {
@@ -1161,7 +1157,10 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
                 <Row className='form-body'>
                   <Form.Group>
-                    <Form.Label>Nama Perusahaan</Form.Label>
+                    <Form.Label>
+                      Nama Perusahaan{' '}
+                      <Badge bg='primary'>{isActive.ptkp ? 'PKP' : 'Non-PKP'}</Badge>
+                    </Form.Label>
 
                     <Form.Control
                       type='text'
@@ -1362,7 +1361,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     <Form.Control
                       id='input-compro-file'
                       type='file'
-                      // accept='image/*'
                       accept='.jpg, .jpeg, .png'
                       hidden
                       className='input-field-image'
@@ -1389,7 +1387,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     <Form.Control
                       id='input-surat_permohonan-file'
                       type='file'
-                      // accept='image/*'
                       accept='.jpg, .jpeg, .png'
                       hidden
                       className='input-field-image'
@@ -1446,7 +1443,6 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     <Form.Control
                       id='input-suip-file'
                       type='file'
-                      // accept='image/*'
                       accept='.jpg, .jpeg, .png'
                       hidden
                       className='input-field-image'
@@ -1473,19 +1469,30 @@ const UpdateVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       <Form.Control
                         id='input-ptkp-file'
                         type='file'
-                        // accept='image/*'
                         accept='.jpg, .jpeg, .png'
                         hidden
                         className='input-field-image'
                         onChange={handleFileChangePtkpEvidence}
                       />
 
-                      <div className='upload d-flex align-items-center'>
+                      <div className='upload d-flex flex-column align-items-start p-0'>
                         <Form.Check
-                          checked={isActive.ptkp}
+                          id='radio-ptkp'
+                          label={<Form.Label className=''>PKP</Form.Label>}
+                          name='true'
+                          type='radio'
+                          checked={isActive.ptkp === true}
                           onChange={() => handleFormCheckbox('ptkp')}
                         />
-                        <Form.Label className='ms-2'>PKP</Form.Label>
+
+                        <Form.Check
+                          id='radio-ptkp'
+                          label={<Form.Label className=''>Non PKP</Form.Label>}
+                          name='ptkp_false'
+                          type='radio'
+                          checked={isActive.ptkp === false}
+                          onChange={() => handleFormCheckbox('ptkp')}
+                        />
                       </div>
 
                       <Form.Label className='text-primary fw-semibold text-decoration-underline ms-2 me-2'>
