@@ -6,7 +6,6 @@ import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderW
 
 import {WarrantyList} from './components/WarrantyList'
 import {ClaimWarrantyForm} from './components/FormClaimWarranty'
-import {UpdateWarrantyForm} from './components/UpdateWarranty'
 
 const warrantyBreadCrumbs: Array<PageLink> = [
   {
@@ -65,23 +64,6 @@ const WarrantyPage: React.FC = () => {
             )}
 
             <ClaimWarrantyForm />
-          </>
-        }
-      />
-
-      <Route
-        path='update-warranty-form/:id'
-        element={
-          <>
-            {userRole === 'Admin HO' || userRole === 'Super User' ? (
-              <>
-                <HeaderWrapper className='bg-header-ho' />
-              </>
-            ) : (
-              <></>
-            )}
-
-            <UpdateWarrantyForm />
           </>
         }
       />

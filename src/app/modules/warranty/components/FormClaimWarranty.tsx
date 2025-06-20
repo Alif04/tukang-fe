@@ -5,7 +5,6 @@ import {PageTitle} from '../../../../_metronic/layout/core'
 import {WarrantyFormClaim} from '../../../components'
 
 const ClaimWarrantyForm: React.FC = () => {
-  const userRole = localStorage.getItem('userRole')
   const [pageTitle, setPageTitle] = useState<string>('')
 
   const updatePageTitle = (warranty: any) => {
