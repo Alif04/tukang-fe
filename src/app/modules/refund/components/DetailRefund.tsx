@@ -4,11 +4,7 @@ import React from 'react'
 import {DetailRefundCS} from '../../../components'
 
 const DetailRefund: React.FC = () => {
-  return (
-    <>
-      <DetailRefundCS />
-    </>
-  )
+  return <DetailRefundCS />
 }
 
 export {DetailRefund}
