@@ -7,14 +7,12 @@ import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor
 
 import './NewManager.css'
 
-import * as XLSX from 'xlsx'
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
 import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import Swal from 'sweetalert2'
-import makeAnimated from 'react-select/animated'
 import {Row, Col, Form, InputGroup, Button, Card, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {
@@ -32,26 +30,21 @@ interface BankSelect {
   label: string
 }
 
-interface CategorySelect {
-  value: number | null
-  label: string
-}
-
 interface StoreItem {
   value: number | null
   label: string
 }
 
-interface Sales {
-  store_id: number | null
+interface Manager {
+  id: number | null
   bank_id: number | null
+  store_id: number | null
   full_name: string
+  nik: string
   username: string
   account_name: string
   phone_number: string
   account_number: string
-  sales_brand: string
-  sales_categories: CategorySelect[]
   password: string
   is_active: number
 }
@@ -59,7 +52,6 @@ interface Sales {
 const NewManager: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
-  const animatedComponents = makeAnimated()
 
   const userRole = localStorage.getItem('userRole')
   const staffStoreId = localStorage.getItem('storeId') as any
@@ -69,7 +61,6 @@ const NewManager: FC = () => {
   const [loadingButton, setLoadingButton] = useState(false)
   const [loadingExport, setLoadingExport] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
-  // const [isSuccess, setIsSuccess] = useState<boolean>(false)
 
   // List Store
   const [store, setStore] = useState<StoreItem[]>([])
@@ -79,9 +70,9 @@ const NewManager: FC = () => {
     label: 'All Store',
   })
 
-  // List Sales
-  const [salesData, setSalesData] = useState<DataType[]>([])
-  const [exportSales, setExportSales] = useState<any[]>([])
+  // List Manager
+  const [managerData, setManagerData] = useState<DataType[]>([])
+  const [, setExportSales] = useState<any[]>([])
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -91,13 +82,15 @@ const NewManager: FC = () => {
   const [dateTo, setDateTo] = useState<any>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
 
-  // Sales
-  const [salesId, setSalesId] = useState<any>()
-  const [salesInfo, setSalesInfo] = useState<any>({
-    manager_id: null,
+  // Manager
+  const [managerId, setManagerId] = useState<any>()
+  const [managerInfo, setManagerInfo] = useState<Manager>({
+    id: null,
+    store_id: null,
     bank_id: null,
     full_name: '',
     username: '',
+    nik: '',
     account_name: '',
     phone_number: '',
     account_number: '',
@@ -111,10 +104,6 @@ const NewManager: FC = () => {
     value: null,
     label: '',
   })
-
-  // Category
-  const [categories, setCategories] = useState<CategorySelect[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<CategorySelect[]>([])
 
   // Fetch API Data
   useEffect(() => {
@@ -170,35 +159,9 @@ const NewManager: FC = () => {
       }
     }
 
-    const getCategories = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/categories?take=0`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-
-        if (Array.isArray(response.data.data)) {
-          const tempCategories = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.category_name,
-          }))
-
-          setCategories(tempCategories)
-        } else {
-          console.error('API response data is not an array:', response.data)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
     getStore()
     getBank()
-    getCategories()
+    // eslint-disable-next-line
   }, [])
 
   useEffect(() => {
@@ -215,7 +178,7 @@ const NewManager: FC = () => {
 
         if (response.status === 200) {
           const {data} = response
-          setSalesId(data.data.code)
+          setManagerId(data.data.code)
         }
       } catch (err) {
         console.error(err)
@@ -235,20 +198,20 @@ const NewManager: FC = () => {
           },
         })
 
-        const salesData = response.data.data.map((item: any) => ({
+        const managerData = response.data.data.map((item: any) => ({
           ['Manager ID']: item.id,
           ['Nama Toko']: item?.store?.store_name ?? '-',
           ['Nama Lengkap']: item?.full_name ?? '-',
           ['Username']: item?.users?.username ?? '-',
           ['WA/Phone Number']: item?.phone_number ?? '-',
+          ['NIK']: item?.nik ?? '-',
           ['Nama Bank']: item?.bank?.bank_name ?? '-',
           ['Nomor Akun Bank']: item?.account_number ?? '-',
           ['Nama Pemilik Akun Bank']: item?.account_name ?? '-',
-
           ['Status']: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
         }))
 
-        setExportSales(salesData)
+        setExportSales(managerData)
       } catch (error) {
         console.error('Error fetching data:', error)
       }
@@ -256,6 +219,7 @@ const NewManager: FC = () => {
 
     getSalesId()
     getExportData()
+    // eslint-disable-next-line
   }, [])
 
   // Store ID
@@ -273,8 +237,8 @@ const NewManager: FC = () => {
       ? `${staffStoreName}`
       : ''
 
-  // Fetch Sales List
-  const fetchSalesList = async (page: number, pageSize: number, queryparams: any) => {
+  // Fetch Manager List
+  const fetchManagerList = async (page: number, pageSize: number, queryparams: any) => {
     let apiUrlWithParams = `${apiUrl}/manager?order_by=desc&page=${page}&take=${pageSize}&${storeId}${queryparams}`
 
     try {
@@ -297,19 +261,17 @@ const NewManager: FC = () => {
     }
   }
 
-  const ViewSales = async (page: number, pageSize: number, queryparams: any) => {
+  const ViewManager = async (page: number, pageSize: number, queryparams: any) => {
     try {
-      const apiData = await fetchSalesList(page, pageSize, queryparams)
+      const apiData = await fetchManagerList(page, pageSize, queryparams)
 
       if (!apiData) {
-        console.error('No data received from fetchVendorList')
+        console.error('No data received from fetchManagerList')
         return []
       }
 
-      const salesData = apiData.map((item: any, index: number) => {
+      const managerData = apiData.map((item: any, index: number) => {
         let data
-
-    
 
         data = {
           no: index + 1,
@@ -322,7 +284,7 @@ const NewManager: FC = () => {
         return data
       })
 
-      return salesData
+      return managerData
     } catch (error) {
       console.error('Error getting sales list data:', error)
       return []
@@ -330,12 +292,13 @@ const NewManager: FC = () => {
   }
 
   const fetchData = async (page: number, pageSize: number, queryparams: any) => {
-    const data = await ViewSales(page, pageSize, queryparams)
-    setSalesData(data)
+    const data = await ViewManager(page, pageSize, queryparams)
+    setManagerData(data)
   }
 
   useEffect(() => {
     fetchData(1, 10, '')
+    // eslint-disable-next-line
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -348,9 +311,9 @@ const NewManager: FC = () => {
     return originalElement
   }
 
-  // Sales Form
+  // Manager Form
   const salesInfoFormHandler = (e: any) => {
-    setSalesInfo((prevSalesInfo:any) => ({
+    setManagerInfo((prevSalesInfo: any) => ({
       ...prevSalesInfo,
       [e.target.name]: e.target.value,
     }))
@@ -358,24 +321,22 @@ const NewManager: FC = () => {
 
   // Change Select Store
   useEffect(() => {
-    setSalesInfo((prev:any) => ({
+    setManagerInfo((prev: any) => ({
       ...prev,
       store_id:
         userRole === 'Admin HO' || userRole === 'Super User'
           ? selectedStore?.value ?? null
           : Number.parseInt(staffStoreId),
     }))
-  }, [selectedStore])
+  }, [staffStoreId, userRole, selectedStore])
 
   // Change Select Bank
   useEffect(() => {
-    setSalesInfo((prev:any) => ({
+    setManagerInfo((prev: any) => ({
       ...prev,
       bank_id: selectedBank?.value ?? null,
     }))
   }, [selectedBank])
-
-
 
   // Filter Search Handler
   const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -383,13 +344,13 @@ const NewManager: FC = () => {
     setSearchFilter(updatedSearchFilter)
   }
 
-  // Data Type List Sales
-
+  // Data Type List Manager
   interface DataType {
     no: number
     manager_id: number
     store_name: string
     full_name: string
+    nik: string
     is_active: string
   }
 
@@ -435,7 +396,15 @@ const NewManager: FC = () => {
       onFilter: (value, record) => record.full_name.includes(String(value)),
       sorter: (a, b) => a.full_name.length - b.full_name.length,
     },
-   
+    {
+      title: 'NIK',
+      dataIndex: 'nik',
+      key: 'nik',
+      align: 'left',
+      width: 140,
+      onFilter: (value, record) => record.nik.includes(String(value)),
+      sorter: (a, b) => a.nik.length - b.nik.length,
+    },
     {
       title: 'Status',
       dataIndex: 'is_active',
@@ -644,7 +613,7 @@ const NewManager: FC = () => {
             <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Edit Sales')}
+              overlay={renderTooltip('Edit Manager')}
             >
               <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
                 <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
@@ -666,67 +635,65 @@ const NewManager: FC = () => {
     },
   ]
 
-  // Sales Validation
+  // Manager Validation
   const SalesValidation = () => {
     let valid = true
 
-    if (salesInfo.full_name === '') {
+    if (managerInfo.full_name === '') {
       Swal.fire({
         title: 'Warning',
-        text: 'Tolong isi formulir Nama Sales Consultant',
+        text: 'Tolong isi formulir Nama Manajer',
         icon: 'warning',
       })
       valid = false
-    }  else if (salesInfo.phone_number === '') {
+    } else if (managerInfo.phone_number === '') {
       Swal.fire({
         title: 'Warning',
         text: 'Tolong isi formulir WA/Phone Number',
         icon: 'warning',
       })
       valid = false
-    } else if (salesInfo.bank_id === null) {
+    } else if (managerInfo.bank_id === null) {
       Swal.fire({
         title: 'Warning',
         text: 'Please pilih formulir Nama Bank',
         icon: 'warning',
       })
       valid = false
-    } else if (salesInfo.account_number === '') {
+    } else if (managerInfo.account_number === '') {
       Swal.fire({
         title: 'Warning',
         text: 'Tolong isi formulir Nomor Akun Bank',
         icon: 'warning',
       })
       valid = false
-    } else if (salesInfo.account_name === '') {
+    } else if (managerInfo.account_name === '') {
       Swal.fire({
         title: 'Warning',
         text: 'Tolong isi formulir Nama Pemilik Akun Bank',
         icon: 'warning',
       })
       valid = false
-    } 
-    
+    }
 
     return valid
   }
 
   // Desctructure Object if the value null or empty string
-  const objectValueCheck = (data: Sales) => {
-    let cleanedData: Partial<Sales> = {}
+  const objectValueCheck = (data: Manager) => {
+    let cleanedData: Partial<Manager> = {}
 
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        cleanedData[key as keyof Sales] = value
+        cleanedData[key as keyof Manager] = value
       }
     })
 
     return cleanedData
   }
 
-
-  // Handle Submit New Sales
-  const handleSubmitNewSales = async () => {
+  // Handle Submit New Manager
+  const handleSubmitNewManager = async () => {
     if (!SalesValidation()) {
       setIsLoading(false)
       return false
@@ -734,11 +701,10 @@ const NewManager: FC = () => {
 
     setIsLoading(true)
 
-    const salesData = objectValueCheck(salesInfo)
-    console.log(salesData);
-    
+    const managerData = objectValueCheck(managerInfo)
+
     await axios
-      .post(`${apiUrl}/manager`, salesData, {
+      .post(`${apiUrl}/manager`, managerData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -750,7 +716,7 @@ const NewManager: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Create Sales',
+            text: 'Success Create Manager',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -816,7 +782,7 @@ const NewManager: FC = () => {
           const url = window.URL.createObjectURL(new Blob([response.data]))
           const link = document.createElement('a')
           link.href = url
-          link.setAttribute('download', `List Sales ${storeName}.xlsx`)
+          link.setAttribute('download', `List Manager ${storeName}.xlsx`)
           document.body.appendChild(link)
           link.click()
 
@@ -863,8 +829,8 @@ const NewManager: FC = () => {
     valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
 
-    const data = await ViewSales(1, 10, queryparams)
-    setSalesData(data)
+    const data = await ViewManager(1, 10, queryparams)
+    setManagerData(data)
 
     setLoadingButton(false)
   }
@@ -906,7 +872,7 @@ const NewManager: FC = () => {
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Manager ID</Form.Label>
-                    <Form.Control readOnly type='number' value={salesId} />
+                    <Form.Control readOnly type='number' value={managerId} />
                   </Form.Group>
                 </Col>
 
@@ -923,13 +889,14 @@ const NewManager: FC = () => {
                     />
                   </Form.Group>
                 </Col>
+
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Nama Manager</Form.Label>
                     <Form.Control
                       name='full_name'
                       type='text'
-                      value={salesInfo.full_name}
+                      value={managerInfo.full_name}
                       onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -937,26 +904,25 @@ const NewManager: FC = () => {
               </Row>
 
               <Row>
-                
-
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
                     <Form.Label>Nomor Akun Bank</Form.Label>
                     <Form.Control
                       name='account_number'
                       type='number'
-                      value={salesInfo.account_number}
+                      value={managerInfo.account_number}
                       onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
                 </Col>
+
                 <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                   <Form.Group className='mb-5'>
                     <Form.Label>WA / Phone Number</Form.Label>
                     <Form.Control
                       name='phone_number'
                       type='number'
-                      value={salesInfo.phone_number}
+                      value={managerInfo.phone_number}
                       onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
@@ -968,14 +934,24 @@ const NewManager: FC = () => {
                     <Form.Control
                       name='account_name'
                       type='text'
-                      value={salesInfo.account_name}
+                      value={managerInfo.account_name}
+                      onChange={(e) => salesInfoFormHandler(e)}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>NIK</Form.Label>
+                    <Form.Control
+                      name='nik'
+                      type='number'
+                      value={managerInfo.nik}
                       onChange={(e) => salesInfoFormHandler(e)}
                     />
                   </Form.Group>
                 </Col>
               </Row>
-
-             
             </div>
           </Card.Body>
         </Card>
@@ -996,7 +972,7 @@ const NewManager: FC = () => {
                   <Form.Control
                     name='username'
                     type='text'
-                    value={salesInfo.username}
+                    value={managerInfo.username}
                     onChange={(e) => salesInfoFormHandler(e)}
                   />
 
@@ -1014,7 +990,7 @@ const NewManager: FC = () => {
                   <Form.Control
                     name='password'
                     type='text'
-                    value={salesInfo.password}
+                    value={managerInfo.password}
                     onChange={(e) => salesInfoFormHandler(e)}
                   />
 
@@ -1037,7 +1013,7 @@ const NewManager: FC = () => {
                 type='submit'
                 disabled={isLoading}
                 onClick={() => {
-                  handleSubmitNewSales()
+                  handleSubmitNewManager()
                 }}
               >
                 {isLoading ? 'Saving..' : 'Save'}
@@ -1146,7 +1122,7 @@ const NewManager: FC = () => {
                   className='table-striped-rows'
                   bordered
                   columns={columns}
-                  dataSource={salesData}
+                  dataSource={managerData}
                   rowKey={(record) => record.manager_id}
                   pagination={false}
                   sticky={true}
@@ -1170,7 +1146,7 @@ const NewManager: FC = () => {
               }}
               showTotal={(total, range) => (
                 <span style={{left: 0, position: 'absolute'}}>
-                  Showing {range[0]} - {range[1]} of {total} Total Sales
+                  Showing {range[0]} - {range[1]} of {total} Total Manager
                 </span>
               )}
             />

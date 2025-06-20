@@ -4,9 +4,9 @@ import {useNavigate, useParams} from 'react-router-dom'
 import './UpdateManager.css'
 
 import axios from 'axios'
-import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
-import makeAnimated from 'react-select/animated'
+import Select, {SingleValue} from 'react-select'
+
 import {Card, Row, Col, Form, Button} from 'react-bootstrap'
 
 interface StoreSelect {
@@ -19,33 +19,28 @@ interface BankSelect {
   label: string
 }
 
-interface CategorySelect {
-  value: number | null
-  label: string
-}
-
-interface Sales {
-  store_id: any
-  bank_id: any
+interface Manager {
+  id: number | null
+  store_id: number | null
+  bank_id: number | null
   full_name: string
+  nik: string
   username: string
   account_name: string
   phone_number: string
   account_number: string
-  sales_brand: string
-  sales_categories: CategorySelect[]
   password: string
   is_active: number
 }
 
 const UpdateManager: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const navigate = useNavigate()
   const params = useParams()
-  const animatedComponents = makeAnimated()
-  const userRole = localStorage.getItem('userRole')
-  const staffStoreId = localStorage.getItem('storeId') as any
+  const navigate = useNavigate()
+
+  const userRole = localStorage.getItem('userRole') as string
   const staffStoreName = localStorage.getItem('storeName') as string
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // List Store
@@ -55,13 +50,15 @@ const UpdateManager: FC = () => {
     label: '',
   })
 
-  // List Sales
-  const [salesId, setSalesId] = useState<any>()
-  const [salesInfo, setSalesInfo] = useState<any>({
-    manager_id: null,
+  // List Manager
+  const [managerId, setManagerId] = useState<any>()
+  const [managerInfo, setManagerInfo] = useState<Manager>({
+    id: null,
+    store_id: null,
     bank_id: null,
     full_name: '',
     username: '',
+    nik: '',
     account_name: '',
     phone_number: '',
     account_number: '',
@@ -75,10 +72,6 @@ const UpdateManager: FC = () => {
     value: null,
     label: '',
   })
-
-  // Category
-  const [categories, setCategories] = useState<CategorySelect[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<CategorySelect[]>([])
 
   // Fetch API Data
   useEffect(() => {
@@ -95,11 +88,10 @@ const UpdateManager: FC = () => {
           })
           .then((response) => {
             const data = response.data.data
-            console.log(data);
-            
+            console.log(data)
 
             if (data?.id) {
-              setSalesId(data.id)
+              setManagerId(data.id)
             }
 
             if (data?.store_id) {
@@ -109,14 +101,14 @@ const UpdateManager: FC = () => {
                 label: data.store.store_name,
               }))
 
-              setSalesInfo((prev:any) => ({
+              setManagerInfo((prev: any) => ({
                 ...prev,
                 store_id: data.store_id,
               }))
             }
 
             if (data?.bank_id) {
-              setSalesInfo((prev:any) => ({
+              setManagerInfo((prev: any) => ({
                 ...prev,
                 bank_id: data.bank_id,
               }))
@@ -129,15 +121,7 @@ const UpdateManager: FC = () => {
             }
 
             if (data) {
-              // const salesBrands = data.sales_brand.map((item: any, index: number) => ({
-              //   index: (Date.now() + index).toString(),
-              //   value: item.brands.id,
-              //   label: item.brands.name,
-              // }))
-
-        
-
-              setSalesInfo((prev:any) => ({
+              setManagerInfo((prev: any) => ({
                 ...prev,
                 full_name: data?.full_name,
                 username: data?.users?.username,
@@ -145,9 +129,6 @@ const UpdateManager: FC = () => {
                 phone_number: data?.phone_number,
                 account_number: data?.account_number,
               }))
-
-              // setSelectedBrands(salesBrands)
-
             }
           })
       } catch (error) {
@@ -210,31 +191,23 @@ const UpdateManager: FC = () => {
       }
     }
 
-
     getSalesData()
     getStore()
     getBank()
+    // eslint-disable-next-line
   }, [])
 
-  // Store ID
-  const storeId =
-    userRole === 'Admin HO' && selectedStore && selectedStore.value
-      ? `&store_id=${selectedStore.value}`
-      : userRole === 'Store Staff' || userRole === 'Store CS'
-      ? `&store_id=${staffStoreId}`
-      : ''
-
-  // Sales Form
-  const salesInfoFormHandler = (e: any) => {
-    setSalesInfo((prevSalesInfo:any) => ({
-      ...prevSalesInfo,
+  // Manager Form
+  const managerInfoFormHandler = (e: any) => {
+    setManagerInfo((prevManagerInfo: any) => ({
+      ...prevManagerInfo,
       [e.target.name]: e.target.value,
     }))
   }
 
   // Change Select Store
   useEffect(() => {
-    setSalesInfo((prev:any) => ({
+    setManagerInfo((prev: any) => ({
       ...prev,
       store_id: selectedStore?.value ?? null,
     }))
@@ -242,87 +215,86 @@ const UpdateManager: FC = () => {
 
   // Change Select Bank
   useEffect(() => {
-    setSalesInfo((prev:any) => ({
+    setManagerInfo((prev: any) => ({
       ...prev,
       bank_id: selectedBank?.value ?? null,
     }))
   }, [selectedBank])
 
-
-  // Sales Validation
-  const SalesValidation = () => {
+  // Manager Validation
+  const ManagerValidation = () => {
     let valid = true
 
-    if (salesInfo.full_name === '') {
+    if (managerInfo.full_name === '') {
       Swal.fire({
         title: 'Warning',
-        text: 'Tolong isi formulir Nama Sales Consultant',
+        text: 'Tolong isi formulir Nama Manager Consultant',
         icon: 'warning',
       })
       valid = false
-    } else if (salesInfo.store_id === null) {
+    } else if (managerInfo.store_id === null) {
       Swal.fire({
         title: 'Warning',
         text: 'Please pilih formulir Nama Toko',
         icon: 'warning',
       })
       valid = false
-    } else if (salesInfo.phone_number === '') {
+    } else if (managerInfo.phone_number === '') {
       Swal.fire({
         title: 'Warning',
         text: 'Tolong isi formulir WA/Phone Number',
         icon: 'warning',
       })
       valid = false
-    } else if (salesInfo.bank_id === null) {
+    } else if (managerInfo.bank_id === null) {
       Swal.fire({
         title: 'Warning',
         text: 'Please pilih formulir Nama Bank',
         icon: 'warning',
       })
       valid = false
-    } else if (salesInfo.account_number === '') {
+    } else if (managerInfo.account_number === '') {
       Swal.fire({
         title: 'Warning',
         text: 'Tolong isi formulir Nomor Akun Bank',
         icon: 'warning',
       })
       valid = false
-    } else if (salesInfo.account_name === '') {
+    } else if (managerInfo.account_name === '') {
       Swal.fire({
         title: 'Warning',
         text: 'Tolong isi formulir Nama Pemilik Akun Bank',
         icon: 'warning',
       })
       valid = false
-    } 
+    }
 
     return valid
   }
 
   // Desctructure Object if the value null or empty string
-  const objectValueCheck = (data: Sales) => {
-    let cleanedData: Partial<Sales> = {}
+  const objectValueCheck = (data: Manager) => {
+    let cleanedData: Partial<Manager> = {}
 
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        cleanedData[key as keyof Sales] = value
+        cleanedData[key as keyof Manager] = value
       }
     })
 
     return cleanedData
   }
 
-  // Handle Submit New Sales
-  const handleUpdateSales = async () => {
-    if (!SalesValidation()) {
+  // Handle Submit New Manager
+  const handleUpdateManager = async () => {
+    if (!ManagerValidation()) {
       setIsLoading(false)
       return false
     }
 
     setIsLoading(true)
 
-    const salesData = objectValueCheck(salesInfo)
+    const salesData = objectValueCheck(managerInfo)
 
     await axios
       .post(`${apiUrl}/manager/${params.id}`, salesData, {
@@ -337,7 +309,7 @@ const UpdateManager: FC = () => {
         if (response.data.status === 200 || response.data.status === 201) {
           Swal.fire({
             title: 'Success',
-            text: 'Success Update Sales',
+            text: 'Success Update Manager',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
@@ -367,12 +339,12 @@ const UpdateManager: FC = () => {
       })
   }
 
-  const handleCancelCreateSales = () => {
-    navigate('/sales/new-sales')
+  const handleCancelCreateManager = () => {
+    navigate('/manager/new-manager')
   }
 
   return (
-    <section id='update-sales'>
+    <section id='update-manager'>
       <div className='form-wrapper'>
         <Card className='mb-3'>
           <Card.Header>
@@ -384,7 +356,7 @@ const UpdateManager: FC = () => {
               <Form.Group as={Row}>
                 <Form.Label column sm='4'>
                   Nama Toko
-                  {userRole === 'Admin HO' ? (
+                  {['Super User', 'Admin HO'].includes(userRole) ? (
                     <Select
                       name='store_id'
                       className='form-control p-0'
@@ -410,8 +382,8 @@ const UpdateManager: FC = () => {
             <Row>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group className='mb-5'>
-                  <Form.Label>Sales ID</Form.Label>
-                  <Form.Control readOnly type='number' value={salesId} />
+                  <Form.Label>Manager ID</Form.Label>
+                  <Form.Control readOnly type='number' value={managerId} />
                 </Form.Group>
               </Col>
 
@@ -432,41 +404,41 @@ const UpdateManager: FC = () => {
                   />
                 </Form.Group>
               </Col>
+
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group className='mb-5'>
                   <Form.Label>Nama Manager Consultant</Form.Label>
                   <Form.Control
                     name='full_name'
                     type='text'
-                    value={salesInfo.full_name}
-                    onChange={(e) => salesInfoFormHandler(e)}
+                    value={managerInfo.full_name}
+                    onChange={(e) => managerInfoFormHandler(e)}
                   />
                 </Form.Group>
               </Col>
             </Row>
 
             <Row className='input-order'>
-          
-
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group className='mb-5'>
                   <Form.Label>Nomor Akun Bank</Form.Label>
                   <Form.Control
                     name='account_number'
                     type='number'
-                    value={salesInfo.account_number}
-                    onChange={(e) => salesInfoFormHandler(e)}
+                    value={managerInfo.account_number}
+                    onChange={(e) => managerInfoFormHandler(e)}
                   />
                 </Form.Group>
               </Col>
+
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
                 <Form.Group className='mb-5'>
                   <Form.Label>WA / Phone Number</Form.Label>
                   <Form.Control
                     name='phone_number'
                     type='number'
-                    value={salesInfo.phone_number}
-                    onChange={(e) => salesInfoFormHandler(e)}
+                    value={managerInfo.phone_number}
+                    onChange={(e) => managerInfoFormHandler(e)}
                   />
                 </Form.Group>
               </Col>
@@ -477,14 +449,24 @@ const UpdateManager: FC = () => {
                   <Form.Control
                     name='account_name'
                     type='text'
-                    value={salesInfo.account_name}
-                    onChange={(e) => salesInfoFormHandler(e)}
+                    value={managerInfo.account_name}
+                    onChange={(e) => managerInfoFormHandler(e)}
                   />
                 </Form.Group>
               </Col>
-      
-            </Row>
 
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Group className='mb-5'>
+                  <Form.Label>NIK</Form.Label>
+                  <Form.Control
+                    name='nik'
+                    type='number'
+                    value={managerInfo.nik}
+                    onChange={(e) => managerInfoFormHandler(e)}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
           </Card.Body>
         </Card>
 
@@ -503,8 +485,8 @@ const UpdateManager: FC = () => {
                   <Form.Control
                     name='username'
                     type='text'
-                    value={salesInfo.username}
-                    onChange={(e) => salesInfoFormHandler(e)}
+                    value={managerInfo.username}
+                    onChange={(e) => managerInfoFormHandler(e)}
                   />
                 </Form.Group>
               </Col>
@@ -515,8 +497,8 @@ const UpdateManager: FC = () => {
                   <Form.Control
                     name='password'
                     type='text'
-                    value={salesInfo.password}
-                    onChange={(e) => salesInfoFormHandler(e)}
+                    value={managerInfo.password}
+                    onChange={(e) => managerInfoFormHandler(e)}
                   />
                 </Form.Group>
               </Col>
@@ -526,7 +508,7 @@ const UpdateManager: FC = () => {
       </div>
 
       <div className='d-flex justify-content-center mt-5'>
-        <Button variant='dark-danger' type='submit' onClick={handleCancelCreateSales}>
+        <Button variant='dark-danger' type='submit' onClick={handleCancelCreateManager}>
           Cancel
         </Button>
 
@@ -536,7 +518,7 @@ const UpdateManager: FC = () => {
           type='submit'
           disabled={isLoading}
           onClick={() => {
-            handleUpdateSales()
+            handleUpdateManager()
           }}
         >
           {isLoading ? 'Updating..' : 'Update'}
