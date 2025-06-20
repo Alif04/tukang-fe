@@ -1,21 +1,25 @@
-import React, {FC, useState, useEffect} from 'react'
+import React, {FC, useState, useEffect, useRef} from 'react'
 
 import './UpdateRefund.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Row, Col, Form, Button, Table} from 'react-bootstrap'
+import {Row, Col, Form, Button, ListGroup, Card} from 'react-bootstrap'
+import {formatDate} from '../../../../../_metronic/helpers'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {Image} from 'antd'
+import {faFileImage, faImage, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 interface Refund {
-  order_id: any
-  refund_status: any
+  order_id: number | null
+  refund_status: string | null
   notes: string
   reason: string
-  date_of_filing: any
-  date_approve: any
-  penalty_nominal: any
-  approval_number: any
+  date_of_filing: string
+  date_approve: string
+  penalty_nominal: string
+  approval_number: string
   voucher: string
 }
 
@@ -54,6 +58,15 @@ const UpdateRefundHO: FC = () => {
             approval_number: data.approval_number,
           })
 
+          if (data?.refund_evidences) {
+            const refundEvidencesValue = data.refund_evidences.map((item: any) => ({
+              id: item.id,
+              name: item.evidence_location,
+            }))
+
+            setRefundFiles(refundEvidencesValue)
+          }
+
           setRefundDetail(data)
         })
     } catch (error) {
@@ -63,14 +76,8 @@ const UpdateRefundHO: FC = () => {
 
   useEffect(() => {
     fetchRefundData()
+    // eslint-disable-next-line
   }, [])
-
-  const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
 
   // Add Refund
   const [refundValues, setRefundValues] = useState<Refund>({
@@ -84,6 +91,13 @@ const UpdateRefundHO: FC = () => {
     penalty_nominal: '',
     approval_number: '',
   })
+
+  const [refundFiles, setRefundFiles] = useState<Array<File | null>>([])
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null)
+  const evidenceRef = useRef<HTMLInputElement>(null)
+
+  const [previewImage, setPreviewImage] = useState<any>()
+  const [visible, setVisible] = useState(false)
 
   // Refund Status
   const getStatusId = (category: string) => {
@@ -166,57 +180,83 @@ const UpdateRefundHO: FC = () => {
     }))
   }
 
-  // Handle Submit New Refund
-  const handleApprove = async () => {
-    const approvedStatusId = getStatusId('REFUNDAPPROVEDBYHO')
-    const updatedRefundValues = {...refundValues, refund_status: approvedStatusId}
+  // Upload Order File Handler
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files
+    if (fileList) {
+      const file: Array<File | null> = new Array<File>()
+      const {length} = fileList
 
-    await axios
-      .post(`${apiUrl}/refund/${params.id}`, updatedRefundValues, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Refund Approved Successfully',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
+      for (let i = 0; i < length; i++) {
+        file[i] = fileList.item(i)
+      }
 
-        navigate('/refund/view-refund')
-      })
-      .catch((error) => {
-        console.error(error)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
-        })
-      })
+      setRefundFiles(file)
+    }
   }
 
-  // Handle Reject Refund
-  const handleReject = async () => {
-    const rejectedStatusId = getStatusId('REFUNDREJECTEDBYHO')
-    const updatedRefundValues = {...refundValues, refund_status: rejectedStatusId}
+  const handleImageClick = () => {
+    const inputField = document.querySelector('.input-field-image') as HTMLInputElement
+    inputField.click()
+  }
 
-    await axios
-      .post(`${apiUrl}/refund/${params.id}`, updatedRefundValues, {
+  const handleRemoveFile = (index: number) => {
+    const newEvidances = [...refundFiles]
+    newEvidances.splice(index, 1)
+    setRefundFiles(newEvidances)
+
+    // Update element value
+    if (evidenceRef.current?.value) {
+      evidenceRef.current.value = ''
+    }
+  }
+
+  const handleFileClick = (index: number) => {
+    setPreviewImage(refundFiles[index]?.name)
+    setVisible(true)
+    setSelectedFileIndex(index)
+  }
+
+  // Handle Submit
+  type RefundActionType = 'approve' | 'reject'
+
+  const handleRefundAction = async (action: RefundActionType) => {
+    setIsLoading(true)
+    const formData = new FormData()
+
+    const statusMap = {
+      approve: {
+        statusId: getStatusId('REFUNDAPPROVEDBYHO'),
+        successMessage: 'Refund Approved Successfully',
+      },
+      reject: {
+        statusId: getStatusId('REFUNDREJECTEDBYHO'),
+        successMessage: 'Refund Rejected Successfully',
+      },
+    }
+
+    const selectedStatus = statusMap[action]
+
+    formData.append('order_id', String(refundValues.order_id || ''))
+    formData.append('refund_status', selectedStatus?.statusId || '')
+    formData.append('notes', refundValues.notes)
+    formData.append('reason', refundValues.reason)
+    formData.append('date_approve', refundValues.date_approve)
+    formData.append('date_of_filing', refundValues.date_of_filing)
+    formData.append('voucher', refundValues.voucher)
+    formData.append('penalty_nominal', refundValues.penalty_nominal)
+    formData.append('approval_number', refundValues.approval_number)
+
+    if (refundFiles.length) {
+      refundFiles.forEach((item) => {
+        if (item instanceof Blob) {
+          formData.append(`refund_evidences`, item, item?.name)
+        }
+      })
+    }
+
+    try {
+      const response = await axios.post(`${apiUrl}/refund/${params.id}`, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -224,40 +264,41 @@ const UpdateRefundHO: FC = () => {
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Refund Rejected Successfully',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
 
-        navigate('/refund/view-refund')
-      })
-      .catch((error) => {
-        console.error(error)
-
+      if (response.data.status === 200 || response.data.status === 201) {
+        Swal.fire({
+          title: 'Success',
+          text: selectedStatus.successMessage,
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+        })
+      } else {
         Swal.fire({
           title: 'Error',
-          text: error.response.data.message,
+          text: response.data.message,
           icon: 'error',
         })
+      }
+
+      navigate('/refund/view-refund')
+    } catch (error: any) {
+      console.error(error)
+
+      Swal.fire({
+        title: 'Error',
+        text: error?.response?.data?.message || 'Something went wrong',
+        icon: 'error',
       })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <section id='update-refund'>
-      <div className='card'>
-        <div className='card-body'>
+      <Card>
+        <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -412,7 +453,7 @@ const UpdateRefundHO: FC = () => {
               </Row>
             </div>
 
-            {/* New */}
+            {/* Table Order */}
             {(() => {
               if (
                 (refundDetail?.orders?.payment_type === 'survey' &&
@@ -490,9 +531,16 @@ const UpdateRefundHO: FC = () => {
                   </div>
                 )
               } else if (
-                ['QUOTEIN', 'QUOTATIONPAID', 'QUOTEOUT'].includes(
-                  refundDetail?.orders?.status?.category ?? ''
-                ) &&
+                [
+                  'CANCEL',
+                  'REFUND',
+                  'QUOTEIN',
+                  'QUOTEOUT',
+                  'QUOTATIONPAID',
+                  'QUOTATIONPAIDSTEPONE',
+                  'QUOTATIONPAIDSTEPTWO',
+                  'QUOTATIONPAIDSTEPTHREE',
+                ].includes(refundDetail?.orders?.status?.category ?? '') &&
                 refundDetail?.orders?.payment_type === 'survey'
               ) {
                 return (
@@ -641,7 +689,15 @@ const UpdateRefundHO: FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
+                [
+                  'CANCEL',
+                  'REFUND',
+                  'SURVEYREQ',
+                  'SURVEYSTART',
+                  'SURVEYDONE',
+                  'WORKEND',
+                  'DONE',
+                ].includes(
                   refundDetail?.orders?.work_orders?.work_order_status?.[0]?.status?.category
                 ) &&
                 refundDetail?.orders?.payment_type === 'survey' &&
@@ -772,13 +828,13 @@ const UpdateRefundHO: FC = () => {
 
           <hr />
 
-          <div className='order-history'>
+          <section className='refund-form'>
             <div className='title'>
               <h1 className='text-uppercase'>formulir refund</h1>
             </div>
 
-            <div className='row mb-5'>
-              <div className='col-md-4'>
+            <Row className='mb-5'>
+              <Col md={4}>
                 <div className='complaint-information'>
                   <h4>Tanggal Pengajuan Refund : </h4>
 
@@ -791,9 +847,9 @@ const UpdateRefundHO: FC = () => {
                     value={refundValues.date_of_filing}
                   />
                 </div>
-              </div>
+              </Col>
 
-              <div className='col-md-4'>
+              <Col md={4}>
                 <div className='complaint-detail'>
                   <h4>Alasan Refund :</h4>
 
@@ -804,13 +860,41 @@ const UpdateRefundHO: FC = () => {
                     value={refundValues.reason}
                   />
                 </div>
-              </div>
+              </Col>
 
-              <div className='col-xxl-4'></div>
-            </div>
+              <Col md={4}>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className='d-flex flex-column'>
+                      <Form.Label className='fs-4 fw-bold mb-1'>Untuk Customer</Form.Label>
+                      <Form.Label className='mb-1'>Input Voucher</Form.Label>
+                      <Form.Control
+                        type='text'
+                        onChange={(element) => handleChangeRefundVoucher(element)}
+                        value={refundValues.voucher}
+                      />
+                    </Form.Group>
+                  </Col>
 
-            <div className='row'>
-              <div className='col-xxl-4'>
+                  <Col md={6}>
+                    {refundDetail?.orders?.vendor_id !== null && (
+                      <Form.Group className='d-flex flex-column'>
+                        <Form.Label className='fs-4 fw-bold mb-1'>Untuk Vendor</Form.Label>
+                        <Form.Label className='mb-1'>Input Nominal Denda</Form.Label>
+                        <Form.Control
+                          type='text'
+                          onChange={(element) => handleChangePenaltyAmount(element)}
+                          value={refundValues.penalty_nominal}
+                        />
+                      </Form.Group>
+                    )}
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md={4}>
                 <div className='complaint-information mb-5'>
                   <h4>Tanggal Approve Refund : </h4>
                   <Form.Control
@@ -831,9 +915,9 @@ const UpdateRefundHO: FC = () => {
                     value={refundValues.approval_number}
                   />
                 </div>
-              </div>
+              </Col>
 
-              <div className='col-xxl-4'>
+              <Col md={4}>
                 <div className='complaint-information'>
                   <h4>Notes</h4>
                   <Form.Control
@@ -843,42 +927,99 @@ const UpdateRefundHO: FC = () => {
                     value={refundValues.notes}
                   />
                 </div>
-              </div>
+              </Col>
 
-              <div className='col-xxl-4'>
-                <div className='row'>
-                  <div className='col-xxl-6'>
-                    <Form.Group className='d-flex flex-column'>
-                      <Form.Label className='fs-4 fw-bold mb-1'>Untuk Customer</Form.Label>
-                      <Form.Label className='mb-1'>Input Voucher</Form.Label>
-                      <Form.Control
-                        type='text'
-                        onChange={(element) => handleChangeRefundVoucher(element)}
-                        value={refundValues.voucher}
-                      />
-                    </Form.Group>
-                  </div>
+              <Col md={4}>
+                <Form.Group>
+                  <h4>File Pendukung : </h4>
 
-                  <div className='col-xxl-6'>
-                    {refundDetail?.orders?.vendor_id !== null && (
-                      <Form.Group className='d-flex flex-column'>
-                        <Form.Label className='fs-4 fw-bold mb-1'>Untuk Vendor</Form.Label>
-                        <Form.Label className='mb-1'>Input Nominal Denda</Form.Label>
-                        <Form.Control
-                          type='text'
-                          onChange={(element) => handleChangePenaltyAmount(element)}
-                          value={refundValues.penalty_nominal}
-                        />
-                      </Form.Group>
+                  <Form className='form-input-image' onClick={handleImageClick}>
+                    <Form.Control
+                      type='file'
+                      accept='image/jpeg, image/png'
+                      className='input-field-image'
+                      multiple
+                      hidden
+                      id='file-input'
+                      ref={evidenceRef}
+                      onChange={handleFileChange}
+                    />
+
+                    <div className='input-image-text'>
+                      <FontAwesomeIcon icon={faImage} color='#858585' size='2xl' />
+                      <p>Add File</p>
+                    </div>
+                  </Form>
+
+                  <ListGroup className='pt-3'>
+                    {refundFiles.length ? (
+                      refundFiles.map((item, index) => (
+                        <ListGroup>
+                          <ListGroup.Item
+                            className='d-flex justify-content-between align-items-center'
+                            key={`${item?.name}-${index}-${item?.type}`}
+                          >
+                            <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
+
+                            <span
+                              className='upload-content'
+                              style={{cursor: 'pointer'}}
+                              onClick={() => handleFileClick(index)}
+                            >
+                              {item?.name}
+                            </span>
+
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              size='sm'
+                              color='#ed2b2a'
+                              style={{cursor: 'pointer'}}
+                              onClick={(e) => handleRemoveFile(index)}
+                            />
+                          </ListGroup.Item>
+
+                          {selectedFileIndex === index && item && (
+                            <Image
+                              key={`${previewImage} - ${index}`}
+                              width={200}
+                              style={{display: 'none', cursor: 'pointer'}}
+                              src={
+                                item instanceof File
+                                  ? URL.createObjectURL(item)
+                                  : `${apiUrl}/public/refunds/${previewImage}`
+                              }
+                              preview={{
+                                visible,
+                                src:
+                                  item instanceof File
+                                    ? URL.createObjectURL(item)
+                                    : `${apiUrl}/public/refunds/${previewImage}`,
+                                onVisibleChange: (value) => {
+                                  setVisible(value)
+                                },
+                              }}
+                            />
+                          )}
+                        </ListGroup>
+                      ))
+                    ) : (
+                      <ListGroup.Item className='d-flex justify-content-center'>
+                        Tidak ada file yang dipilih
+                      </ListGroup.Item>
                     )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                  </ListGroup>
+                </Form.Group>
+              </Col>
+            </Row>
+          </section>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' disabled={isLoading} type='submit' onClick={handleReject}>
+            <Button
+              variant='dark-danger'
+              disabled={isLoading}
+              type='submit'
+              onClick={() => handleRefundAction('reject')}
+            >
               {isLoading ? 'Updating..' : 'Reject'}
             </Button>
 
@@ -887,13 +1028,13 @@ const UpdateRefundHO: FC = () => {
               variant='dark-primary'
               type='submit'
               disabled={isLoading}
-              onClick={handleApprove}
+              onClick={() => handleRefundAction('approve')}
             >
               {isLoading ? 'Updating..' : 'Approve'}
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

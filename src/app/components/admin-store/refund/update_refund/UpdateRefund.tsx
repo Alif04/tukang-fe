@@ -5,21 +5,21 @@ import './UpdateRefund.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import {useNavigate, useParams} from 'react-router-dom'
-import {Row, Col, Form, Button, ListGroup} from 'react-bootstrap'
+import {Row, Col, Form, Button, ListGroup, Card} from 'react-bootstrap'
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 import {formatDate} from '../../../../../_metronic/helpers'
 
 interface Refund {
-  order_id: any
-  refund_status: any
+  order_id: number | null
+  refund_status: string | null
   notes: string
   reason: string
-  date_of_filing: any
-  date_approve: any
-  penalty_nominal: any
-  approval_number: any
+  date_of_filing: string
+  date_approve: string
+  penalty_nominal: string
+  approval_number: string
   voucher: string
 }
 
@@ -235,8 +235,28 @@ const UpdateRefundCS: FC = () => {
     if (RefundValidation()) {
       setIsLoading(true)
 
+      const formData = new FormData()
+
+      formData.append('order_id', String(refundValues.order_id || ''))
+      formData.append('refund_status', refundValues.refund_status || '')
+      formData.append('notes', refundValues.notes)
+      formData.append('reason', refundValues.reason)
+      formData.append('date_approve', refundValues.date_approve)
+      formData.append('date_of_filing', refundValues.date_of_filing)
+      formData.append('voucher', refundValues.voucher)
+      formData.append('penalty_nominal', refundValues.penalty_nominal)
+      formData.append('approval_number', refundValues.approval_number)
+
+      if (refundFiles.length) {
+        refundFiles.forEach((item) => {
+          if (item instanceof Blob) {
+            formData.append(`refund_evidences`, item, item?.name)
+          }
+        })
+      }
+
       await axios
-        .post(`${apiUrl}/refund/${params.id}`, refundValues, {
+        .post(`${apiUrl}/refund/${params.id}`, formData, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -286,8 +306,8 @@ const UpdateRefundCS: FC = () => {
 
   return (
     <section id='update-refund'>
-      <div className='card'>
-        <div className='card-body'>
+      <Card>
+        <Card.Body>
           <div className='form-wrapper'>
             <Row className='form-header'>
               <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
@@ -448,7 +468,7 @@ const UpdateRefundCS: FC = () => {
               if (
                 (refundDetail?.orders?.payment_type === 'survey' &&
                   refundDetail?.orders?.work_orders === null) ||
-                (refundDetail?.orders?.work_orders?.work_order_status.length === 1 &&
+                (refundDetail?.orders?.work_orders?.work_order_status?.length === 1 &&
                   refundDetail?.orders?.payment_type === 'survey')
               ) {
                 return (
@@ -521,7 +541,15 @@ const UpdateRefundCS: FC = () => {
                   </div>
                 )
               } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(refundDetail?.orders?.status?.category ?? '') &&
+                [
+                  'REFUND',
+                  'QUOTEIN',
+                  'QUOTEOUT',
+                  'QUOTATIONPAID',
+                  'QUOTATIONPAIDSTEPONE',
+                  'QUOTATIONPAIDSTEPTWO',
+                  'QUOTATIONPAIDSTEPTHREE',
+                ].includes(refundDetail?.orders?.status?.category ?? '') &&
                 refundDetail?.orders?.payment_type === 'survey'
               ) {
                 return (
@@ -559,8 +587,8 @@ const UpdateRefundCS: FC = () => {
 
                       <tbody>
                         {refundDetail?.orders?.quotation[0]?.quotation_details
-                          .filter((x: any) => x.item_type === 2)
-                          .map((item: any, index: any) => (
+                          ?.filter((x: any) => x.item_type === 2)
+                          ?.map((item: any, index: any) => (
                             <tr key={`${index}-quotation`}>
                               <td>
                                 {item?.name ?? '-'}{' '}
@@ -579,9 +607,9 @@ const UpdateRefundCS: FC = () => {
 
                           <td className='fw-bolder'>
                             {`Rp. ${refundDetail?.orders?.quotation[0]?.quotation_details
-                              .filter((x: any) => x.item_type === 2)
-                              .map((item: any) => parseInt(item?.price ?? 0))
-                              .reduce((total: number, price: number) => total + price, 0)
+                              ?.filter((x: any) => x.item_type === 2)
+                              ?.map((item: any) => parseInt(item?.price ?? 0))
+                              ?.reduce((total: number, price: number) => total + price, 0)
                               .toLocaleString('id')}`}
                           </td>
                         </tr>
@@ -614,8 +642,8 @@ const UpdateRefundCS: FC = () => {
 
                         <tbody>
                           {refundDetail?.orders?.quotation[0]?.quotation_details
-                            .filter((x: any) => x.item_type === 1)
-                            .map((item: any, index: any) => (
+                            ?.filter((x: any) => x.item_type === 1)
+                            ?.map((item: any, index: any) => (
                               <tr key={`${index}-quotation`}>
                                 <td>
                                   {item?.name ?? '-'}{' '}
@@ -670,11 +698,11 @@ const UpdateRefundCS: FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
-                  refundDetail?.orders?.work_orders?.work_order_status[0]?.status?.category
+                ['REFUND', 'SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
+                  refundDetail?.orders?.work_orders?.work_order_status?.[0]?.status?.category
                 ) &&
                 refundDetail?.orders?.payment_type === 'survey' &&
-                refundDetail?.orders?.work_orders?.work_order_status.length >= 1
+                refundDetail?.orders?.work_orders?.work_order_status?.length >= 1
               ) {
                 return (
                   <div className='table-warranty-content'>
@@ -746,24 +774,20 @@ const UpdateRefundCS: FC = () => {
                       </thead>
                       <tbody>
                         {refundDetail?.orders?.m_order_details?.map((item: any, index: any) => (
-                          <>
-                            <tr key={`${index} - order_detail`}>
-                              <td>{item?.item_code}</td>
-                              <td>{item?.item_name}</td>
-                              <td>{item?.item?.service_name}</td>
-                              <td>{item?.quantity ?? 0}</td>
-                              {!(refundDetail?.orders?.payment_type === 'gratis') && (
-                                <>
-                                  <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                  <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString(
-                                    'id'
-                                  )}`}</td>
-                                </>
-                              )}
-                            </tr>
-                          </>
+                          <tr key={`${index} - order_detail`}>
+                            <td>{item?.item_code}</td>
+                            <td>{item?.item_name}</td>
+                            <td>{item?.item?.service_name}</td>
+                            <td>{item?.quantity ?? 0}</td>
+                            {!(refundDetail?.orders?.payment_type === 'gratis') && (
+                              <>
+                                <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString(
+                                  'id'
+                                )}`}</td>
+                                <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                              </>
+                            )}
+                          </tr>
                         ))}
 
                         {refundDetail?.orders?.is_overdistance === 1 && (
@@ -882,7 +906,11 @@ const UpdateRefundCS: FC = () => {
                           >
                             <FontAwesomeIcon icon={faFileImage} color='#858585' size='sm' />
 
-                            <span className='upload-content' onClick={() => handleFileClick(index)}>
+                            <span
+                              className='upload-content'
+                              style={{cursor: 'pointer'}}
+                              onClick={() => handleFileClick(index)}
+                            >
                               {item?.name}
                             </span>
 
@@ -899,7 +927,7 @@ const UpdateRefundCS: FC = () => {
                             <Image
                               key={`${previewImage} - ${index}`}
                               width={200}
-                              style={{display: 'none'}}
+                              style={{display: 'none', cursor: 'pointer'}}
                               src={
                                 item instanceof File
                                   ? URL.createObjectURL(item)
@@ -958,8 +986,8 @@ const UpdateRefundCS: FC = () => {
               {isLoading ? 'Updating..' : 'Update Refund'}
             </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </section>
   )
 }

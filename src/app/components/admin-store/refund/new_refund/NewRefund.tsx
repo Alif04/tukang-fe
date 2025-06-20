@@ -12,14 +12,14 @@ import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
 import {formatDate} from '@fullcalendar/core'
 
 interface Refund {
-  order_id: any
-  refund_status: any
+  order_id: number | null
+  refund_status: string | null
   notes: string
   reason: string
-  date_of_filing: any
-  date_approve: any
-  penalty_nominal: any
-  approval_number: any
+  date_of_filing: string
+  date_approve: string
+  penalty_nominal: string
+  approval_number: string
   voucher: string
 }
 
@@ -59,6 +59,7 @@ const NewRefundCS: FC = () => {
     if (params.id) {
       getOrderDetail()
     }
+    // eslint-disable-next-line
   }, [params.id])
 
   // Add Refund
@@ -208,8 +209,8 @@ const NewRefundCS: FC = () => {
       setIsLoading(true)
       const formData = new FormData()
 
-      formData.append('order_id', refundValues.order_id)
-      formData.append('refund_status', refundValues.refund_status)
+      formData.append('order_id', String(refundValues.order_id || ''))
+      formData.append('refund_status', String(refundValues.refund_status || ''))
       formData.append('notes', refundValues.notes)
       formData.append('reason', refundValues.reason)
       formData.append('date_of_filing', today)
@@ -440,6 +441,7 @@ const NewRefundCS: FC = () => {
               </Row>
             </div>
 
+            {/* Table Order */}
             {(() => {
               if (
                 (orderDetail?.payment_type === 'survey' && orderDetail?.work_orders === null) ||
@@ -516,7 +518,16 @@ const NewRefundCS: FC = () => {
                   </div>
                 )
               } else if (
-                ['QUOTEIN', 'QUOTEOUT'].includes(orderDetail?.status?.category ?? '') &&
+                [
+                  'CANCEL',
+                  'REFUND',
+                  'QUOTEIN',
+                  'QUOTEOUT',
+                  'QUOTATIONPAID',
+                  'QUOTATIONPAIDSTEPONE',
+                  'QUOTATIONPAIDSTEPTWO',
+                  'QUOTATIONPAIDSTEPTHREE',
+                ].includes(orderDetail?.status?.category ?? '') &&
                 orderDetail?.payment_type === 'survey'
               ) {
                 return (
@@ -665,9 +676,15 @@ const NewRefundCS: FC = () => {
                   </div>
                 )
               } else if (
-                ['SURVEYREQ', 'SURVEYSTART', 'SURVEYDONE', 'WORKEND', 'DONE'].includes(
-                  orderDetail?.work_orders?.work_order_status[0]?.status?.category
-                ) &&
+                [
+                  'CANCEL',
+                  'REFUND',
+                  'SURVEYREQ',
+                  'SURVEYSTART',
+                  'SURVEYDONE',
+                  'WORKEND',
+                  'DONE',
+                ].includes(orderDetail?.work_orders?.work_order_status[0]?.status?.category) &&
                 orderDetail?.payment_type === 'survey' &&
                 orderDetail?.work_orders?.work_order_status.length >= 1
               ) {
@@ -918,7 +935,12 @@ const NewRefundCS: FC = () => {
           </div>
 
           <div className='d-flex justify-content-center'>
-            <Button variant='dark-danger' type='submit' onClick={handleCancelRefund}>
+            <Button
+              variant='dark-danger'
+              type='submit'
+              disabled={isLoading}
+              onClick={handleCancelRefund}
+            >
               Cancel
             </Button>
 
