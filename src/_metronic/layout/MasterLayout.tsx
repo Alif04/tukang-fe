@@ -12,7 +12,7 @@ import {MenuComponent} from '../assets/ts/components'
 
 const MasterLayout = () => {
   const location = useLocation()
-  const userRole = localStorage.getItem("userRole") as string;
+  const userRole = localStorage.getItem('userRole') as string
   useEffect(() => {
     setTimeout(() => {
       MenuComponent.reinitialization()
@@ -40,9 +40,11 @@ const MasterLayout = () => {
             >
               <Content>
                 <Outlet />
-            
               </Content>
-              {(userRole ==="Admin HO" || userRole === "Store CS" || userRole === "Owner Vendor"|| userRole === "Super User") && <ChatPage/>}
+              {(userRole === 'Admin HO' ||
+                userRole === 'Store CS' ||
+                userRole === 'Owner Vendor' ||
+                userRole === 'Super User') && <ChatPage />}
             </div>
           </div>
         </div>

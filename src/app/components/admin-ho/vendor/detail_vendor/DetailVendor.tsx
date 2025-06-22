@@ -5,8 +5,7 @@ import {Vendor} from '../../../../interfaces/vendor'
 
 import './DetailVendor.css'
 
-import axios from 'axios'
-import {useNavigate, useParams} from 'react-router-dom'
+import {useParams} from 'react-router-dom'
 import {Form, Row, Col} from 'react-bootstrap'
 
 const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({updatePageTitle}) => {
@@ -68,6 +67,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
   useEffect(() => {
     fetchVendorData()
+    // eslint-disable-next-line
   }, [])
 
   const formatDate = (date: any) => {

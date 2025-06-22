@@ -8,6 +8,7 @@ type Props = {
   className: string
   memberData: any[]
   totalMember: number
+  isPromotion: number
   storeId: number | null
   storeName: string
   dateFrom: string
@@ -22,6 +23,7 @@ const BestCostumers: React.FC<Props> = ({
   storeName,
   dateFrom,
   dateTo,
+  isPromotion,
 }) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const topThree = memberData.slice(0, 5)
@@ -30,6 +32,9 @@ const BestCostumers: React.FC<Props> = ({
   const checkStoreId = storeId ? `&store_id=${storeId}` : ''
   const checkDateFrom = dateFrom ? `&date_from=${dateFrom}` : ''
   const checkDateTo = dateTo ? `&date_to=${dateTo}` : ''
+
+  const promotionLabel =
+    isPromotion === 1 ? 'Pemasangan Tanpa Survei' : isPromotion === 2 ? 'Survei' : 'Gratis'
 
   // Export To Excel
   const exportToExcel = () => {
@@ -75,7 +80,7 @@ const BestCostumers: React.FC<Props> = ({
   return (
     <div className={`card ${className}`}>
       <div className='card-header d-flex justify-content-between mt-5 mb-5'>
-        <h3 className='card-title fw-bold text-dark'>Top 5 Best Customers</h3>
+        <h3 className='card-title fw-bold text-dark'>Top 5 Best Customers {promotionLabel}</h3>
 
         <button className='button-export' onClick={exportToExcel}>
           <h3 className='fs-5 fw-semibold'>{loadingExport ? 'Exporting..' : 'Export To Excel'}</h3>

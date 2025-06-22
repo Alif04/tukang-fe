@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {FC, useState, useEffect} from 'react'
+import React, {useState, useEffect} from 'react'
 
 import {formatDateWithTimeZone} from '../../../helpers'
 

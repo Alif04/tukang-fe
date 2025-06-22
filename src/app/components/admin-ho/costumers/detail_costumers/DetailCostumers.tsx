@@ -4,7 +4,6 @@ import {useParams, Link} from 'react-router-dom'
 
 import './DetailCostumers.css'
 
-import axios from 'axios'
 import {Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {Row, Col, Form, Tabs, Tab} from 'react-bootstrap'
@@ -44,6 +43,7 @@ const DetailCostumerHO: FC = () => {
 
   useEffect(() => {
     fetchMemberDetail()
+    // eslint-disable-next-line
   }, [])
 
   interface DataTypeOrder {
@@ -194,6 +194,7 @@ const DetailCostumerHO: FC = () => {
 
     fetchOrderData()
     fetchComplaintData()
+    // eslint-disable-next-line
   }, [memberDetail])
 
   return (

@@ -4,11 +4,7 @@ import React from 'react'
 import {ViewRefundCS} from '../../../components'
 
 const ViewRefund: React.FC = () => {
-  return (
-    <>
-      <ViewRefundCS className='' />
-    </>
-  )
+  return <ViewRefundCS className='' />
 }
 
 export {ViewRefund}

@@ -336,6 +336,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(1, 10, '')
+    // eslint-disable-next-line
   }, [])
 
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -377,6 +378,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     }
 
     getStore()
+    // eslint-disable-next-line
   }, [])
 
   const handleSubmitFilter = async () => {

@@ -3,11 +3,7 @@ import React, {FC} from 'react'
 import {UpdateCSIHO} from '../../../components'
 
 const UpdateCSI: FC = () => {
-  return (
-    <>
-      <UpdateCSIHO />
-    </>
-  )
+  return <UpdateCSIHO />
 }
 
 export {UpdateCSI}

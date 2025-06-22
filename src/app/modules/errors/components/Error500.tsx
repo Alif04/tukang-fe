@@ -1,12 +1,7 @@
 import {FC} from 'react'
 import {toAbsoluteUrl} from '../../../../_metronic/helpers'
-import {Button} from 'react-bootstrap'
 
 const Error500: FC = () => {
-  const handleClick = () => {
-    window.open('https://instalasi.mitra10.com', '_blank')
-  }
-
   return (
     <div className='d-flex flex-column flex-root bg-white'>
       <div className='d-flex flex-column flex-center flex-column-fluid p-10'>

@@ -68,11 +68,13 @@ const DetailRequestDiscountHO: FC = () => {
 
   useEffect(() => {
     getIncentiveData()
+    // eslint-disable-next-line
   }, [])
 
   useEffect(() => {
     if (!quotationID) return
     getDetailQuotation()
+    // eslint-disable-next-line
   }, [quotationID])
 
   // Payment Stage

@@ -6,13 +6,7 @@ import './UpdateCostumers.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import Select, {SingleValue} from 'react-select'
 import {Card, Row, Col, Form, Button, InputGroup} from 'react-bootstrap'
-
-interface Store {
-  value: number | null
-  label: string
-}
 
 interface Member {
   full_name: string
@@ -72,6 +66,7 @@ const UpdateCostumerHO: FC = () => {
     }
 
     getMemberData()
+    // eslint-disable-next-line
   }, [])
 
   // Store

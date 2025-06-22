@@ -4,11 +4,7 @@ import React from 'react'
 import {NewRefundCS} from '../../../components'
 
 const NewRefund: React.FC = () => {
-  return (
-    <>
-      <NewRefundCS />
-    </>
-  )
+  return <NewRefundCS />
 }
 
 export {NewRefund}

@@ -122,8 +122,6 @@ export * from './admin-ho/request_incentive/request_incentive_sales/RequestIncen
 // Detail Pengajuan Insentif
 export * from './admin-ho/request_incentive/detail_request_incentive/DetailRequestIncentive'
 
-
-
 // List Pengajuan Insentif
 export * from './admin-ho/request_incentive_manager/list_request_incentive_manager/ListRequestIncentive'
 
@@ -132,7 +130,6 @@ export * from './admin-ho/request_incentive_manager/request_incentive_manager/Re
 
 // Detail Pengajuan Insentif
 export * from './admin-ho/request_incentive_manager/detail_request_incentive_manager/DetailRequestIncentive'
-
 
 // Print Report
 export * from './admin-store/reports/print_report/PrintReport'
@@ -183,9 +180,6 @@ export * from './admin-ho/costumers/report_costumers/ReportCostumers'
 // List Format CSI
 export * from './admin-ho/csi/list_format_csi/ListFormatCSI'
 
-// List CSI
-export * from './admin-ho/csi/list_csi/ListCSI'
-
 // View CSI ( By ID )
 export * from './admin-ho/csi/view_csi_id/ViewCSI'
 
@@ -194,9 +188,6 @@ export * from './admin-ho/csi/new_csi/NewCSI'
 
 // Update CSI
 export * from './admin-ho/csi/update_csi/UpdateCSI'
-
-// Report CSI
-export * from './admin-ho/csi/report_csi/ReportCSI'
 
 // Format Email
 // New Format Email
@@ -295,17 +286,8 @@ export * from './admin-ho/payment/detail_payment/DetailPayment'
 export * from './admin-ho/invoice/view_invoice/ViewInvoice'
 
 // REFUND
-// View Refund
-export * from './admin-ho/refund/view_refund/ViewRefund'
-
-// New Refund
-export * from './admin-ho/refund/new_refund/NewRefund'
-
 // Update Refund
 export * from './admin-ho/refund/update_refund/UpdateRefund'
-
-// Detail Refund
-export * from './admin-ho/refund/detail_refund/DetailRefund'
 
 // REPORT
 // View Report
@@ -329,9 +311,6 @@ export * from './admin-ho/warranty/form_warranty_claim/WarrantyFormClaim'
 
 // Form Claim Warranty
 export * from './admin-ho/warranty/list_claim_warranty/WarrantyClaimList'
-
-// Update Claim Warranty
-export * from './admin-ho/warranty/update_warranty/UpdateWarranty'
 
 // RESCHEDULE
 
@@ -526,7 +505,6 @@ export * from './admin-ho/request-discount/list/ListRequestDiscount'
 // Profile
 export * from './profile/update_profile/UpdateProfile'
 
-
 // DataMASTER
 // List data master
 export * from './admin-ho/data-master/list_data_master/ListDataMaster'
@@ -536,8 +514,6 @@ export * from './admin-ho/data-master/new_data_master/NewDataMaster'
 
 // Update data masrer
 export * from './admin-ho/data-master/update_data_master/UpdateDataMaster'
-
-
 
 // DataRole
 // List data role
@@ -549,10 +525,8 @@ export * from './admin-ho/data-role/new_data_role/NewDataRole'
 // Update data role
 export * from './admin-ho/data-role/update_data_role/UpdateDataRole'
 
-
 // DASHBOARD PAGE ( Admin WA )
 export * from './admin-wa/dashboard/DashboardAdminWA'
-
 
 // Report Admin WA
 export * from './admin-wa/report-log-chat/ReportLogChat'

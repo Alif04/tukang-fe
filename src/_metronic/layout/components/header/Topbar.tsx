@@ -106,6 +106,7 @@ const Topbar: FC = () => {
     }, 30000)
 
     return () => clearInterval(intervalId)
+    // eslint-disable-next-line
   }, [currentPage, pageSize])
 
   useEffect(() => {

@@ -4,16 +4,19 @@ import {toAbsoluteUrl} from '../../../../../../_metronic/helpers'
 
 type Props = {
   className: string
+  isPromotion: number
   vendorData: any[]
 }
 
-const TopVendorWidget: React.FC<Props> = ({className, vendorData}) => {
+const TopVendorWidget: React.FC<Props> = ({className, isPromotion, vendorData}) => {
   const topThree = vendorData.slice(0, 3)
+  const promotionLabel =
+    isPromotion === 1 ? 'Pemasangan Tanpa Survei' : isPromotion === 2 ? 'Survei' : 'Gratis'
 
   return (
     <div className={`card ${className}`}>
       <div className='card-header border-0'>
-        <h3 className='card-title fw-bold text-dark'>Top 3 Best Vendors</h3>
+        <h3 className='card-title fw-bold text-dark'>Top 3 Best Vendors {promotionLabel}</h3>
       </div>
 
       <div className='card-body pt-2'>

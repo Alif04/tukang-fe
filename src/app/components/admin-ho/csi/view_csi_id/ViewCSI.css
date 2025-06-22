@@ -1,75 +1,11 @@
-/* Table */
-#view-csi .table-head-wrapper {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px 0;
+#view-csi .list-respons .table-responsive table.table.table-borderless th {
+  border: solid transparent !important;
 }
 
-#view-csi .ant-table-wrapper .ant-table-thead > tr > th {
-  color: #ffff;
-  font-weight: 500;
-  background-color: #183383;
+#view-csi .list-respons .table-responsive table.table.table-borderless tr {
+  border: solid transparent !important;
 }
 
-#view-csi .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:first-child {
-  border-start-start-radius: 0;
-}
-
-#view-csi .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
-  border-start-end-radius: 0;
-}
-
-#view-csi .table-head-wrapper {
-  margin-bottom: 20px;
-}
-
-#view-csi .ant-table-fixed {
-  table-layout: fixed;
-}
-
-#view-csi .ant-table-tbody > tr.ant-table-row:hover > td {
-  background-color: #dcdcdc;
-}
-
-#view-csi .ant-table-tbody > tr > td {
-  word-wrap: break-word;
-  word-break: break-word;
-}
-
-#view-csi .table-striped-rows tr:nth-child(even) td {
-  background-color: #ffff;
-}
-
-#view-csi .table-striped-rows tr:nth-child(odd) td {
-  background-color: #e4e9f7;
-}
-
-/* Filter Search */
-
-#view-csi .filter-search {
-  width: 370px;
-}
-
-#view-csi .table-view-member .table-head-wrapper .filter-search .input-group {
-  height: 45px;
-}
-
-#view-csi
-  .table-view-member
-  .table-head-wrapper
-  .filter-search
-  .input-group
-  .form-control.filter-ltr {
-  border-left: none;
-}
-
-#view-csi .table-view-member .table-head-wrapper .filter-search .input-group-text.filter-ltr {
-  background-color: transparent;
-  border-right: none;
-}
-
-@media screen and (max-width: 1200px) {
-  #view-csi .filter-search {
-    width: 100%;
-  }
+#view-csi .list-respons .table-responsive table.table.table-borderless td {
+  border: solid transparent !important;
 }
