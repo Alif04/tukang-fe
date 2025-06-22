@@ -52,6 +52,7 @@ const UpdateCSIHO: FC = () => {
 
   useEffect(() => {
     fetchCSIData()
+    // eslint-disable-next-line
   }, [])
 
   // CSI State

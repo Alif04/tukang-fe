@@ -53,10 +53,12 @@ export {ChartLine2}
 function getChartOptions(height: number, chartWorkOrder: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const baseColor = getCSSVariableValue('--kt-primary')
-  const baseLightColor = getCSSVariableValue('--kt-primary-light')
-  const secondaryColor = getCSSVariableValue('--kt-success')
-  const secondaryLightColor = getCSSVariableValue('--kt-success-light')
+
+  const baseColor = '#FFA800'
+  const baseLightColor = '#FFE3A3'
+  const secondaryColor = '#50CD89'
+  const secondaryLightColor = '#A3E4C4'
+
   const isHour = chartWorkOrder?.every(
     (item: any) => /^\d+$/.test(item.period) && chartWorkOrder.length === 24
   )

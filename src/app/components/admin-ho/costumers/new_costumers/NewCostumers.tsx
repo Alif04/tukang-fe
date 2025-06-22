@@ -69,7 +69,7 @@ const NewCostumerHO: FC = () => {
       join_location:
         userRole === 'Admin HO' ? selectedStore?.value ?? null : Number.parseInt(userStoreId),
     }))
-  }, [selectedStore])
+  }, [userRole, userStoreId, selectedStore])
 
   // Fetch Store Data
   const getStore = async () => {
@@ -100,6 +100,7 @@ const NewCostumerHO: FC = () => {
 
   useEffect(() => {
     getStore()
+    // eslint-disable-next-line
   }, [])
 
   // Member Validation

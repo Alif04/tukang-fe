@@ -1,5 +1,4 @@
-import React, {FC, useState, useEffect} from 'react'
-import {useNavigate} from 'react-router-dom'
+import React, {FC, useState} from 'react'
 
 import './NewCSI.css'
 

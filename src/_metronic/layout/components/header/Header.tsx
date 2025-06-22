@@ -1,5 +1,5 @@
 import React, {FC} from 'react'
-import {MenuInner} from './MenuInner'
+
 import {DefaultTitle} from './page-title/DefaultTitle'
 
 const Header: FC = () => {

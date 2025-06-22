@@ -53,8 +53,7 @@ export {ChartBar}
 function getChartOptions(height: number, chartOrderData: any): ApexOptions {
   const labelColor = getCSSVariableValue('--kt-gray-500')
   const borderColor = getCSSVariableValue('--kt-gray-200')
-  const baseColor = getCSSVariableValue('--kt-primary')
-  const secondaryColor = getCSSVariableValue('--kt-info')
+
   const isHour = chartOrderData?.every(
     (item: any) => /^\d+$/.test(item.period) && chartOrderData.length === 24
   )
@@ -168,7 +167,7 @@ function getChartOptions(height: number, chartOrderData: any): ApexOptions {
         },
       },
     },
-    colors: [baseColor, secondaryColor],
+    colors: ['#4C9AFF', '#50CD89', '#F1416C'],
     grid: {
       borderColor: borderColor,
       strokeDashArray: 4,

@@ -32,6 +32,7 @@ interface Sales {
   account_name: string
   phone_number: string
   account_number: string
+  nik: string
   sales_brand: string
   sales_categories: CategorySelect[]
   password: string
@@ -43,9 +44,10 @@ const UpdateSales: FC = () => {
   const navigate = useNavigate()
   const params = useParams()
   const animatedComponents = makeAnimated()
-  const userRole = localStorage.getItem('userRole')
-  const staffStoreId = localStorage.getItem('storeId') as any
+
+  const userRole = localStorage.getItem('userRole') as string
   const staffStoreName = localStorage.getItem('storeName') as string
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // List Store
@@ -66,6 +68,7 @@ const UpdateSales: FC = () => {
     phone_number: '',
     account_number: '',
     sales_brand: '',
+    nik: '',
     sales_categories: [],
     password: '',
     is_active: 1,
@@ -147,6 +150,7 @@ const UpdateSales: FC = () => {
                 username: data?.users?.username,
                 account_name: data.account_name,
                 phone_number: data?.phone_number,
+                nik: data?.nik,
                 account_number: data?.account_number,
                 sales_brand: data?.sales_brand,
                 sales_categories: uniqueCategories,
@@ -243,15 +247,9 @@ const UpdateSales: FC = () => {
     getStore()
     getBank()
     getCategories()
-  }, [])
 
-  // Store ID
-  const storeId =
-    userRole === 'Admin HO' && selectedStore && selectedStore.value
-      ? `&store_id=${selectedStore.value}`
-      : userRole === 'Store Staff' || userRole === 'Store CS'
-      ? `&store_id=${staffStoreId}`
-      : ''
+    // eslint-disable-next-line
+  }, [])
 
   // Sales Form
   const salesInfoFormHandler = (e: any) => {
@@ -276,25 +274,6 @@ const UpdateSales: FC = () => {
       bank_id: selectedBank?.value ?? null,
     }))
   }, [selectedBank])
-
-  // Change Select Category
-  const handleChangeCategories = (element: any) => {
-    const updatedCategories = element.map((option: any) => ({
-      value: option.value,
-      label: option.label,
-    }))
-
-    setSelectedCategories(updatedCategories)
-
-    const updatedCategoriesId = updatedCategories.map((option: any) => ({
-      category_id: option.value,
-    }))
-
-    setSalesInfo((prevSalesInfo) => ({
-      ...prevSalesInfo,
-      sales_categories: updatedCategoriesId,
-    }))
-  }
 
   // Handle Change Select Category
   const handleChangeCategory = (newValue: CategorySelect[]) => {
@@ -329,6 +308,13 @@ const UpdateSales: FC = () => {
       Swal.fire({
         title: 'Warning',
         text: 'Tolong isi formulir WA/Phone Number',
+        icon: 'warning',
+      })
+      valid = false
+    } else if (salesInfo.nik === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi formulir NIK',
         icon: 'warning',
       })
       valid = false
@@ -456,7 +442,7 @@ const UpdateSales: FC = () => {
               <Form.Group as={Row}>
                 <Form.Label column sm='4'>
                   Nama Toko
-                  {userRole === 'Admin HO' ? (
+                  {['Super User', 'Admin HO'].includes(userRole) ? (
                     <Select
                       name='store_id'
                       className='form-control p-0'
@@ -586,7 +572,17 @@ const UpdateSales: FC = () => {
                 </Form.Group>
               </Col>
 
-              <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+              <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                <Form.Group className='mb-5'>
+                  <Form.Label>NIK</Form.Label>
+                  <Form.Control
+                    name='nik'
+                    type='number'
+                    value={salesInfo.nik}
+                    onChange={(e) => salesInfoFormHandler(e)}
+                  />
+                </Form.Group>
+              </Col>
             </Row>
           </Card.Body>
         </Card>

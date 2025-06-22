@@ -1,5 +1,4 @@
 import React, {useState, useEffect, FC} from 'react'
-import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 
 import {ChartBar} from './components/ChartBar'
 import {ChartLine} from './components/ChartLine'
@@ -9,6 +8,7 @@ import {TopVendorWidget} from './components/TopVendor'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import Select from 'react-select'
+import Swal from 'sweetalert2'
 import {Card, Row, Col, Button, Tab, Nav} from 'react-bootstrap'
 
 import {DatePicker} from 'antd'
@@ -33,6 +33,7 @@ const ReportVendorHO: FC = () => {
   const [chartWorkOrder, setChartWorkOrder] = useState<any[]>([])
 
   const [vendor, setVendor] = useState<VendorItem[]>([])
+  const [isPromotion, setIsPromotion] = useState<number>(1)
   const [vendorOption, setVendorOption] = useState<VendorItem[]>([])
   const vendorOptions = [{value: null, label: 'All Vendor'}, ...vendorOption]
   const [selectedVendor, setSelectedVendor] = useState<any>({
@@ -43,45 +44,75 @@ const ReportVendorHO: FC = () => {
   const vendorId = selectedVendor.value ? `&vendor_id=${selectedVendor.value}` : ''
 
   const getVendor = async () => {
-    let currentPage = 1
-    let allVendors: any[] = []
-    let hasMoreData = true
-    const pageSize = 20
-
     try {
-      while (hasMoreData) {
-        const response = await axios.get(
-          `${apiUrl}/vendor?page=${currentPage}&take=${pageSize}&top_best=1&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
+      const response = await axios.get(
+        `${apiUrl}/vendor?take=0&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
 
+      if (Array.isArray(response.data.data)) {
+        const tempVendor = response.data.data.map((item: any) => ({
+          value: item.id,
+          label: item.company_name,
+        }))
+
+        setVendorOption(tempVendor)
+      } else {
+        console.error('API response data is not an array:', response.data)
+      }
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        Swal.fire({
+          title: 'Sesi Anda Telah Berakhir',
+          text: 'Silahkan Logout dan Login Ulang Kembali',
+          icon: 'warning',
+          confirmButtonText: 'Ok',
+        })
+      } else {
+        console.log('error when fetching data', error)
+      }
+    }
+  }
+
+  const getTopBest = async (promotionType: number) => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/vendor?take=0&is_promotion=${promotionType}&order_date_from=${dateFrom}&order_date_to=${dateTo}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+
+      if (Array.isArray(response.data.data)) {
         const data = response.data.data
 
-        if (data.length > 0) {
-          const tempVendor = response.data.data.map((item: any) => ({
-            value: item.id,
-            label: item.company_name,
-          }))
-
-          allVendors = [...allVendors, ...tempVendor]
-          currentPage += 1
-        } else {
-          hasMoreData = false
-        }
-
-        setVendor(response.data.data)
+        setVendor(data)
+      } else {
+        console.error('API response data is not an array:', response.data)
       }
-
-      setVendorOption(allVendors)
-    } catch (err) {
-      console.error(err)
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        Swal.fire({
+          title: 'Sesi Anda Telah Berakhir',
+          text: 'Silahkan Logout dan Login Ulang Kembali',
+          icon: 'warning',
+          confirmButtonText: 'Ok',
+        })
+      } else {
+        console.log('error when fetching data', error)
+      }
     }
   }
 
@@ -152,11 +183,23 @@ const ReportVendorHO: FC = () => {
   }
 
   useEffect(() => {
+    getTopBest(isPromotion)
+    // eslint-disable-next-line
+  }, [isPromotion])
+
+  useEffect(() => {
     getVendor()
     getReportOrder()
     getReportWorkOrder()
+    // eslint-disable-next-line
   }, [])
 
+  // Change value
+  const handleSelectTab = (key: any) => {
+    setIsPromotion(Number(key))
+  }
+
+  // Filter
   const handleSubmitFilter = async () => {
     setLoadingButton(true)
 
@@ -350,27 +393,53 @@ const ReportVendorHO: FC = () => {
       {/* end::Row */}
 
       {/* begin::Row */}
-      <div className='row g-5 g-xl-8'>
-        {/* <div className='col-xl-4'>
-          <ChartDonut
-            className='card-xl-stretch mb-xl-8'
-            chartHeight='300px'
-            complaintData={complaintData}
-          />
-        </div>
+      <Row className='g-5 g-xl-8'>
+        <Col>
+          <Tab.Container defaultActiveKey='1' onSelect={handleSelectTab}>
+            <Nav fill variant='tabs'>
+              <Nav.Item>
+                <Nav.Link eventKey='1' style={{cursor: 'pointer'}}>
+                  Pemasangan Tanpa Survei
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey='2' style={{cursor: 'pointer'}}>
+                  Survei
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey='3' style={{cursor: 'pointer'}}>
+                  Gratis
+                </Nav.Link>
+              </Nav.Item>
+            </Nav>
 
-        <div className='col-xl-4'>
-          <ChartDonut2
-            className='card-xl-stretch mb-5 mb-xl-8'
-            chartHeight='300px'
-            workOrderData={workOrderData}
-          />
-        </div> */}
-
-        <div className='col-xl-12'>
-          <TopVendorWidget className='card-xl-stretch mb-5 mb-xl-8' vendorData={vendor} />
-        </div>
-      </div>
+            <Tab.Content className='mt-4'>
+              <Tab.Pane eventKey='1'>
+                <TopVendorWidget
+                  className='card-xl-stretch mb-5 mb-xl-8'
+                  isPromotion={1}
+                  vendorData={vendor}
+                />
+              </Tab.Pane>
+              <Tab.Pane eventKey='2'>
+                <TopVendorWidget
+                  className='card-xl-stretch mb-5 mb-xl-8'
+                  isPromotion={2}
+                  vendorData={vendor}
+                />
+              </Tab.Pane>
+              <Tab.Pane eventKey='3'>
+                <TopVendorWidget
+                  className='card-xl-stretch mb-5 mb-xl-8'
+                  isPromotion={3}
+                  vendorData={vendor}
+                />
+              </Tab.Pane>
+            </Tab.Content>
+          </Tab.Container>
+        </Col>
+      </Row>
       {/* end::Row */}
     </section>
   )

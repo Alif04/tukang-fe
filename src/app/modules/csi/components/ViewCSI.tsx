@@ -4,11 +4,7 @@ import React from 'react'
 import {ViewCSIHO} from '../../../components'
 
 const ViewCSI: React.FC = () => {
-  return (
-    <>
-      <ViewCSIHO className='' />
-    </>
-  )
+  return <ViewCSIHO />
 }
 
 export {ViewCSI}

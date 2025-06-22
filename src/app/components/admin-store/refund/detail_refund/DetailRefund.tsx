@@ -44,6 +44,8 @@ const DetailRefundCS: FC = () => {
     // eslint-disable-next-line
   }, [])
 
+  console.log('PREVIEW IMAGE', `${apiUrl}/public/refund/${previewImage}`)
+
   return (
     <section id='detail-refund'>
       <div className='card'>
@@ -291,6 +293,8 @@ const DetailRefundCS: FC = () => {
                 )
               } else if (
                 [
+                  'CANCEL',
+                  'REFUND',
                   'QUOTEIN',
                   'QUOTEOUT',
                   'QUOTATIONPAID',
@@ -447,6 +451,8 @@ const DetailRefundCS: FC = () => {
                 )
               } else if (
                 [
+                  'CANCEL',
+                  'REFUND',
                   'SURVEYREQ',
                   'TUKANGSURVEY',
                   'SURVEYSTART',
@@ -655,11 +661,9 @@ const DetailRefundCS: FC = () => {
                   <Form.Control
                     type='text'
                     readOnly
-                    value={
-                      refundDetail
-                        ? `Rp. ${parseInt(refundDetail?.penalty_nominal).toLocaleString('id')}`
-                        : 'Rp. 0'
-                    }
+                    value={`Rp. ${parseInt(refundDetail?.penalty_nominal ?? 0).toLocaleString(
+                      'id'
+                    )}`}
                   />
                 </Form.Group>
               </Col>
@@ -712,10 +716,10 @@ const DetailRefundCS: FC = () => {
                         key={previewImage}
                         width={200}
                         style={{display: 'none'}}
-                        src={`${apiUrl}/public/refund/${previewImage}`}
+                        src={`${apiUrl}/public/refunds/${previewImage}`}
                         preview={{
                           visible,
-                          src: `${apiUrl}/public/refund/${previewImage}`,
+                          src: `${apiUrl}/public/refunds/${previewImage}`,
                           onVisibleChange: (value) => {
                             setVisible(value)
                           },

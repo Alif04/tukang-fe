@@ -9,7 +9,9 @@ import ChatActive from './ChatActive'
 import ChatPrevious from './ChatPrevious'
 import EditMessageModal from './EditMessageModal'
 import {toAbsoluteUrl} from '../../../helpers'
-import { Modal } from 'react-bootstrap'
+import {Button, Modal} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faComment} from '@fortawesome/free-solid-svg-icons'
 
 const socket = io(`${process.env.REACT_APP_API_CHAT_URL}/live-chat`)
 
@@ -154,23 +156,19 @@ export default function ChatPage(): JSX.Element {
 
   useEffect(() => {
     const handleReceiveMessage = (msg: {sender: string; message: string; timestamp: any}) => {
-
-      
       if (
         msg.sender !==
-          (userRole === 'Owner Vendor'
-            ? vendorName
-            : userRole === 'Super User'
-            ? 'Admin HO'
-             : userRole === 'Store CS'
-            ? storeName
-            : userRole)
+        (userRole === 'Owner Vendor'
+          ? vendorName
+          : userRole === 'Super User'
+          ? 'Admin HO'
+          : userRole === 'Store CS'
+          ? storeName
+          : userRole)
       ) {
         setNewMessages(true)
       }
       setMessages((prev) => [...prev, msg])
-    
-     
     }
 
     socket.on('receiveMessage', handleReceiveMessage)
@@ -299,16 +297,17 @@ export default function ChatPage(): JSX.Element {
           },
         })
         if (res.data.success) {
-          const dataReciver = res.data.group.members.filter((member:any) => member !== (
-            userRole === 'Owner Vendor'
-              ? vendorName
-              : userRole === 'Super User'
-              ? 'Admin HO'
-               : userRole === 'Store CS'
-              ? storeName
-              : userRole
-
-          ));
+          const dataReciver = res.data.group.members.filter(
+            (member: any) =>
+              member !==
+              (userRole === 'Owner Vendor'
+                ? vendorName
+                : userRole === 'Super User'
+                ? 'Admin HO'
+                : userRole === 'Store CS'
+                ? storeName
+                : userRole)
+          )
           setReciver(dataReciver)
           setGroupId(res.data.groupId)
           setStep('chat')
@@ -369,16 +368,17 @@ export default function ChatPage(): JSX.Element {
           },
         })
         if (res.data.success) {
-          const dataReciver = res.data.group.members.filter((member:any) => member !== (
-            userRole === 'Owner Vendor'
-              ? vendorName
-              : userRole === 'Super User'
-              ? 'Admin HO'
-               : userRole === 'Store CS'
-              ? storeName
-              : userRole
-
-          ));
+          const dataReciver = res.data.group.members.filter(
+            (member: any) =>
+              member !==
+              (userRole === 'Owner Vendor'
+                ? vendorName
+                : userRole === 'Super User'
+                ? 'Admin HO'
+                : userRole === 'Store CS'
+                ? storeName
+                : userRole)
+          )
           setReciver(dataReciver)
           setGroupId(res.data.groupId)
           setStep('chat')
@@ -441,16 +441,17 @@ export default function ChatPage(): JSX.Element {
           },
         })
         if (res.data.success) {
-          const dataReciver = res.data.group.members.filter((member:any) => member !== (
-            userRole === 'Owner Vendor'
-              ? vendorName
-              : userRole === 'Super User'
-              ? 'Admin HO'
-               : userRole === 'Store CS'
-              ? storeName
-              : userRole
-
-          ));
+          const dataReciver = res.data.group.members.filter(
+            (member: any) =>
+              member !==
+              (userRole === 'Owner Vendor'
+                ? vendorName
+                : userRole === 'Super User'
+                ? 'Admin HO'
+                : userRole === 'Store CS'
+                ? storeName
+                : userRole)
+          )
           setReciver(dataReciver)
           setGroupId(res.data.groupId)
           setStep('chat')
@@ -501,39 +502,40 @@ export default function ChatPage(): JSX.Element {
           ? vendorName
           : userRole === 'Super User'
           ? 'Admin HO'
-           : userRole === 'Store CS'
+          : userRole === 'Store CS'
           ? storeName
           : userRole,
       timestamp,
-      receiver:reciver,
-      message
+      receiver: reciver,
+      message,
     }
-    
-    if (typeof message === "string") {
-      msg.message = message;
-     
-          
-    socket.emit('sendMessage', msg)
-    } else if (message.type === "file") {
-      // Handle upload file sebelum mengirim pesan
-      const formData = new FormData();
-      formData.append("file", message.file);
-      
-      axios.post(`${apiChat}/chat/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      }).then(res => {
-        msg.message = res.data.fileUrl; // URL dari server setelah upload
-         if (res.data.fileUrl) {
-          socket.emit('sendMessage', msg)
-         }
 
-      }).catch(err => {
-        console.error("Upload gagal", err);
-      });
+    if (typeof message === 'string') {
+      msg.message = message
+
+      socket.emit('sendMessage', msg)
+    } else if (message.type === 'file') {
+      // Handle upload file sebelum mengirim pesan
+      const formData = new FormData()
+      formData.append('file', message.file)
+
+      axios
+        .post(`${apiChat}/chat/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((res) => {
+          msg.message = res.data.fileUrl // URL dari server setelah upload
+          if (res.data.fileUrl) {
+            socket.emit('sendMessage', msg)
+          }
+        })
+        .catch((err) => {
+          console.error('Upload gagal', err)
+        })
     } else {
-      return;
+      return
     }
     // console.log(msg);
 
@@ -641,61 +643,59 @@ export default function ChatPage(): JSX.Element {
   }
 
   const fetchNewChats = async () => {
+    try {
+      const res = await axios.get(`${apiChat}/chat/messages`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
 
-      try {
-        const res = await axios.get(`${apiChat}/chat/messages`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-      
-        if (res.data && res.data.length > 0) {
-          
-          const hasNewMessages = res.data.some((chat: any) => {
-            let currentUser: string;
-          
-            switch (userRole) {
-              case "Owner Vendor":
-                currentUser = vendorName;
-                break;
-              case "Super User":
-                currentUser = "Admin HO";
-                break;
-              case "Store CS":
-                currentUser = storeName;
-                break;
-              default:
-                currentUser = userRole;
-            }
-        
-            // Cek apakah ada receiver yang sesuai dengan currentUser
-            return chat.receiver.some((receiver: any) => receiver.user === currentUser && !receiver.read);
-        });
-          // console.log(hasNewMessages);
-          
-      if (hasNewMessages) {
-        setNewMessages(true);
-      }
-          // setNewMessages(true)
-          // res.data.forEach((chats: any) => {
-          //   const { groupId, timestamp } = chats;
-          //   if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
-          //     latest[groupId] = timestamp; // Simpan timestamp terbaru untuk setiap grup
-          //   }
-          // });
-        } else {
-          setNewMessages(false);
+      if (res.data && res.data.length > 0) {
+        const hasNewMessages = res.data.some((chat: any) => {
+          let currentUser: string
+
+          switch (userRole) {
+            case 'Owner Vendor':
+              currentUser = vendorName
+              break
+            case 'Super User':
+              currentUser = 'Admin HO'
+              break
+            case 'Store CS':
+              currentUser = storeName
+              break
+            default:
+              currentUser = userRole
+          }
+
+          // Cek apakah ada receiver yang sesuai dengan currentUser
+          return chat.receiver.some(
+            (receiver: any) => receiver.user === currentUser && !receiver.read
+          )
+        })
+        // console.log(hasNewMessages);
+
+        if (hasNewMessages) {
+          setNewMessages(true)
         }
-      } catch (err) {
-        console.error("Failed to fetch new chats", err);
+        // setNewMessages(true)
+        // res.data.forEach((chats: any) => {
+        //   const { groupId, timestamp } = chats;
+        //   if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
+        //     latest[groupId] = timestamp; // Simpan timestamp terbaru untuk setiap grup
+        //   }
+        // });
+      } else {
+        setNewMessages(false)
       }
-    
-  };
+    } catch (err) {
+      console.error('Failed to fetch new chats', err)
+    }
+  }
   useEffect(() => {
     fetchNewChats()
-  
   }, [])
-  
+
   return (
     <div>
       <div
@@ -707,8 +707,7 @@ export default function ChatPage(): JSX.Element {
         }}
       >
         {isOpen === false && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <i className="bi bi-chat" style={{ fontSize: '30px', marginBottom: '2px' }}>
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
             {newMessages && !isOpen && (
               <span
                 style={{
@@ -725,46 +724,49 @@ export default function ChatPage(): JSX.Element {
                   justifyContent: 'center',
                   alignItems: 'center',
                   fontSize: '12px',
+                  zIndex: 999,
                   boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
                 }}
               >
                 !
               </span>
             )}
-            </i>
-          <button
-            onClick={() => {
-              if (isOpen) {
-                resetChat()
-              } else {
-                if (newMessages) {
-                  setIsOpen(true)
-                  handleChatTypeSelection("previous")
-                  setNewMessages(false) // Reset new messages notification
-                  setSteps('')
+
+            <Button
+              onClick={() => {
+                if (isOpen) {
+                  resetChat()
                 } else {
-                  setIsOpen(true)
+                  if (newMessages) {
+                    setIsOpen(true)
+                    handleChatTypeSelection('previous')
+                    setNewMessages(false) // Reset new messages notification
+                    setSteps('')
+                  } else {
+                    setIsOpen(true)
+                  }
                 }
-              }
-            }}
-            style={{
-              padding: '10px',
-              backgroundColor: isOpen ? 'transparent' : '#007BFF',
-              color: isOpen ? 'black' : 'white',
-              borderRadius: isOpen ? '0' : '10%',
-              border: isOpen ? 'none' : 'none',
-              cursor: 'pointer',
-              boxShadow: isOpen ? 'none' : '0 2px 5px rgba(0, 0, 0, 0.2)',
-              fontSize: '15px',
-              position: 'relative',
-              transition: 'all 0.3s ease',
-            }}
-          >
-            Live Chat
-            
-          </button>
+              }}
+              style={{
+                padding: '10px',
+                backgroundColor: isOpen ? 'transparent' : '#0F4CFF',
+                color: isOpen ? 'black' : 'white',
+                borderRadius: isOpen ? '0' : '20px',
+                border: isOpen ? 'none' : 'none',
+                cursor: 'pointer',
+                boxShadow: isOpen ? 'none' : '0 2px 5px rgba(0, 0, 0, 0.2)',
+                fontSize: '15px',
+                position: 'relative',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <FontAwesomeIcon icon={faComment} size='lg' className='text-white mx-1' />
+              <span className='mx-1'>Live Chat</span>
+            </Button>
           </div>
-         
         )}
 
         {isOpen && (
@@ -890,7 +892,7 @@ export default function ChatPage(): JSX.Element {
                     style={{
                       textAlign:
                         msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                        msg.sender === vendorName||
+                        msg.sender === vendorName ||
                         msg.sender === storeName
                           ? 'right'
                           : 'left',
@@ -932,27 +934,27 @@ export default function ChatPage(): JSX.Element {
                         wordBreak: 'break-word', // Memastikan teks panjang tidak melampaui kotak
                       }}
                     >
-                     {msg.message.startsWith('http') && msg.message.includes('/uploads/') ? (
-                    msg.message.match(/\.(jpeg|jpg|png|gif)$/) ? (
-                      <img
-                        src={msg.message}
-                        alt='Uploaded File'
-                        style={{maxWidth: '100%', borderRadius: '5px'}}
-                        onClick={() => setPreviewImage(msg.message)}
-                      />
-                    ) : msg.message.match(/\.(mp4|mov|avi)$/) ? (
-                      <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
-                        <source src={msg.message} type='video/mp4' />
-                        Your browser does not support the video tag.
-                      </video>
-                    ) : (
-                      <a href={msg.message} target='_blank' rel='noopener noreferrer'>
-                        {msg.message}
-                      </a>
-                    )
-                  ) : (
-                    msg.message
-                  )}
+                      {msg.message.startsWith('http') && msg.message.includes('/uploads/') ? (
+                        msg.message.match(/\.(jpeg|jpg|png|gif)$/) ? (
+                          <img
+                            src={msg.message}
+                            alt='Uploaded File'
+                            style={{maxWidth: '100%', borderRadius: '5px'}}
+                            onClick={() => setPreviewImage(msg.message)}
+                          />
+                        ) : msg.message.match(/\.(mp4|mov|avi)$/) ? (
+                          <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
+                            <source src={msg.message} type='video/mp4' />
+                            Your browser does not support the video tag.
+                          </video>
+                        ) : (
+                          <a href={msg.message} target='_blank' rel='noopener noreferrer'>
+                            {msg.message}
+                          </a>
+                        )
+                      ) : (
+                        msg.message
+                      )}
                       <div
                         style={{
                           fontSize: '10px',
@@ -972,12 +974,12 @@ export default function ChatPage(): JSX.Element {
                       </div>
                     </div>
                     {previewImage && (
-                  <Modal show={!!previewImage} onHide={() => setPreviewImage('')} centered>
-                    <Modal.Body>
-                      <img src={previewImage} alt='Preview' style={{width: '100%'}} />
-                    </Modal.Body>
-                  </Modal>
-                )}
+                      <Modal show={!!previewImage} onHide={() => setPreviewImage('')} centered>
+                        <Modal.Body>
+                          <img src={previewImage} alt='Preview' style={{width: '100%'}} />
+                        </Modal.Body>
+                      </Modal>
+                    )}
                   </div>
                 ))}
               </div>

@@ -4,7 +4,6 @@ import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor
 
 import './NewSales.css'
 
-import * as XLSX from 'xlsx'
 import axios from 'axios'
 import Select, {SingleValue} from 'react-select'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
@@ -47,6 +46,7 @@ interface Sales {
   account_name: string
   phone_number: string
   account_number: string
+  nik: string
   sales_brand: string
   sales_categories: CategorySelect[]
   password: string
@@ -66,7 +66,6 @@ const NewSales: FC = () => {
   const [loadingButton, setLoadingButton] = useState(false)
   const [loadingExport, setLoadingExport] = useState(false)
   const [loadData, setLoadData] = useState<boolean>(true)
-  // const [isSuccess, setIsSuccess] = useState<boolean>(false)
 
   // List Store
   const [store, setStore] = useState<StoreItem[]>([])
@@ -78,7 +77,7 @@ const NewSales: FC = () => {
 
   // List Sales
   const [salesData, setSalesData] = useState<DataType[]>([])
-  const [exportSales, setExportSales] = useState<any[]>([])
+  const [, setExportSales] = useState<any[]>([])
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -99,6 +98,7 @@ const NewSales: FC = () => {
     phone_number: '',
     account_number: '',
     sales_brand: '',
+    nik: '',
     sales_categories: [],
     password: '',
     is_active: 1,
@@ -198,6 +198,7 @@ const NewSales: FC = () => {
     getStore()
     getBank()
     getCategories()
+    // eslint-disable-next-line
   }, [])
 
   useEffect(() => {
@@ -238,6 +239,7 @@ const NewSales: FC = () => {
           ['Sales ID']: item.id,
           ['Nama Toko']: item?.store?.store_name ?? '-',
           ['Nama Lengkap']: item?.full_name ?? '-',
+          ['NIK']: item?.nik ?? '-',
           ['Username']: item?.users?.username ?? '-',
           ['WA/Phone Number']: item?.phone_number ?? '-',
           ['Nama Bank']: item?.bank?.bank_name ?? '-',
@@ -723,7 +725,7 @@ const NewSales: FC = () => {
     } else if (salesInfo.store_id === null) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please pilih formulir Nama Toko',
+        text: 'Tolong pilih formulir Nama Toko',
         icon: 'warning',
       })
       valid = false
@@ -734,10 +736,17 @@ const NewSales: FC = () => {
         icon: 'warning',
       })
       valid = false
+    } else if (salesInfo.nik === '') {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Tolong isi formulir NIK',
+        icon: 'warning',
+      })
+      valid = false
     } else if (salesInfo.bank_id === null) {
       Swal.fire({
         title: 'Warning',
-        text: 'Please pilih formulir Nama Bank',
+        text: 'Tolong pilih formulir Nama Bank',
         icon: 'warning',
       })
       valid = false
@@ -794,6 +803,7 @@ const NewSales: FC = () => {
       bank_id: null,
       full_name: '',
       username: '',
+      nik: '',
       account_name: '',
       phone_number: '',
       account_number: '',
@@ -1086,7 +1096,17 @@ const NewSales: FC = () => {
                   </Form.Group>
                 </Col>
 
-                <Col xs={12} md={4} lg={4} xl={4} xxl={4}></Col>
+                <Col xs={12} md={4} lg={4} xl={4} xxl={4}>
+                  <Form.Group className='mb-5'>
+                    <Form.Label>NIK</Form.Label>
+                    <Form.Control
+                      name='nik'
+                      type='number'
+                      value={salesInfo.nik}
+                      onChange={(e) => salesInfoFormHandler(e)}
+                    />
+                  </Form.Group>
+                </Col>
               </Row>
             </div>
           </Card.Body>
