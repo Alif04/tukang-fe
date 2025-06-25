@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useState, useEffect} from 'react'
-import axiosInstance from '../../../../../../_metronic/layout/core/axiosInterceptor'
 
 import './ViewCalendar.css'
 import FullCalendar from '@fullcalendar/react'
@@ -10,7 +9,7 @@ import listPlugin from '@fullcalendar/list'
 import idLocale from '@fullcalendar/core/locales/id'
 import {MoreLinkContentArg} from '@fullcalendar/core'
 
-import axios from 'axios'
+import axiosInstance from '../../../../../../_metronic/layout/core/axiosInterceptor'
 import dayjs from 'dayjs'
 import {Steps, Spin} from 'antd'
 import {Row, Col, Modal, Form, Table, Accordion, Card} from 'react-bootstrap'
@@ -80,14 +79,17 @@ const ViewCalendarCS: React.FC = () => {
 
     try {
       while (hasMoreData) {
-        const response = await axios.get(`${apiUrl}/vendor?page=${currentPage}&take=${pageSize}`, {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
+        const response = await axiosInstance.get(
+          `${apiUrl}/vendor?page=${currentPage}&take=${pageSize}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        )
 
         const data = response.data.data
 
@@ -119,8 +121,12 @@ const ViewCalendarCS: React.FC = () => {
     try {
       while (hasMoreData) {
         const response = await axiosInstance.get(
-          `${apiUrl}/orders/calender?take=${pageSize}&page=${currentPage}&date_from=${start}&date_to=${end}${params}`,
+          `${apiUrl}/orders/calender?take=${pageSize}&page=${currentPage}${params}`,
           {
+            params: {
+              date_from: start,
+              date_to: end,
+            },
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
