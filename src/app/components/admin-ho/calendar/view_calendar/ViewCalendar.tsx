@@ -65,17 +65,20 @@ const ViewCalendarHO: React.FC = () => {
 
     try {
       while (true) {
-        const response = await axios.get(
-          `${apiUrl}/orders/calender?page=${currentPage}&take=${pageSize}&date_from=${start}&date_to=${end}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
+        const response = await axios.get(`${apiUrl}/orders/calender`, {
+          params: {
+            page: currentPage,
+            take: pageSize,
+            date_from: start,
+            date_to: end,
+          },
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
 
         const data = response.data.data
 
@@ -158,7 +161,6 @@ const ViewCalendarHO: React.FC = () => {
             end: dayjs(endDate).format('YYYY-MM-DD HH:mm:ss'),
             order_status: orderStatus,
             className: contextualColor,
-            // order_detail: item,
           }
         })
 
@@ -215,7 +217,7 @@ const ViewCalendarHO: React.FC = () => {
   }, [selectedOrder])
 
   const handleDatesSet = (arg: any) => {
-    const start = dayjs(arg.view.currentStart).format('YYYY-MM-DD')
+    const start = dayjs(arg.view.currentStart).subtract(1, 'day').format('YYYY-MM-DD')
     const end = dayjs(arg.view.currentEnd).format('YYYY-MM-DD')
 
     setDateFrom(start)
@@ -463,8 +465,8 @@ const ViewCalendarHO: React.FC = () => {
           initialView={initialView}
           displayEventTime={false}
           eventDisplay=''
-          dayMaxEventRows={12}
-          dayMaxEvents={12}
+          dayMaxEventRows={15}
+          dayMaxEvents={15}
           eventOrder=''
           height={'auto'}
           weekends={true}

@@ -230,6 +230,13 @@ const UpdateRefundCS: FC = () => {
     return valid
   }
 
+  const formData = new FormData()
+  const appendIfNotDefault = (key: any, value: any) => {
+    if (value !== null && value !== undefined && value !== '' && value !== 0) {
+      formData.append(key, String(value))
+    }
+  }
+
   // Handle Submit Update Refund
   const handleUpdateRefund = async () => {
     if (RefundValidation()) {
@@ -237,15 +244,15 @@ const UpdateRefundCS: FC = () => {
 
       const formData = new FormData()
 
-      formData.append('order_id', String(refundValues.order_id || ''))
-      formData.append('refund_status', refundValues.refund_status || '')
-      formData.append('notes', refundValues.notes)
-      formData.append('reason', refundValues.reason)
-      formData.append('date_approve', refundValues.date_approve)
-      formData.append('date_of_filing', refundValues.date_of_filing)
-      formData.append('voucher', refundValues.voucher)
-      formData.append('penalty_nominal', refundValues.penalty_nominal)
-      formData.append('approval_number', refundValues.approval_number)
+      appendIfNotDefault('order_id', String(refundValues.order_id || ''))
+      appendIfNotDefault('refund_status', refundValues.refund_status || '')
+      appendIfNotDefault('notes', refundValues.notes)
+      appendIfNotDefault('reason', refundValues.reason)
+      appendIfNotDefault('date_approve', refundValues.date_approve)
+      appendIfNotDefault('date_of_filing', refundValues.date_of_filing)
+      appendIfNotDefault('voucher', refundValues.voucher)
+      appendIfNotDefault('penalty_nominal', refundValues.penalty_nominal)
+      appendIfNotDefault('approval_number', refundValues.approval_number)
 
       if (refundFiles.length) {
         refundFiles.forEach((item) => {
