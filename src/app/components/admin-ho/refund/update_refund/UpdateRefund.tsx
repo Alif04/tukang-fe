@@ -220,9 +220,15 @@ const UpdateRefundHO: FC = () => {
   // Handle Submit
   type RefundActionType = 'approve' | 'reject'
 
+  const formData = new FormData()
+  const appendIfNotDefault = (key: any, value: any) => {
+    if (value !== null && value !== undefined && value !== '' && value !== 0) {
+      formData.append(key, String(value))
+    }
+  }
+
   const handleRefundAction = async (action: RefundActionType) => {
     setIsLoading(true)
-    const formData = new FormData()
 
     const statusMap = {
       approve: {
@@ -237,15 +243,15 @@ const UpdateRefundHO: FC = () => {
 
     const selectedStatus = statusMap[action]
 
-    formData.append('order_id', String(refundValues.order_id || ''))
-    formData.append('refund_status', selectedStatus?.statusId || '')
-    formData.append('notes', refundValues.notes)
-    formData.append('reason', refundValues.reason)
-    formData.append('date_approve', refundValues.date_approve)
-    formData.append('date_of_filing', refundValues.date_of_filing)
-    formData.append('voucher', refundValues.voucher)
-    formData.append('penalty_nominal', refundValues.penalty_nominal)
-    formData.append('approval_number', refundValues.approval_number)
+    appendIfNotDefault('order_id', String(refundValues.order_id || ''))
+    appendIfNotDefault('refund_status', selectedStatus?.statusId || '')
+    appendIfNotDefault('notes', refundValues.notes)
+    appendIfNotDefault('reason', refundValues.reason)
+    appendIfNotDefault('date_approve', refundValues.date_approve)
+    appendIfNotDefault('date_of_filing', refundValues.date_of_filing)
+    appendIfNotDefault('voucher', refundValues.voucher)
+    appendIfNotDefault('penalty_nominal', refundValues.penalty_nominal)
+    appendIfNotDefault('approval_number', refundValues.approval_number)
 
     if (refundFiles.length) {
       refundFiles.forEach((item) => {
