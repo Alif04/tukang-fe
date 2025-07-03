@@ -308,6 +308,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(currentPage, pageSize, queryParams)
+    // eslint-disable-next-line
   }, [currentPage, pageSize, queryParams])
 
   // Table Handler
@@ -365,7 +366,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
     dispatch(setCurrentPage(1))
 
     try {
-      const data = await ViewWorkOrder(1, 10, queryParams)
+      const data = await ViewWorkOrder(currentPage, pageSize, queryParams)
       setWorkOrderData(data)
     } catch (error) {
       console.error('Error getting order list data:', error)

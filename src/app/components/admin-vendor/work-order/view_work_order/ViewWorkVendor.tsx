@@ -372,6 +372,7 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
   useEffect(() => {
     fetchData(currentPage, pageSize, queryParams)
+    // eslint-disable-next-line
   }, [currentPage, pageSize, queryParams])
 
   // Table Handler
