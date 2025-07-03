@@ -316,6 +316,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   useEffect(() => {
     getWorkOrderData()
+    // eslint-disable-next-line
   }, [])
 
   // Format Date
@@ -334,7 +335,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   const stringToHash = (string: string) => {
     let hash = 0
 
-    if (string.length == 0) return hash
+    if (string.length === 0) return hash
 
     for (let i = 0; i < string.length; i++) {
       const char = string.charCodeAt(i)
@@ -356,24 +357,24 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     })
   }
 
-  const tukangHandler = (selectedOptions: any, field: any) => {
-    const type = field === 'survey_tukang_id' ? 1 : 2
+  // const tukangHandler = (selectedOptions: any, field: any) => {
+  //   const type = field === 'survey_tukang_id' ? 1 : 2
 
-    setWorkOrder((prevWorkOrder) => {
-      const updatedTukang = selectedOptions.map((option: any) => ({
-        ...option,
-        type: type,
-      }))
+  //   setWorkOrder((prevWorkOrder) => {
+  //     const updatedTukang = selectedOptions.map((option: any) => ({
+  //       ...option,
+  //       type: type,
+  //     }))
 
-      const filteredTukang = prevWorkOrder.tukang_id.filter((x: any) => x.type !== type)
-      const mergedTukang = [...filteredTukang, ...updatedTukang]
+  //     const filteredTukang = prevWorkOrder.tukang_id.filter((x: any) => x.type !== type)
+  //     const mergedTukang = [...filteredTukang, ...updatedTukang]
 
-      return {
-        ...prevWorkOrder,
-        tukang_id: mergedTukang,
-      }
-    })
-  }
+  //     return {
+  //       ...prevWorkOrder,
+  //       tukang_id: mergedTukang,
+  //     }
+  //   })
+  // }
 
   // Work Order Item Form Handler
   const handleAddForm = (type: number) => {
@@ -606,6 +607,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       ...workOrder,
       work_order_status: desiredStatus,
     })
+    // eslint-disable-next-line
   }, [workOrderDetail?.work_order_status[0]?.status?.category, workOrder.work_order_status])
 
   // Validasi Upload Foto Sebelum

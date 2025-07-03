@@ -13,7 +13,6 @@ import {
   formatDateWithTime,
   formatDateWithTimeZone,
 } from '../../../../../_metronic/helpers'
-import {log} from 'node:console'
 import Swal from 'sweetalert2'
 
 interface Status {
@@ -80,6 +79,7 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
   useEffect(() => {
     fetchOrderData()
+    // eslint-disable-next-line
   }, [])
 
   // Statuses for Order Timeline
@@ -88,37 +88,6 @@ const DetailWorkVendor: FC<{updatePageTitle: (order: Orders) => void}> = ({updat
 
   const getStatuses = (categories: string[]) =>
     statusData.filter((status: any) => categories.includes(status.category)).map((x) => x.value)
-
-  const bookStatuses = getStatuses(['BOOK', 'BOOKED', 'PICKLIST', 'UNPAID', 'PAID'])
-  const surveyStatuses = getStatuses(['SURVEYREQ', 'TUKANGSURVEY', 'SURVEYSTART', 'SURVEYDONE'])
-  const workStatuses = getStatuses([
-    'WORKREQ',
-    'TUKANGWORK',
-    'WORKSTART',
-    'WORKREQSTEPONE',
-    'WORKREQSTEPTWO',
-    'WORKREQSTEPTHREE',
-    'WORKSTARTSTEPONE',
-    'WORKSTARTSTEPTWO',
-    'WORKSTARTSTEPTHREE',
-    'TUKANGWORKSTEPONE',
-    'TUKANGWORKSTEPTWO',
-    'TUKANGWORKSTEPTHREE',
-  ])
-  const workDoneStatuses = getStatuses([
-    'WORKEND',
-    'DONE',
-    'WORKENDSTEPONE',
-    'WORKENDSTEPTWO',
-    'WORKENDSTEPTHREE',
-  ])
-
-  const orderHistory = [
-    {title: 'Booking Process', value: bookStatuses},
-    {title: 'Survey Process', value: surveyStatuses},
-    {title: 'Work in Progress', value: workStatuses},
-    {title: 'Work Done', value: workDoneStatuses},
-  ]
 
   // Statuses for Complaint Timeline
   const complaintReceivedStatuses = getStatuses(['INVESTIGATED'])
