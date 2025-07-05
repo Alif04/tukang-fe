@@ -10,6 +10,8 @@ import {
   setDateFrom,
   setDateTo,
   setSearchFilter,
+  setSelectedOrderStatus,
+  setSelectedPaymentQuotationStatus,
 } from '../../../../../store/workOrderSlice'
 
 import './ViewWorkOrder.css'
@@ -63,9 +65,16 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
   // Table State
   const [orderData, setOrderData] = useState<DataType[]>([])
   const [totalData, setTotalData] = useState<number>(0)
-  const {queryParams, searchFilter, currentPage, pageSize, dateFrom, dateTo} = useSelector(
-    (state: RootState) => state.workOrder
-  )
+  const {
+    queryParams,
+    searchFilter,
+    currentPage,
+    pageSize,
+    dateFrom,
+    dateTo,
+    selectedOrderStatus,
+    selectedPaymentQuotationStatus,
+  } = useSelector((state: RootState) => state.workOrder)
 
   // Status
   const storedStatus = localStorage.getItem('statusData')
@@ -142,6 +151,8 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       width: 'fit-content',
       filters: statusFilters,
       filterMultiple: true,
+      filteredValue: selectedOrderStatus.length > 0 ? selectedOrderStatus : null,
+      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -160,8 +171,6 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      onFilter: (value, record) => record.order_status_label.includes(String(value)),
-      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     },
     {
       title: 'Status Pembayaran Quotation',
@@ -169,12 +178,13 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
       key: 'payment_quotation',
       align: 'left',
       width: 120,
-      onFilter: (value, record) => record.payment_quotation.includes(String(value)),
-      sorter: (a, b) => a.payment_quotation.length - b.payment_quotation.length,
       filters: [
         {text: 'UNPAID', value: '0'},
         {text: 'PAID', value: '1'},
       ],
+      filteredValue:
+        selectedPaymentQuotationStatus.length > 0 ? selectedPaymentQuotationStatus : null,
+      sorter: (a: DataType, b: DataType) => a.payment_quotation.length - b.payment_quotation.length,
     },
     {
       title: 'Action',
@@ -405,16 +415,28 @@ const ViewWorkVendor: React.FC<Props> = ({className}) => {
   ) => {
     const newQueryParams: string[] = []
 
-    if (filters.order_status_label && filters.order_status_label.length > 0) {
-      const statusFilters = filters.order_status_label.join(',')
-      newQueryParams.push(`&status=${statusFilters}`)
+    if (filters.order_status_label) {
+      const statusValues = filters.order_status_label as string[]
+
+      dispatch(setSelectedOrderStatus(statusValues))
+
+      if (statusValues.length > 0) {
+        newQueryParams.push(`&status=${statusValues.join(',')}`)
+      }
+    } else {
+      dispatch(setSelectedOrderStatus([]))
     }
 
     if (filters.payment_quotation) {
-      const quotationStatus = filters.payment_quotation[0]
-      if (quotationStatus) {
-        newQueryParams.push(`&is_receipt_quotation=${quotationStatus}`)
+      const paymentQuotationValues = filters.payment_quotation as string[]
+
+      dispatch(setSelectedPaymentQuotationStatus(paymentQuotationValues))
+
+      if (paymentQuotationValues.length > 0) {
+        newQueryParams.push(`&is_receipt_quotation=${paymentQuotationValues.join(',')}`)
       }
+    } else {
+      dispatch(setSelectedPaymentQuotationStatus([]))
     }
 
     const finalQueryParams = newQueryParams.join('')

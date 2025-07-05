@@ -13,6 +13,9 @@ import {
   setSearchFilter,
   setSelectedStore,
   setSelectedVendor,
+  setSelectedOrderStatus,
+  setSelectedPaymentReceiptStatus,
+  setSelectedPaymentQuotationStatus,
 } from '../../../../../store/orderSlice'
 
 import './ViewOrder.css'
@@ -178,6 +181,9 @@ const ViewOrders: FC = () => {
     dateTo,
     selectedStore,
     selectedVendor,
+    selectedOrderStatus,
+    selectedPaymentReceiptStatus,
+    selectedPaymentQuotationStatus,
   } = useSelector((state: RootState) => state.order)
 
   const [activeKey, setActiveKey] = useState<number>(1)
@@ -910,23 +916,40 @@ const ViewOrders: FC = () => {
   ) => {
     const newQueryParams: string[] = []
 
-    if (filters.order_status_label && filters.order_status_label.length > 0) {
-      const statusFilters = filters.order_status_label.join(',')
-      newQueryParams.push(`&status=${statusFilters}`)
+    if (filters.order_status_label) {
+      const statusValues = filters.order_status_label as string[]
+
+      dispatch(setSelectedOrderStatus(statusValues))
+
+      if (statusValues.length > 0) {
+        newQueryParams.push(`&status=${statusValues.join(',')}`)
+      }
+    } else {
+      dispatch(setSelectedOrderStatus([]))
     }
 
     if (filters.payment_receipt) {
-      const paymentStatus = filters.payment_receipt[0]
-      if (paymentStatus) {
-        newQueryParams.push(`&is_receipt=${paymentStatus}`)
+      const paymentReceiptValues = filters.payment_receipt as string[]
+
+      dispatch(setSelectedPaymentReceiptStatus(paymentReceiptValues))
+
+      if (paymentReceiptValues.length > 0) {
+        newQueryParams.push(`&is_receipt=${paymentReceiptValues.join(',')}`)
       }
+    } else {
+      dispatch(setSelectedPaymentReceiptStatus([]))
     }
 
     if (filters.payment_quotation) {
-      const quotationStatus = filters.payment_quotation[0]
-      if (quotationStatus) {
-        newQueryParams.push(`&is_receipt_quotation=${quotationStatus}`)
+      const paymentQuotationValues = filters.payment_quotation as string[]
+
+      dispatch(setSelectedPaymentQuotationStatus(paymentQuotationValues))
+
+      if (paymentQuotationValues.length > 0) {
+        newQueryParams.push(`&is_receipt_quotation=${paymentQuotationValues.join(',')}`)
       }
+    } else {
+      dispatch(setSelectedPaymentQuotationStatus([]))
     }
 
     const finalQueryParams = newQueryParams.join('')
@@ -3336,13 +3359,13 @@ const ViewOrders: FC = () => {
       key: 'payment_receipt',
       align: 'left',
       width: 200,
-      onFilter: (value: DataType, record: DataType) =>
-        record.payment_receipt.includes(String(value)),
-      sorter: (a: DataType, b: DataType) => a.payment_receipt.length - b.payment_receipt.length,
       filters: [
         {text: 'UNPAID', value: '0'},
         {text: 'PAID', value: '1'},
       ],
+      filterMultiple: true,
+      filteredValue: selectedPaymentReceiptStatus.length > 0 ? selectedPaymentReceiptStatus : null,
+      sorter: (a: DataType, b: DataType) => a.payment_receipt.length - b.payment_receipt.length,
     },
     {
       title: 'Status Order',
@@ -3351,7 +3374,10 @@ const ViewOrders: FC = () => {
       align: 'left',
       filters: statusFilters,
       filterMultiple: true,
-      render: (order_status_label: any) => {
+      filteredValue: selectedOrderStatus.length > 0 ? selectedOrderStatus : null,
+      sorter: (a: DataType, b: DataType) =>
+        a.order_status_label.length - b.order_status_label.length,
+      render: (order_status_label: string) => {
         const orderStatus = order_status_label
         let color = ''
 
@@ -3369,8 +3395,6 @@ const ViewOrders: FC = () => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      sorter: (a: DataType, b: DataType) =>
-        a.order_status_label.length - b.order_status_label.length,
     },
     {
       title: 'Status Pembayaran Quotation',
@@ -3378,13 +3402,13 @@ const ViewOrders: FC = () => {
       key: 'payment_quotation',
       align: 'left',
       width: 230,
-      onFilter: (value: DataType, record: DataType) =>
-        record.payment_quotation.includes(String(value)),
-      sorter: (a: DataType, b: DataType) => a.payment_quotation.length - b.payment_quotation.length,
       filters: [
         {text: 'UNPAID', value: '0'},
         {text: 'PAID', value: '1'},
       ],
+      filteredValue:
+        selectedPaymentQuotationStatus.length > 0 ? selectedPaymentQuotationStatus : null,
+      sorter: (a: DataType, b: DataType) => a.payment_quotation.length - b.payment_quotation.length,
     },
     {
       title: 'Action',

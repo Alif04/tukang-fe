@@ -10,6 +10,8 @@ import {
   setDateFrom,
   setDateTo,
   setSearchFilter,
+  setSelectedOrderStatus,
+  setSelectedPaymentQuotationStatus,
 } from '../../../../../store/workOrderSlice'
 
 import './ViewWorkOrder.css'
@@ -76,9 +78,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
   // Table State
   const [workOrderData, setWorkOrderData] = useState<DataType[]>([])
-  const {queryParams, searchFilter, currentPage, pageSize, dateFrom, dateTo} = useSelector(
-    (state: RootState) => state.workOrder
-  )
+  const {queryParams, searchFilter, currentPage, pageSize, dateFrom, dateTo, selectedOrderStatus} =
+    useSelector((state: RootState) => state.workOrder)
 
   // Status
   const storedStatus = localStorage.getItem('statusData')
@@ -106,8 +107,7 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       key: 'date_order',
       align: 'center',
       width: 110,
-      onFilter: (value, record) => record.date_order.includes(String(value)),
-      sorter: (a, b) => a.date_order.length - b.date_order.length,
+      sorter: (a, b) => new Date(a.date_order).getTime() - new Date(b.date_order).getTime(),
     },
     {
       title: 'Nama Toko',
@@ -135,6 +135,8 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
       filters: statusFilters,
       filterMultiple: true,
       width: 120,
+      filteredValue: selectedOrderStatus.length > 0 ? selectedOrderStatus : null,
+      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
       render: (order_status) => {
         const orderStatus = order_status
         let color = ''
@@ -153,8 +155,6 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
 
         return <Tag color={color}>{orderStatus}</Tag>
       },
-      onFilter: (value, record) => record.order_status_label.includes(String(value)),
-      sorter: (a, b) => a.order_status_label.length - b.order_status_label.length,
     },
     {
       title: 'Action',
@@ -341,16 +341,28 @@ const ViewWorkOrderTukang: React.FC<Props> = ({className}) => {
   ) => {
     const newQueryParams: string[] = []
 
-    if (filters.order_status_label && filters.order_status_label.length > 0) {
-      const statusFilters = filters.order_status_label.join(',')
-      newQueryParams.push(`&status=${statusFilters}`)
+    if (filters.order_status_label) {
+      const statusValues = filters.order_status_label as string[]
+
+      dispatch(setSelectedOrderStatus(statusValues))
+
+      if (statusValues.length > 0) {
+        newQueryParams.push(`&status=${statusValues.join(',')}`)
+      }
+    } else {
+      dispatch(setSelectedOrderStatus([]))
     }
 
     if (filters.payment_quotation) {
-      const quotationStatus = filters.payment_quotation[0]
-      if (quotationStatus) {
-        newQueryParams.push(`&is_receipt_quotation=${quotationStatus}`)
+      const paymentQuotationValues = filters.payment_quotation as string[]
+
+      dispatch(setSelectedPaymentQuotationStatus(paymentQuotationValues))
+
+      if (paymentQuotationValues.length > 0) {
+        newQueryParams.push(`&is_receipt_quotation=${paymentQuotationValues.join(',')}`)
       }
+    } else {
+      dispatch(setSelectedPaymentQuotationStatus([]))
     }
 
     const finalQueryParams = newQueryParams.join('')
