@@ -19,6 +19,9 @@ interface orderFilter {
   dateTo: string
   selectedStore: StoreItem
   selectedVendor: VendorItem
+  selectedOrderStatus: string[]
+  selectedPaymentReceiptStatus: string[]
+  selectedPaymentQuotationStatus: string[]
 }
 
 const userRole = localStorage.getItem('userRole') as string
@@ -34,6 +37,9 @@ const initialState: orderFilter = {
   dateTo: new Date().toISOString().split('T')[0],
   selectedStore: {value: null, label: 'All Store'},
   selectedVendor: {value: null, label: 'All Vendor'},
+  selectedOrderStatus: [],
+  selectedPaymentReceiptStatus: [],
+  selectedPaymentQuotationStatus: [],
 }
 
 const orderSlice = createSlice({
@@ -64,6 +70,15 @@ const orderSlice = createSlice({
     setSelectedVendor: (state, action: PayloadAction<VendorItem>) => {
       state.selectedVendor = action.payload
     },
+    setSelectedOrderStatus(state, action: PayloadAction<string[]>) {
+      state.selectedOrderStatus = action.payload
+    },
+    setSelectedPaymentReceiptStatus(state, action: PayloadAction<string[]>) {
+      state.selectedPaymentReceiptStatus = action.payload
+    },
+    setSelectedPaymentQuotationStatus(state, action: PayloadAction<string[]>) {
+      state.selectedPaymentQuotationStatus = action.payload
+    },
     resetFilters(state) {
       state.queryParams = ''
       state.searchFilter = ''
@@ -75,6 +90,9 @@ const orderSlice = createSlice({
       state.pageSize = 10
       state.selectedStore = {value: null, label: 'All Store'}
       state.selectedVendor = {value: null, label: 'All Vendor'}
+      state.selectedOrderStatus = []
+      state.selectedPaymentReceiptStatus = []
+      state.selectedPaymentQuotationStatus = []
     },
   },
 })
@@ -88,6 +106,9 @@ export const {
   setDateTo,
   setSelectedStore,
   setSelectedVendor,
+  setSelectedOrderStatus,
+  setSelectedPaymentReceiptStatus,
+  setSelectedPaymentQuotationStatus,
   resetFilters,
 } = orderSlice.actions
 
