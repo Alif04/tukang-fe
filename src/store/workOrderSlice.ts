@@ -7,6 +7,8 @@ interface workOrderFilter {
   pageSize: number
   dateFrom: string
   dateTo: string
+  selectedOrderStatus: string[]
+  selectedPaymentQuotationStatus: string[]
 }
 
 const initialState: workOrderFilter = {
@@ -16,6 +18,8 @@ const initialState: workOrderFilter = {
   pageSize: 50,
   dateFrom: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0],
   dateTo: new Date().toISOString().split('T')[0],
+  selectedOrderStatus: [],
+  selectedPaymentQuotationStatus: [],
 }
 
 const workOrderSlice = createSlice({
@@ -40,6 +44,12 @@ const workOrderSlice = createSlice({
     setDateTo(state, action: PayloadAction<string>) {
       state.dateTo = action.payload
     },
+    setSelectedOrderStatus(state, action: PayloadAction<string[]>) {
+      state.selectedOrderStatus = action.payload
+    },
+    setSelectedPaymentQuotationStatus(state, action: PayloadAction<string[]>) {
+      state.selectedPaymentQuotationStatus = action.payload
+    },
     resetFilters(state) {
       state.queryParams = ''
       state.searchFilter = ''
@@ -49,6 +59,8 @@ const workOrderSlice = createSlice({
       state.dateTo = new Date().toISOString().split('T')[0]
       state.currentPage = 1
       state.pageSize = 10
+      state.selectedOrderStatus = []
+      state.selectedPaymentQuotationStatus = []
     },
   },
 })
@@ -60,6 +72,8 @@ export const {
   setPageSize,
   setDateFrom,
   setDateTo,
+  setSelectedOrderStatus,
+  setSelectedPaymentQuotationStatus,
   resetFilters,
 } = workOrderSlice.actions
 
