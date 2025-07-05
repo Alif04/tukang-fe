@@ -563,15 +563,63 @@ const NewQuotationVendor: FC = () => {
         icon: 'warning',
       })
       valid = false
-    } else if (
-      quotation.quotation_details.some((x) => x.unit_price === null || x.unit_price === '')
-    ) {
-      Swal.fire({
-        title: 'Warning',
-        text: 'Tolong Isi Unit Price',
-        icon: 'warning',
-      })
-      valid = false
+    }
+
+    const validateDetail = (
+      detail: Quotation['quotation_details'][number],
+      rowNumber: number,
+      typeName: string
+    ): boolean => {
+      if (!detail.item_name || detail.item_name.trim() === '') {
+        Swal.fire({
+          title: 'Warning',
+          text: `Tolong isi "${typeName}" pada baris ke-${rowNumber}.`,
+          icon: 'warning',
+        })
+        return false
+      }
+
+      if (!detail.unit || detail.unit.trim() === '') {
+        Swal.fire({
+          title: 'Warning',
+          text: `Tolong isi kolom "Satuan" pada "${typeName}" pada baris ke-${rowNumber}.`,
+          icon: 'warning',
+        })
+        return false
+      }
+
+      if (detail.quantity === null) {
+        Swal.fire({
+          title: 'Warning',
+          text: `Tolong isi kolom "QTY" (Quantity) pada baris ke-${rowNumber}.`,
+          icon: 'warning',
+        })
+        return false
+      }
+
+      if (detail.unit_price === null || detail.unit_price === '') {
+        Swal.fire({
+          title: 'Warning',
+          text: `Tolong isi kolom "Price" pada baris ke-${rowNumber}.`,
+          icon: 'warning',
+        })
+        return false
+      }
+      return true
+    }
+
+    const materialDetails = quotation.quotation_details.filter((x) => x.type === 1)
+    for (let i = 0; i < materialDetails.length; i++) {
+      if (!validateDetail(materialDetails[i], i + 1, 'Material Yang Dibutuhkan')) {
+        return false
+      }
+    }
+
+    const serviceDetails = quotation.quotation_details.filter((x) => x.type === 2)
+    for (let i = 0; i < serviceDetails.length; i++) {
+      if (!validateDetail(serviceDetails[i], i + 1, 'Jenis Jasa')) {
+        return false
+      }
     }
 
     // else if (quotation.quotation_grand_total >= 20000000 && quotation.quotation_special === 0) {
