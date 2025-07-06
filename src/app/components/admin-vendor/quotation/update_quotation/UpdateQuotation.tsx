@@ -37,9 +37,9 @@ interface Quotation {
     description: string
     total: number
     final_price: number
-    margin: number
+    margin: number | string
     margin_type: number
-    quantity: number
+    quantity: number | string
     is_user: number
   }>
 }
@@ -197,7 +197,7 @@ const UpdateQuotationVendor: FC = () => {
     const {name, value} = e.target
 
     if (name === 'quotation_date') {
-      const quotationDate = new Date(value)
+      const quotationDate = value ? new Date(value) : new Date()
       const daysToAdd = 7
       const validityDate = new Date(quotationDate.getTime() + daysToAdd * 24 * 60 * 60 * 1000)
 
@@ -478,10 +478,19 @@ const UpdateQuotationVendor: FC = () => {
         return false
       }
 
-      if (detail.quantity === null) {
+      if (detail.quantity === null || detail.quantity === '') {
         Swal.fire({
           title: 'Warning',
           text: `Tolong isi kolom "QTY" (Quantity) pada baris ke-${rowNumber}.`,
+          icon: 'warning',
+        })
+        return false
+      }
+
+      if (detail.margin === null || detail.margin === '') {
+        Swal.fire({
+          title: 'Warning',
+          text: `Tolong isi kolom "Profit" pada baris ke-${rowNumber}.`,
           icon: 'warning',
         })
         return false
@@ -556,11 +565,8 @@ const UpdateQuotationVendor: FC = () => {
       appendIfNotDefault(formData, `quotation_details[${index}][name]`, quotation.item_name)
       appendIfNotDefault(formData, `quotation_details[${index}][unit]`, quotation.unit)
       appendIfNotDefault(formData, `quotation_details[${index}][work_step]`, quotation.work_step)
-      appendIfNotDefault(
-        formData,
-        `quotation_details[${index}][margin]`,
-        String(quotation?.margin ?? 0)
-      )
+
+      formData.append(`quotation_details[${index}][margin]`, String(quotation?.margin ?? 0))
       formData.append(`quotation_details[${index}][price]`, String(quotation?.unit_price ?? 0))
       formData.append(`quotation_details[${index}][quantity]`, String(quotation?.quantity ?? 0))
 
@@ -687,6 +693,7 @@ const UpdateQuotationVendor: FC = () => {
                     name='quotation_date'
                     type='date'
                     min={today}
+                    required
                     value={quotation.quotation_date}
                     onChange={(e) => handleChangeQuotation(e as ChangeEvent<HTMLInputElement>)}
                   />
