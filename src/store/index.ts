@@ -5,6 +5,7 @@ import itemReducer from './itemSlice'
 import invoiceReducer from './invoiceSlice'
 import quotationReducer from './quotationSlice'
 import orderReducer from './orderSlice'
+import vendorReducer from './vendorSlice'
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     item: itemReducer,
     invoice: invoiceReducer,
     quotation: quotationReducer,
+    vendor: vendorReducer,
   },
 })
 

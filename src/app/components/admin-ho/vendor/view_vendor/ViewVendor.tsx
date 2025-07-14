@@ -1,20 +1,37 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useEffect, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
-import {formatDate} from '../../../../../_metronic/helpers'
+
+import {useSelector, useDispatch} from 'react-redux'
+import {RootState} from '../../../../../store'
+
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
+
+import {
+  setQueryParams,
+  setCurrentPage,
+  setPageSize,
+  setDateFrom,
+  setDateTo,
+  setSearchFilter,
+  setSelectedStore,
+} from '../../../../../store/vendorSlice'
 
 import './ViewVendor.css'
 
 import axios from 'axios'
-import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
+import Select, {SingleValue} from 'react-select'
+
+import {formatDate} from '../../../../../_metronic/helpers'
 import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import type {ColumnsType} from 'antd/es/table'
-import {LoadingOutlined} from '@ant-design/icons'
-import {Row, Col, Form, InputGroup, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import {Row, Form, Button, OverlayTrigger, Tooltip, FormGroup} from 'react-bootstrap'
+
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {LoadingOutlined} from '@ant-design/icons'
 import {faBook, faPen, faTrash, faSearch} from '@fortawesome/free-solid-svg-icons'
+
+import type {ColumnsType} from 'antd/es/table'
 
 const {RangePicker} = DatePicker
 
@@ -43,35 +60,59 @@ interface DataType {
 
 const ViewVendorHO: React.FC<Props> = ({className}) => {
   const apiUrl = process.env.REACT_APP_API_URL
-  const navigate = useNavigate()
 
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  // Loading state
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
   const [loadData, setLoadData] = useState<boolean>(true)
 
+  // Table State
   const [vendorData, setVendorData] = useState<DataType[]>([])
-
-  const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
-  const [pageSize, setPageSize] = useState<number>(10)
+  const {queryParams, searchFilter, currentPage, pageSize, dateFrom, dateTo, selectedStore} =
+    useSelector((state: RootState) => state.vendor)
 
-  const [dateFrom, setDateFrom] = useState<any>('')
-  const [dateTo, setDateTo] = useState<any>('')
-  const [searchFilter, setSearchFilter] = useState<string>('')
+  // Store
   const [store, setStore] = useState<StoreItem[]>([])
-  const [selectedStore, setSelectedStore] = useState<SingleValue<StoreItem>>({
-    value: null,
-    label: 'All Vendor',
-  })
-
-  const handleChangeSearchFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedSearchFilter = event.target.value
-    setSearchFilter(updatedSearchFilter)
-  }
-
   const storeOptions = [{value: null, label: 'All Vendor'}, ...store]
 
-  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
+  // Filter Table
+  const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchFilter(e.target.value))
+  }
 
+  const handleStoreChange = (newValue: SingleValue<StoreItem>) => {
+    const selectedStore: StoreItem = newValue || {value: null, label: 'All Vendor'}
+    dispatch(setSelectedStore(selectedStore))
+  }
+
+  const handlePageChange = (page: number, size?: number) => {
+    dispatch(setCurrentPage(page))
+    if (size) {
+      dispatch(setPageSize(size))
+    }
+  }
+
+  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
+    if (type === 'prev') {
+      return <a>Prev</a>
+    }
+    if (type === 'next') {
+      return <a>Next</a>
+    }
+    return originalElement
+  }
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      handleSubmitFilter()
+    }
+  }
+
+  // Table
+  const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
   const columns: ColumnsType<DataType> = [
     {
       title: 'No. ',
@@ -162,13 +203,13 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       align: 'center',
       width: 110,
       render: (record) => {
+        const id = record.vendor_id
+
         const handleDetailId = () => {
-          const id = record.vendor_id
           navigate(`/vendor/detail-vendor/${id}`)
         }
 
         const handleUpdateId = () => {
-          const id = record.vendor_id
           navigate(`/vendor/update-vendor/${id}`)
         }
 
@@ -228,9 +269,18 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Detail Vendor')}
             >
-              <Button variant='primary' className='button-detail' onClick={handleDetailId}>
+              <a
+                href={`/vendor/detail-vendor/${id}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='btn btn-primary button-detail'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleDetailId()
+                }}
+              >
                 <FontAwesomeIcon className='text-white' icon={faBook} fontSize={'13px'} />
-              </Button>
+              </a>
             </OverlayTrigger>
 
             <OverlayTrigger
@@ -238,9 +288,18 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
               delay={{show: 250, hide: 400}}
               overlay={renderTooltip('Edit Vendor')}
             >
-              <Button variant='primary' className='button-edit' onClick={handleUpdateId}>
+              <a
+                href={`/vendor/update-vendor/${id}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='btn btn-primary button-edit'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleUpdateId()
+                }}
+              >
                 <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-              </Button>
+              </a>
             </OverlayTrigger>
 
             <OverlayTrigger
@@ -259,10 +318,16 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   ]
 
   const fetchVendorList = async (page: number, pageSize: number, queryparams: any) => {
-    let apiUrlWithParams = `${apiUrl}/vendor?order_by=desc&page=${page}&take=${pageSize}${queryparams}`
+    let apiUrlWithParams = `${apiUrl}/vendor?order_by=desc${queryparams}`
 
     try {
       const response = await axiosInstance.get(apiUrlWithParams, {
+        params: {
+          dateFrom: dateFrom ? dateFrom : null,
+          dateTo: dateTo ? dateTo : null,
+          page: page,
+          take: pageSize,
+        },
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -335,19 +400,9 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   }
 
   useEffect(() => {
-    fetchData(1, 10, '')
+    fetchData(currentPage, pageSize, queryParams)
     // eslint-disable-next-line
-  }, [])
-
-  const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
-    if (type === 'prev') {
-      return <a>Prev</a>
-    }
-    if (type === 'next') {
-      return <a>Next</a>
-    }
-    return originalElement
-  }
+  }, [currentPage, pageSize, queryParams])
 
   useEffect(() => {
     const getStore = async () => {
@@ -391,12 +446,11 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
       }
     }
 
-    valueCheck(`&date_from=`, dateFrom)
-    valueCheck(`&date_to=`, dateTo)
     valueCheck(`&search=`, searchFilter)
     valueCheck(`&store_id=`, selectedStore?.value)
+    dispatch(setQueryParams(queryparams))
 
-    const data = await ViewVendor(1, 10, queryparams)
+    const data = await ViewVendor(currentPage, pageSize, queryparams)
     setVendorData(data)
 
     setLoadingButton(false)
@@ -405,74 +459,65 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   return (
     <section id='view-vendor'>
       <div className={`card ${className}`}>
-        <div className='card-body table-view-order'>
+        <div className='card-body'>
           <Row className='table-head-wrapper'>
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
-              <Form.Group as={Row}>
-                <Form.Label className='fs-3' column sm='4'>
-                  Date :
-                </Form.Label>
+            <div
+              className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'
+              onKeyDown={handleKeyPress}
+            >
+              <h3 className='d-flex align-items-center fs-5 fw-normal'>Date</h3>
 
-                <Col sm='8'>
-                  <RangePicker
-                    format={'DD-MM-YYYY'}
-                    className='date-range ms-3'
-                    onChange={(values) => {
-                      if (values && values.length === 2) {
-                        const dateFromFormatted = values[0]?.format('YYYY-MM-DD')
-                        const dateToFormatted = values[1]?.format('YYYY-MM-DD')
+              <RangePicker
+                format={'DD-MM-YYYY'}
+                className='date-range'
+                onChange={(values) => {
+                  if (values && values.length === 2) {
+                    const dateFromFormatted = values[0]?.format('YYYY-MM-DD') || ''
+                    const dateToFormatted = values[1]?.format('YYYY-MM-DD') || ''
 
-                        setDateFrom(dateFromFormatted)
-                        setDateTo(dateToFormatted)
-                      } else {
-                        setDateFrom('')
-                        setDateTo('')
-                      }
-                    }}
-                  />
-                </Col>
-              </Form.Group>
-            </Col>
+                    dispatch(setDateFrom(dateFromFormatted))
+                    dispatch(setDateTo(dateToFormatted))
+                  } else {
+                    dispatch(setDateFrom(''))
+                    dispatch(setDateTo(''))
+                  }
+                }}
+              />
 
-            <Col xxl={4} xl={4} lg={4} md={4} sm={12}>
               <div className='filter-search'>
-                <InputGroup>
-                  <InputGroup.Text className='filter-ltr'>
-                    <FontAwesomeIcon icon={faSearch} size='sm' />
-                  </InputGroup.Text>
-
+                <FormGroup>
                   <Form.Control
                     placeholder='Search'
                     className='filter-ltr'
                     onChange={handleChangeSearchFilter}
                   />
-                </InputGroup>
-              </div>
-            </Col>
 
-            <Col xxl={2} xl={2} lg={2} md={2} sm={12}>
+                  <span className='search-icon'>
+                    <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
+                  </span>
+                </FormGroup>
+              </div>
+
               <Select
                 name='store_id'
                 className='form-control p-0'
                 classNamePrefix='select'
-                placeholder='Pilih Vendor'
+                placeholder='Pilih Store'
                 isSearchable={true}
                 isClearable={true}
                 options={storeOptions}
                 value={selectedStore}
-                onChange={(newValue) => setSelectedStore(newValue)}
+                onChange={handleStoreChange}
               />
-            </Col>
 
-            <Col xxl={2} xl={2} lg={2} md={2} sm={12}>
               <Button
-                className='btn-dark-primary button-submit'
+                className='btn-dark-primary button-submit m-0'
                 disabled={loadingButton}
                 onClick={handleSubmitFilter}
               >
                 {loadingButton ? 'Filtering..' : 'Submit'}
               </Button>
-            </Col>
+            </div>
           </Row>
 
           <Spin
@@ -496,24 +541,25 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
             </div>
           </Spin>
 
-          <Pagination
-            className='mt-5'
-            style={{textAlign: 'right', position: 'relative'}}
-            current={currentPage}
-            total={totalData}
-            showSizeChanger
-            pageSizeOptions={[5, 10, 20, 50, 100]}
-            itemRender={itemRender}
-            onShowSizeChange={(current, size) => setPageSize(size)}
-            onChange={(page, pageSize) => {
-              fetchData(page, pageSize, '')
-            }}
-            showTotal={(total, range) => (
-              <span style={{left: 0, position: 'absolute'}}>
-                Showing {range[0]} - {range[1]} of {total} Total Vendor
-              </span>
-            )}
-          />
+          <div className='pagination-container mt-5'>
+            <span className='total-text'>
+              Showing {(currentPage - 1) * pageSize + 1} -{' '}
+              {Math.min(currentPage * pageSize, totalData)} of {totalData} Vendor
+            </span>
+
+            <Pagination
+              className='pagination'
+              pageSize={pageSize}
+              current={currentPage}
+              total={totalData}
+              showSizeChanger
+              pageSizeOptions={[5, 10, 20, 50, 100, 250, 500]}
+              itemRender={itemRender}
+              onChange={(page, pageSize) => {
+                handlePageChange(page, pageSize)
+              }}
+            />
+          </div>
         </div>
       </div>
     </section>

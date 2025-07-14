@@ -47,13 +47,20 @@
 
 /* Searchbar */
 
-#view-vendor .filter-search .input-group .form-control.filter-ltr {
-  border-left: none;
+#view-vendor .filter-search {
+  width: 40%;
 }
 
-#view-vendor .filter-search .input-group-text.filter-ltr {
-  background-color: transparent;
-  border-right: none;
+#view-vendor input.filter-ltr.form-control {
+  height: 45px !important;
+  padding-left: 35px !important;
+}
+
+#view-vendor .filter-search .search-icon {
+  float: left;
+  margin-left: 11px;
+  margin-top: -30px;
+  position: relative;
 }
 
 /* Filter */
