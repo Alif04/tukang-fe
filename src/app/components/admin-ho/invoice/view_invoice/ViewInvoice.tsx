@@ -429,6 +429,7 @@ const ViewInvoiceHO: FC = () => {
 
   useEffect(() => {
     fetchData(currentPage, pageSize, queryParams)
+    // eslint-disable-next-line
   }, [currentPage, pageSize, queryParams])
 
   const getVendor = async () => {
