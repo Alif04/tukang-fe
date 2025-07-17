@@ -11,7 +11,7 @@ import {
   DailyFollowUpQuotation,
   DailyFollowUpCSI,
   ReportLogChat,
-  ReportNotifStatus
+  ReportNotifStatus,
 } from '../../components'
 
 import {PrintReport} from './components/PrintReport'
@@ -436,7 +436,7 @@ const RefundPage: React.FC = () => {
               headerColor='success'
               title='Laporan Follow Up CSI'
               params=''
-              statusName=''
+              statusName={['CSIOUT', 'SURVEYDONE', 'RESURVEYDONE', 'WORKEND', 'REWORKEND']}
             />
           </>
         }
@@ -1239,14 +1239,13 @@ const RefundPage: React.FC = () => {
           </>
         }
       />
-        {/* PRINT Admin WA  */}
-        <Route
+      {/* PRINT Admin WA  */}
+      <Route
         path='log-chat'
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>Report Log Chat</PageTitle>
-            <ReportLogChat
-            />
+            <ReportLogChat />
           </>
         }
       />
@@ -1255,8 +1254,7 @@ const RefundPage: React.FC = () => {
         element={
           <>
             <PageTitle breadcrumbs={orderBreadCrumbs}>Report Log Notif Status</PageTitle>
-            <ReportNotifStatus
-            />
+            <ReportNotifStatus />
           </>
         }
       />
