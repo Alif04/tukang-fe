@@ -28,7 +28,7 @@ const {RangePicker} = DatePicker
 
 type Props = {
   endpoint: string
-  statusName: string
+  statusName: string[]
   headerColor: string
   title: string
   params: string
@@ -62,6 +62,7 @@ interface DataType {
   csi_work: number
   description: string
   grand_total: number
+  status: string
 }
 
 const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, title, params}) => {
@@ -69,7 +70,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
 
   const storedStatus = localStorage.getItem('statusData')
   const statusData: Array<Status> = storedStatus ? JSON.parse(storedStatus) : []
-  const desiredStatus = statusData.filter((status: any) => status.category === statusName)
+  const desiredStatus = statusData.filter((status) => statusName.includes(status.category))
   const statuses = desiredStatus.map((x) => x.value)
 
   // Report Data
@@ -250,6 +251,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
           csi_survey: item?.csi_survey ?? 0,
           csi_work: item?.csi_work ?? 0,
           description: item?.description ?? '',
+          status: item?.status?.description ?? '-',
           grand_total: `Rp. ${grandTotal.toLocaleString('id')}`,
         }
 
@@ -409,6 +411,15 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
       align: 'center',
       width: 135,
       sorter: (a, b) => a.grand_total - b.grand_total,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      align: 'left',
+      width: 120,
+      onFilter: (value, record) => record.status.includes(String(value)),
+      sorter: (a, b) => a.status.length - b.status.length,
     },
     {
       title: 'CSI Survey',
