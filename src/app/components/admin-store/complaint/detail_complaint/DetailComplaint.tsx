@@ -46,6 +46,22 @@ interface CrmType {
   label: string
 }
 
+interface StatusData {
+  value: string
+  description: string
+  category: string
+}
+
+interface StatusOption {
+  orderStatuses: string[]
+  allowedCategories: string[]
+}
+
+interface StatusDropdownProps {
+  item?: any
+  handleInputStatus: (e: React.ChangeEvent<HTMLSelectElement>) => void
+}
+
 const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
   updatePageTitle,
 }) => {
@@ -217,6 +233,54 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     setReason(updatedInputValue)
   }
 
+  const statusOptions: StatusOption[] = [
+    {
+      orderStatuses: ['SURVEYSTART', 'SURVEYDONE'],
+      allowedCategories: ['RESURVEYREQ', 'RESURVEYDONE'],
+    },
+    {
+      orderStatuses: [
+        'WARRANTYCLAIM',
+        'WORKEND',
+        'WORKENDSTEPONE',
+        'WORKENDSTEPTWO',
+        'WORKENDSTEPTHREE',
+      ],
+      allowedCategories: ['RESURVEYREQ', 'REWORKREQ', 'RESURVEYDONE', 'REWORKEND'],
+    },
+  ]
+
+  const StatusDropdown: React.FC<StatusDropdownProps> = ({item, handleInputStatus}) => {
+    const currentOrderStatus: string | undefined =
+      item?.orders?.work_orders?.work_order_status?.[0]?.status?.category
+
+    const allowedCategories: string[] =
+      statusOptions.find(
+        (option: StatusOption) =>
+          currentOrderStatus && option.orderStatuses.includes(currentOrderStatus)
+      )?.allowedCategories || []
+
+    const filteredStatusData: StatusData[] = statusData.filter((status: StatusData) =>
+      allowedCategories.includes(status.category)
+    )
+
+    const currentValue = complaintForm?.work_status_update?.toString() || ''
+
+    return (
+      <Form.Group className='mb-3'>
+        <Form.Label>Pilih status :</Form.Label>
+        <Form.Select onChange={handleInputStatus} value={currentValue}>
+          <option value=''>Pilih status</option>
+          {filteredStatusData.map((status: StatusData) => (
+            <option key={status.value} value={status.value}>
+              {status.description}
+            </option>
+          ))}
+        </Form.Select>
+      </Form.Group>
+    )
+  }
+
   // Handle Approve & Cancel
   const handleApprovalComplaint = async (status: number) => {
     setIsLoading(true)
@@ -344,6 +408,13 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     }))
   }
 
+  // Remedial Status
+  const statusRemedial: {value: string; label: string}[] = [
+    {value: 'INVESTIGATED', label: 'Ditindaklanjuti'},
+    {value: 'COMPLAINTAPPROVEDBYVENDOR', label: 'Diterima'},
+    {value: 'COMPLAINTREJECTEDBYVENDOR', label: 'Ditolak'},
+  ]
+
   // Remedial Position
   const picPositions = [
     {value: 'Staff', label: 'Staff'},
@@ -365,7 +436,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
         ? userRole
         : selectedPosition?.value ?? '',
     }))
-  }, [userRole, selectedPosition])
+  }, [today, userRole, selectedPosition])
 
   // Handle Upload File
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -557,20 +628,6 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
     return !excludedStatus.includes(complaintDetail?.orders?.status?.category) && !isRejectedByHO
   }
 
-  const shouldDisplayAcceptButton = () => {
-    const acceptableStatuses = [
-      'WARRANTYCLAIM',
-      'WORKEND',
-      'WORKENDSTEPONE',
-      'WORKENDSTEPTWO',
-      'WORKENDSTEPTHREE',
-    ]
-
-    return acceptableStatuses.includes(
-      complaintDetail?.orders?.work_orders?.work_order_status?.[0]?.status?.category
-    )
-  }
-
   const ActionButtons = () => (
     <div className='d-flex justify-content-end align-items-center'>
       <Button
@@ -583,27 +640,15 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
         {isLoading ? 'Rejected..' : 'Rejected'}
       </Button>
 
-      {shouldDisplayAcceptButton() ? (
-        <Button
-          variant='dark-primary'
-          className='d-flex justify-content-center align-items-center'
-          type='submit'
-          disabled={isLoading}
-          onClick={() => handleShowModal(2)}
-        >
-          {isLoading ? 'Accepted..' : 'Accept and Choose Status'}
-        </Button>
-      ) : (
-        <Button
-          variant='dark-primary'
-          className='d-flex justify-content-center align-items-center'
-          type='submit'
-          disabled={isLoading}
-          onClick={() => handleApprovalComplaint(complaintStatusApprove)}
-        >
-          {isLoading ? 'Accepted..' : 'Accepted'}
-        </Button>
-      )}
+      <Button
+        variant='dark-primary'
+        className='d-flex justify-content-center align-items-center'
+        type='submit'
+        disabled={isLoading}
+        onClick={() => handleShowModal(2)}
+      >
+        {isLoading ? 'Accepted..' : 'Accept and Choose Status'}
+      </Button>
     </div>
   )
 
@@ -1423,6 +1468,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                             <Modal.Body>
                               <iframe
                                 key={previewImage}
+                                title={previewImage}
                                 width='100%'
                                 height='100%'
                                 src={`${apiUrl}/public/receipt/${previewImage}`}
@@ -1826,7 +1872,12 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
                               </Form.Label>
 
                               <Col sm='7'>
-                                <p className='fs-7'>: {item?.status?.description ?? '-'}</p>
+                                <p className='fs-7'>
+                                  :{' '}
+                                  {statusRemedial.find(
+                                    (status) => status.value === item?.status?.category
+                                  )?.label ?? '-'}
+                                </p>
                               </Col>
                             </Form.Group>
                           )}
@@ -1890,9 +1941,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
 
           {!['Tukang'].includes(userRole) && (
             <>
-              {!['WARRANTYCLAIM', 'INVESTIGATED', 'COMPLAINTREJECTEDBYHO', 'DONE'].includes(
-                complaintDetail?.status?.category
-              ) && (
+              {!['COMPLAINTREJECTEDBYHO', 'DONE'].includes(complaintDetail?.status?.category) && (
                 <>
                   <hr />
 
@@ -2107,30 +2156,18 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
         {modalType === 2 && (
           <>
             <Modal.Body>
-              <Form.Group className='mb-3'>
-                <Form.Label>Pilih status :</Form.Label>
-
-                <Form.Select onChange={(e) => handleInputStatus(e)}>
-                  <option selected>Pilih status</option>
-
-                  {statusData
-                    .filter((status: any) =>
-                      ['RESURVEYREQ', 'REWORKREQ', 'RESURVEYDONE', 'REWORKEND'].includes(
-                        status.category
-                      )
-                    )
-                    .map((status: any) => (
-                      <option key={status.value} value={status.value}>
-                        {status.description}
-                      </option>
-                    ))}
-                </Form.Select>
-              </Form.Group>
+              <StatusDropdown item={complaintDetail} handleInputStatus={handleInputStatus} />
 
               <Form.Group className='mb-3'>
                 <Form.Label>Alasan :</Form.Label>
                 <Form.Control rows={3} as='textarea' onChange={handleInputReason} />
               </Form.Group>
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button variant='dark-danger' onClick={() => setShowModal(false)}>
+                Close
+              </Button>
 
               <Button
                 className='d-flex justify-content-center align-items-center w-100 m-0'
@@ -2139,7 +2176,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
               >
                 Submit
               </Button>
-            </Modal.Body>
+            </Modal.Footer>
           </>
         )}
       </Modal>
