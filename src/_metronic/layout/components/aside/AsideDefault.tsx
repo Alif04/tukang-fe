@@ -40,7 +40,7 @@ const AsideDefault: FC = () => {
             setUser({
               user_id: data.id,
               username: data?.username ?? '',
-              full_name: data?.employee?.full_name ?? '',
+              full_name: data?.sales[0]?.full_name ?? '',
               roles: role,
             })
             break

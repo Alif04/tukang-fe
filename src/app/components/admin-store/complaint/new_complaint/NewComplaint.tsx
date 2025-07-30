@@ -109,15 +109,15 @@ const NewComplaintForm: FC = () => {
       const url = (() => {
         switch (userRole) {
           case 'Store CS':
-            return `${apiUrl}/orders?order_by=desc&store_id=${userStore}${search}&take=0`
+            return `${apiUrl}/orders?order_by=desc&store_id=${userStore}${search}`
           case 'Super User':
           case 'Admin HO':
-            return `${apiUrl}/orders?order_by=desc&take=0${search}`
+            return `${apiUrl}/orders?order_by=desc${search}`
           case 'Owner Vendor':
           case 'Admin Vendor':
-            return `${apiUrl}/orders?order_by=desc&vendor_id=${userVendor}${search}&take=0`
+            return `${apiUrl}/orders?order_by=desc&vendor_id=${userVendor}${search}`
           default:
-            return `${apiUrl}/orders?order_by=desc&take=0${search}`
+            return `${apiUrl}/orders?order_by=desc${search}`
         }
       })()
 
