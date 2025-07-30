@@ -13,7 +13,7 @@ interface ChatPreviousProps {
   previousChats: Chat[]
   handlePreviousChat: (chatId: string) => void
   handleDeleteChat: (chatId: string) => void
-  unreadChats: string[] // Optional, but can be managed here
+  unreadChats: string[]
   userRole: string
   messages: any
   message: any
@@ -23,6 +23,8 @@ interface ChatPreviousProps {
   vendorName: string
   storeName: string
   setReciver: any
+  groupId?: string // NEW: untuk auto-select chat
+  steps?: string // NEW: untuk detect auto-redirect
 }
 const apiChat = process.env.REACT_APP_API_CHAT_URL
 const ChatPrevious: React.FC<ChatPreviousProps> = ({
@@ -39,6 +41,8 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   fetchNewChats,
   storeName,
   setReciver,
+  groupId, // NEW
+  steps, // NEW
 }) => {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
   const [unreadCounts, setUnreadCounts] = useState<{[key: string]: number}>({}) // Map for unread counts
@@ -61,6 +65,29 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   useEffect(() => {
     scrollToBottom()
   }, [messages, selectedChat])
+  useEffect(() => {
+    if (steps === 'autoRedirect' && groupId && previousChats.length > 0) {
+      const targetChat = previousChats.find((chat) => chat._id === groupId)
+      if (targetChat && selectedChat?._id !== targetChat._id) {
+        console.log('Auto-selecting chat:', targetChat._id)
+        setSelectedChat(targetChat)
+
+        // Set receiver untuk chat yang auto-selected
+        const members = targetChat.members.filter(
+          (member: string) =>
+            member !==
+            (userRole === 'Owner Vendor'
+              ? vendorName
+              : userRole === 'Super User'
+              ? 'Admin HO'
+              : userRole === 'Store CS'
+              ? storeName
+              : userRole)
+        )
+        setReciver(members)
+      }
+    }
+  }, [steps, groupId, previousChats, selectedChat])
   const fetchUnreadCounts = async () => {
     const counts: {[key: string]: number} = {}
     for (const chat of previousChats) {
@@ -139,6 +166,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
 
     setSelectedChat(chat)
     handlePreviousChat(chat._id)
+    
     try {
       const sender =
         userRole === 'Owner Vendor'
@@ -239,7 +267,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                     style={{
                       width: '100%',
                       padding: '15px',
-                      backgroundColor: selectedChat?._id === chat._id ? '#1f70f2' : '#f7f7f7', // Highlight for unread
+                      backgroundColor: selectedChat?._id === chat._id ? '#1f70f2' : '#f7f7f7',
                       border: '1px solid #ccc',
                       borderRadius: '8px',
                       textAlign: 'left',
@@ -250,12 +278,12 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                       alignItems: 'center',
                     }}
                   >
-                    <span style={{color: '#333', fontWeight: '500'}}>
+                    <span style={{color: selectedChat?._id === chat._id ? 'white' : '#333', fontWeight: '500'}}>
                       {chat.members && chat.members.length > 0
                         ? chat.members.join(', ')
                         : 'No members'}
                     </span>
-                    {/* Unread count in the top right corner */}
+                    {/* Unread count */}
                     {unreadCounts[chat._id] > 0 && (
                       <span
                         style={{
@@ -281,7 +309,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
         )}
       </div>
 
-      {/* Active Chat Section */}
+      {/* Active Chat Section - IMPORTANT: Selalu tampilkan jika selectedChat ada */}
       {selectedChat && (
         <div
           style={{
@@ -300,15 +328,16 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
               marginBottom: '10px',
             }}
           >
-            <h4 style={{margin: 0, color: '#333'}}>Chat</h4>
+            <h4 style={{margin: 0, color: '#333'}}>
+              Chat dengan {selectedChat.members.join(', ')}
+            </h4>
             <div
               style={{
                 position: 'relative',
                 display: 'inline-block',
               }}
             >
-              {/* Button for menu */}
-              {userRole === 'Admin HO' && (
+              {(userRole === 'Admin HO' || userRole === 'Super User') && (
                 <button
                   style={{
                     background: 'none',
@@ -318,51 +347,16 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                   }}
                   onClick={() => {
                     handleDeleteChat(selectedChat._id)
-                    setSelectedChat(null) // Reset selected chat
-                    // const menu = document.getElementById("chat-menu");
-                    // if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
+                    setSelectedChat(null)
                   }}
                 >
                   <i className='bi bi-trash'></i>
                 </button>
               )}
-
-              {/* Dropdown menu */}
-              {/* <div
-          id="chat-menu"
-          style={{
-            display: "none",
-            position: "absolute",
-            top: "20px",
-            right: "0",
-            backgroundColor: "#fff",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
-            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
-            zIndex: 1000,
-          }}
-        >
-          <button
-            onClick={() => {
-              handleDeleteChat(selectedChat._id);
-              setSelectedChat(null); // Reset selected chat
-              const menu = document.getElementById("chat-menu");
-              if (menu) menu.style.display = "none";
-            }}
-            style={{
-              padding: "10px",
-              width: "100%",
-              background: "none",
-              border: "none",
-              textAlign: "left",
-              cursor: "pointer",
-            }}
-          >
-            Hapus Chat
-          </button>
-        </div> */}
             </div>
           </div>
+          
+          {/* Chat Messages Container */}
           <div
             ref={chatContainerRef}
             style={{
@@ -374,108 +368,103 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
               backgroundColor: 'white',
             }}
           >
-            {messages.map((msg: any, idx: any) => (
-              <div
-                key={idx}
-                style={{
-                  textAlign:
-                    msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                    msg.sender === vendorName ||
-                    msg.sender === storeName
-                      ? 'right'
-                      : 'left',
-                  marginBottom: '10px',
-                }}
-              >
-                {/* Nama pengirim */}
+            {messages.length === 0 ? (
+              <div style={{textAlign: 'center', color: '#999', paddingTop: '20px'}}>
+                Belum ada pesan dalam chat ini.
+              </div>
+            ) : (
+              messages.map((msg: any, idx: any) => (
                 <div
+                  key={idx}
                   style={{
-                    fontSize: '12px',
-                    color: '#999',
-                    marginBottom: '5px',
-                  }}
-                >
-                  {msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole)
-                    ? userRole === 'Super User'
-                      ? 'Admin HO'
-                      : userRole
-                    : msg.sender}
-                </div>
-
-                {/* Kotak pesan */}
-                <div
-                  style={{
-                    display: 'inline-block',
-                    backgroundColor:
+                    textAlign:
                       msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
                       msg.sender === vendorName ||
                       msg.sender === storeName
-                        ? '#e0f7fa'
-                        : '#f1f1f1',
-                    color:
-                      msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                      msg.sender === vendorName ||
-                      msg.sender === storeName
-                        ? '#333'
-                        : '#333',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    maxWidth: '60%',
-                    wordBreak: 'break-word',
-                    position: 'relative',
+                        ? 'right'
+                        : 'left',
+                    marginBottom: '10px',
                   }}
                 >
-                  {msg?.message?.startsWith('http') && msg?.message?.includes('/uploads/') ? (
-                    msg?.message?.match(/\.(jpeg|jpg|png|gif)$/) ? (
-                      <img
-                        src={msg.message}
-                        alt='Uploaded File'
-                        style={{maxWidth: '100%', borderRadius: '5px'}}
-                        onClick={() => setPreviewImage(msg.message)}
-                      />
-                    ) : msg?.message?.match(/\.(mp4|mov|avi)$/) ? (
-                      <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
-                        <source src={msg.message} type='video/mp4' />
-                        Your browser does not support the video tag.
-                      </video>
-                    ) : (
-                      <a href={msg.message} target='_blank' rel='noopener noreferrer'>
-                        {msg.message}
-                      </a>
-                    )
-                  ) : (
-                    msg.message
-                  )}
-                  {/* Timestamp */}
+                  {/* Nama pengirim */}
                   <div
                     style={{
-                      fontSize: '10px',
-                      color: 'rgba(92, 92, 92, 0.7)',
-                      textAlign: 'right',
-                      marginTop: '5px',
+                      fontSize: '12px',
+                      color: '#999',
+                      marginBottom: '5px',
                     }}
                   >
-                    {new Date(msg.timestamp).toLocaleString('id-ID', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false,
-                    })}
+                    {msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole)
+                      ? userRole === 'Super User'
+                        ? 'Admin HO'
+                        : userRole
+                      : msg.sender}
+                  </div>
+
+                  {/* Kotak pesan */}
+                  <div
+                    style={{
+                      display: 'inline-block',
+                      backgroundColor:
+                        msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
+                        msg.sender === vendorName ||
+                        msg.sender === storeName
+                          ? '#e0f7fa'
+                          : '#f1f1f1',
+                      color: '#333',
+                      padding: '10px',
+                      borderRadius: '8px',
+                      maxWidth: '60%',
+                      wordBreak: 'break-word',
+                      position: 'relative',
+                    }}
+                  >
+                    {msg?.message?.startsWith('http') && msg?.message?.includes('/uploads/') ? (
+                      msg?.message?.match(/\.(jpeg|jpg|png|gif)$/) ? (
+                        <img
+                          src={msg.message}
+                          alt='Uploaded File'
+                          style={{maxWidth: '100%', borderRadius: '5px'}}
+                          onClick={() => setPreviewImage(msg.message)}
+                        />
+                      ) : msg?.message?.match(/\.(mp4|mov|avi)$/) ? (
+                        <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
+                          <source src={msg.message} type='video/mp4' />
+                          Your browser does not support the video tag.
+                        </video>
+                      ) : (
+                        <a href={msg.message} target='_blank' rel='noopener noreferrer'>
+                          {msg.message}
+                        </a>
+                      )
+                    ) : (
+                      msg.message
+                    )}
+                    {/* Timestamp */}
+                    <div
+                      style={{
+                        fontSize: '10px',
+                        color: 'rgba(92, 92, 92, 0.7)',
+                        textAlign: 'right',
+                        marginTop: '5px',
+                      }}
+                    >
+                      {new Date(msg.timestamp).toLocaleString('id-ID', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      })}
+                    </div>
                   </div>
                 </div>
-                {previewImage && (
-                  <Modal show={!!previewImage} onHide={() => setPreviewImage(null)} centered>
-                    <Modal.Body>
-                      <img src={previewImage} alt='Preview' style={{width: '100%'}} />
-                    </Modal.Body>
-                  </Modal>
-                )}
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
+          {/* Message Input */}
           <div
             style={{
               display: 'flex',
@@ -507,7 +496,6 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
               style={{display: 'none'}}
             />
 
-            {/* Ikon Bootstrap untuk Upload */}
             <label
               htmlFor='imageUpload'
               style={{cursor: 'pointer', marginLeft: '10px', marginTop: 10}}
