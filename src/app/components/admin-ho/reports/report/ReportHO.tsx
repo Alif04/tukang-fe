@@ -1347,7 +1347,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
       try {
         const url = !selectedZone.value
           ? `${apiUrl}/stores?take=0`
-          : `${apiUrl}/stores?city_id=${selectedZone.value}`
+          : `${apiUrl}/stores?area_id=${selectedZone.value}`
 
         const response = await axios.get(url, {
           headers: {
@@ -1574,7 +1574,23 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
       }
     }
 
-    valueCheck(`&store_id=`, selectedStore?.value)
+    if (selectedZone?.label !== 'All Zona' && selectedStore?.label !== 'All Store') {
+      // Zona & Store dipilih → kirim store yang dipilih
+      valueCheck(`&store_id=`, selectedStore?.value)
+    } else if (selectedZone?.label !== 'All Zona' && selectedStore?.label === 'All Store') {
+      // Zona dipilih, Store tidak → kirim semua store dalam zona tersebut
+      const allStoreIdsInZone = store
+        .map((item: any) => item.value)
+      console.log(allStoreIdsInZone);
+      
+      valueCheck(`&store_id=`, allStoreIdsInZone.join(','))
+    } else if (selectedZone?.label === 'All Zona' && selectedStore?.label !== 'All Store') {
+      // Store dipilih, tapi zona "All" → kirim store yang dipilih
+      valueCheck(`&store_id=`, selectedStore?.value)
+    } else {
+      // All Zona + All Store → tidak kirim store_id
+      valueCheck(`&store_id=`, '')
+    }
 
     const reportGrandTotal = await fetchAllReportData(endpoint, queryparams)
     setReportGrandTotal(reportGrandTotal)

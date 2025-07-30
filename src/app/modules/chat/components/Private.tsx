@@ -109,6 +109,27 @@ const Private: FC = () => {
     socket.emit('checkStatus')
   }
 
+  // Fungsi baru untuk logout WhatsApp
+  const handleLogout = () => {
+    Swal.fire({
+      title: 'Konfirmasi Logout',
+      text: 'Apakah Anda yakin ingin logout dari WhatsApp?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Ya, Logout!',
+      cancelButtonText: 'Batal',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        socket.emit('logout')
+        setIsConnected(false)
+        setQrCode('')
+        Swal.fire('Logout Berhasil!', 'Anda telah logout dari WhatsApp.', 'success')
+      }
+    })
+  }
+
   const handleAssignClick = (chatId: any) => {
     setSelectedChat(chatId)
     setShowPopup(true)
@@ -199,24 +220,33 @@ const Private: FC = () => {
     })
   }
   return (
-    <div className='d-flex flex-column flex-lg-row'>
-      {!isConnected && qrCode ? (
-        <>
-          <div className='text-center'>
-            <h1>Scan QR Code WhatsApp</h1>
-            <img src={qrCode} alt='QR Code' className='my-3' />
-            <br />
-            <button onClick={checkStatus} className='btn btn-primary'>
-              Minta QR Baru
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          {' '}
-          <button onClick={checkStatus} className='btn btn-primary'>
-              Check Status WA
-            </button>
+        <div className='d-flex flex-column'>
+      {/* Button Login/Logout WhatsApp - selalu ditampilkan di atas */}
+      <div className='mb-4 text-center'>
+        {isConnected ? (
+        <button onClick={requestQrCode} className='btn btn-primary'>
+            Login WA
+          </button>
+        ) : (
+        
+              <button onClick={handleLogout} className='btn btn-danger'>
+            Logout WA
+          </button>
+        )}
+      </div>
+
+      {/* Konten utama */}
+      <div className='d-flex flex-column flex-lg-row'>
+        {!isConnected && qrCode ? (
+          <>
+            <div className='text-center'>
+              <h1>Scan QR Code WhatsApp</h1>
+              <img src={qrCode} alt='QR Code' className='my-3' />
+            </div>
+          </>
+        ) : (
+          <>
+
           <div className='flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0'>
             <div className='card card-flush'>
               <div className='card-header pt-7' id='kt_chat_contacts_header'>
@@ -484,7 +514,9 @@ const Private: FC = () => {
         </>
       )}
     </div>
+    </div>
   )
+
 }
 
 export {Private}

@@ -70,13 +70,14 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
 
   // Table State
   const [vendorData, setVendorData] = useState<DataType[]>([])
+  const [vendorDatas, setVendorDatas] = useState<[]>([])
   const [totalData, setTotalData] = useState<number>(0)
   const {queryParams, searchFilter, currentPage, pageSize, dateFrom, dateTo, selectedStore} =
     useSelector((state: RootState) => state.vendor)
 
   // Store
   const [store, setStore] = useState<StoreItem[]>([])
-  const storeOptions = [{value: null, label: 'All Vendor'}, ...store]
+  const storeOptions = [{value: null, label: 'All Vendor'}, ...vendorDatas]
 
   // Filter Table
   const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -386,7 +387,11 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
 
         return data
       })
-
+      const vendorOptions = apiData.map((item: any) => ({
+        label: `${item.company_name}`,
+        value: item.id,
+      }))
+      setVendorDatas(vendorOptions)
       return vendorData
     } catch (error) {
       console.error('Error getting order list data:', error)
@@ -397,6 +402,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
   const fetchData = async (page: number, pageSize: number, queryparams: any) => {
     const data = await ViewVendor(page, pageSize, queryparams)
     setVendorData(data)
+    dispatch(setSelectedStore(data))
   }
 
   useEffect(() => {
@@ -452,6 +458,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
 
     const data = await ViewVendor(currentPage, pageSize, queryparams)
     setVendorData(data)
+    dispatch(setSelectedStore(data))
 
     setLoadingButton(false)
   }

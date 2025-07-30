@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, {useState, useEffect, useRef} from 'react'
 import io from 'socket.io-client'
 import axios from 'axios'
@@ -40,6 +41,7 @@ export default function ChatPage(): JSX.Element {
   const vendorId = localStorage.getItem('vendor_id') as string
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [previewImage, setPreviewImage] = useState('')
+  const [unreadCount, setUnreadCount] = useState<number>(0)
   const vendorListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const poveuesiListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const apiUrl = process.env.REACT_APP_API_URL
@@ -166,7 +168,10 @@ export default function ChatPage(): JSX.Element {
           ? storeName
           : userRole)
       ) {
-        setNewMessages(true)
+        if (!isOpen) {
+          setNewMessages(true)
+          setUnreadCount((prev) => prev + 1) // Tambah counter
+        }
       }
       setMessages((prev) => [...prev, msg])
     }
@@ -176,7 +181,7 @@ export default function ChatPage(): JSX.Element {
     return () => {
       socket.off('receiveMessage', handleReceiveMessage)
     }
-  }, [socket])
+  }, [socket, isOpen])
   const datasss = async () => {
     const res = await axios.get(`${apiChat}/chat/organisasi/Mitra 10`, {
       headers: {
@@ -247,15 +252,19 @@ export default function ChatPage(): JSX.Element {
   const startChat = async (type: string, datas: any) => {
     const timestamp = new Date()
     try {
+      let payload: any = {}
+
+      // Admin HO/Super User logic
       if (
         (userRole === 'Admin HO' || userRole === 'Super User') &&
         (type === 'store' || type === 'vendor' || type === 'id')
       ) {
-        let payload: any = {
+        payload = {
           role_admin: 'Admin HO',
           role: userRole === 'Super User' ? 'Admin HO' : userRole,
           option: type,
         }
+
         if (type === 'vendor') {
           payload.vendor = {
             name: datas.company_name,
@@ -268,9 +277,11 @@ export default function ChatPage(): JSX.Element {
           }
         }
 
-        // If type is "id", you can handle it as needed
         if (type === 'id') {
-          let apiUrlWithParams = `${apiUrl}/orders/${orderId}` // Update query parameters as needed
+          // IMPORTANT: Pass orderId ke backend
+          payload.orderId = orderId
+
+          let apiUrlWithParams = `${apiUrl}/orders/${orderId}`
           const res = await axios.get(apiUrlWithParams, {
             headers: {
               Accept: 'application/json',
@@ -290,51 +301,28 @@ export default function ChatPage(): JSX.Element {
             }
           }
         }
-
-        const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        })
-        if (res.data.success) {
-          const dataReciver = res.data.group.members.filter(
-            (member: any) =>
-              member !==
-              (userRole === 'Owner Vendor'
-                ? vendorName
-                : userRole === 'Super User'
-                ? 'Admin HO'
-                : userRole === 'Store CS'
-                ? storeName
-                : userRole)
-          )
-          setReciver(dataReciver)
-          setGroupId(res.data.groupId)
-          setStep('chat')
-
-          setMessages((prev) => [
-            ...prev,
-            {sender: 'Mitra 10', message: `Anda telah bergabung ke grup.`, timestamp},
-          ])
-          socket.emit('joinGroup', res.data.groupId)
-        } else {
-          alert('Gagal memulai chat.')
-        }
-      } else if (userRole === 'Store CS' && (type === 'ho' || type === 'vendor' || type === 'id')) {
-        let payload: any = {
+      }
+      // Store CS logic
+      else if (userRole === 'Store CS' && (type === 'ho' || type === 'vendor' || type === 'id')) {
+        payload = {
           role_admin: 'Admin HO',
           role: userRole,
           option: type,
           store: storeName,
         }
+
         if (type === 'vendor') {
           payload.vendor = {
             name: datas.company_name,
             id: datas.id,
           }
         }
+
         if (type === 'id') {
-          let apiUrlWithParams = `${apiUrl}/orders/${orderId}` // Update query parameters as needed
+          // IMPORTANT: Pass orderId ke backend
+          payload.orderId = orderId
+
+          let apiUrlWithParams = `${apiUrl}/orders/${orderId}`
           const res = await axios.get(apiUrlWithParams, {
             headers: {
               Accept: 'application/json',
@@ -359,55 +347,35 @@ export default function ChatPage(): JSX.Element {
                 {sender: 'Mitra 10', message: 'Silakan isi Order ID Anda.', timestamp},
               ])
               setStep('orderId')
+              return
             }
           }
         }
-        const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        })
-        if (res.data.success) {
-          const dataReciver = res.data.group.members.filter(
-            (member: any) =>
-              member !==
-              (userRole === 'Owner Vendor'
-                ? vendorName
-                : userRole === 'Super User'
-                ? 'Admin HO'
-                : userRole === 'Store CS'
-                ? storeName
-                : userRole)
-          )
-          setReciver(dataReciver)
-          setGroupId(res.data.groupId)
-          setStep('chat')
-          setMessages((prev) => [
-            ...prev,
-            {sender: 'Mitra 10', message: `Anda telah bergabung ke grup.`, timestamp},
-          ])
-          socket.emit('joinGroup', res.data.groupId)
-        } else {
-          alert('Gagal memulai chat.')
-        }
-      } else if (
+      }
+      // Owner Vendor logic
+      else if (
         userRole === 'Owner Vendor' &&
         (type === 'ho' || type === 'store' || type === 'id')
       ) {
-        let payload: any = {
+        payload = {
           role_admin: 'Admin HO',
           role: userRole,
           option: type,
           vendor: vendorName,
         }
+
         if (type === 'store') {
           payload.store = {
             name: datas.store_name,
             id: datas.id,
           }
         }
+
         if (type === 'id') {
-          let apiUrlWithParams = `${apiUrl}/orders/${orderId}` // Update query parameters as needed
+          // IMPORTANT: Pass orderId ke backend
+          payload.orderId = orderId
+
+          let apiUrlWithParams = `${apiUrl}/orders/${orderId}`
           const res = await axios.get(apiUrlWithParams, {
             headers: {
               Accept: 'application/json',
@@ -432,50 +400,98 @@ export default function ChatPage(): JSX.Element {
                 {sender: 'Mitra 10', message: 'Silakan isi Order ID Anda.', timestamp},
               ])
               setStep('orderId')
+              return
             }
           }
         }
-        const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        })
-        if (res.data.success) {
-          const dataReciver = res.data.group.members.filter(
-            (member: any) =>
-              member !==
-              (userRole === 'Owner Vendor'
-                ? vendorName
-                : userRole === 'Super User'
-                ? 'Admin HO'
-                : userRole === 'Store CS'
-                ? storeName
-                : userRole)
-          )
-          setReciver(dataReciver)
-          setGroupId(res.data.groupId)
+      }
+
+      // MAJOR CHANGE: Handle new backend response structure
+      const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      if (res.data.success) {
+        const dataReciver = res.data.group.members.filter(
+          (member: any) =>
+            member !==
+            (userRole === 'Owner Vendor'
+              ? vendorName
+              : userRole === 'Super User'
+              ? 'Admin HO'
+              : userRole === 'Store CS'
+              ? storeName
+              : userRole)
+        )
+
+        setReciver(dataReciver)
+        setGroupId(res.data.groupId)
+
+        // NEW LOGIC: Handle existing vs new group
+        if (res.data.isExisting) {
+          // Existing group found - redirect to previous chat
+          console.log('Existing group detected, redirecting to previous chat...')
+
+          setStep('previous')
+          setMessages((prev) => [
+            ...prev,
+            {
+              sender: 'Mitra 10',
+              message: res.data.message || 'Mengarahkan ke chat yang sudah ada...',
+              timestamp,
+            },
+          ])
+
+          // Fetch previous chats first to ensure data is available
+          await fetchPreviousChats()
+
+          // Auto-load the existing chat after a short delay
+          setTimeout(() => {
+            // handlePreviousChat(res.data.groupId)
+            setSteps('autoRedirect')
+            // Optional: Show additional message
+            setMessages((prev) => [
+              ...prev,
+              {
+                sender: 'Mitra 10',
+                message: 'Chat history dimuat.',
+                timestamp: new Date(),
+              },
+            ])
+          }, 1500)
+        } else {
+          // New group - proceed with normal chat flow
+          console.log('New group created, proceeding to chat...')
+
           setStep('chat')
           setMessages((prev) => [
             ...prev,
-            {sender: 'Mitra 10', message: `Anda telah bergabung ke grup.`, timestamp},
+            {
+              sender: 'Mitra 10',
+              message: res.data.message || 'Anda telah bergabung ke grup baru.',
+              timestamp,
+            },
           ])
           socket.emit('joinGroup', res.data.groupId)
-        } else {
-          alert('Gagal memulai chat.')
         }
+      } else {
+        alert('Gagal memulai chat.')
       }
     } catch (err) {
-      console.error(err)
+      console.error('Error in startChat:', err)
       setMessages((prev) => [
         ...prev,
-        {sender: 'Mitra 10', message: 'Data order tidak ditemukan', timestamp},
+        {sender: 'Mitra 10', message: 'Terjadi kesalahan, silakan coba lagi.', timestamp},
       ])
-      setMessages((prev) => [
-        ...prev,
-        {sender: 'Mitra 10', message: 'Silakan isi Order ID Anda.', timestamp},
-      ])
-      setStep('orderId')
-      // alert("Terjadi kesalahan.");
+      if (type === 'id') {
+        setMessages((prev) => [
+          ...prev,
+          {sender: 'Mitra 10', message: 'Silakan isi Order ID Anda.', timestamp},
+        ])
+        setStep('orderId')
+      }
     }
   }
 
@@ -489,6 +505,8 @@ export default function ChatPage(): JSX.Element {
     setSearchQuery('')
     setGroupId('')
     setLoadingVendors(false)
+    setNewMessages(false) // Reset new messages
+    setUnreadCount(0) // Reset counter
   }
 
   const sendMessage = () => {
@@ -571,6 +589,7 @@ export default function ChatPage(): JSX.Element {
     setGroupId(groupId)
     setSteps('riwayatChat')
     socket.emit('joinGroup', groupId)
+
     try {
       const res = await axios.get(`${apiChat}/chat/messages/${groupId}`, {
         headers: {
@@ -579,6 +598,54 @@ export default function ChatPage(): JSX.Element {
       })
       if (res.status === 200) {
         setMessages(res.data)
+
+        // Kurangi counter berdasarkan jumlah pesan yang dibaca dari grup ini
+        const readCount = res.data.filter((msg: any) => {
+          const currentUser =
+            userRole === 'Owner Vendor'
+              ? vendorName
+              : userRole === 'Super User'
+              ? 'Admin HO'
+              : userRole === 'Store CS'
+              ? storeName
+              : userRole
+
+          return msg.receiver?.some(
+            (receiver: any) => receiver.user === currentUser && !receiver.read
+          )
+        }).length
+
+        setUnreadCount((prev) => Math.max(0, prev - readCount))
+
+        // IMPORTANT: Jangan ubah step jika sudah di 'previous'
+        // Biarkan ChatPrevious component handle sendiri tampilan chat di kanan
+        if (step !== 'previous') {
+          setStep('chat') // Hanya ubah step jika dari auto-redirect
+        }
+
+        // Update read status di backend
+        const currentUser =
+          userRole === 'Owner Vendor'
+            ? vendorName
+            : userRole === 'Super User'
+            ? 'Admin HO'
+            : userRole === 'Store CS'
+            ? storeName
+            : userRole
+
+        try {
+          await axios.put(
+            `${apiChat}/chat/status/${groupId}`,
+            {sender: currentUser},
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+              },
+            }
+          )
+        } catch (updateError) {
+          console.error('Failed to update read status:', updateError)
+        }
       } else {
         alert('Gagal mengambil pesan grup.')
       }
@@ -651,7 +718,9 @@ export default function ChatPage(): JSX.Element {
       })
 
       if (res.data && res.data.length > 0) {
-        const hasNewMessages = res.data.some((chat: any) => {
+        let unreadCounter = 0
+
+        res.data.forEach((chat: any) => {
           let currentUser: string
 
           switch (userRole) {
@@ -668,25 +737,24 @@ export default function ChatPage(): JSX.Element {
               currentUser = userRole
           }
 
-          // Cek apakah ada receiver yang sesuai dengan currentUser
-          return chat.receiver.some(
+          // Hitung jumlah pesan yang belum dibaca untuk user ini
+          const unreadForUser = chat.receiver.filter(
             (receiver: any) => receiver.user === currentUser && !receiver.read
-          )
-        })
-        // console.log(hasNewMessages);
+          ).length
 
-        if (hasNewMessages) {
+          unreadCounter += unreadForUser
+        })
+
+        if (unreadCounter > 0) {
           setNewMessages(true)
+          setUnreadCount(unreadCounter)
+        } else {
+          setNewMessages(false)
+          setUnreadCount(0)
         }
-        // setNewMessages(true)
-        // res.data.forEach((chats: any) => {
-        //   const { groupId, timestamp } = chats;
-        //   if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
-        //     latest[groupId] = timestamp; // Simpan timestamp terbaru untuk setiap grup
-        //   }
-        // });
       } else {
         setNewMessages(false)
+        setUnreadCount(0)
       }
     } catch (err) {
       console.error('Failed to fetch new chats', err)
@@ -695,7 +763,92 @@ export default function ChatPage(): JSX.Element {
   useEffect(() => {
     fetchNewChats()
   }, [])
+  const NotificationBadge = ({count}: {count: number}) => {
+    if (count === 0) return null
 
+    return (
+      <span
+        style={{
+          position: 'absolute',
+          top: '-5px',
+          right: '-2px',
+          backgroundColor: 'red',
+          color: 'white',
+          borderRadius: '50%',
+          padding: count > 99 ? '3px 6px' : '5px',
+          minWidth: '20px',
+          height: '20px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          fontSize: count > 99 ? '10px' : '12px',
+          zIndex: 999,
+          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+          fontWeight: 'bold',
+        }}
+      >
+        {count > 99 ? '99+' : count}
+      </span>
+    )
+  }
+
+  const debugExistingGroups = async () => {
+    try {
+      const currentUser =
+        userRole === 'Owner Vendor'
+          ? vendorName
+          : userRole === 'Super User'
+          ? 'Admin HO'
+          : userRole === 'Store CS'
+          ? storeName
+          : userRole
+
+      const res = await axios.get(`${apiChat}/chat/groups/member/${currentUser}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      console.log("User's existing groups:", res.data.groups)
+      return res.data.groups
+    } catch (error) {
+      console.error('Error fetching user groups:', error)
+      return []
+    }
+  }
+  const debugSearchGroups = async (members: string[]) => {
+    try {
+      const memberString = members.join(',')
+      const res = await axios.get(
+        `${apiChat}/chat/groups/search?members=${encodeURIComponent(memberString)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      )
+
+      console.log(`Groups with members [${memberString}]:`, res.data.groups)
+      return res.data.groups
+    } catch (error) {
+      console.error('Error searching groups:', error)
+      return []
+    }
+  }
+
+  const handleChatError = (error: any, context: string) => {
+    console.error(`Error in ${context}:`, error)
+
+    const timestamp = new Date()
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: 'Mitra 10',
+        message: `Terjadi kesalahan saat ${context}. Silakan coba lagi.`,
+        timestamp,
+      },
+    ])
+  }
   return (
     <div>
       <div
@@ -708,29 +861,8 @@ export default function ChatPage(): JSX.Element {
       >
         {isOpen === false && (
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-            {newMessages && !isOpen && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '-5px', // Sedikit di luar tombol
-                  right: '-2px', // Sedikit di luar tombol
-                  backgroundColor: 'red',
-                  color: 'white',
-                  borderRadius: '50%',
-                  padding: '5px',
-                  width: '20px', // Lebar tetap
-                  height: '20px', // Tinggi tetap
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  fontSize: '12px',
-                  zIndex: 999,
-                  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-                }}
-              >
-                !
-              </span>
-            )}
+            {/* Ganti badge lama dengan NotificationBadge component */}
+            <NotificationBadge count={unreadCount} />
 
             <Button
               onClick={() => {
@@ -740,8 +872,8 @@ export default function ChatPage(): JSX.Element {
                   if (newMessages) {
                     setIsOpen(true)
                     handleChatTypeSelection('previous')
-                    setNewMessages(false) // Reset new messages notification
-                    setSteps('')
+                    setNewMessages(false)
+                    // Jangan reset unreadCount di sini, biarkan reset ketika chat benar-benar dibaca
                   } else {
                     setIsOpen(true)
                   }
@@ -1006,6 +1138,8 @@ export default function ChatPage(): JSX.Element {
                 userRole={userRole}
                 fetchNewChats={fetchNewChats}
                 storeName={storeName}
+                groupId={groupId} // NEW: pass groupId
+                steps={steps} // NEW: pass steps
               />
             )}
             {step === 'vendor' && (

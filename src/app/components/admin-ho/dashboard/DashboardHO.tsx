@@ -148,7 +148,9 @@ const DashboardHO: FC = () => {
     if (store_id) {
       apiUrlWithParams += `&store_id=${store_id}`
     }
-
+  if (queryparams) {
+      
+    }
     try {
       const response = await axios.get(apiUrlWithParams, {
         headers: {
@@ -176,6 +178,7 @@ const DashboardHO: FC = () => {
     if (store_id) {
       url += `&store_id=${store_id}`
     }
+  
 
     try {
       const response = await axios.get(url, {
