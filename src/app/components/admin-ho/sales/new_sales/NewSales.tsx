@@ -249,7 +249,7 @@ const NewSales: FC = () => {
           ['Kategori Sales']: item.sales_categories
             .map((sales_categories: any) => sales_categories?.categories?.category_name ?? '')
             .join(', '),
-          ['Status']: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
+          ['Status']: item.is_active === true && item.deleted_at === null ? 'ACTIVE' : 'NON ACTIVE',
         }))
 
         setExportSales(salesData)
@@ -325,7 +325,8 @@ const NewSales: FC = () => {
           full_name: item?.full_name ?? '',
           sales_brand: item?.sales_brand ?? '-',
           sales_category: uniqueCategory,
-          is_active: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
+          is_active: item.is_active === true && item.deleted_at === null ? 'ACTIVE' : 'NON ACTIVE',
+          deleted_at: item.deleted_at ?? null,
         }
 
         return data
@@ -410,7 +411,6 @@ const NewSales: FC = () => {
   }
 
   // Data Type List Sales
-
   interface DataType {
     no: number
     sales_id: number
@@ -419,6 +419,7 @@ const NewSales: FC = () => {
     sales_brand: string
     sales_category: string
     is_active: string
+    deleted_at: string | null
   }
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
@@ -503,6 +504,7 @@ const NewSales: FC = () => {
       render: (record) => {
         const id = record.sales_id
         const isActive = record.is_active
+        const isDeleted = record.deleted_at
 
         const handleUpdateId = () => {
           navigate(`/sales/update-sales/${id}`)
@@ -510,13 +512,15 @@ const NewSales: FC = () => {
 
         const handleDeleteId = () => {
           Swal.fire({
-            title: `Apakah anda yakin akan mengubah status Sales ini ?`,
-            icon: 'warning',
+            title: 'Konfirmasi Penghapusan Data Sales',
+            text: 'Anda akan menghapus data sales ini. Harap diperhatikan bahwa seluruh informasi terkait sales ini akan hilang dan tidak dapat dipulihkan. Apakah Anda yakin?',
+            icon: 'error',
             showConfirmButton: true,
             showDenyButton: true,
-            confirmButtonText: 'Ya',
-            confirmButtonColor: 'gray',
-            denyButtonText: 'Cancel',
+            confirmButtonText: 'Hapus Permanen',
+            denyButtonText: 'Batal',
+            denyButtonColor: '#183383',
+            confirmButtonColor: '#6E010F',
           })
             .then((willDelete) => {
               if (willDelete.value) {
@@ -531,8 +535,8 @@ const NewSales: FC = () => {
                   })
                   .then((response) => {
                     Swal.fire({
-                      title: 'Success',
-                      text: response.data.message,
+                      title: 'Berhasil',
+                      text: 'Akun sales berhasil dihapus',
                       icon: 'success',
                     }).then(() => {
                       window.location.reload()
@@ -558,32 +562,37 @@ const NewSales: FC = () => {
 
         const handleActive = () => {
           Swal.fire({
-            title: `Apakah anda yakin akan mengaktifkan sales ini ?`,
-            icon: 'warning',
+            title: 'Konfirmasi Aktivasi Akun Sales',
+            text: 'Anda akan mengaktifkan kembali akun sales ini. Sales akan memiliki akses penuh.',
+            icon: 'question',
             showConfirmButton: true,
             showDenyButton: true,
-            confirmButtonText: 'Ya',
-            denyButtonText: 'Tidak',
+            confirmButtonText: 'Ya, Aktifkan',
+            denyButtonText: 'Batal',
+            denyButtonColor: '#6E010F',
+            confirmButtonColor: '#3D6500',
           })
             .then((willActive) => {
-              const isActive = {
-                is_active: 1,
-              }
-
               if (willActive.value) {
                 axios
-                  .post(`${apiUrl}/sales/${id}`, isActive, {
-                    headers: {
-                      Accept: 'application/json',
-                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                      'Access-Control-Allow-Origin': '*',
-                      'ngrok-skip-browser-warning': 'true',
+                  .post(
+                    `${apiUrl}/sales/${id}`,
+                    {
+                      is_active: 1,
                     },
-                  })
+                    {
+                      headers: {
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                        'Access-Control-Allow-Origin': '*',
+                        'ngrok-skip-browser-warning': 'true',
+                      },
+                    }
+                  )
                   .then((response) => {
                     Swal.fire({
-                      title: 'Success',
-                      text: 'Berhasil mengaktifkan sales',
+                      title: 'Berhasil',
+                      text: 'Berhasil mengaktifkan akun sales',
                       icon: 'success',
                       showConfirmButton: false,
                     }).then(() => {
@@ -610,31 +619,36 @@ const NewSales: FC = () => {
 
         const handleNonActive = () => {
           Swal.fire({
-            title: `Apakah anda yakin akan menonaktifkan sales ini ?`,
+            title: 'Konfirmasi Penonaktifan Akun',
+            text: 'Anda akan menonaktifkan akun sales ini. Tindakan ini akan membatasi akses sales terkait. Lanjutkan?',
             icon: 'warning',
             showConfirmButton: true,
             showDenyButton: true,
-            confirmButtonText: 'Ya',
-            denyButtonText: 'Tidak',
+            confirmButtonText: 'Ya, Nonaktifkan',
+            denyButtonText: 'Batal',
+            denyButtonColor: '#183383',
+            confirmButtonColor: '#6E010F',
           })
             .then((willActive) => {
-              const isActive = {
-                is_active: 0,
-              }
-
               if (willActive.value) {
                 axios
-                  .post(`${apiUrl}/sales/${id}`, isActive, {
-                    headers: {
-                      Accept: 'application/json',
-                      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                      'Access-Control-Allow-Origin': '*',
-                      'ngrok-skip-browser-warning': 'true',
+                  .post(
+                    `${apiUrl}/sales/${id}`,
+                    {
+                      is_active: 0,
                     },
-                  })
+                    {
+                      headers: {
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                        'Access-Control-Allow-Origin': '*',
+                        'ngrok-skip-browser-warning': 'true',
+                      },
+                    }
+                  )
                   .then((response) => {
                     Swal.fire({
-                      title: 'Success',
+                      title: 'Berhasil',
                       text: 'Berhasil menonaktifkan akun sales',
                       icon: 'success',
                       showConfirmButton: false,
@@ -662,7 +676,7 @@ const NewSales: FC = () => {
 
         return (
           <div className='button-wrapper d-flex justify-content-center gap-3'>
-            {isActive !== 'ACTIVE' && (
+            {isActive === 'NON ACTIVE' && (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -674,7 +688,7 @@ const NewSales: FC = () => {
               </OverlayTrigger>
             )}
 
-            {isActive !== 'NON ACTIVE' && (
+            {isActive === 'ACTIVE' && !isDeleted && (
               <OverlayTrigger
                 placement='bottom'
                 delay={{show: 250, hide: 400}}
@@ -699,7 +713,7 @@ const NewSales: FC = () => {
             <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
-              overlay={renderTooltip('Delete Sales')}
+              overlay={renderTooltip('Hapus Sales')}
             >
               <Button className='button-delete' variant='danger' onClick={handleDeleteId}>
                 <FontAwesomeIcon className='text-white' icon={faTrash} fontSize={'13px'} />
