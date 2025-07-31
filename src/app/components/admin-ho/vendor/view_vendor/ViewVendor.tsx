@@ -347,11 +347,39 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     }
   }
 
+  const fetchVendorFilter = async () => {
+    let apiUrlWithParams = `${apiUrl}/vendor?order_by=desc`
+
+    try {
+      const response = await axiosInstance.get(apiUrlWithParams, {
+        params: {
+          page: 1,
+          take: 100,
+        },
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      return response.data.data
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
   const ViewVendor = async (page: number, pageSize: number, queryparams: any) => {
     try {
       const apiData = await fetchVendorList(page, pageSize, queryparams)
+      const dataFilter = await fetchVendorFilter()
 
       if (!apiData) {
+        console.error('No data received from fetchVendorList')
+        return []
+      }
+
+        if (!dataFilter) {
         console.error('No data received from fetchVendorList')
         return []
       }
@@ -387,7 +415,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
 
         return data
       })
-      const vendorOptions = apiData.map((item: any) => ({
+      const vendorOptions = dataFilter.map((item: any) => ({
         label: `${item.company_name}`,
         value: item.id,
       }))
@@ -453,7 +481,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
     }
 
     valueCheck(`&search=`, searchFilter)
-    valueCheck(`&store_id=`, selectedStore?.value)
+    valueCheck(`&id_vendor=`, selectedStore?.value)
     dispatch(setQueryParams(queryparams))
 
     const data = await ViewVendor(currentPage, pageSize, queryparams)
@@ -509,7 +537,7 @@ const ViewVendorHO: React.FC<Props> = ({className}) => {
                 name='store_id'
                 className='form-control p-0'
                 classNamePrefix='select'
-                placeholder='Pilih Store'
+                placeholder='Pilih Vendor'
                 isSearchable={true}
                 isClearable={true}
                 options={storeOptions}

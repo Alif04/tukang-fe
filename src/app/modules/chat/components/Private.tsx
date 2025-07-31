@@ -76,41 +76,77 @@ const Private: FC = () => {
 
   useEffect(() => {
     socket.on('qrCode', (data: any) => {
-      setQrCode(data.qr)
-    })
+        console.log('QR Code received:', data);
+        setQrCode(data.qr);
+    });
 
     socket.on('status', (data: any) => {      
-      if (data.status === 'isLogged' || data.status === 'successChat') {
-        setIsConnected(true)
-        setQrCode('')
-      } else if (data.status === 'disconnected') {
-        setIsConnected(false)
-        requestQrCode()
-      } else if (data.status === 'notLogged' || data.status === 'desconnectedMobile' || data.status === 'qrReadFail' || data.status === 'waitForLogin') {
-        setIsConnected(false)
-        requestQrCode()
-      } else {
-        setIsConnected(false)
-        requestQrCode()
-      }
-      console.log('Status bot:', data.status)
-    })
+        console.log('Status received:', data);
+        
+        const status = data.status;
+        
+        switch(status) {
+            case 'isLogged':
+            case 'successChat':
+                setIsConnected(true);
+                setQrCode(''); // ✅ Clear QR when connected
+                break;
+                
+            case 'DISCONNECTED':
+            case 'disconnected':
+            case 'notLogged':
+            case 'desconnectedMobile':
+            case 'qrReadFail':
+            case 'waitForLogin':
+                setIsConnected(false);
+                // ✅ PERBAIKAN: Jangan auto-request QR, biarkan user klik
+                break;
+                
+            case 'CONNECTING':
+                setIsConnected(false);
+                setQrCode(''); // Clear old QR while connecting
+                break;
+                
+            case 'ERROR':
+                setIsConnected(false);
+                setQrCode('');
+                Swal.fire('Error', data.message || 'WhatsApp connection error', 'error');
+                break;
+                
+            default:
+                setIsConnected(false);
+                break;
+        }
+    });
+
+    socket.on('logoutSuccess', (data: any) => {
+        console.log('Logout successful:', data);
+        setIsConnected(false);
+        setQrCode('');
+        // ✅ Don't auto-request QR after logout
+    });
+
+    // ✅ Check initial status when component mounts
+    checkStatus();
 
     return () => {
-      socket.off('qrCode')
-      socket.off('status')
-    }
-  }, [])
+        socket.off('qrCode');
+        socket.off('status');
+        socket.off('logoutSuccess');
+    };
+}, [])
   const requestQrCode = () => {
-    socket.emit('requestQr')
-  }
+    console.log('Requesting QR Code...');
+    setQrCode(''); // ✅ Clear existing QR first
+    socket.emit('requestQr');
+};
 
   const checkStatus = () => {
     socket.emit('checkStatus')
   }
 
   // Fungsi baru untuk logout WhatsApp
-  const handleLogout = () => {
+ const handleLogout = () => {
     Swal.fire({
       title: 'Konfirmasi Logout',
       text: 'Apakah Anda yakin ingin logout dari WhatsApp?',
@@ -122,13 +158,27 @@ const Private: FC = () => {
       cancelButtonText: 'Batal',
     }).then((result) => {
       if (result.isConfirmed) {
-        socket.emit('logout')
-        setIsConnected(false)
-        setQrCode('')
-        Swal.fire('Logout Berhasil!', 'Anda telah logout dari WhatsApp.', 'success')
+        console.log('Logging out from WhatsApp...');
+        socket.emit('logout');
+        
+        // ✅ Show loading
+        Swal.fire({
+          title: 'Logging out...',
+          text: 'Please wait while we disconnect from WhatsApp',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
+        // ✅ Auto close after 3 seconds
+        setTimeout(() => {
+          Swal.close();
+          Swal.fire('Logout Berhasil!', 'Anda telah logout dari WhatsApp.', 'success');
+        }, 3000);
       }
-    })
-  }
+    });
+};
 
   const handleAssignClick = (chatId: any) => {
     setSelectedChat(chatId)
@@ -223,7 +273,7 @@ const Private: FC = () => {
         <div className='d-flex flex-column'>
       {/* Button Login/Logout WhatsApp - selalu ditampilkan di atas */}
       <div className='mb-4 text-center'>
-        {isConnected ? (
+        {!isConnected ? (
         <button onClick={requestQrCode} className='btn btn-primary'>
             Login WA
           </button>
