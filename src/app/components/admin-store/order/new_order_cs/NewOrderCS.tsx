@@ -264,19 +264,17 @@ const NewOrderStoreCS: FC = () => {
   useEffect(() => {
     const getMember = async () => {
       try {
-        const phoneNumber = searchByPhoneNumber ? `&search=${searchByPhoneNumber}` : ''
-
-        const response = await axios.get(
-          `${apiUrl}/member?store_id=${staffStoreId}${phoneNumber}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        )
+        const response = await axios.get(`${apiUrl}/member`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            search: searchByPhoneNumber ? searchByPhoneNumber : null,
+          },
+        })
 
         if (Array.isArray(response.data.data)) {
           const tempMember = response.data.data.map((item: any) => ({
@@ -300,23 +298,23 @@ const NewOrderStoreCS: FC = () => {
     }
 
     getMember()
-  }, [searchByPhoneNumber])
+  }, [apiUrl, staffStoreId, searchByPhoneNumber])
 
   const getSales = async () => {
-    const search = searchSales ? `&search=${searchSales}` : ''
-
     try {
-      const response = await axiosInstance.get(
-        `${apiUrl}/sales?take=0&store_id=${staffStoreId}${search}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        }
-      )
+      const response = await axiosInstance.get(`${apiUrl}/sales`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Access-Control-Allow-Origin': '*',
+          'ngrok-skip-browser-warning': 'true',
+        },
+        params: {
+          is_active: 1,
+          store_id: staffStoreId,
+          search: searchSales ? searchSales : null,
+        },
+      })
 
       if (Array.isArray(response.data.data)) {
         const tempSales = response.data.data.map((item: any) => ({
@@ -336,12 +334,16 @@ const NewOrderStoreCS: FC = () => {
 
   const getVendor = async () => {
     await axios
-      .get(`${apiUrl}/vendor?store_id=${staffStoreId}&take=0`, {
+      .get(`${apiUrl}/vendor`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           'Access-Control-Allow-Origin': '*',
           'ngrok-skip-browser-warning': 'true',
+        },
+        params: {
+          take: 0,
+          store_id: staffStoreId ? staffStoreId : null,
         },
       })
       .then((response) => {
@@ -915,58 +917,58 @@ const NewOrderStoreCS: FC = () => {
 
   // Vendor Availbility
   const vendorAvailbility = (data: any) => {
-    const requestSurvey = orderForm.request_survey;
-    const maxOrder = data?.max_order ?? 0;
-  
+    const requestSurvey = orderForm.request_survey
+    const maxOrder = data?.max_order ?? 0
+
     const orderVendor = (data?.orders || []).filter((x: any) => {
-      const surveyDate = new Date(x.request_survey).toISOString().split("T")[0];
-      return surveyDate === requestSurvey;
-    });
-  
+      const surveyDate = new Date(x.request_survey).toISOString().split('T')[0]
+      return surveyDate === requestSurvey
+    })
+
     const workOrderVendor = (data?.work_orders || []).filter((x: any) => {
-      const surveyDate = new Date(x.survey_date).toISOString().split("T")[0];
-  
+      const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
+
       const workStartDate = x.work_start_date
-        ? new Date(x.work_start_date).toISOString().split("T")[0]
-        : null;
-  
+        ? new Date(x.work_start_date).toISOString().split('T')[0]
+        : null
+
       const workEndDate = x.work_end_date
-        ? new Date(x.work_end_date).toISOString().split("T")[0]
-        : null;
-  
+        ? new Date(x.work_end_date).toISOString().split('T')[0]
+        : null
+
       if (surveyDate && !workStartDate && !workEndDate) {
-        return surveyDate === requestSurvey;
+        return surveyDate === requestSurvey
       } else if (surveyDate && workStartDate && workEndDate) {
-        return workStartDate <= requestSurvey && requestSurvey <= workEndDate;
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
       } else if (!surveyDate && workStartDate && workEndDate) {
-        return workStartDate <= requestSurvey && requestSurvey <= workEndDate;
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
       } else {
-        return surveyDate === requestSurvey;
+        return surveyDate === requestSurvey
       }
-    });
-  
+    })
+
     const tukangActive = (data?.tukang || []).filter((x: any) => {
-      const isActive = x.is_active === true && x.deleted_at === null;
-      return isActive;
-    }).length;
-  
+      const isActive = x.is_active === true && x.deleted_at === null
+      return isActive
+    }).length
+
     const tukangActiveAvailability = (data?.tukang || []).filter((x: any) => {
       const isAvailable =
         x.is_active === true &&
         x.deleted_at === null &&
         maxOrder > x.slot_order &&
-        x.slot_order < orderVendor.length;
-      return isAvailable;
-    }).length;
-  
+        x.slot_order < orderVendor.length
+      return isAvailable
+    }).length
+
     if (tukangActive === 0 && orderVendor.length >= 0) {
-      return <p className="text-danger">UNAVAILABLE</p>;
+      return <p className='text-danger'>UNAVAILABLE</p>
     } else if (tukangActiveAvailability === 0 && orderVendor.length > 0) {
-      return <p className="text-danger">FULL BOOKED</p>;
+      return <p className='text-danger'>FULL BOOKED</p>
     } else {
-      return <p className="text-black">AVAILABLE</p>;
+      return <p className='text-black'>AVAILABLE</p>
     }
-  };
+  }
 
   return (
     <section id='pre-order'>
