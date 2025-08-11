@@ -179,6 +179,7 @@ const NewOrderHO: FC = () => {
   // Vendor
   const [vendor, setVendor] = useState<any[]>([])
   const [vendorSelect, setVendorSelect] = useState<VendorSelect[]>([])
+  const [searchVendor, setSearchVendor] = useState('')
   const [selectedVendor, setSelectedVendor] = useState<SingleValue<VendorSelect>>({
     value: null,
     label: '',
@@ -281,23 +282,21 @@ const NewOrderHO: FC = () => {
   // }, [])
 
   useEffect(() => {
-    // eslint-disable-next-line
     getItem()
   }, [paymentTypeValue, searchItem, selectedStore])
 
   useEffect(() => {
     const getMember = async () => {
-      const storeId = selectedStore && selectedStore.value ? `store_id=${selectedStore.value}` : ``
-
       try {
-        const phoneNumber = searchByPhoneNumber ? `&search=${searchByPhoneNumber}` : ''
-
-        const response = await axios.get(`${apiUrl}/member?${storeId}${phoneNumber}`, {
+        const response = await axios.get(`${apiUrl}/member`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            search: searchByPhoneNumber ? searchByPhoneNumber : null,
           },
         })
 
@@ -326,16 +325,18 @@ const NewOrderHO: FC = () => {
   }, [searchByPhoneNumber, selectedStore])
 
   useEffect(() => {
-    const storeId = selectedStore && selectedStore.value ? `store_id=${selectedStore.value}` : ``
-
     const getStore = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/stores?take=0`, {
+        const response = await axios.get(`${apiUrl}/stores`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            take: 0,
+            store_id: selectedStore ? selectedStore.value : null,
           },
         })
 
@@ -366,14 +367,22 @@ const NewOrderHO: FC = () => {
       }
     }
 
+    getStore()
+  }, [selectedStore?.value])
+
+  useEffect(() => {
     const getVendor = async () => {
       await axios
-        .get(`${apiUrl}/vendor?${storeId}`, {
+        .get(`${apiUrl}/vendor`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            store_id: selectedStore ? selectedStore.value : null,
+            search: searchVendor ? searchVendor : null,
           },
         })
         .then((response) => {
@@ -387,12 +396,17 @@ const NewOrderHO: FC = () => {
 
     const getVendorByMaxOrder = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/vendor?vendor_with_max_order=1&${storeId}`, {
+        const response = await axios.get(`${apiUrl}/vendor`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            vendor_with_max_order: 1,
+            store_id: selectedStore ? selectedStore.value : null,
+            search: searchVendor ? searchVendor : null,
           },
         })
 
@@ -411,42 +425,43 @@ const NewOrderHO: FC = () => {
       }
     }
 
-    getStore()
     getVendor()
     getVendorByMaxOrder()
-  }, [selectedStore?.value])
-
-  const getSales = async () => {
-    const storeId = selectedStore && selectedStore.value ? `store_id=${selectedStore.value}` : ``
-    const search = searchSales ? `&search=${searchSales}` : ''
-
-    try {
-      const response = await axios.get(`${apiUrl}/sales?${storeId}${search}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (Array.isArray(response.data.data)) {
-        const tempSales = response.data.data.map((item: any) => ({
-          value: item.id,
-          label: item.full_name,
-          full_name: item.full_name,
-        }))
-
-        setSales(tempSales)
-      } else {
-        console.error('API response data is not an array:', response.data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
+  }, [selectedStore?.value, searchVendor])
 
   useEffect(() => {
+    const getSales = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/sales`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            is_active: 1,
+            store_id: selectedStore ? selectedStore.value : null,
+            search: searchSales ? searchSales : null,
+          },
+        })
+
+        if (Array.isArray(response.data.data)) {
+          const tempSales = response.data.data.map((item: any) => ({
+            value: item.id,
+            label: item.full_name,
+            full_name: item.full_name,
+          }))
+
+          setSales(tempSales)
+        } else {
+          console.error('API response data is not an array:', response.data)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
     getSales()
   }, [selectedStore?.value, searchSales])
 
@@ -1032,58 +1047,58 @@ const NewOrderHO: FC = () => {
 
   // Vendor Availbility
   const vendorAvailbility = (data: any) => {
-    const requestSurvey = orderForm.request_survey;
-    const maxOrder = data?.max_order ?? 0;
-  
+    const requestSurvey = orderForm.request_survey
+    const maxOrder = data?.max_order ?? 0
+
     const orderVendor = (data?.orders || []).filter((x: any) => {
-      const surveyDate = new Date(x.request_survey).toISOString().split("T")[0];
-      return surveyDate === requestSurvey;
-    });
-  
+      const surveyDate = new Date(x.request_survey).toISOString().split('T')[0]
+      return surveyDate === requestSurvey
+    })
+
     const workOrderVendor = (data?.work_orders || []).filter((x: any) => {
-      const surveyDate = new Date(x.survey_date).toISOString().split("T")[0];
-  
+      const surveyDate = new Date(x.survey_date).toISOString().split('T')[0]
+
       const workStartDate = x.work_start_date
-        ? new Date(x.work_start_date).toISOString().split("T")[0]
-        : null;
-  
+        ? new Date(x.work_start_date).toISOString().split('T')[0]
+        : null
+
       const workEndDate = x.work_end_date
-        ? new Date(x.work_end_date).toISOString().split("T")[0]
-        : null;
-  
+        ? new Date(x.work_end_date).toISOString().split('T')[0]
+        : null
+
       if (surveyDate && !workStartDate && !workEndDate) {
-        return surveyDate === requestSurvey;
+        return surveyDate === requestSurvey
       } else if (surveyDate && workStartDate && workEndDate) {
-        return workStartDate <= requestSurvey && requestSurvey <= workEndDate;
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
       } else if (!surveyDate && workStartDate && workEndDate) {
-        return workStartDate <= requestSurvey && requestSurvey <= workEndDate;
+        return workStartDate <= requestSurvey && requestSurvey <= workEndDate
       } else {
-        return surveyDate === requestSurvey;
+        return surveyDate === requestSurvey
       }
-    });
-  
+    })
+
     const tukangActive = (data?.tukang || []).filter((x: any) => {
-      const isActive = x.is_active === true && x.deleted_at === null;
-      return isActive;
-    }).length;
-  
+      const isActive = x.is_active === true && x.deleted_at === null
+      return isActive
+    }).length
+
     const tukangActiveAvailability = (data?.tukang || []).filter((x: any) => {
       const isAvailable =
         x.is_active === true &&
         x.deleted_at === null &&
         maxOrder > x.slot_order &&
-        x.slot_order < orderVendor.length;
-      return isAvailable;
-    }).length;
-  
+        x.slot_order < orderVendor.length
+      return isAvailable
+    }).length
+
     if (tukangActive === 0 && orderVendor.length >= 0) {
-      return <p className="text-danger">UNAVAILABLE</p>;
+      return <p className='text-danger'>UNAVAILABLE</p>
     } else if (tukangActiveAvailability === 0 && orderVendor.length > 0) {
-      return <p className="text-danger">FULL BOOKED</p>;
+      return <p className='text-danger'>FULL BOOKED</p>
     } else {
-      return <p className="text-black">AVAILABLE</p>;
+      return <p className='text-black'>AVAILABLE</p>
     }
-  };
+  }
 
   return (
     <section id='update-order'>
@@ -1445,6 +1460,7 @@ const NewOrderHO: FC = () => {
                     isClearable={true}
                     options={vendorSelect}
                     onChange={(newValue) => setSelectedVendor(newValue)}
+                    onInputChange={(newValue) => setSearchVendor(newValue)}
                   />
                 </Form.Group>
               </Col>

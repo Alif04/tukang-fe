@@ -398,15 +398,18 @@ const UpdateOrderStoreCS: FC<{updatePageTitle: (order: Orders) => void}> = ({upd
   }
 
   const getSales = async () => {
-    const search = searchSales ? `&search=${searchSales}` : ''
-
     try {
-      const response = await axios.get(`${apiUrl}/sales?take=0&store_id=${staffStoreId}${search}`, {
+      const response = await axios.get(`${apiUrl}/sales`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           'Access-Control-Allow-Origin': '*',
           'ngrok-skip-browser-warning': 'true',
+        },
+        params: {
+          is_active: 1,
+          store_id: staffStoreId,
+          search: searchSales ? searchSales : null,
         },
       })
 
