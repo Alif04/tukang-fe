@@ -404,7 +404,7 @@ const RefundPage: React.FC = () => {
               <></>
             )}
 
-            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN FOLLOW UP QUOTAITON</PageTitle>
+            <PageTitle breadcrumbs={orderBreadCrumbs}>LAPORAN FOLLOW UP QUOTATION</PageTitle>
 
             <DailyFollowUpQuotation
               endpoint='quotation'
