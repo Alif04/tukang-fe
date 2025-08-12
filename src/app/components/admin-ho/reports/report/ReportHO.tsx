@@ -70,23 +70,37 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
   )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
+  // Store
   const [store, setStore] = useState<StoreItem[]>([])
-  const [area, setArea] = useState<AreaItem[]>([])
-
+  const storeOptions = [{value: null, label: 'All Store', area_id: null}, ...store]
   const [selectedStore, setSelectedStore] = useState<any>({
     value: null,
     label: 'All Store',
-    city_id: null,
+    area_id: null,
   })
 
+  // Area
+  const [area, setArea] = useState<AreaItem[]>([])
+  const javaAreas = area.filter(
+    (item) =>
+      item.label === 'Jawa Barat' || item.label === 'Jawa Timur' || item.label === 'Jawa Tengah'
+  )
+  const javaAreaIds = javaAreas.map((item) => item.value).join(',')
+
+  // Zone
   const [selectedZone, setSelectedZone] = useState<any>({
     value: null,
     label: 'All Zona',
     provice_id: null,
   })
-
-  const storeOptions = [{value: null, label: 'All Store', city_id: null}, ...store]
   const zoneOptions = [{value: null, label: 'All Zona'}, ...area]
+
+  const store_id =
+    selectedStore.value && selectedZone.value
+      ? `${selectedStore.value}`
+      : !selectedStore.value && selectedZone.value
+      ? `${store.map((item) => item.value).join(',')}`
+      : null
 
   let columns: ColumnsType<any> = []
 
@@ -901,7 +915,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
       break
   }
 
-  const fetchAllReportData = async (endpoint: string, queryparams: any) => {
+  const fetchAllReportData = async (endpoint: string) => {
     try {
       const nonReportEndpoints = [
         'orders',
@@ -928,11 +942,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         if (statuses && statuses.length) {
           url += `&status=${statuses}`
         }
-        if (queryparams) {
-          url += queryparams
-        }
         if (dateFrom && dateTo) {
           url += `&date_from=${dateFrom}&date_to=${dateTo}`
+        }
+        if (store_id) {
+          url += `&store_id=${store_id}`
         }
       }
 
@@ -986,12 +1000,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
     }
   }
 
-  const fetchReportData = async (
-    endpoint: string,
-    page: number,
-    pageSize: number,
-    queryparams: any
-  ) => {
+  const fetchReportData = async (endpoint: string, page: number, pageSize: number) => {
     try {
       const nonReportEndpoints = [
         'orders',
@@ -1018,11 +1027,11 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
         if (statuses.length) {
           url += `&status=${statuses}`
         }
-        if (queryparams) {
-          url += queryparams
-        }
         if (dateFrom && dateTo) {
           url += `&date_from=${dateFrom}&date_to=${dateTo}`
+        }
+        if (store_id) {
+          url += `&store_id=${store_id}`
         }
       }
 
@@ -1058,14 +1067,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
     }
   }
 
-  const ViewReportData = async (
-    endpoint: string,
-    page: number,
-    pageSize: number,
-    queryparams: any
-  ) => {
+  const ViewReportData = async (endpoint: string, page: number, pageSize: number) => {
     try {
-      const apiData = await fetchReportData(endpoint, page, pageSize, queryparams)
+      const apiData = await fetchReportData(endpoint, page, pageSize)
 
       if (!apiData) {
         console.error('No data received from getReportData')
@@ -1321,14 +1325,14 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
     }
   }
 
-  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
-    const data = await ViewReportData(endpoint, page, pageSize, queryparams)
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewReportData(endpoint, page, pageSize)
     setReportData(data)
   }
 
   useEffect(() => {
-    fetchAllReportData(endpoint, '')
-    fetchData(currentPage, pageSize, '')
+    fetchAllReportData(endpoint)
+    fetchData(currentPage, pageSize)
   }, [currentPage, pageSize])
 
   useEffect(() => {
@@ -1344,18 +1348,29 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
   useEffect(() => {
     const getStore = async () => {
-      try {
-        const url = !selectedZone.value
-          ? `${apiUrl}/stores?take=0`
-          : `${apiUrl}/stores?area_id=${selectedZone.value}`
+      let params: {take?: number; area_id?: string} = {}
 
-        const response = await axios.get(url, {
+      switch (selectedZone.label) {
+        case 'Jawa':
+          params.area_id = javaAreaIds
+          break
+        case 'All Zona':
+          params.take = 0
+          break
+        default:
+          params.area_id = selectedZone.value
+          break
+      }
+
+      try {
+        const response = await axios.get(`${apiUrl}/stores`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
           },
+          params,
         })
 
         if (Array.isArray(response.data.data)) {
@@ -1382,6 +1397,9 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            take: 0,
           },
         })
 
@@ -1566,36 +1584,10 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
   const handleSubmitFilter = async (endpoint: string) => {
     setLoadingButton(true)
 
-    let queryparams = ``
-
-    const valueCheck = (key: any, value: any) => {
-      if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        queryparams += `${key}${value}`
-      }
-    }
-
-    if (selectedZone?.label !== 'All Zona' && selectedStore?.label !== 'All Store') {
-      // Zona & Store dipilih → kirim store yang dipilih
-      valueCheck(`&store_id=`, selectedStore?.value)
-    } else if (selectedZone?.label !== 'All Zona' && selectedStore?.label === 'All Store') {
-      // Zona dipilih, Store tidak → kirim semua store dalam zona tersebut
-      const allStoreIdsInZone = store
-        .map((item: any) => item.value)
-      console.log(allStoreIdsInZone);
-      
-      valueCheck(`&store_id=`, allStoreIdsInZone.join(','))
-    } else if (selectedZone?.label === 'All Zona' && selectedStore?.label !== 'All Store') {
-      // Store dipilih, tapi zona "All" → kirim store yang dipilih
-      valueCheck(`&store_id=`, selectedStore?.value)
-    } else {
-      // All Zona + All Store → tidak kirim store_id
-      valueCheck(`&store_id=`, '')
-    }
-
-    const reportGrandTotal = await fetchAllReportData(endpoint, queryparams)
+    const reportGrandTotal = await fetchAllReportData(endpoint)
     setReportGrandTotal(reportGrandTotal)
 
-    const data = await ViewReportData(endpoint, 1, pageSize, queryparams)
+    const data = await ViewReportData(endpoint, 1, pageSize)
     setReportData(data)
 
     setLoadingButton(false)
@@ -1806,7 +1798,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
                 setPageSize(size)
               }}
               onChange={(page, pageSize) => {
-                fetchData(page, pageSize, '')
+                fetchData(page, pageSize)
               }}
             />
           </div>

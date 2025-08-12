@@ -112,25 +112,39 @@ const DashboardHO: FC = () => {
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
-  const [store, setStore] = useState<StoreItem[]>([])
   const [topBestStore, setTopBestStore] = useState<any[]>([])
-  const [area, setArea] = useState<AreaItem[]>([])
 
+  // Store
+  const [store, setStore] = useState<StoreItem[]>([])
+  const storeOptions = [{value: null, label: 'All Store', area_id: null}, ...store]
   const [selectedStore, setSelectedStore] = useState<any>({
     value: null,
     label: 'All Store',
     area_id: null,
   })
 
+  // Area
+  const [area, setArea] = useState<AreaItem[]>([])
+  const javaAreas = area.filter(
+    (item) =>
+      item.label === 'Jawa Barat' || item.label === 'Jawa Timur' || item.label === 'Jawa Tengah'
+  )
+  const javaAreaIds = javaAreas.map((item) => item.value).join(',')
+
+  // Zone
   const [selectedZone, setSelectedZone] = useState<any>({
     value: null,
     label: 'All Zona',
+    provice_id: null,
   })
-
-  const store_id = store ? `${store.map((item) => item.value).join(',')}` : `${selectedStore.value}`
-
-  const storeOptions = [{value: null, label: 'All Store', area_id: null}, ...store]
   const zoneOptions = [{value: null, label: 'All Zona'}, ...area]
+
+  const store_id =
+    selectedStore.value && selectedZone.value
+      ? `${selectedStore.value}`
+      : !selectedStore.value && selectedZone.value
+      ? `${store.map((item) => item.value).join(',')}`
+      : null
 
   useEffect(() => {
     const selectedStoreCityId = selectedStore?.area_id
@@ -265,30 +279,29 @@ const DashboardHO: FC = () => {
 
   useEffect(() => {
     const getStore = async () => {
+      let params: {take?: number; area_id?: string} = {}
+
+      switch (selectedZone.label) {
+        case 'Jawa':
+          params.area_id = javaAreaIds
+          break
+        case 'All Zona':
+          params.take = 0
+          break
+        default:
+          params.area_id = selectedZone.value
+          break
+      }
+
       try {
-        let url = `${apiUrl}/stores?take=0`
-
-        if (selectedZone.label === 'Jawa') {
-          const jawaAreas = area.filter(
-            (item) =>
-              item.label === 'Jawa Barat' ||
-              item.label === 'Jawa Timur' ||
-              item.label === 'Jawa Tengah'
-          )
-
-          const areaIds = jawaAreas.map((item) => item.value).join(',')
-          url = `${apiUrl}/stores?area_id=${areaIds}`
-        } else if (selectedZone.value) {
-          url = `${apiUrl}/stores?area_id=${selectedZone.value}`
-        }
-
-        const response = await axios.get(url, {
+        const response = await axios.get(`${apiUrl}/stores`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
           },
+          params,
         })
 
         if (Array.isArray(response.data.data)) {

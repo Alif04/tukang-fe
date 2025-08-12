@@ -22,7 +22,7 @@ import {
 } from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faNoteSticky} from '@fortawesome/free-solid-svg-icons'
-import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
+import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
 const {RangePicker} = DatePicker
 
@@ -42,7 +42,7 @@ interface Status {
 interface StoreItem {
   value: number | null
   label: string
-  city_id: number | null
+  area_id: number | null
 }
 
 interface AreaItem {
@@ -75,7 +75,6 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
 
   // Report Data
   const [reportData, setReportData] = useState<any[]>([])
-  const [reportGrandTotal, setReportGrandTotal] = useState<any>()
 
   // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -94,23 +93,37 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
   )
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
 
+  // Store
   const [store, setStore] = useState<StoreItem[]>([])
-  const [area, setArea] = useState<AreaItem[]>([])
-
+  const storeOptions = [{value: null, label: 'All Store', area_id: null}, ...store]
   const [selectedStore, setSelectedStore] = useState<any>({
     value: null,
     label: 'All Store',
-    city_id: null,
+    area_id: null,
   })
 
+  // Area
+  const [area, setArea] = useState<AreaItem[]>([])
+  const javaAreas = area.filter(
+    (item) =>
+      item.label === 'Jawa Barat' || item.label === 'Jawa Timur' || item.label === 'Jawa Tengah'
+  )
+  const javaAreaIds = javaAreas.map((item) => item.value).join(',')
+
+  // Zone
   const [selectedZone, setSelectedZone] = useState<any>({
     value: null,
     label: 'All Zona',
     provice_id: null,
   })
-
-  const storeOptions = [{value: null, label: 'All Store', city_id: null}, ...store]
   const zoneOptions = [{value: null, label: 'All Zona'}, ...area]
+
+  const store_id =
+    selectedStore.value && selectedZone.value
+      ? `${selectedStore.value}`
+      : !selectedStore.value && selectedZone.value
+      ? `${store.map((item) => item.value).join(',')}`
+      : null
 
   // Daily Quotation
   const [dailyOrder, setDailyOrder] = useState<DailyOrder>({
@@ -125,46 +138,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
     ],
   })
 
-  const fetchAllReportData = async (endpoint: string, queryparams: any) => {
-    try {
-      let url = `${apiUrl}/${endpoint}?order_by=desc&take=0${params}`
-
-      if (statuses.length) {
-        url += `&status=${statuses}`
-      }
-
-      if (queryparams) {
-        url += queryparams
-      }
-
-      if (dateFrom && dateTo) {
-        url += `&date_from=${dateFrom}&date_to=${dateTo}`
-      }
-
-      const response = await axios.get(url, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-
-      if (response?.data) {
-        setReportGrandTotal(response?.data?.orderGrandTotal ?? 0)
-        return response?.data?.orderGrandTotal ?? 0
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  const fetchReportData = async (
-    endpoint: string,
-    page: number,
-    pageSize: number,
-    queryparams: any
-  ) => {
+  const fetchReportData = async (endpoint: string, page: number, pageSize: number) => {
     try {
       let url = `${apiUrl}/${endpoint}?order_by=desc&page=${page}&take=${pageSize}${params}`
 
@@ -172,12 +146,12 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
         url += `&status=${statuses}`
       }
 
-      if (queryparams) {
-        url += queryparams
-      }
-
       if (dateFrom && dateTo) {
         url += `&date_from=${dateFrom}&date_to=${dateTo}`
+      }
+
+      if (store_id) {
+        url += `&store_id=${store_id}`
       }
 
       const response = await axios.get(url, {
@@ -213,14 +187,9 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
     }
   }
 
-  const ViewReportData = async (
-    endpoint: string,
-    page: number,
-    pageSize: number,
-    queryparams: any
-  ) => {
+  const ViewReportData = async (endpoint: string, page: number, pageSize: number) => {
     try {
-      const apiData = await fetchReportData(endpoint, page, pageSize, queryparams)
+      const apiData = await fetchReportData(endpoint, page, pageSize)
 
       if (!apiData) {
         console.error('No data received from getReportData')
@@ -265,48 +234,58 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
     }
   }
 
-  const fetchData = async (page: number, pageSize: number, queryparams: any) => {
-    const data = await ViewReportData(endpoint, page, pageSize, queryparams)
+  const fetchData = async (page: number, pageSize: number) => {
+    const data = await ViewReportData(endpoint, page, pageSize)
     setReportData(data)
   }
 
   useEffect(() => {
-    fetchData(currentPage, pageSize, '')
-    fetchAllReportData(endpoint, '')
+    fetchData(currentPage, pageSize)
   }, [currentPage, pageSize])
 
   useEffect(() => {
-    const selectedStoreCityId = selectedStore?.city_id
-    const filteredZone = area.filter((item) => item.value === selectedStoreCityId)
+    const selectedStoreAreaId = selectedStore?.area_id
+    const filteredZone = area.filter((item) => item.value === selectedStoreAreaId)
 
     if (filteredZone.length === 1) {
       setSelectedZone(filteredZone[0])
     } else {
-      setSelectedZone({value: null, label: 'All Zona', city_id: null})
+      setSelectedZone({value: null, label: 'All Zona', area_id: null})
     }
   }, [selectedStore])
 
   useEffect(() => {
     const getStore = async () => {
       try {
-        const url = !selectedZone.value
-          ? `${apiUrl}/stores?take=0`
-          : `${apiUrl}/stores?city_id=${selectedZone.value}`
+        let params: {take?: number; area_id?: string} = {}
 
-        const response = await axios.get(url, {
+        switch (selectedZone.label) {
+          case 'Jawa':
+            params.area_id = javaAreaIds
+            break
+          case 'All Zona':
+            params.take = 0
+            break
+          default:
+            params.area_id = selectedZone.value
+            break
+        }
+
+        const response = await axios.get(`${apiUrl}/stores`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
           },
+          params,
         })
 
         if (Array.isArray(response.data.data)) {
           const tempStore = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
-            city_id: item.city_id,
+            area_id: item.area_id,
           }))
 
           setStore(tempStore)
@@ -320,12 +299,15 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
 
     const getArea = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/area?take=0`, {
+        const response = await axios.get(`${apiUrl}/area`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            take: 0,
           },
         })
 
@@ -605,20 +587,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
   const handleSubmitFilter = async (endpoint: string) => {
     setLoadingButton(true)
 
-    let queryparams = ``
-
-    const valueCheck = (key: any, value: any) => {
-      if (value !== null && value !== undefined && value !== '' && value !== 0) {
-        queryparams += `${key}${value}`
-      }
-    }
-
-    valueCheck(`&store_id=`, selectedStore?.value)
-
-    const reportGrandTotal = await fetchAllReportData(endpoint, queryparams)
-    setReportGrandTotal(reportGrandTotal)
-
-    const data = await ViewReportData(endpoint, 1, pageSize, queryparams)
+    const data = await ViewReportData(endpoint, 1, pageSize)
     setReportData(data)
 
     setLoadingButton(false)
@@ -802,11 +771,6 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
                   </button>
                 </div>
               </div>
-
-              {/* 
-              <h1 className='fs-1 fw-bold'>{`Rp. ${parseInt(reportGrandTotal).toLocaleString(
-                'id'
-              )}`}</h1> */}
             </Card.Body>
           </Card>
         </Col>
@@ -852,7 +816,7 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
                 setPageSize(size)
               }}
               onChange={(page, pageSize) => {
-                fetchData(page, pageSize, '')
+                fetchData(page, pageSize)
               }}
             />
           </div>
