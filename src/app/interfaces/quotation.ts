@@ -12,15 +12,30 @@ export interface Quotation {
   quotation_validity: string
   quotation_disc: number
   quotation_promotion: number | null
-  quotation_grand_total: number
+  quotation_grand_total: string
 
   readiness: number
   receipt_quotation: string
+
+  quotation_receipt: Array<{
+    index: number
+    receipt_quotation: string
+    quotation_step: number
+  }>
+
   receipts_quotation: Array<{
     index: number
     receipt_quotation: string
     quotation_step: number
   }>
+
+  promotion: {
+    id: number
+    name: string
+    min_order: number
+    promotion: string
+    promotion_type: number
+  }
 
   quotation_details: Array<{
     id: number | null
@@ -41,6 +56,8 @@ export interface Quotation {
     is_user: number
     work_step?: number
   }>
+
+  quotation_files: any[]
 }
 
 export interface DailyQuotation {

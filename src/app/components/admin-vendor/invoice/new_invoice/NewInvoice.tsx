@@ -14,6 +14,8 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faSearch} from '@fortawesome/free-solid-svg-icons'
 import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
+import type {Orders} from '../../../../interfaces/order'
+
 const {RangePicker} = DatePicker
 
 interface Status {
@@ -161,9 +163,50 @@ const NewInvoiceVendor: FC = () => {
     ],
   })
 
+  // Calculation
   const totalSelectedGrandTotal = useMemo(() => {
     return selectedRows.reduce((total, row) => total + Number(row.grand_total || 0), 0)
   }, [selectedRows])
+
+  const grandTotalOrder = (order: Orders, orderType: 'survei' | 'pengerjaan') => {
+    const isOverdistance = order.is_overdistance === 1
+
+    const calculateTotal = (baseTotal: number): number => {
+      return isOverdistance ? baseTotal + Number(order?.additional_fee ?? 0) : baseTotal
+    }
+
+    switch (order.payment_type) {
+      case 'gratis':
+        if (orderType === 'pengerjaan') {
+          const baseTotal = order?.m_order_details?.reduce(
+            (total, item) => total + Number(item?.item?.invoice_nominal ?? 0),
+            0
+          )
+          return calculateTotal(baseTotal)
+        }
+        break
+
+      case 'pemasangan_tanpa_survey':
+        if (orderType === 'pengerjaan') {
+          const baseTotal = Number(order?.grand_total ?? 0)
+          return calculateTotal(baseTotal)
+        }
+        break
+
+      case 'survey':
+        if (orderType === 'survei') {
+          const baseTotal = Number(order?.work_orders?.vendor?.nominal_survey ?? 0)
+          return calculateTotal(baseTotal)
+        } else if (orderType === 'pengerjaan') {
+          const baseTotal = Number(order.quotation[0].quotation_grand_total)
+          return calculateTotal(baseTotal)
+        }
+        break
+
+      default:
+        return order.grand_total
+    }
+  }
 
   // Fetch Data
   const getCode = async () => {
@@ -239,12 +282,6 @@ const NewInvoiceVendor: FC = () => {
         console.error('No data received from getOrders')
         return []
       }
-      const calculateGrandTotal = (quotations: any[]) => {
-        return (
-          (quotations?.reduce((total, q) => total + Number(q.quotation_grand_total || 0), 0) || 0) *
-          0.75
-        )
-      }
 
       const surveyOrderData = surveyOrders
         .filter((x) => {
@@ -273,21 +310,20 @@ const NewInvoiceVendor: FC = () => {
           return (orderHistory && noInvoice) || hasInvoiceRejected || !hasInvoiceSent
         })
         .map((item: any, index: number) => {
-          const orderDate = formatDateWithTimeZone(item?.created_at)
           const quoteInHistory = item?.order_history?.find(
             (x: any) => x.status.category === 'QUOTEIN'
           )
-          const grandTotal = item.vendor.nominal_survey
+
           return {
             _key: workOrders.length + index + 1,
             order_id: item?.id,
             store_name: item?.store?.store_name,
-            date_order: orderDate,
+            date_order: formatDateWithTimeZone(item?.created_at),
             member_name: item?.members?.full_name,
             order_type: 'Survei',
             order_status: quoteInHistory ? quoteInHistory.status.category : null,
             order_status_label: quoteInHistory ? quoteInHistory.status.description : null,
-            grand_total: grandTotal,
+            grand_total: grandTotalOrder(item, 'survei'),
           }
         })
 
@@ -317,18 +353,16 @@ const NewInvoiceVendor: FC = () => {
           return noInvoice || hasInvoiceRejected || !hasInvoiceSent
         })
         .map((item: any, index: number) => {
-          const orderDate = formatDateWithTimeZone(item?.created_at)
-          const grandTotal = calculateGrandTotal(item?.quotation || [])
           return {
             _key: index + 1,
             order_id: item?.id,
             store_name: item?.store?.store_name,
-            date_order: orderDate,
+            date_order: formatDateWithTimeZone(item?.created_at),
             member_name: item?.members?.full_name,
             order_type: 'Pengerjaan',
             order_status: item?.status?.category,
             order_status_label: item?.status?.description,
-            grand_total: grandTotal,
+            grand_total: grandTotalOrder(item, 'pengerjaan'),
           }
         })
 
@@ -359,21 +393,20 @@ const NewInvoiceVendor: FC = () => {
           return (orderHistory && noInvoice) || hasInvoiceRejected || !hasInvoiceSent
         })
         .map((item: any, index: number) => {
-          const orderDate = formatDateWithTimeZone(item?.created_at)
           const workStepHistory = item?.order_history?.find(
             (x: any) => x.status.category === 'WORKENDSTEPONE'
           )
-          const grandTotal = calculateGrandTotal(item?.quotation || [])
+
           return {
             _key: workOrders.length + surveyOrders.length + index + 1,
             order_id: item?.id,
             store_name: item?.store?.store_name,
-            date_order: orderDate,
+            date_order: formatDateWithTimeZone(item?.created_at),
             member_name: item?.members?.full_name,
             order_type: 'Pekerjaan Tahap 1',
             order_status: workStepHistory ? workStepHistory.status.category : null,
             order_status_label: workStepHistory ? workStepHistory.status.description : null,
-            grand_total: grandTotal,
+            grand_total: grandTotalOrder(item, 'pengerjaan'),
           }
         })
 
@@ -403,7 +436,7 @@ const NewInvoiceVendor: FC = () => {
   // Selected Row
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-      const updatedSelectedRowKeys = selectedRows.map((row) => row.order_id)
+      // const updatedSelectedRowKeys = selectedRows.map((row) => row.order_id)
       const invoiceType = selectedRows.map((row) => ({
         order_id: row.order_id,
         type:

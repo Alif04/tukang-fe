@@ -1,5 +1,6 @@
 import {Item} from './item'
 import {Member} from './member'
+import {Quotation} from './quotation'
 import {Sales} from './sales'
 import {Status} from './status'
 import {Store} from './store'
@@ -106,7 +107,7 @@ export interface Orders {
   order_details: OrderDetail[]
   m_order_details: OrderDetail[]
   order_files: OrderFiles[]
-  quotation: any[]
+  quotation: Quotation[]
   order_history: any
 }
 

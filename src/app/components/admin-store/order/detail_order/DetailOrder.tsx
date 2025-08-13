@@ -132,6 +132,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   const [visibleWorkAfter, setVisibleWorkAfter] = useState(false)
 
   // Quotation Receipt
+  const quotationGrandTotal = parseInt(order?.quotation?.[0]?.quotation_grand_total)
   const [visibleQuotationReceipt, setVisibleQuotationReceipt] = useState(false)
   const [visibleQuotationFiles, setVisibleQuotationFiles] = useState(false)
 
@@ -302,9 +303,9 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
   }
 
   useEffect(() => {
-    calculatePaymentStages(order?.quotation?.[0]?.quotation_grand_total)
+    calculatePaymentStages(quotationGrandTotal)
     // eslint-disable-next-line
-  }, [order?.quotation?.[0]?.quotation_grand_total])
+  }, [quotationGrandTotal])
 
   return (
     <section id='detail-order'>
@@ -1031,7 +1032,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               Promosi
                             </td>
                             <td className=' fw-bolder'>
-                              {`Rp. ${parseInt(
+                              {`Rp. ${Number(
                                 order?.quotation[0]?.quotation_disc ?? 0
                               ).toLocaleString('id')}`}
                             </td>
@@ -1049,7 +1050,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                             <td className=' fw-bolder'>
                               {order?.quotation[0]?.promotion?.promotion_type === 1
                                 ? `${order?.quotation[0]?.promotion?.promotion} %`
-                                : `Rp. ${parseInt(
+                                : `Rp. ${Number(
                                     order?.quotation[0]?.promotion?.promotion ?? 0
                                   ).toLocaleString('id')}`}
                             </td>
@@ -1060,7 +1061,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                               Grand Total
                             </td>
                             <td className=' fw-bolder'>
-                              {`Rp. ${parseInt(
+                              {`Rp. ${Number(
                                 order?.quotation[0]?.quotation_grand_total ?? 0
                               ).toLocaleString('id')}`}
                             </td>
