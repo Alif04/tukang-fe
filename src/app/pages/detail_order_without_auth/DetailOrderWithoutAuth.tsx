@@ -5,7 +5,6 @@ import {useLayout} from '../../../_metronic/layout/core'
 import {formatDate, formatDateWithTime} from '../../../_metronic/helpers'
 
 import {Orders} from '../../interfaces/order'
-import {Quotation} from '../../interfaces/quotation'
 import './DetailOrderWithoutAuth.css'
 
 // External Components
@@ -87,67 +86,6 @@ const DetailOrderWithoutAuth = () => {
     order_history: null,
   })
 
-  // Quotation
-  const [quotation, setQuotation] = useState<Quotation>({
-    id: null,
-    order_id: null,
-    store_id: null,
-    quotation_status: null,
-    quotation_special: 0,
-    description: '',
-    quotation_number: '',
-    quotation_date: '',
-    quotation_validity: '',
-    quotation_disc: 0,
-    quotation_promotion: null,
-    quotation_grand_total: 0,
-    readiness: 1,
-    receipt_quotation: '',
-    receipts_quotation: [
-      {index: 123, receipt_quotation: '', quotation_step: 1},
-      {index: 345, receipt_quotation: '', quotation_step: 2},
-      {index: 678, receipt_quotation: '', quotation_step: 3},
-    ],
-    quotation_details: [
-      {
-        id: null,
-        index: (Date.now() + 1).toString(),
-        item_id: null,
-        work_order_item_id: null,
-        category_id: null,
-        type: 1,
-        item_name: '',
-        unit: '',
-        description: '',
-        unit_price: 0,
-        total: 0,
-        final_price: 0,
-        margin: 0,
-        margin_type: 1,
-        quantity: 0,
-        is_user: 0,
-      },
-      {
-        id: null,
-        index: (Date.now() + 2).toString(),
-        item_id: null,
-        category_id: null,
-        work_order_item_id: null,
-        type: 2,
-        item_name: '',
-        unit: '',
-        description: '',
-        unit_price: 0,
-        total: 0,
-        final_price: 0,
-        margin: 0,
-        margin_type: 1,
-        quantity: 0,
-        is_user: 0,
-      },
-    ],
-  })
-
   const trackingOrderData = async (
     orderId: string | null,
     phoneNumbers: string | null,
@@ -171,7 +109,6 @@ const DetailOrderWithoutAuth = () => {
         .then((response) => {
           const data = response.data.data
           setOrder(data)
-          setQuotation(data?.quotation[0])
           setIsLoadingPage(false)
 
           if (data?.order_history) {
@@ -250,6 +187,7 @@ const DetailOrderWithoutAuth = () => {
   const [visibleWorkAfter, setVisibleWorkAfter] = useState(false)
 
   // Quotation Receipt
+  const quotationGrandTotal = parseInt(order?.quotation?.[0]?.quotation_grand_total)
   const [visibleQuotationReceipt, setVisibleQuotationReceipt] = useState(false)
   const [visibleQuotationFiles, setVisibleQuotationFiles] = useState(false)
 
@@ -351,14 +289,12 @@ const DetailOrderWithoutAuth = () => {
   }
 
   useEffect(() => {
-    calculatePaymentStages(order?.quotation?.[0]?.quotation_grand_total)
-  }, [order?.quotation?.[0]?.quotation_grand_total])
+    calculatePaymentStages(quotationGrandTotal)
+  }, [quotationGrandTotal])
 
   // Upload Multiple Receipt
   const [receiptQuotation, setReceiptQuotation] = useState<Array<File | null>>([])
   const [showModal, setShowModal] = useState(false)
-
-  console.log('receipt quotation', receiptQuotation)
 
   const handleUploadReceipt = () => {
     setShowModal(true)
@@ -419,10 +355,6 @@ const DetailOrderWithoutAuth = () => {
         }
 
         window.location.reload()
-
-        // if (orderId || phoneNumber || emailMember || memberNumber) {
-        //   trackingOrderData(orderId, phoneNumber, emailMember, memberNumber)
-        // }
       })
       .catch((error) => {
         setLoadingUploadReceipt(false)
@@ -1165,9 +1097,9 @@ const DetailOrderWithoutAuth = () => {
                                   Promosi
                                 </td>
                                 <td className=' fw-bolder'>
-                                  {`Rp. ${parseInt(
-                                    order?.quotation[0]?.quotation_disc ?? 0
-                                  ).toLocaleString('id')}`}
+                                  {`Rp. ${
+                                    order?.quotation[0]?.quotation_disc ?? (0).toLocaleString('id')
+                                  }`}
                                 </td>
                               </tr>
 

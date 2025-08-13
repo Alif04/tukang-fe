@@ -5,4 +5,5 @@ export interface Vendor {
   address: string
   phone_number: string
   type?: number
+  nominal_survey: number
 }
