@@ -1,13 +1,24 @@
+// React Imports
 import React, {useState, useEffect, FC, SetStateAction} from 'react'
-import {WorkOrder, WorkOrderTukang} from '../../../../interfaces/work-order'
+
+// Styling Imports
+import './UpdateWorkOrder.css'
+
+// Helper Imports
 import {
   formatDate,
   formatDateWithTime,
   formatDateWithTimeZone,
+  formatInputDate,
+  disableDateBeforeToday,
+  getDisabledHours,
 } from '../../../../../_metronic/helpers'
 
-import './UpdateWorkOrder.css'
+// Type Imports
+import type {WorkOrder, WorkOrderTukang} from '../../../../interfaces/work-order'
+import type {Orders} from '../../../../interfaces/order'
 
+// Third-party Imports
 import axios from 'axios'
 import Select from 'react-select'
 import Swal from 'sweetalert2'
@@ -30,14 +41,18 @@ interface OrderHistory {
   created_at: string
   updated_by: string
 }
-const apiChat = process.env.REACT_APP_API_CHAT_URL
+
 const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> = ({
   updatePageTitle,
 }) => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const apiChat = process.env.REACT_APP_API_CHAT_URL
+
   const navigate = useNavigate()
   const params = useParams()
   const animatedComponents = makeAnimated()
+
+  const userRole = localStorage.getItem('userRole') as string
   const vendorId = localStorage.getItem('vendor_id')
   const maxOrder = localStorage.getItem('max_order') || 0
 
@@ -49,20 +64,21 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
   // Order History
   const [OrderHistory, setOrderHistory] = useState<OrderHistory[]>([])
   const [orderStatusLabel, setOrderStatusLabel] = useState('')
-  const [template, setTemplate]= useState([])
-  // New Work Order
+  const [template, setTemplate] = useState([])
+
+  // Work Order
   const [workOrder, setWorkOrder] = useState<WorkOrder>({
     id: null,
     order_id: null,
     vendor_id: null,
     tukang_id: [],
     request_work_time: '',
-    survey_date: '',
+    survey_date: null,
     session: null,
     work_order_status: null,
     complaint_status: null,
-    work_start_date: '',
-    work_end_date: '',
+    work_start_date: null,
+    work_end_date: null,
     work_order_item: [
       {
         id: null,
@@ -160,7 +176,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             workOrderHandler(formatInputDate(new Date(data.request_survey)), 'request_work_time')
           }
 
-          // new with time
           if (data?.work_orders?.survey_date) {
             setWorkOrder((prev) => {
               return {
@@ -298,7 +313,8 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     value: null,
     label: 'Pilih sesi',
   })
-  const getTemplaye = async ()=>{
+
+  const getTemplate = async () => {
     let apiUrlWithParams = `${apiChat}/templates`
 
     try {
@@ -310,30 +326,18 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           'ngrok-skip-browser-warning': 'true',
         },
       })
+
       if (response.data) {
         setTemplate(response.data)
       }
-      // console.log(response.data.data.data);
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
   useEffect(() => {
-    getTemplaye()
+    getTemplate()
   }, [])
-  
-  // Format Date
-  const formatInputDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${year}-${month}-${day}`
-  }
-  const disabledDate = (current: dayjs.Dayjs) => {
-    const today = dayjs().startOf('day')
-    return current.isBefore(today, 'day')
-  }
 
   // Filter Work Order Status
   const storedStatus = localStorage.getItem('statusData')
@@ -371,13 +375,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         : null)
 
     const status = rescheduleStatus || getStatusNameByCategory(orderDetail?.status?.category)
-
-    console.log('status', status)
-
     const desiredStatus =
       statusData.find((statuses: StatusStorage) => statuses.category === status)?.value ?? null
-    setOrderStatusLabel(desiredStatus?.toString() ??'')
-    console.log('desiredStatus', desiredStatus)
+    setOrderStatusLabel(desiredStatus?.toString() ?? '')
 
     setWorkOrder({
       ...workOrder,
@@ -423,126 +423,116 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     }))
   }, [selectedSession])
 
-  // Session
-  const range = (start: number, end: number): number[] =>
-    Array.from({length: end - start}, (_, i) => start + i)
-  const disabledHoursSessionMorning = (): number[] =>
-    range(0, 24).filter((hour) => hour < 8 || hour > 11)
-  const disabledHoursSessionAfternoon = (): number[] =>
-    range(0, 24).filter((hour) => hour < 12 || hour > 15)
-  const disabledHoursSessionNight = (): number[] =>
-    range(0, 24).filter((hour) => hour < 15 || hour > 21)
-  const disabledHoursSessionLateNight = (): number[] =>
-    range(0, 24).filter((hour) => hour < 21 || hour > 23)
-
-  const getDisabledHours = (session: string): number[] => {
-    switch (session) {
-      case 'Sesi Pagi':
-        return disabledHoursSessionMorning()
-      case 'Sesi Siang':
-        return disabledHoursSessionAfternoon()
-      case 'Sesi Sore':
-        return disabledHoursSessionNight()
-      case 'Sesi Malam':
-        return disabledHoursSessionLateNight()
-      default:
-        return []
-    }
+  // Tukang Validation
+  const hasWorker = (worker: WorkOrderTukang[], type: number) => {
+    if (!Array.isArray(worker)) return false
+    return worker.some((item) => item && item.type === type)
   }
-  const getSession = (): string => {
-    return selectedSession?.label || 'none'
-  }
-  const session = getSession()
 
-  // Handle Update Work Order
-  const handleUpdateWorkOrder = async () => {
+  // Work Order Validation
+  const validateWorkOrder = (workOrder: WorkOrder, orderDetail: Orders) => {
+    const errors = []
+    const worker = workOrder.tukang_id || []
+    const paymentType = orderDetail.payment_type
 
-    // TODO: Fix conditional url
-    const url = !workOrder.id
-      ? `${apiUrl}/work-orders`
-      : workOrder?.id && workOrder?.work_order_item?.length === 0
-      ? `${apiUrl}/work-orders/${workOrder.id}`
-      : `${apiUrl}/work-orders/${workOrder.id}`
-
-    const formData = new FormData()
-    setIsLoading(true)
-
-    let errorBags = []
     const requiredFields = [
       {key: 'order_id', fieldName: 'Order'},
       {key: 'vendor_id', fieldName: 'Vendor'},
       {key: 'request_work_time', fieldName: 'Tanggal Request Survey'},
-      {key: 'work_order_status', fieldName: 'Update Work Order Status'},
+      {key: 'work_order_status', fieldName: 'Status Work Order'},
       {key: 'session', fieldName: 'Sesi'},
-      {key: 'tukang_id', fieldName: 'Tehnisi'},
-      // {key: 'work_order_item', fieldName: 'Work Order Item'},
+      {key: 'tukang_id', fieldName: 'Teknisi'},
     ]
 
-    if (orderDetail?.payment_type === 'survey') {
-      if (orderDetail?.quotation?.length === 0) {
-        requiredFields.push({key: 'survey_date', fieldName: 'Tanggal survey'})
-      } else {
+    switch (paymentType) {
+      case 'survey':
+        if (orderDetail?.quotation?.length === 0) {
+          requiredFields.push({key: 'survey_date', fieldName: 'Tanggal Survey'})
+        } else {
+          requiredFields.push(
+            {key: 'work_start_date', fieldName: 'Tanggal Mulai Pengerjaan'},
+            {key: 'work_end_date', fieldName: 'Tanggal Selesai Pengerjaan'}
+          )
+        }
+        break
+
+      case 'gratis':
+      case 'pemasangan_tanpa_survey':
         requiredFields.push(
-          {key: 'work_start_date', fieldName: 'Tanggal mulai pengerjaan'},
-          {key: 'work_end_date', fieldName: 'Tanggal selesai pengerjaan'}
+          {key: 'work_start_date', fieldName: 'Tanggal Mulai Pengerjaan'},
+          {key: 'work_end_date', fieldName: 'Tanggal Selesai Pengerjaan'}
         )
+        break
+
+      default:
+        break
+    }
+
+    requiredFields.forEach((field) => {
+      const value = workOrder[field.key]
+
+      if (!value || (Array.isArray(value) && value.length === 0)) {
+        errors.push(`Kolom ${field.fieldName} wajib diisi.`)
       }
-    } else {
-      requiredFields.push(
-        {key: 'work_start_date', fieldName: 'Tanggal mulai pengerjaan'},
-        {key: 'work_end_date', fieldName: 'Tanggal selesai pengerjaan'}
-      )
+    })
+
+    if (paymentType === 'survey') {
+      if (orderDetail.quotation?.length === 0 && !hasWorker(worker, 1)) {
+        errors.push('Harap pilih minimal satu Tukang Survei.')
+      } else if (orderDetail.quotation?.length > 0 && !hasWorker(worker, 2)) {
+        errors.push('Harap pilih minimal satu Tukang Pengerjaan.')
+      }
+    } else if (paymentType === 'gratis' && !hasWorker(worker, 2)) {
+      errors.push('Harap pilih minimal satu Tukang Pengerjaan.')
+    } else if (paymentType === 'pemasangan_tanpa_survey' && !hasWorker(worker, 2)) {
+      errors.push('Harap pilih minimal satu Tukang Pengerjaan.')
+    }
+
+    return errors
+  }
+
+  const handleUpdateWorkOrder = async () => {
+    setIsLoading(true)
+
+    const url = !!workOrder.id ? `${apiUrl}/work-orders/${workOrder.id}` : `${apiUrl}/work-orders`
+    const errorMessages = validateWorkOrder(workOrder, orderDetail)
+    const formData = new FormData()
+
+    if (errorMessages.length > 0) {
+      setIsLoading(false)
+
+      Swal.fire({
+        title: 'Data Belum Lengkap',
+        html: `<div style="text-align: left; margin-left: 0px;">Mohon periksa kembali kolom berikut:<br/><ul>${errorMessages
+          .map((msg) => `<li>${msg}</li>`)
+          .join('')}</ul></div>`,
+        icon: 'warning',
+      })
+
+      return
     }
 
     for (const key in workOrder) {
       if (Object.prototype.hasOwnProperty.call(workOrder, key)) {
         const value = workOrder[key]
-        const required = requiredFields.find((fields: {key: string}) => fields.key === key)
 
-        if (required) {
-          if (value) {
-            if (key === 'tukang_id') {
-              value.forEach((item: any, index: number) => {
-                if (item) {
-                  if (item.tukang_id) {
-                    formData.append(`work_order_tukang[${index}][tukang_id]`, item.tukang_id)
-                  }
-
-                  if (item.type) {
-                    formData.append(`work_order_tukang[${index}][type]`, item.type)
-                  }
-                } else {
-                  errorBags.push({
-                    message: `Work Order Tukang cannot be empty`,
-                  })
-                }
-              })
-            } else {
-              formData.append(key, workOrder[key])
+        if (key === 'tukang_id' && Array.isArray(value)) {
+          value.forEach((item, index) => {
+            if (item.tukang_id) {
+              formData.append(`work_order_tukang[${index}][tukang_id]`, item.tukang_id)
             }
-          } else {
-            errorBags.push({
-              message: `${required.fieldName} cannot be empty`,
-            })
-          }
+            if (item.type) {
+              formData.append(`work_order_tukang[${index}][type]`, item.type)
+            }
+          })
+        } else if (value !== null && value !== undefined) {
+          formData.append(key, value)
         }
       }
     }
 
-    if (errorBags.length > 0) {
-      setIsLoading(false)
-
-      Swal.fire({
-        title: 'warning',
-        text: errorBags[0].message,
-        icon: 'warning',
-      })
-
-      return false
-    }
-
-    await axios
-      .post(url, formData, {
+    try {
+      const response = await axios.post(url, formData, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -550,100 +540,78 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      .then((response) => {
-        if (response.data.status === 200 || response.data.status === 201) {
-          sendMessage()
-          Swal.fire({
-            title: 'Success',
-            text: 'Work Order Updated',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          })
 
-          setIsLoading(false)
-        } else {
-          Swal.fire({
-            title: 'Warning',
-            text: response.data.message,
-            icon: 'warning',
-          })
-
-          setIsLoading(false)
-        }
-        navigate('/work-order/view-work-order')
-      })
-      .catch((error) => {
-        setIsLoading(false)
+      if (response.data.status === 200 || response.data.status === 201) {
+        sendMessage()
 
         Swal.fire({
-          title: 'Warning',
-          text: error.response.data.message,
-          icon: 'warning',
+          title: 'Berhasil',
+          text: 'Data Work Order telah berhasil disimpan.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
         })
+        navigate('/work-order/view-work-order')
+      } else {
+        Swal.fire({
+          title: 'Gagal',
+          text: response.data.message || 'Terjadi kesalahan saat menyimpan data.',
+          icon: 'error',
+        })
+      }
+    } catch (error: any) {
+      setIsLoading(false)
+      Swal.fire({
+        title: 'Terjadi Kesalahan',
+        text: error.response.data.message || 'Tidak dapat terhubung ke server.',
+        icon: 'error',
       })
+    } finally {
+      setIsLoading(false)
+    }
   }
-  const userRole = localStorage.getItem('userRole') as string
+
   const sendMessage = async () => {
-  
+    const statusAll: any = statusData.find((t: any) => t.value === Number(orderStatusLabel))
 
-    const statusAll:any = statusData.find((t:any) => 
-      t.value === Number(orderStatusLabel)
-  );
+    const filteredTemplates: any = template.find(
+      (t: any) => t.subCategory === statusAll.description && t.status === 'Active'
+    )
 
-    
-    
-    const filteredTemplates:any = template.find((t:any) => 
-      t.subCategory === statusAll.description && t.status === "Active"
-  );
-  // console.log(filteredTemplates);
-  if (filteredTemplates.withImage) {
-    const data = {
-      message: filteredTemplates?.content,
-      chatId: `62${orderDetail?.project_number}@c.us`,
-      adminRole: userRole,
-      imagePath: filteredTemplates?.imageUrl
+    if (filteredTemplates.withImage) {
+      const data = {
+        message: filteredTemplates?.content,
+        chatId: `62${orderDetail?.project_number}@c.us`,
+        adminRole: userRole,
+        imagePath: filteredTemplates?.imageUrl,
+      }
+
+      await axios
+        .post(`${apiChat}/send-message-change-status-image`, data)
+        .then((response) => {
+          console.log(response)
+        })
+        .catch((error) => {
+          console.error(error)
+        })
+    } else {
+      const data = {
+        message: filteredTemplates?.content,
+        chatId: `62${orderDetail?.project_number}@c.us`,
+        adminRole: userRole,
+      }
+
+      await axios
+        .post(`${apiChat}/send-message-change-status`, data)
+        .then((response) => {
+          console.log(response)
+        })
+        .catch((error) => {
+          console.error(error)
+        })
     }
-
-    
-    await axios
-      .post(`${apiChat}/send-message-change-status-image`, data)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((error) => {
-        console.error(error)
-
-        // Swal.fire({
-        //   title: 'Error',
-        //   text: error.response.data.message,
-        //   icon: 'error',
-        // })
-      })
-  } else{
-    const data = {
-      message: filteredTemplates?.content,
-      chatId: `62${orderDetail?.project_number}@c.us`,
-      adminRole: userRole,
-    }
-
-    
-    await axios
-      .post(`${apiChat}/send-message-change-status`, data)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((error) => {
-        console.error(error)
-
-        // Swal.fire({
-        //   title: 'Error',
-        //   text: error.response.data.message,
-        //   icon: 'error',
-        // })
-      })
   }
-  }
+
   return (
     <section id='update-work-order'>
       <Card className=' mb-5'>
@@ -810,11 +778,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                               showTime={{
                                 format: 'HH:mm',
                                 hideDisabledOptions: true,
-                                disabledHours: () => getDisabledHours(session),
+                                disabledHours: () => getDisabledHours(selectedSession.label),
                               }}
                               className='date-range w-100'
                               format='DD-MM-YYYY HH:mm'
-                              disabledDate={disabledDate}
+                              disabledDate={disableDateBeforeToday}
                               value={
                                 workOrder.survey_date
                                   ? dayjs(workOrder.survey_date, 'YYYY-MM-DD HH:mm')
@@ -834,11 +802,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         </Form.Group>
 
                         <Form.Group className='detail-info mb-3'>
-                          <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+                          <Form.Label>Nama Lengkap Teknisi :</Form.Label>
 
                           <Select
                             classNamePrefix='select'
-                            placeholder='Pilih Tehnisi'
+                            placeholder='Pilih Teknisi'
                             closeMenuOnSelect={false}
                             components={animatedComponents}
                             isMulti
@@ -907,11 +875,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                               showTime={{
                                 format: 'HH:mm',
                                 hideDisabledOptions: true,
-                                disabledHours: () => getDisabledHours(session),
+                                disabledHours: () => getDisabledHours(selectedSession.label),
                               }}
                               className='date-range w-100'
                               format='DD-MM-YYYY HH:mm'
-                              disabledDate={disabledDate}
+                              disabledDate={disableDateBeforeToday}
                               value={
                                 (workOrder.work_start_date &&
                                   workOrder.work_end_date && [
@@ -959,11 +927,11 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                         </Form.Group>
 
                         <Form.Group className='detail-info mb-3'>
-                          <Form.Label>Nama Lengkap Tehnisi :</Form.Label>
+                          <Form.Label>Nama Lengkap Teknisi :</Form.Label>
 
                           <Select
                             classNamePrefix='select'
-                            placeholder='Pilih Tehnisi'
+                            placeholder='Pilih Teknisi'
                             closeMenuOnSelect={false}
                             components={animatedComponents}
                             isMulti
@@ -1571,8 +1539,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
             <div className='d-flex justify-content-center'>
               <Button
                 className='btn-done d-flex justify-content-center align-items-center'
-                type='submit'
-                disabled
+                // disabled
               >
                 Order Selesai
               </Button>
@@ -1591,7 +1558,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                 className='d-flex justify-content-center align-items-center'
                 variant='dark-primary'
                 type='submit'
-                disabled={isLoading}
+                // disabled={isLoading}
                 onClick={handleUpdateWorkOrder}
               >
                 {isLoading ? 'Submitting Order...' : 'Save'}

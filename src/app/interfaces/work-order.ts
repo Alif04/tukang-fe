@@ -22,14 +22,14 @@ export interface WorkOrder {
   tukang_id: WorkOrderTukang[]
 
   request_work_time: string
-  survey_date: string
+  survey_date: string | null
   session: number | null
 
   work_order_status: number | null
   complaint_status: number | null
 
-  work_start_date: string
-  work_end_date: string
+  work_start_date: string | null
+  work_end_date: string | null
 
   work_order_item: WorkOrderItem[]
 

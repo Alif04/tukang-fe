@@ -438,85 +438,67 @@ const DetailWorkTukang: FC<{updatePageTitle: (order: any) => void}> = ({updatePa
             <div className='table-title-warranty'>
               <Skeleton active loading={isLoadingPage} paragraph={{rows: 0}}>
                 <div className='fs-3 fw-bold'>Informasi Pemasangan</div>
-              </Skeleton>
 
-              <Row>
-                <Col md={3} sm={12}>
-                  <Form.Group className='mb-3' controlId='formPlaintextEmail'>
-                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                      <Form.Label column>
-                        {(() => {
-                          if (workOrderDetail?.order?.payment_type === 'survey') {
-                            return `Tanggal Request Survey :`
-                          } else {
-                            return `Tanggal Request Pemasangan :`
-                          }
-                        })()}
-                      </Form.Label>
+                <Row>
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Form.Label column>
+                      {(() => {
+                        if (workOrderDetail?.order?.payment_type === 'survey') {
+                          return `Tanggal Request Survey :`
+                        } else {
+                          return `Tanggal Request Pemasangan :`
+                        }
+                      })()}
+                    </Form.Label>
+                    <Col>
+                      <p className='fs-7 p-0'>
+                        {formatDate(workOrderDetail?.order?.request_survey)}
+                      </p>
+                    </Col>
+                  </Form.Group>
 
+                  {workOrderDetail?.order?.payment_type === 'survey' && (
+                    <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                      <Form.Label column>Tanggal request pemasangan</Form.Label>
                       <Col>
                         <p className='fs-7 p-0'>
-                          {formatDate(workOrderDetail?.order?.request_survey)}
+                          {workOrderDetail?.order?.request_work
+                            ? formatDate(workOrderDetail?.order?.request_work)
+                            : 'Tanggal belum diset oleh toko'}
                         </p>
                       </Col>
-                    </Skeleton>
-                  </Form.Group>
-                </Col>
-
-                <Col md={3} sm={12}>
-                  {workOrderDetail?.order?.payment_type === 'survey' && (
-                    <Form.Group className='mb-3' controlId='formPlaintextEmail'>
-                      <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                        <Form.Label column>Tanggal Request Pemasangan :</Form.Label>
-
-                        <Col>
-                          <p className='fs-7 p-0'>
-                            {workOrderDetail?.order?.request_work
-                              ? formatDate(workOrderDetail?.order?.request_work)
-                              : 'Tanggal belum diset oleh toko'}
-                          </p>
-                        </Col>
-                      </Skeleton>
                     </Form.Group>
                   )}
-                </Col>
 
-                <Col md={3} sm={12}>
-                  <Form.Group className='mb-3' controlId='formPlaintextEmail'>
-                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                      <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
-                      <Col>
-                        <p className='fs-7 p-0'>{workOrderDetail?.vendor?.company_name ?? '-'}</p>
-                      </Col>
-                    </Skeleton>
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Form.Label column>Informasi Vendor Pemasangan :</Form.Label>
+                    <Col>
+                      <p className='fs-7 p-0'>{workOrderDetail?.vendor?.company_name ?? '-'}</p>
+                    </Col>
                   </Form.Group>
-                </Col>
 
-                <Col md={3} sm={12}>
-                  <Form.Group className='mb-3' controlId='formPlaintextEmail'>
-                    <Skeleton active loading={isLoadingPage} paragraph={{rows: 1}}>
-                      <Form.Label column>Payment Type:</Form.Label>
-                      <Col>
-                        <p className='fs-7 p-0'>
-                          {(() => {
-                            if (workOrderDetail?.order?.payment_type === 'survey') {
-                              return `Berbayar & Survey`
-                            } else if (workOrderDetail?.order?.payment_type === 'gratis') {
-                              return `Gratis`
-                            } else if (
-                              workOrderDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
-                            ) {
-                              return `Berbayar & Pemasangan Tanpa Survey`
-                            } else {
-                              return ``
-                            }
-                          })()}
-                        </p>
-                      </Col>
-                    </Skeleton>
+                  <Form.Group as={Col} className='mb-3' controlId='formPlaintextEmail'>
+                    <Form.Label column>Payment Type:</Form.Label>
+                    <Col>
+                      <p className='fs-7 p-0'>
+                        {(() => {
+                          if (workOrderDetail?.order?.payment_type === 'survey') {
+                            return `Berbayar & Survey`
+                          } else if (workOrderDetail?.order?.payment_type === 'gratis') {
+                            return `Gratis`
+                          } else if (
+                            workOrderDetail?.order?.payment_type === 'pemasangan_tanpa_survey'
+                          ) {
+                            return `Berbayar & Pemasangan Tanpa Survey`
+                          } else {
+                            return ``
+                          }
+                        })()}
+                      </p>
+                    </Col>
                   </Form.Group>
-                </Col>
-              </Row>
+                </Row>
+              </Skeleton>
             </div>
 
             <Skeleton active loading={isLoadingPage} paragraph={{rows: 4}}>
