@@ -36,7 +36,7 @@ interface Status {
 interface StoreItem {
   value: number | null
   label: string
-  city_id: number | null
+  area_id: number | null
 }
 
 interface AreaItem {
@@ -1336,13 +1336,13 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
   }, [currentPage, pageSize])
 
   useEffect(() => {
-    const selectedStoreCityId = selectedStore?.city_id
+    const selectedStoreCityId = selectedStore?.area_id
     const filteredZone = area.filter((item) => item.value === selectedStoreCityId)
 
     if (filteredZone.length === 1) {
       setSelectedZone(filteredZone[0])
     } else {
-      setSelectedZone({value: null, label: 'All Zona', city_id: null})
+      setSelectedZone({value: null, label: 'All Zona', area_id: null})
     }
   }, [selectedStore])
 
@@ -1377,7 +1377,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
           const tempStore = response.data.data.map((item: any) => ({
             value: item.id,
             label: item.store_name,
-            city_id: item.city_id,
+            area_id: item.area_id,
           }))
 
           setStore(tempStore)
@@ -1528,6 +1528,7 @@ const ReportHO: React.FC<Props> = ({endpoint, statusName, headerColor, title, pa
 
     valueCheck(`&date_from=`, dateFrom)
     valueCheck(`&date_to=`, dateTo)
+    valueCheck(`&store_id=`, store_id)
 
     axios
       .get(url, {
