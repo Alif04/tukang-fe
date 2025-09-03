@@ -170,16 +170,24 @@ const NewInvoiceVendor: FC = () => {
 
   const grandTotalOrder = (order: Orders, orderType: 'survei' | 'pengerjaan') => {
     const isOverdistance = order.is_overdistance === 1
+    const quotationTotal =
+      order?.quotation?.[0]?.quotation_details?.reduce(
+        (acc, curr) => acc + Number(curr.final_price),
+        0
+      ) || 0
 
     const calculateTotal = (baseTotal: number): number => {
-      return isOverdistance ? baseTotal + Number(order?.additional_fee ?? 0) : baseTotal
+      return isOverdistance
+        ? Number(baseTotal.toFixed(0)) + Number(order?.additional_fee ?? 0)
+        : Number(baseTotal.toFixed(0))
     }
 
     switch (order.payment_type) {
       case 'gratis':
         if (orderType === 'pengerjaan') {
           const baseTotal = order?.m_order_details?.reduce(
-            (total, item) => total + Number(item?.item?.invoice_nominal ?? 0),
+            (total, item) =>
+              total + Number(item?.item?.invoice_nominal ?? 0) * Number(item?.quantity ?? 0),
             0
           )
           return calculateTotal(baseTotal)
@@ -188,17 +196,92 @@ const NewInvoiceVendor: FC = () => {
 
       case 'pemasangan_tanpa_survey':
         if (orderType === 'pengerjaan') {
-          const baseTotal = Number(order?.grand_total ?? 0)
+          let baseTotal = 0
+
+          if (order?.work_orders?.vendor?.margin_type === 1) {
+            baseTotal = order?.m_order_details?.reduce(
+              (total, item) =>
+                total + Number(item?.item?.invoice_nominal ?? 0) * Number(item?.quantity ?? 0),
+              0
+            )
+          } else if (order?.work_orders?.vendor?.margin_type === 2) {
+            const totalQuantity = order?.m_order_details?.reduce(
+              (total, item) => total + Number(item?.quantity ?? 0),
+              0
+            )
+
+            baseTotal = +(order?.work_orders?.vendor?.margin_nominal ?? 0) * totalQuantity
+          }
+
           return calculateTotal(baseTotal)
         }
         break
 
       case 'survey':
+        // ORDER STATUS TYPE 1: QUOTEIN
         if (orderType === 'survei') {
-          const baseTotal = Number(order?.work_orders?.vendor?.nominal_survey ?? 0)
+          const baseTotal = Number(order?.work_orders?.vendor?.nominal_survey ?? 75000)
+
           return calculateTotal(baseTotal)
-        } else if (orderType === 'pengerjaan') {
-          const baseTotal = Number(order.quotation[0].quotation_grand_total)
+        }
+
+        // ORDER STATUS TYPE 2: WORKEND / REWORKEND
+        if (
+          orderType === 'pengerjaan' &&
+          ['WORKEND', 'REWORKEND'].includes(order?.status?.category ?? '')
+        ) {
+          let baseTotal = 0
+
+          if (order?.work_orders?.vendor?.margin_type === 1) {
+            baseTotal = (Number(order?.work_orders?.vendor?.margin_nominal) / 100) * quotationTotal
+          } else {
+            baseTotal = quotationTotal + Number(order?.work_orders?.vendor?.margin_nominal)
+          }
+
+          baseTotal += Number(order.additional_fee)
+          return calculateTotal(baseTotal)
+        }
+
+        // ORDER STATUS TYPE 3: WORKENDSTEPONE
+        if (orderType === 'pengerjaan' && order?.status?.category === 'WORKENDSTEPONE') {
+          let baseTotal = 0
+          if (order?.work_orders?.vendor?.margin_type === 1) {
+            baseTotal =
+              ((Number(order?.work_orders?.vendor?.margin_nominal) / 100) * quotationTotal * 25) /
+              100
+          } else {
+            baseTotal = quotationTotal + Number(order?.work_orders?.vendor?.margin_nominal)
+          }
+          baseTotal += Number(order.additional_fee)
+          return calculateTotal(baseTotal)
+        }
+
+        // ORDER STATUS TYPE 4: WORKENDSTEPTWO
+        if (orderType === 'pengerjaan' && order?.status?.category === 'WORKENDSTEPTWO') {
+          let baseTotal = 0
+          if (order?.work_orders?.vendor?.margin_type === 1) {
+            baseTotal =
+              ((Number(order?.work_orders?.vendor?.margin_nominal) / 100) * quotationTotal * 50) /
+              100
+          } else {
+            baseTotal = quotationTotal + Number(order?.work_orders?.vendor?.margin_nominal)
+          }
+          baseTotal += Number(order.additional_fee)
+          return calculateTotal(baseTotal)
+        }
+
+        // ORDER STATUS TYPE 4: WORKENDSTEPTWO
+        if (orderType === 'pengerjaan' && order?.status?.category === 'WORKENDSTEPTHREE') {
+          let baseTotal = 0
+          if (order?.work_orders?.vendor?.margin_type === 1) {
+            baseTotal =
+              ((Number(order?.work_orders?.vendor?.margin_nominal) / 100) * quotationTotal * 25) /
+              100
+          } else {
+            baseTotal = quotationTotal + Number(order?.work_orders?.vendor?.margin_nominal)
+          }
+
+          baseTotal += Number(order.additional_fee)
           return calculateTotal(baseTotal)
         }
         break
@@ -412,6 +495,8 @@ const NewInvoiceVendor: FC = () => {
 
       const data = [...workOrderData, ...surveyOrderData, ...workStepData]
       const sortedByOrderID = data.sort((a: any, b: any) => b.order_id - a.order_id)
+
+      console.log('sortedByOrderID', sortedByOrderID)
 
       return sortedByOrderID
     } catch (error) {
