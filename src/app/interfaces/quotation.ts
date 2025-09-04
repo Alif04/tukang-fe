@@ -13,6 +13,7 @@ export interface Quotation {
   quotation_disc: number
   quotation_promotion: number | null
   quotation_grand_total: string
+  quotation_no_promotion: string
 
   readiness: number
   receipt_quotation: string

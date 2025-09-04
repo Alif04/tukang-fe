@@ -170,11 +170,7 @@ const NewInvoiceVendor: FC = () => {
 
   const grandTotalOrder = (order: Orders, orderType: 'survei' | 'pengerjaan') => {
     const isOverdistance = order.is_overdistance === 1
-    const quotationTotal =
-      order?.quotation?.[0]?.quotation_details?.reduce(
-        (acc, curr) => acc + Number(curr.final_price),
-        0
-      ) || 0
+    const quotationTotal = order?.quotation?.[0]?.quotation_no_promotion || 0
 
     const calculateTotal = (baseTotal: number): number => {
       return isOverdistance
@@ -233,9 +229,10 @@ const NewInvoiceVendor: FC = () => {
           let baseTotal = 0
 
           if (order?.work_orders?.vendor?.margin_type === 1) {
-            baseTotal = (Number(order?.work_orders?.vendor?.margin_nominal) / 100) * quotationTotal
+            baseTotal =
+              (Number(order?.work_orders?.vendor?.margin_nominal) / 100) * Number(quotationTotal)
           } else {
-            baseTotal = quotationTotal + Number(order?.work_orders?.vendor?.margin_nominal)
+            baseTotal = Number(quotationTotal) + Number(order?.work_orders?.vendor?.margin_nominal)
           }
 
           baseTotal += Number(order.additional_fee)
@@ -247,10 +244,12 @@ const NewInvoiceVendor: FC = () => {
           let baseTotal = 0
           if (order?.work_orders?.vendor?.margin_type === 1) {
             baseTotal =
-              ((Number(order?.work_orders?.vendor?.margin_nominal) / 100) * quotationTotal * 25) /
+              ((Number(order?.work_orders?.vendor?.margin_nominal) / 100) *
+                Number(quotationTotal) *
+                25) /
               100
           } else {
-            baseTotal = quotationTotal + Number(order?.work_orders?.vendor?.margin_nominal)
+            baseTotal = Number(quotationTotal) + Number(order?.work_orders?.vendor?.margin_nominal)
           }
           baseTotal += Number(order.additional_fee)
           return calculateTotal(baseTotal)
@@ -261,10 +260,12 @@ const NewInvoiceVendor: FC = () => {
           let baseTotal = 0
           if (order?.work_orders?.vendor?.margin_type === 1) {
             baseTotal =
-              ((Number(order?.work_orders?.vendor?.margin_nominal) / 100) * quotationTotal * 50) /
+              ((Number(order?.work_orders?.vendor?.margin_nominal) / 100) *
+                Number(quotationTotal) *
+                50) /
               100
           } else {
-            baseTotal = quotationTotal + Number(order?.work_orders?.vendor?.margin_nominal)
+            baseTotal = Number(quotationTotal) + Number(order?.work_orders?.vendor?.margin_nominal)
           }
           baseTotal += Number(order.additional_fee)
           return calculateTotal(baseTotal)
@@ -275,10 +276,12 @@ const NewInvoiceVendor: FC = () => {
           let baseTotal = 0
           if (order?.work_orders?.vendor?.margin_type === 1) {
             baseTotal =
-              ((Number(order?.work_orders?.vendor?.margin_nominal) / 100) * quotationTotal * 25) /
+              ((Number(order?.work_orders?.vendor?.margin_nominal) / 100) *
+                Number(quotationTotal) *
+                25) /
               100
           } else {
-            baseTotal = quotationTotal + Number(order?.work_orders?.vendor?.margin_nominal)
+            baseTotal = Number(quotationTotal) + Number(order?.work_orders?.vendor?.margin_nominal)
           }
 
           baseTotal += Number(order.additional_fee)
