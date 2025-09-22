@@ -183,7 +183,7 @@ const UpdateInvoiceVendor: FC = () => {
     const total = invoices.total
     const pph = (total * invoices.pph_nominal) / 100
     const ppn = (total * invoices.ppn_nominal) / 100
-    const grandTotal = total + ppn + pph + invoices.pkp_nominal - invoices.penalty_nominal
+    const grandTotal = total + ppn - pph - invoices.pkp_nominal - invoices.penalty_nominal
 
     setInvoices((prev) => ({
       ...prev,
