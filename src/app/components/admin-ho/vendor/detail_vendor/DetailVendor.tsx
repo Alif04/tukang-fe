@@ -268,7 +268,9 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       Jumlah Teknisi :
                     </Form.Label>
                     <Col sm='6'>
-                      <p className='fs-1 fw-semibold mt-2'>{vendorDetail?.tukang?.length}</p>
+                      <p className='fs-1 fw-semibold mt-2'>
+                        {vendorDetail?.tukang?.filter((x: any) => x.deleted_at === null).length}
+                      </p>
                     </Col>
                   </Form.Group>
                 </Col>

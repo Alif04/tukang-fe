@@ -8,5 +8,6 @@ export interface Tukang {
   email: string
   bod: string // Assuming this is a date string
   join_date: string // Assuming this is a date string
+  deleted_at: string | null
   // ... other properties for Tukang
 }
