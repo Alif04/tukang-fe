@@ -129,8 +129,8 @@ const ViewTukangVendor: FC = () => {
           ktp: item?.ktp_number ?? '-',
           keahlian: tukangService,
           area: tukangArea,
-          status: item.deleted_at === null ? 'ACTIVE' : 'NON ACTIVE',
-          is_active: item.is_acive === true ? 1 : 0,
+          status: item.is_active === true ? 'ACTIVE' : 'NON ACTIVE',
+          is_active: item.is_active === true ? 1 : 0,
           is_active_label: item.is_active === true ? 'AVAILABLE' : 'NON AVAILABLE',
           deleted_at: item.deleted_at,
         }
@@ -228,8 +228,7 @@ const ViewTukangVendor: FC = () => {
       width: 'fit-content',
       render: (record) => {
         const id = record.tukang_id
-        const isAvailable = record.is_active
-        const isActive = record.deleted_at
+        const isActive = record.is_active
 
         const handleDetailId = () => {
           navigate(`/tukang/detail-tukang/${id}`)
@@ -252,7 +251,7 @@ const ViewTukangVendor: FC = () => {
               const formData = new FormData()
 
               formData.append('is_delete', String(0))
-              formData.append('is_active', isAvailable)
+              formData.append('is_active', String(1))
 
               if (willActive.value) {
                 axios
@@ -304,8 +303,8 @@ const ViewTukangVendor: FC = () => {
             .then((willNonActive) => {
               const formData = new FormData()
 
-              formData.append('is_delete', String(1))
-              formData.append('is_active', isAvailable)
+              formData.append('is_delete', String(0))
+              formData.append('is_active', String(0))
 
               if (willNonActive.value) {
                 axios
@@ -423,7 +422,7 @@ const ViewTukangVendor: FC = () => {
                   </Button>
                 </OverlayTrigger>
 
-                {isActive !== null && (
+                {isActive === 0 && (
                   <OverlayTrigger
                     placement='bottom'
                     delay={{show: 250, hide: 400}}
@@ -439,7 +438,7 @@ const ViewTukangVendor: FC = () => {
                   </OverlayTrigger>
                 )}
 
-                {isActive === null && (
+                {isActive === 1 && (
                   <OverlayTrigger
                     placement='bottom'
                     delay={{show: 250, hide: 400}}
