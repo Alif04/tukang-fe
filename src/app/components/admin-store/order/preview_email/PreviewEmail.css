@@ -15,7 +15,6 @@
 
 #preview-email .card-header {
   height: 180px;
-  background-image: url('/public/media/email/header-email-instalasi-01.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -32,7 +31,6 @@
 
 #preview-email .card .card-footer {
   height: 164px;
-  background-image: url('/public/media/email/footer-email-instalasi-02.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
