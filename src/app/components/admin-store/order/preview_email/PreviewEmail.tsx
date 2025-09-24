@@ -15,6 +15,8 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
 
   const [orderDetail, setOrderDetail] = useState<any>()
   const [emailDetail, setEmailDetail] = useState<any>()
+  const [headerImg, setHeaderImg] = useState<any>()
+  const [footerImg, setFooterImg] = useState<any>()
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
 
   const fetchOrderData = async () => {
@@ -43,17 +45,33 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
   const fetchEmailData = async () => {
     try {
       await axios
-        .get(`${apiUrl}/mails/1`, {
+        .get(`${apiUrl}/mails`, {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             'Access-Control-Allow-Origin': '*',
             'ngrok-skip-browser-warning': 'true',
           },
+          params: {
+            order_by: 'asc',
+            type_email_message: 1,
+          },
         })
         .then((response) => {
-          const data = response.data.data
+          const data = response.data.data.data[0]
           setEmailDetail(data)
+
+          setHeaderImg(
+            apiUrl +
+              '/public/mails-image/' +
+              data.email_message_image.filter((item: any) => item.type === 1)[0]?.path
+          )
+
+          setFooterImg(
+            apiUrl +
+              '/public/mails-image/' +
+              data.email_message_image.filter((item: any) => item.type === 2)[0]?.path
+          )
         })
     } catch (error) {
       console.error(error)
@@ -68,7 +86,11 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
   return (
     <section id='preview-email'>
       <Card>
-        <Card.Header></Card.Header>
+        <Card.Header
+          style={{
+            backgroundImage: `url('${headerImg}')`,
+          }}
+        ></Card.Header>
 
         <Card.Body>
           <Row className='content-header'>
@@ -145,27 +167,25 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
               </thead>
               <tbody>
                 {orderDetail?.order_details?.map((item: any, index: any) => (
-                  <>
-                    <tr key={`${index} - order_detail`}>
-                      <td>{item?.item_code ?? '-'}</td>
-                      <td>{item?.item_name ?? '-'}</td>
-                      <td>
-                        {orderDetail?.payment_type === 'survey'
-                          ? item?.item_notes
-                          : item?.item?.service_name}
-                      </td>
-                      <td>{item?.quantity ?? 0}</td>
-                      {!(
-                        orderDetail?.payment_type === 'gratis' ||
-                        orderDetail?.payment_type === 'survey'
-                      ) && (
-                        <>
-                          <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
-                          <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
-                        </>
-                      )}
-                    </tr>
-                  </>
+                  <tr key={`${index} - order_detail`}>
+                    <td>{item?.item_code ?? '-'}</td>
+                    <td>{item?.item_name ?? '-'}</td>
+                    <td>
+                      {orderDetail?.payment_type === 'survey'
+                        ? item?.item_notes
+                        : item?.item?.service_name}
+                    </td>
+                    <td>{item?.quantity ?? 0}</td>
+                    {!(
+                      orderDetail?.payment_type === 'gratis' ||
+                      orderDetail?.payment_type === 'survey'
+                    ) && (
+                      <>
+                        <td>{`Rp. ${parseInt(item?.unit_price || 0)?.toLocaleString('id')}`}</td>
+                        <td>{`Rp. ${parseInt(item?.total || 0).toLocaleString('id')}`}</td>
+                      </>
+                    )}
+                  </tr>
                 ))}
 
                 {orderDetail?.payment_type !== 'gratis' &&
@@ -327,7 +347,12 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
           </Skeleton>
         </Card.Body>
 
-        <Card.Footer></Card.Footer>
+        <Card.Footer
+          className='bg-cover bg-no-repeat bg-position-cover'
+          style={{
+            backgroundImage: `url('${footerImg}')`,
+          }}
+        ></Card.Footer>
       </Card>
     </section>
   )
