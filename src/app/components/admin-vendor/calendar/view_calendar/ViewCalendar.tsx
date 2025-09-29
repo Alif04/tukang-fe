@@ -69,7 +69,7 @@ const ViewCalendarVendor: React.FC = () => {
       while (hasMoreData) {
         const response = await axios.get(`${apiUrl}/orders/calender`, {
           params: {
-            vendor_id: vendorId ? vendorId : null,
+            vendor: vendorId ? vendorId : null,
             page: currentPage,
             take: pageSize,
             date_from: start,
