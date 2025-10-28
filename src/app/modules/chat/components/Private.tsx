@@ -1,488 +1,295 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {FC, useEffect, useState} from 'react'
-import {KTSVG, toAbsoluteUrl} from '../../../../_metronic/helpers'
-import {ChatInner} from '../../../../_metronic/partials'
-import axios from 'axios'
-import Swal from 'sweetalert2'
-import io from 'socket.io-client'
-const apiUrl = process.env.REACT_APP_API_URL
-const apiChat = process.env.REACT_APP_API_CHAT_URL
-const socket = io(`${process.env.REACT_APP_API_CHAT_URL}/whatsapp`)
+import React, {FC, useMemo, useRef, useState} from 'react'
+import './Private.css'
+
+interface Message {
+  id: string
+  from: 'me' | 'them'
+  text: string
+  time: string // HH:mm
+  day?: string // e.g. "Today", "Yesterday"
+}
+
+interface Conversation {
+  id: string
+  name: string
+  phone: string
+  avatarText: string
+  lastMessage: string
+  lastTime: string
+  unread?: number
+  messages: Message[]
+  status?: 'online' | 'offline' | 'typing'
+}
+
+const initialConversations: Conversation[] = [
+  {
+    id: '6281122334455',
+    name: 'Budi Santoso',
+    phone: '+62 811-2233-4455',
+    avatarText: 'BS',
+    lastMessage: 'Baik kak, kami proses ya.',
+    lastTime: '09:12',
+    unread: 2,
+    status: 'online',
+    messages: [
+      {id: 'm1', from: 'them', text: 'Halo kak, ini mengenai pesanan kemarin.', time: '09:01', day: 'Today'},
+      {id: 'm2', from: 'me', text: 'Halo kak Budi, boleh detail nomor invoice-nya?', time: '09:05'},
+      {id: 'm3', from: 'them', text: 'INV-2024-0912', time: '09:07'},
+      {id: 'm4', from: 'me', text: 'Baik kak, kami proses ya.', time: '09:12'},
+    ],
+  },
+  {
+    id: '6289988776655',
+    name: 'Siti Aisyah',
+    phone: '+62 899-8877-6655',
+    avatarText: 'SA',
+    lastMessage: 'Terima kasih 🙏',
+    lastTime: '08:40',
+    unread: 0,
+    status: 'offline',
+    messages: [
+      {id: 'm1', from: 'them', text: 'Apakah bisa pasang besok?', time: '08:21', day: 'Today'},
+      {id: 'm2', from: 'me', text: 'Bisa kak, jam prefernya?', time: '08:32'},
+      {id: 'm3', from: 'them', text: 'Siang sekitar jam 1.', time: '08:34'},
+      {id: 'm4', from: 'me', text: 'Siap, dijadwalkan jam 13:00 ya.', time: '08:38'},
+      {id: 'm5', from: 'them', text: 'Terima kasih 🙏', time: '08:40'},
+    ],
+  },
+  {
+    id: '6281234567890',
+    name: 'Andi Wijaya',
+    phone: '+62 812-3456-7890',
+    avatarText: 'AW',
+    lastMessage: 'Ada katalog terbaru?',
+    lastTime: 'Kemarin',
+    unread: 1,
+    status: 'typing',
+    messages: [
+      {id: 'm1', from: 'them', text: 'Ada katalog terbaru?', time: '16:20', day: 'Yesterday'},
+    ],
+  },
+  {
+    id: '6287711223344',
+    name: 'CS Mitra10',
+    phone: '+62 877-1122-3344',
+    avatarText: 'CS',
+    lastMessage: 'Silakan isi form berikut ya.',
+    lastTime: 'Sen',
+    unread: 0,
+    status: 'online',
+    messages: [
+      {id: 'm1', from: 'me', text: 'Halo CS, saya butuh bantuan pemasangan.', time: '11:02', day: 'Monday'},
+      {id: 'm2', from: 'them', text: 'Silakan isi form berikut ya.', time: '11:05'},
+    ],
+  },
+  {
+    id: '6285566778899',
+    name: 'Toko Mitra10 BSD',
+    phone: '+62 855-6677-8899',
+    avatarText: 'TB',
+    lastMessage: 'Barang sudah sampai?',
+    lastTime: 'Minggu',
+    unread: 0,
+    status: 'offline',
+    messages: [
+      {id: 'm1', from: 'them', text: 'Barang sudah sampai?', time: '10:10', day: 'Sunday'},
+      {id: 'm2', from: 'me', text: 'Sudah, terima kasih.', time: '10:12'},
+    ],
+  },
+]
+
 const Private: FC = () => {
-  const [selectedTab, setSelectedTab] = useState('Assigned')
-  const [showPopup, setShowPopup] = useState(false)
-  const [selectedChats, setSelectedChats] = useState(null)
-  const [chatData, setChatData] = useState(null)
+  const [conversations, setConversations] = useState<Conversation[]>(initialConversations)
+  const [selectedId, setSelectedId] = useState<string>(initialConversations[0]?.id || '')
+  const [query, setQuery] = useState('')
+  const [draft, setDraft] = useState('')
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
-  const [selectedChat, setSelectedChat] = useState(null)
-  const [selectedAdmin, setSelectedAdmin] = useState<any>(null)
-  const [roles, setRoles] = useState<any>([])
-  const tabs = ['Assigned', 'Unassigned', 'Resolved']
-  const [data, setData] = useState<any>([])
-  const [qrCode, setQrCode] = useState('')
-  const [isConnected, setIsConnected] = useState(false)
-  const userRole = localStorage.getItem('userRole') as string
-  const userName = localStorage.getItem('username') as string
-  const fetchNewChat = async () => {
-    let query = `status=${selectedTab}`
-    if (selectedTab === 'Assigned' ||selectedTab === 'Resolved') {
-      query += `&user=${userRole}&userName=${userName}`
-    }
-    try {
-      const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return conversations
+    return conversations.filter(
+      (c) => c.name.toLowerCase().includes(q) || c.id.includes(q) || c.lastMessage.toLowerCase().includes(q)
+    )
+  }, [conversations, query])
 
-      if (res.data) {
-        setData(res.data.chats)
-        //  console.log(res.data.chats);
-      }
-    } catch (err) {
-      console.error('Failed to fetch new chats', err)
-    }
+  const active = useMemo(
+    () => conversations.find((c) => c.id === selectedId) || null,
+    [conversations, selectedId]
+  )
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
   }
-  const getRoleList = async () => {
-    let apiUrlWithParams = `${apiUrl}/auth/get?role_name=${userRole}`
 
-    try {
-      const response = await axios.get(apiUrlWithParams, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
-      if (response.data) {
-        // const adminWARoles = response.data.data.data.filter((role: any) =>
-        //   role.name.includes('Admin WA')
-        // )
-        // console.log(response);
-        
-        setRoles(response.data.data)
-      }
-      // console.log(response.data.data.data);
-    } catch (error) {
-      console.error('Error fetching data:', error)
+  const sendMessage = () => {
+    const text = draft.trim()
+    if (!text || !active) return
+
+    const now = new Date()
+    const hh = now.getHours().toString().padStart(2, '0')
+    const mm = now.getMinutes().toString().padStart(2, '0')
+
+    const newMsg: Message = {id: `${active.id}-${Date.now()}`, from: 'me', text, time: `${hh}:${mm}`}
+
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === active.id
+          ? {
+              ...c,
+              messages: [...c.messages, newMsg],
+              lastMessage: text,
+              lastTime: `${hh}:${mm}`,
+              unread: 0,
+            }
+          : c
+      )
+    )
+    setDraft('')
+    setTimeout(scrollToBottom, 50)
+  }
+
+  const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      sendMessage()
     }
   }
-  useEffect(() => {
-    fetchNewChat()
-    getRoleList()
-  }, [selectedTab])
 
-  useEffect(() => {
-    socket.on('qrCode', (data: any) => {
-      setQrCode(data.qr)
-    })
-
-    socket.on('status', (data: any) => {      
-      if (data.status === 'isLogged' || data.status === 'successChat') {
-        setIsConnected(true)
-        setQrCode('')
-      } else if (data.status === 'disconnected') {
-        setIsConnected(false)
-        requestQrCode()
-      } else if (data.status === 'notLogged' || data.status === 'desconnectedMobile' || data.status === 'qrReadFail' || data.status === 'waitForLogin') {
-        setIsConnected(false)
-        requestQrCode()
-      } else {
-        setIsConnected(false)
-        requestQrCode()
-      }
-      console.log('Status bot:', data.status)
-    })
-
-    return () => {
-      socket.off('qrCode')
-      socket.off('status')
-    }
-  }, [])
-  const requestQrCode = () => {
-    socket.emit('requestQr')
-  }
-
-  const checkStatus = () => {
-    socket.emit('checkStatus')
-  }
-
-  const handleAssignClick = (chatId: any) => {
-    setSelectedChat(chatId)
-    setShowPopup(true)
-  }
-
-  const handleAssignAdmin = (admin: any) => {
-    setSelectedAdmin(admin)
-    // setShowPopup(false)
-  }
-
-  const saveAssign = async () => {
-    const data = {
-      chatId: selectedChat,
-      admin: selectedAdmin.roles.name,
-      userName: selectedAdmin.username
-    }    
-    await axios
-      .post(`${apiChat}/assign-chat`, data)
-      .then((response) => {
-        if (response.status === 200) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Berhasil menambahkan assign admin',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          }).then(() => {
-            window.location.reload()
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.data.message,
-            icon: 'error',
-          })
-        }
-      })
-      .catch((error) => {
-        console.error(error)
-
-        Swal.fire({
-          title: 'Error',
-          text: error.response.data.message,
-          icon: 'error',
-        })
-      })
-  }
-
-  const handleChatClick = async (chatId: any) => {
-    setSelectedChats(chatId)
-
-    try {
-      const response = await fetch(`${apiChat}/get-assigned-admin?chatId=${chatId}`)
-      const data = await response.json()
-
-      if (data.success) {
-        setChatData(data.data)
-      } else {
-        console.error('Gagal mengambil data chat:', data.error)
-      }
-    } catch (error) {
-      console.error('Error fetching chat data:', error)
-    }
-  }
-  const handleResolveChat = async () => {
-    Swal.fire({
-      title: 'Apakah Anda yakin?',
-      text: 'Anda ingin mengakhiri percakapan ini?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Ya, akhiri!',
-      cancelButtonText: 'Batal',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.post(`${apiChat}/end-chat`, {chatId: selectedChats, admin: userRole, userName: userName})
-          Swal.fire('Selesai!', 'Percakapan telah diakhiri.', 'success')
-          setSelectedChats(null)
-          setChatData(null)
-          fetchNewChat()
-        } catch (error) {
-          console.error('Error resolving chat:', error)
-          Swal.fire('Error', 'Gagal mengakhiri percakapan.', 'error')
-        }
-      }
-    })
-  }
   return (
-    <div className='d-flex flex-column flex-lg-row'>
-      {!isConnected && qrCode ? (
-        <>
-          <div className='text-center'>
-            <h1>Scan QR Code WhatsApp</h1>
-            <img src={qrCode} alt='QR Code' className='my-3' />
-            <br />
-            <button onClick={checkStatus} className='btn btn-primary'>
-              Minta QR Baru
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          {' '}
-          <button onClick={checkStatus} className='btn btn-primary'>
-              Check Status WA
-            </button>
-          <div className='flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0'>
-            <div className='card card-flush'>
-              <div className='card-header pt-7' id='kt_chat_contacts_header'>
-                {/* <form className='w-100 position-relative' autoComplete='off'>
-                  <KTSVG
-                    path='/media/icons/duotune/general/gen021.svg'
-                    className='svg-icon-2 svg-icon-lg-1 svg-icon-gray-500 position-absolute top-50 ms-5 translate-middle-y'
-                  />
-
-                  <input
-                    type='text'
-                    className='form-control form-control-solid px-15'
-                    name='search'
-                    placeholder='Search by username or email...'
-                  />
-                </form> */}
-              </div>
-
-              <div className='card-body pt-5' id='kt_chat_contacts_body'>
-                <div
-                  className='scroll-y me-n5 pe-5 h-200px h-lg-auto'
-                  data-kt-scroll='true'
-                  data-kt-scroll-activate='{default: false, lg: true}'
-                  data-kt-scroll-max-height='auto'
-                  data-kt-scroll-dependencies='#kt_header, #kt_toolbar, #kt_footer, #kt_chat_contacts_header'
-                  data-kt-scroll-wrappers='#kt_content, #kt_chat_contacts_body'
-                  data-kt-scroll-offset='0px'
-                >
-                  <div
-                    className='flex border-b mb-4'
-                    style={{justifyContent: 'space-between', display: 'flex'}}
-                  >
-                    {tabs.map((tab) => (
-                      <div
-                        key={tab}
-                        className={`p-2 cursor-pointer flex-1 text-center ${
-                          selectedTab === tab
-                            ? 'border-b-2 border-blue-500 text-blue-500'
-                            : 'text-gray-500'
-                        }`}
-                        onClick={() => {
-                          setSelectedTab(tab)
-                          setChatData(null)
-                          setSelectedChats(null)
-                        }}
-                      >
-                        {tab}
-                      </div>
-                    ))}
-                  </div>
-                  {selectedTab === 'Assigned' && (
-                    <>
-                      {data.map((a: any, i: any) => {
-                        return (
-                          <div
-                            key={i}
-                            className='d-flex align-items-center'
-                            style={{
-                              position: 'relative',
-                              marginBottom: '10px',
-                            }}
-                          >
-                            <div className='symbol symbol-45px symbol-circle'>
-                              <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
-                            </div>
-                            <button
-                              onClick={() => handleChatClick(a.chatId)}
-                              style={{
-                                marginLeft:4,
-                                width: '100%',
-                                padding: '15px',
-                                backgroundColor:
-                                  selectedChats === a.chatId ? '#1f70f2' : 'transparent',
-                                color: selectedChats === a.chatId ? 'white' : 'inherit',
-                                border: '1px solid #ccc',
-                                borderRadius: '8px',
-                                textAlign: 'left',
-                                fontSize: '14px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                              }}
-                            >
-                              <span style={{color: '#333', fontWeight: '500'}}>{a.chatId}</span>
-                            </button>
-                          </div>
-                        )
-                      })}
-                    </>
-                  )}
-
-                  {selectedTab === 'Unassigned' && (
-                    <>
-                      {data.map((a: any, i: any) => {
-                        return (
-                          <div key={i}>
-                            <div className='d-flex flex-stack py-4'>
-                              <div className='d-flex align-items-center'>
-                                <div className='symbol symbol-45px symbol-circle'>
-                                  <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
-                                </div>
-
-                                <div className='ms-5'>
-                                  <button
-                                    style={{
-                                      width: '100%',
-                                      padding: '15px',
-                                      backgroundColor: 'transparent',
-                                      color: 'inherit',
-                                      border: '1px solid #ccc',
-                                      borderRadius: '8px',
-                                      textAlign: 'left',
-                                      fontSize: '14px',
-                                      cursor: 'pointer',
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      alignItems: 'center',
-                                    }}
-                                  >
-                                    <span style={{color: '#333', fontWeight: '500'}}>
-                                      {a.chatId}
-                                    </span>
-                                  </button>
-                                  {/* <div className='fw-bold text-gray-400'>melody@altbox.com</div> */}
-                                </div>
-                              </div>
-
-                              <div className='d-flex flex-column align-items-end ms-2'>
-                                <button
-                                  className='btn btn-sm btn-icon btn-active-light-primary'
-                                  onClick={() => handleAssignClick(a.chatId)}
-                                >
-                                  <i className='bi bi-three-dots fs-2'></i>
-                                </button>
-                              </div>
-                            </div>
-
-                            <div className='separator separator-dashed d-none'></div>
-                          </div>
-                        )
-                      })}
-                    </>
-                  )}
-                  {selectedTab === 'Resolved' && (
-                    <>
-                      {data.map((a: any, i: any) => {
-                        return (
-                          <div key={i}>
-                            <div className='d-flex flex-stack py-4'>
-                              <div className='d-flex align-items-center'>
-                                <div className='symbol symbol-45px symbol-circle'>
-                                  <span className='symbol-label bg-light-danger text-danger fs-6 fw-bolder'></span>
-                                </div>
-
-                                <div className='ms-5'>
-                                  <button
-                                    style={{
-                                      width: '100%',
-                                      padding: '15px',
-                                      backgroundColor: 'transparent',
-                                      color: 'inherit',
-                                      border: '1px solid #ccc',
-                                      borderRadius: '8px',
-                                      textAlign: 'left',
-                                      fontSize: '14px',
-                                      cursor: 'pointer',
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      alignItems: 'center',
-                                    }}
-                                  >
-                                    <span style={{color: '#333', fontWeight: '500'}}>
-                                      {a.chatId}
-                                    </span>
-                                  </button>
-                                  {/* <div className='fw-bold text-gray-400'>melody@altbox.com</div> */}
-                                </div>
-                              </div>
-
-                              <div className='d-flex flex-column align-items-end ms-2'>
-                                {/* <span className='text-muted fs-7 mb-1'>5 hrs</span> */}
-                              </div>
-                            </div>
-
-                            <div className='separator separator-dashed d-none'></div>
-                          </div>
-                        )
-                      })}
-                    </>
-                  )}
-                  {showPopup && (
-                    <div className='modal show d-block' tabIndex={1}>
-                      <div className='modal-dialog'>
-                        <div className='modal-content'>
-                          <div className='modal-header'>
-                            <h5 className='modal-title'>Pilih Admin</h5>
-                            <button
-                              type='button'
-                              className='btn-close'
-                              onClick={() => setShowPopup(false)}
-                            ></button>
-                          </div>
-                          <div className='modal-body'>
-                            <select
-                              className='form-select'
-                              onChange={(e) => {
-                                const selectedRole = roles.find(
-                                  (role: any) => role.username === e.target.value
-                                )
-                          
-                                
-                                
-                                if (selectedRole) {
-                                  handleAssignAdmin(selectedRole)
-                                }
-                              }}
-                            >
-                              <option value=''>Pilih Admin</option>
-                              {roles.map((role: any) => (
-                                <option key={role._id} value={role._id}>
-                                  {role.username}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <button onClick={saveAssign}>Simpan</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+    <div className='wa-container'>
+      <aside className='wa-sidebar'>
+        <div className='wa-sidebar-header'>
+          <div className='wa-profile'>
+            <div className='wa-profile-avatar'>RH</div>
+            <div>
+              <div className='fw-semibold'>R. Hidayat</div>
+              <div className='text-muted small'>Admin</div>
             </div>
           </div>
-          {selectedChats && chatData && (
-            <div className='flex-lg-row-fluid ms-lg-7 ms-xl-10'>
-              <div className='card' id='kt_chat_messenger'>
-                <div className='card-header' id='kt_chat_messenger_header'>
-                  <div className='card-title'>
-                    <div className='symbol-group symbol-hover'></div>
-                    <div className='d-flex justify-content-center flex-column me-3'>
-                      <div className='mb-0 lh-1'></div>
-                    </div>
-                  </div>
-
-                  <div className='card-toolbar'>
-                    <div className='me-n3'>
-                      <button
-                        className='btn btn-sm btn-icon btn-active-light-primary'
-                        onClick={handleResolveChat}
-                        style={{
-                          marginRight: 30,
-                        }}
-                      >
-                        <i className='bi bi-check'>Resolved</i>
-                      </button>
-                    </div>
+          <div className='wa-sidebar-actions'>
+            <button className='wa-icon-btn' aria-label='status'>
+              <i className='bi bi-circle-half'></i>
+            </button>
+            <button className='wa-icon-btn' aria-label='new chat'>
+              <i className='bi bi-chat-left-text'></i>
+            </button>
+            <button className='wa-icon-btn' aria-label='menu'>
+              <i className='bi bi-three-dots-vertical'></i>
+            </button>
+          </div>
+        </div>
+        <div className='wa-search'>
+          <div className='wa-search-wrap'>
+            <i className='bi bi-search'></i>
+            <input
+              className='wa-search-input'
+              placeholder='Cari atau mulai chat baru'
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className='wa-chat-list'>
+          {filtered.map((c) => (
+            <div
+              key={c.id}
+              className={`wa-chat-item ${selectedId === c.id ? 'active' : ''}`}
+              onClick={() => setSelectedId(c.id)}
+            >
+              <div className='wa-avatar'>{c.avatarText}</div>
+              <div className='wa-chat-meta'>
+                <div className='wa-chat-top'>
+                  <div className='wa-chat-name'>{c.name}</div>
+                  <div className='d-flex align-items-center gap-1'>
+                    <span className='wa-chat-time'>{c.lastTime}</span>
+                    {c.unread ? <span className='wa-unread'>{c.unread}</span> : null}
                   </div>
                 </div>
-                <ChatInner chatData={chatData} selectedChats={selectedChats} />
+                <div className='wa-chat-last'>{c.lastMessage}</div>
               </div>
             </div>
-          )}
-        </>
-      )}
+          ))}
+        </div>
+      </aside>
+
+      <main className={`wa-main ${isCollapsed ? 'collapsed' : ''}`}>
+        {isCollapsed ? (
+          <div className='wa-collapsed-handle'>
+            <button className='wa-collapsed-btn' aria-label='expand' onClick={() => setIsCollapsed(false)}>
+              <i className='bi bi-chevron-left'></i>
+            </button>
+          </div>
+        ) : active ? (
+          <>
+            <header className='wa-main-header'>
+              <div className='wa-main-contact'>
+                <div className='wa-avatar wa-avatar-sm'>{active.avatarText}</div>
+                <div>
+                  <div className='wa-main-name'>{active.name}</div>
+                  <div className='wa-main-status'>
+                    {active.status === 'typing' ? 'mengetik…' : active.status === 'online' ? 'online' : active.phone}
+                  </div>
+                </div>
+              </div>
+              <div className='wa-main-actions'>
+                <button className='wa-icon-btn' aria-label='minimize' onClick={() => setIsCollapsed(true)}>
+                  <i className='bi bi-chevron-right'></i>
+                </button>
+                <button className='wa-icon-btn' aria-label='search in chat'>
+                  <i className='bi bi-search'></i>
+                </button>
+                <button className='wa-icon-btn' aria-label='attachments'>
+                  <i className='bi bi-paperclip'></i>
+                </button>
+                <button className='wa-icon-btn' aria-label='more'>
+                  <i className='bi bi-three-dots-vertical'></i>
+                </button>
+              </div>
+            </header>
+
+            <section className='wa-messages'>
+              {active.messages.map((m) => (
+                <div key={m.id} className={`wa-bubble ${m.from === 'me' ? 'outgoing' : 'incoming'}`}>
+                  <div dangerouslySetInnerHTML={{__html: m.text}} />
+                  <span className='wa-bubble-time'>{m.time}</span>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </section>
+
+            <footer className='wa-input'>
+              <button className='wa-icon-btn' aria-label='emoji'>
+                <i className='bi bi-emoji-smile'></i>
+              </button>
+              <button className='wa-icon-btn' aria-label='attach'>
+                <i className='bi bi-paperclip'></i>
+              </button>
+              <textarea
+                className='wa-textarea'
+                rows={1}
+                placeholder='Ketik pesan'
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={onKeyDown}
+              />
+              {draft.trim() ? (
+                <button className='wa-send-btn' onClick={sendMessage} aria-label='send'>
+                  <i className='bi bi-send'></i>
+                </button>
+              ) : (
+                <button className='wa-icon-btn' aria-label='mic'>
+                  <i className='bi bi-mic'></i>
+                </button>
+              )}
+            </footer>
+          </>
+        ) : (
+          <div className='wa-empty'>Pilih percakapan di sebelah kiri</div>
+        )}
+      </main>
     </div>
   )
 }

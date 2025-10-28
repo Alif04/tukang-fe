@@ -77,8 +77,26 @@ export function HeaderWrapper({className}: HeaderWrapperProps) {
             </div>
           )} */}
 
-          <div className='d-flex align-items-stretch flex-shrink-0'>
-            <Topbar />
+          <div className='d-flex align-items-stretch flex-shrink-0 align-items-center'>
+            {aside.display && (
+              <button
+                className='btn btn-icon btn-active-light-primary me-3 d-none d-lg-inline-flex'
+                title='Toggle sidebar'
+                onClick={() => {
+                  const MIN_KEY = 'kt_aside_minimized'
+                  const willMinimize = !document.body.classList.contains('aside-minimize')
+                  if (willMinimize) document.body.classList.add('aside-minimize')
+                  else document.body.classList.remove('aside-minimize')
+                  try { localStorage.setItem(MIN_KEY, willMinimize ? '1' : '0') } catch (e) {}
+                }}
+              >
+                <KTSVG path='/media/icons/duotune/arrows/arr080.svg' className='svg-icon-2 rotate-180' />
+              </button>
+            )}
+
+            <div className='d-flex align-items-center'>
+              <Topbar />
+            </div>
           </div>
         </div>
         {/* end::Wrapper */}

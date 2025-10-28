@@ -99,5 +99,7 @@
   },
   "eslintIgnore": [
     "dist/*"
-  ]
+  ],
+  "proxy": "https://dkit.dags.site"
+
 }
