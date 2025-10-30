@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 dayjs.extend(isBetween);
 
 const { RangePicker } = DatePicker;
-const apiUrl = process.env.REACT_APP_API_CHAT_URL;
+const apiUrl = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || '';
 
 const ReportLogChat: React.FC = () => {
   const [chats, setChats] = useState<any[]>([]);

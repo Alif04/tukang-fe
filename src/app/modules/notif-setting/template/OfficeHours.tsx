@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { message } from 'antd';
 
-const apiUrl = process.env.REACT_APP_API_CHAT_URL;
+const apiUrl = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || '';
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -17,23 +17,82 @@ const OfficeHours = () => {
   );
 
   useEffect(() => {
-    axios
-      .get(`${apiUrl}/office-hours`)
-      .then((res) => setOfficeHours(res.data))
-      .catch(() => console.error('Gagal mengambil data office hours'));
+    const fetch = async () => {
+      if (!apiUrl) {
+        message.error('Gagal mengambil data office hours: konfigurasi server tidak ditemukan')
+        return
+      }
+      try {
+        const res = await axios.get(`${apiUrl}/office-hours`)
+        // Accept common response shapes
+        const data = res?.data?.data ?? res?.data ?? null
+        if (Array.isArray(data) && data.length > 0) {
+          // dedupe by day to avoid duplicate keys
+          const map:any = {}
+          data.forEach((d:any) => {
+            const key = d.day || d.name || `${d?.dayName || ''}`
+            if (key) map[key] = d
+          })
+          const deduped = days.map((day) => map[day] ?? map[day?.toLowerCase?.()] ?? map[day?.toUpperCase?.()] ?? { day, isOpen: day !== 'Sunday', openTime: '07:00', closeTime: '17:00' })
+          setOfficeHours(deduped)
+        } else if (data && typeof data === 'object') {
+          // If API returns object keyed by day
+          const mapped = days.map((day) => {
+            const found = (Array.isArray(data) ? data : Object.values(data)).find((d:any) => d.day === day || d.name === day)
+            return (
+              found ?? {
+                day,
+                isOpen: day !== 'Sunday',
+                openTime: '07:00',
+                closeTime: '17:00',
+              }
+            )
+          })
+          setOfficeHours(mapped)
+        } else {
+          // keep defaults but notify
+          message.error('Gagal mengambil data office hours: data tidak valid')
+          console.error('Invalid office hours response', res.data)
+        }
+      } catch (err: any) {
+        // If server does not implement office-hours endpoint, silently continue with defaults
+        if (err && err.response && err.response.status === 404) {
+          console.warn('Office hours endpoint not found (404) - using defaults')
+          // optional: notify as info instead of error
+          // message.info('Office hours belum tersedia di server; menggunakan pengaturan default')
+          return
+        }
+        console.error('Gagal mengambil data office hours', err)
+        message.error('Gagal mengambil data office hours')
+      }
+    }
+
+    fetch()
   }, []);
 
   const handleChange = (index:any, field:any, value:any) => {
-    setOfficeHours((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+    setOfficeHours((prev:any) =>
+      prev.map((item:any, i:number) => (i === index ? { ...item, [field]: value } : item))
     );
   };
 
-  const handleSave = () => {
-    axios
-      .post(`${apiUrl}/office-hours`, { officeHours })
-      .then(() => message.success('Office hours saved successfully!'))
-      .catch(() => message.error('Failed to save office hours'));
+  const handleSave = async () => {
+    if (!apiUrl) {
+      message.error('Konfigurasi server tidak ditemukan')
+      return
+    }
+    try {
+      await axios.post(`${apiUrl}/office-hours`, { officeHours })
+      message.success('Office hours saved successfully!')
+    } catch (err: any) {
+      if (err && err.response && err.response.status === 404) {
+        console.warn('Office hours save endpoint not found (404); skipping save')
+        message.error('Gagal menyimpan: endpoint tidak ditemukan pada server')
+        return
+      }
+      console.error('Failed to save office hours', err)
+      message.error('Failed to save office hours')
+    }
   };
 
   return (
@@ -44,8 +103,8 @@ const OfficeHours = () => {
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        {officeHours.map((item, index) => (
-          <div key={item.day} style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {officeHours.map((item:any, index:number) => (
+          <div key={`${item.day ?? 'day'}-${index}`} style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <input
                 type='checkbox'
@@ -89,8 +148,8 @@ const OfficeHours = () => {
             cursor: 'pointer',
             transition: 'background-color 0.2s ease-in-out',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+          onMouseEnter={(e:any) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
+          onMouseLeave={(e:any) => (e.currentTarget.style.backgroundColor = '#2563eb')}
           onClick={handleSave}
         >
           Save Office Hours

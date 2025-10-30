@@ -446,12 +446,6 @@ export function AsideMenuMain() {
         role={['Admin WA', 'Admin WA2']}
       >
         <AsideMenuItem
-          to='/chat/configurasi'
-          title='Configurasi'
-          role={['Admin WA', 'Admin WA2']}
-          hasBullet={true}
-        />
-        <AsideMenuItem
           to='/chat/view-chat'
           title='Agent Chat'
           role={['Admin WA', 'Admin WA2']}

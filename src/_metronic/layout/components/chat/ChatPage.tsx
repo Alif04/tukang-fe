@@ -13,7 +13,7 @@ import {Button, Modal} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faComment} from '@fortawesome/free-solid-svg-icons'
 
-const socket = io(`${process.env.REACT_APP_API_CHAT_URL}/live-chat`)
+const socket = io(`${(process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || '').replace(/\/$/,'')}/live-chat`)
 
 export default function ChatPage(): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -43,7 +43,7 @@ export default function ChatPage(): JSX.Element {
   const vendorListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const poveuesiListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const apiUrl = process.env.REACT_APP_API_URL
-  const apiChat = process.env.REACT_APP_API_CHAT_URL
+  const apiChat = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
   useEffect(() => {
     if (messages.length > 0 && !isOpen) {
       // setNewMessages(true)
@@ -180,7 +180,7 @@ export default function ChatPage(): JSX.Element {
   const datasss = async () => {
     const res = await axios.get(`${apiChat}/chat/organisasi/Mitra 10`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
     })
     setOrganisasiId(res.data.groups._id)
@@ -293,7 +293,7 @@ export default function ChatPage(): JSX.Element {
 
         const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
         })
         if (res.data.success) {
@@ -364,7 +364,7 @@ export default function ChatPage(): JSX.Element {
         }
         const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
         })
         if (res.data.success) {
@@ -437,7 +437,7 @@ export default function ChatPage(): JSX.Element {
         }
         const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
         })
         if (res.data.success) {
@@ -555,7 +555,7 @@ export default function ChatPage(): JSX.Element {
           : vendorName
       const res = await axios.get(`${apiChat}/chat/previousChats/${role}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
       if (res.status === 200) {
@@ -574,7 +574,7 @@ export default function ChatPage(): JSX.Element {
     try {
       const res = await axios.get(`${apiChat}/chat/messages/${groupId}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
       if (res.status === 200) {
@@ -602,7 +602,7 @@ export default function ChatPage(): JSX.Element {
       if (result.isConfirmed) {
         const res = await axios.delete(`${apiChat}/chat/delete/${id}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
         })
         if (res.status === 200) {
@@ -635,7 +635,7 @@ export default function ChatPage(): JSX.Element {
       },
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       }
     )
@@ -643,10 +643,16 @@ export default function ChatPage(): JSX.Element {
   }
 
   const fetchNewChats = async () => {
+    if (!apiChat) {
+      console.error('REACT_APP_API_CHAT_URL not configured')
+      // Avoid calling backend with empty base URL which causes 404 on the frontend server
+      return
+    }
+
     try {
       const res = await axios.get(`${apiChat}/chat/messages`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 
@@ -673,18 +679,12 @@ export default function ChatPage(): JSX.Element {
             (receiver: any) => receiver.user === currentUser && !receiver.read
           )
         })
-        // console.log(hasNewMessages);
 
         if (hasNewMessages) {
           setNewMessages(true)
+        } else {
+          setNewMessages(false)
         }
-        // setNewMessages(true)
-        // res.data.forEach((chats: any) => {
-        //   const { groupId, timestamp } = chats;
-        //   if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
-        //     latest[groupId] = timestamp; // Simpan timestamp terbaru untuk setiap grup
-        //   }
-        // });
       } else {
         setNewMessages(false)
       }

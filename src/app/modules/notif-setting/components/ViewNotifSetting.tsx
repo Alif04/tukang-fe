@@ -1,13 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {  useState } from 'react'
 // import 'bootstrap/dist/css/bootstrap.min.css'
 import {TemplateChat} from '../chat/TemplateChat'
 import {OfficeHours} from '../template/OfficeHours'
+import {ChatConfig} from '../chat/ChatConfig'
 
 const ViewNotifSetting: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('Office Hours')
-  const tabs = [ 'Office Hours', 'Template chat']
+  const tabs = ['Office Hours', 'Template chat', 'Chat Konfigurasi']
 
   return (
     <>
@@ -33,6 +35,7 @@ const ViewNotifSetting: React.FC = () => {
       <div>
         {selectedTab === 'Office Hours' && <OfficeHours/>}
         {selectedTab === 'Template chat' &&  <TemplateChat />}
+        {selectedTab === 'Chat Konfigurasi' && <ChatConfig />}
       </div>
     </>
   )
