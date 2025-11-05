@@ -1,13 +1,14 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {FC, useMemo, useRef, useState} from 'react'
+import React, {FC, useEffect, useMemo, useRef, useState} from 'react'
+import axios from 'axios'
 import './Private.css'
 
 interface Message {
   id: string
+  rawId?: number
   from: 'me' | 'them'
   text: string
-  time: string // HH:mm
-  day?: string // e.g. "Today", "Yesterday"
+  time: string // HH:mm or date string
 }
 
 interface Conversation {
@@ -22,90 +23,68 @@ interface Conversation {
   status?: 'online' | 'offline' | 'typing'
 }
 
-const initialConversations: Conversation[] = [
-  {
-    id: '6281122334455',
-    name: 'Budi Santoso',
-    phone: '+62 811-2233-4455',
-    avatarText: 'BS',
-    lastMessage: 'Baik kak, kami proses ya.',
-    lastTime: '09:12',
-    unread: 2,
-    status: 'online',
-    messages: [
-      {id: 'm1', from: 'them', text: 'Halo kak, ini mengenai pesanan kemarin.', time: '09:01', day: 'Today'},
-      {id: 'm2', from: 'me', text: 'Halo kak Budi, boleh detail nomor invoice-nya?', time: '09:05'},
-      {id: 'm3', from: 'them', text: 'INV-2024-0912', time: '09:07'},
-      {id: 'm4', from: 'me', text: 'Baik kak, kami proses ya.', time: '09:12'},
-    ],
-  },
-  {
-    id: '6289988776655',
-    name: 'Siti Aisyah',
-    phone: '+62 899-8877-6655',
-    avatarText: 'SA',
-    lastMessage: 'Terima kasih 🙏',
-    lastTime: '08:40',
-    unread: 0,
-    status: 'offline',
-    messages: [
-      {id: 'm1', from: 'them', text: 'Apakah bisa pasang besok?', time: '08:21', day: 'Today'},
-      {id: 'm2', from: 'me', text: 'Bisa kak, jam prefernya?', time: '08:32'},
-      {id: 'm3', from: 'them', text: 'Siang sekitar jam 1.', time: '08:34'},
-      {id: 'm4', from: 'me', text: 'Siap, dijadwalkan jam 13:00 ya.', time: '08:38'},
-      {id: 'm5', from: 'them', text: 'Terima kasih 🙏', time: '08:40'},
-    ],
-  },
-  {
-    id: '6281234567890',
-    name: 'Andi Wijaya',
-    phone: '+62 812-3456-7890',
-    avatarText: 'AW',
-    lastMessage: 'Ada katalog terbaru?',
-    lastTime: 'Kemarin',
-    unread: 1,
-    status: 'typing',
-    messages: [
-      {id: 'm1', from: 'them', text: 'Ada katalog terbaru?', time: '16:20', day: 'Yesterday'},
-    ],
-  },
-  {
-    id: '6287711223344',
-    name: 'CS Mitra10',
-    phone: '+62 877-1122-3344',
-    avatarText: 'CS',
-    lastMessage: 'Silakan isi form berikut ya.',
-    lastTime: 'Sen',
-    unread: 0,
-    status: 'online',
-    messages: [
-      {id: 'm1', from: 'me', text: 'Halo CS, saya butuh bantuan pemasangan.', time: '11:02', day: 'Monday'},
-      {id: 'm2', from: 'them', text: 'Silakan isi form berikut ya.', time: '11:05'},
-    ],
-  },
-  {
-    id: '6285566778899',
-    name: 'Toko Mitra10 BSD',
-    phone: '+62 855-6677-8899',
-    avatarText: 'TB',
-    lastMessage: 'Barang sudah sampai?',
-    lastTime: 'Minggu',
-    unread: 0,
-    status: 'offline',
-    messages: [
-      {id: 'm1', from: 'them', text: 'Barang sudah sampai?', time: '10:10', day: 'Sunday'},
-      {id: 'm2', from: 'me', text: 'Sudah, terima kasih.', time: '10:12'},
-    ],
-  },
-]
+const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
+
+const formatTime = (isoOrSql: string | null | undefined) => {
+  if (!isoOrSql) return ''
+  const d = new Date(isoOrSql)
+  if (isNaN(d.getTime())) return ''
+  const now = new Date()
+  const sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()
+  if (sameDay) {
+    const hh = d.getHours().toString().padStart(2, '0')
+    const mm = d.getMinutes().toString().padStart(2, '0')
+    return `${hh}:${mm}`
+  }
+  return d.toLocaleDateString()
+}
+
+const getInitials = (name: string) => {
+  if (!name) return ''
+  const parts = name.trim().split(/\s+/)
+  const first = parts[0]?.[0] || ''
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : ''
+  return (first + last).toUpperCase()
+}
 
 const Private: FC = () => {
-  const [conversations, setConversations] = useState<Conversation[]>(initialConversations)
-  const [selectedId, setSelectedId] = useState<string>(initialConversations[0]?.id || '')
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [selectedId, setSelectedId] = useState<string>('')
   const [query, setQuery] = useState('')
   const [draft, setDraft] = useState('')
   const [isCollapsed, setIsCollapsed] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    const fetchConversations = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/conversation`)
+        const items = Array.isArray(res.data?.data) ? res.data.data : []
+        const mapped: Conversation[] = items.map((it: any) => ({
+          id: String(it.phonenumber || it.id || ''),
+          name: String(it.name || ''),
+          phone: String(it.phonenumber || ''),
+          avatarText: getInitials(String(it.name || '')),
+          lastMessage: String(it.last_message || ''),
+          lastTime: formatTime(it.last_update || it.CreatedAt),
+          unread: typeof it.notread === 'number' ? it.notread : undefined,
+          messages: [],
+          status: 'offline',
+        }))
+        if (mounted) {
+          setConversations(mapped)
+          if (mapped.length) setSelectedId(mapped[0].id)
+        }
+      } catch (e) {
+        if (mounted) setConversations([])
+      }
+    }
+    fetchConversations()
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -115,16 +94,48 @@ const Private: FC = () => {
     )
   }, [conversations, query])
 
-  const active = useMemo(
-    () => conversations.find((c) => c.id === selectedId) || null,
-    [conversations, selectedId]
-  )
+  const active = useMemo(() => conversations.find((c) => c.id === selectedId) || null, [conversations, selectedId])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
   }
 
-  const sendMessage = () => {
+  const handleSelectConversation = async (conv: Conversation) => {
+    setSelectedId(conv.id)
+    try {
+      // determine last_id from existing messages, if any
+      const lastMsg = conv.messages && conv.messages.length ? conv.messages[conv.messages.length - 1] : null
+      const lastId = lastMsg && typeof lastMsg.rawId === 'number' ? lastMsg.rawId : 0
+      const max = parseInt(process.env.REACT_APP_CONVERSATION_MAX || '29', 10)
+
+      const res = await axios.get(`${API_BASE}/conversation/${conv.id}?last_id=${lastId}&max=${max}`)
+      const items = Array.isArray(res.data?.data) ? res.data.data : []
+      const mapped: Message[] = items.map((it: any) => ({
+        id: `${String(it.id || it._id || Math.random())}`,
+        rawId: typeof it.id === 'number' ? it.id : Number(it.id) || undefined,
+        from: it.direction === 'incoming' ? 'them' : 'me',
+        text: String(it.message || ''),
+        time: formatTime(it.CreatedAt || it.CreatedAt),
+      }))
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === conv.id
+            ? {
+                ...c,
+                messages: mapped,
+                lastMessage: mapped.length ? mapped[mapped.length - 1].text : c.lastMessage,
+                lastTime: mapped.length ? mapped[mapped.length - 1].time : c.lastTime,
+              }
+            : c
+        )
+      )
+      setTimeout(scrollToBottom, 50)
+    } catch (err) {
+      console.error('Failed to fetch conversation detail', err)
+    }
+  }
+
+  const sendMessage = async () => {
     const text = draft.trim()
     if (!text || !active) return
 
@@ -134,6 +145,7 @@ const Private: FC = () => {
 
     const newMsg: Message = {id: `${active.id}-${Date.now()}`, from: 'me', text, time: `${hh}:${mm}`}
 
+    // Optimistic UI update
     setConversations((prev) =>
       prev.map((c) =>
         c.id === active.id
@@ -149,6 +161,26 @@ const Private: FC = () => {
     )
     setDraft('')
     setTimeout(scrollToBottom, 50)
+
+    // Send to backend
+    try {
+      const payload = {
+        phonenumber: active.id,
+        message: text,
+        location: '',
+        img: '',
+        audio: '',
+        video: '',
+        document: '',
+      }
+      await axios.post(`${API_BASE}/conversation`, payload, {
+        headers: { 'Content-Type': 'application/json' },
+      })
+      // Optionally, you could refresh the conversation list or update message id/status here
+    } catch (err) {
+      console.error('Failed to send message', err)
+      // Optionally: show user feedback or revert optimistic update
+    }
   }
 
   const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
@@ -197,7 +229,7 @@ const Private: FC = () => {
             <div
               key={c.id}
               className={`wa-chat-item ${selectedId === c.id ? 'active' : ''}`}
-              onClick={() => setSelectedId(c.id)}
+              onClick={() => handleSelectConversation(c)}
             >
               <div className='wa-avatar'>{c.avatarText}</div>
               <div className='wa-chat-meta'>

@@ -72,25 +72,25 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
       sendMessage()
     }
   }
-  useEffect(() => {
-    const handleReceiveMessage = (msg: {
-      chatId: string
-      message: string
-      timestamp: string
-      fromMe: boolean
-      sender: string
-    }) => {
-      if (msg.chatId === selectedChats) {
-        setChatDatas((prev) => [...prev, msg]) // Tambahkan pesan baru ke chatData
-      }
-    }
+  // useEffect(() => {
+  //   const handleReceiveMessage = (msg: {
+  //     chatId: string
+  //     message: string
+  //     timestamp: string
+  //     fromMe: boolean
+  //     sender: string
+  //   }) => {
+  //     if (msg.chatId === selectedChats) {
+  //       setChatDatas((prev) => [...prev, msg]) // Tambahkan pesan baru ke chatData
+  //     }
+  //   }
 
-    socket.on('receiveMessage', handleReceiveMessage)
+  //   socket.on('receiveMessage', handleReceiveMessage)
 
-    return () => {
-      socket.off('receiveMessage', handleReceiveMessage)
-    }
-  }, [socket])
+  //   return () => {
+  //     socket.off('receiveMessage', handleReceiveMessage)
+  //   }
+  // }, [socket])
 
   const sendImage = async (file:any, caption = '') => {
     if (!file) return;

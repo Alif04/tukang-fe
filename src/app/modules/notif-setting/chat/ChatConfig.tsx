@@ -61,6 +61,7 @@ const ChatConfig: React.FC = () => {
     setQrError(null)
     try {
       const res = await requestQr()
+      console.log('requestQr response:', res )
       if (!res || (res.status !== 200 && res.status !== 201)) {
         throw new Error('requestQr gagal atau mengembalikan status bukan 200/201')
       }

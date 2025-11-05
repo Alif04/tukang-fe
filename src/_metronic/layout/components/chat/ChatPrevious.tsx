@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react'
-import axios from 'axios'
+import axios from '../../core/axiosInterceptor'
 import {Modal} from 'react-bootstrap'
 import Swal from 'sweetalert2'
 
@@ -69,11 +69,8 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
     const counts: {[key: string]: number} = {}
     for (const chat of previousChats) {
       try {
-        const res = await axios.get(`${apiChat}/chat/unread/${chat._id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          },
-        })
+        const url = `${apiChat}/chat/unread/${chat._id}`
+        const res = await axios.get(url)
         const unreadMessages = res.data.unreadCount.filter(
           (msg: any) =>
             msg.sender !==
@@ -85,8 +82,12 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
         )
 
         counts[chat._id] = unreadMessages.length || 0
-      } catch (err) {
-        console.error(`Failed to fetch unread count for chat ${chat._id}`, err)
+      } catch (err: any) {
+        if (err.response) {
+          console.error(`Failed to fetch unread count for chat ${chat._id}. URL: ${apiChat}/chat/unread/${chat._id} Status: ${err.response.status}`, err.response.data)
+        } else {
+          console.error(`Failed to fetch unread count for chat ${chat._id}`, err)
+        }
         counts[chat._id] = 0
       }
     }
@@ -101,11 +102,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
     const latest: {[key: string]: string} = {}
     for (const chat of previousChats) {
       try {
-        const res = await axios.get(`${apiChat}/chat/messages/${chat._id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          },
-        })
+        const res = await axios.get(`${apiChat}/chat/messages/${chat._id}`)
 
         if (res.data && res.data.length > 0) {
           res.data.forEach((chats: any) => {
@@ -115,8 +112,12 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             }
           })
         }
-      } catch (err) {
-        console.error('Failed to fetch new chats', err)
+      } catch (err: any) {
+        if (err.response) {
+          console.error(`Failed to fetch new chats for chat ${chat._id}. URL: ${apiChat}/chat/messages/${chat._id} Status: ${err.response.status}`, err.response.data)
+        } else {
+          console.error('Failed to fetch new chats', err)
+        }
       }
     }
     setLatestMessages(latest)
@@ -159,15 +160,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             : userRole === 'Store CS'
             ? storeName
             : userRole
-        await axios.put(
-          `${apiChat}/chat/status/${chat._id}`,
-          {sender},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            },
-          }
-        )
+        await axios.put(`${apiChat}/chat/status/${chat._id}`, { sender })
       }
 
       fetchNewChats()
