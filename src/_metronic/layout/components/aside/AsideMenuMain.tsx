@@ -453,7 +453,7 @@ export function AsideMenuMain() {
         />
         <AsideMenuItem
           to='/chat/peringatan-service'
-          title='Peringatan Service'
+          title='Broadcast Message '
           role={['Admin WA', 'Admin WA2']}
           hasBullet={true}
         />

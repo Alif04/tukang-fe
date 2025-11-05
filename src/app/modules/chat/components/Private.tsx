@@ -53,8 +53,12 @@ const Private: FC = () => {
   const [query, setQuery] = useState('')
   const [draft, setDraft] = useState('')
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [showSearch, setShowSearch] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const searchInputRef = useRef<HTMLInputElement | null>(null)
 const conversationsRef = useRef<Conversation[]>([])
+const isFetchingConversationsRef = useRef<boolean>(false)
+const isFetchingDetailRef = useRef<boolean>(false)
 useEffect(() => {
   conversationsRef.current = conversations
 }, [conversations])
@@ -67,6 +71,8 @@ useEffect(() => {
       }
     }
     const fetchConversations = async () => {
+      if (isFetchingConversationsRef.current) return
+      isFetchingConversationsRef.current = true
       try {
         const res = await axios.get(`${API_BASE}/conversation`)
         const items = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : []
@@ -104,6 +110,8 @@ useEffect(() => {
         }
       } catch (e) {
         // keep previous state on error
+      } finally {
+        isFetchingConversationsRef.current = false
       }
     }
     fetchConversations()
@@ -117,9 +125,11 @@ useEffect(() => {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return conversations
-    return conversations.filter(
-      (c) => c.name.toLowerCase().includes(q) || c.id.includes(q) || c.lastMessage.toLowerCase().includes(q)
-    )
+    return conversations.filter((c) => {
+      const idMatch = String(c.id || '').toLowerCase().includes(q)
+      const lastMsg = String(c.lastMessage || '').toLowerCase()
+      return idMatch || lastMsg.includes(q)
+    })
   }, [conversations, query])
 
   const active = useMemo(() => conversations.find((c) => c.id === selectedId) || null, [conversations, selectedId])
@@ -130,7 +140,10 @@ useEffect(() => {
 
   const handleSelectConversation = async (conv: Conversation) => {
     setSelectedId(conv.id)
+    // if UI was collapsed, expand when user selects a conversation
+    setIsCollapsed(false)
     if (!API_BASE) return
+    if (isFetchingDetailRef.current) return
     try {
       // determine last_id from existing messages, if any
       const lastMsg = conv.messages && conv.messages.length ? conv.messages[conv.messages.length - 1] : null
@@ -181,6 +194,8 @@ useEffect(() => {
     if (!selectedId) return
     let alive = true
     const poll = async () => {
+      if (isFetchingDetailRef.current) return
+      isFetchingDetailRef.current = true
       try {
         const conv = conversationsRef.current.find((c) => c.id === selectedId)
         const lastMsg = conv && conv.messages.length ? conv.messages[conv.messages.length - 1] : null
@@ -221,6 +236,8 @@ useEffect(() => {
         setTimeout(scrollToBottom, 50)
       } catch (err) {
         // silent fail
+      } finally {
+        isFetchingDetailRef.current = false
       }
     }
     poll()
@@ -291,35 +308,51 @@ useEffect(() => {
       <aside className='wa-sidebar'>
         <div className='wa-sidebar-header'>
           <div className='wa-profile'>
-            <div className='wa-profile-avatar'>RH</div>
-            <div>
-              <div className='fw-semibold'>R. Hidayat</div>
-              <div className='text-muted small'>Admin</div>
-            </div>
+            {(() => {
+              const userName = localStorage.getItem('username') || ''
+              const userRole = localStorage.getItem('userRole') || ''
+              const initials = getInitials(userName || 'Admin WA')
+              return (
+                <>
+                  <div className='wa-profile-avatar'>{initials}</div>
+                  <div>
+                    <div className='fw-semibold'>{userName || 'Admin WA'}</div>
+                    <div className='text-muted small'>{userRole || 'Admin WA'}</div>
+                  </div>
+                </>
+              )
+            })()}
           </div>
           <div className='wa-sidebar-actions'>
-            <button className='wa-icon-btn' aria-label='status'>
-              <i className='bi bi-circle-half'></i>
-            </button>
-            <button className='wa-icon-btn' aria-label='new chat'>
-              <i className='bi bi-chat-left-text'></i>
-            </button>
-            <button className='wa-icon-btn' aria-label='menu'>
-              <i className='bi bi-three-dots-vertical'></i>
+            <button
+              className='wa-icon-btn'
+              aria-label='toggle-search'
+              onClick={() => {
+                setShowSearch((prev) => {
+                  const next = !prev
+                  if (next) setTimeout(() => searchInputRef.current?.focus(), 50)
+                  return next
+                })
+              }}
+            >
+              <i className='bi bi-search'></i>
             </button>
           </div>
         </div>
-        <div className='wa-search'>
-          <div className='wa-search-wrap'>
-            <i className='bi bi-search'></i>
-            <input
-              className='wa-search-input'
-              placeholder='Cari atau mulai chat baru'
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+        {showSearch && (
+          <div className='wa-search'>
+            <div className='wa-search-wrap'>
+              <i className='bi bi-search'></i>
+              <input
+                ref={searchInputRef}
+                className='wa-search-input'
+                placeholder='Cari atau mulai chat baru'
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
+        )}
         <div className='wa-chat-list'>
           {filtered.map((c) => (
             <div
@@ -344,13 +377,7 @@ useEffect(() => {
       </aside>
 
       <main className={`wa-main ${isCollapsed ? 'collapsed' : ''}`}>
-        {isCollapsed ? (
-          <div className='wa-collapsed-handle'>
-            <button className='wa-collapsed-btn' aria-label='expand' onClick={() => setIsCollapsed(false)}>
-              <i className='bi bi-chevron-left'></i>
-            </button>
-          </div>
-        ) : active ? (
+        {!isCollapsed && active ? (
           <>
             <header className='wa-main-header'>
               <div className='wa-main-contact'>
@@ -366,15 +393,7 @@ useEffect(() => {
                 <button className='wa-icon-btn' aria-label='minimize' onClick={() => setIsCollapsed(true)}>
                   <i className='bi bi-chevron-right'></i>
                 </button>
-                <button className='wa-icon-btn' aria-label='search in chat'>
-                  <i className='bi bi-search'></i>
-                </button>
-                <button className='wa-icon-btn' aria-label='attachments'>
-                  <i className='bi bi-paperclip'></i>
-                </button>
-                <button className='wa-icon-btn' aria-label='more'>
-                  <i className='bi bi-three-dots-vertical'></i>
-                </button>
+                {/* removed search, attachments, and menu icons */}
               </div>
             </header>
 
@@ -389,12 +408,6 @@ useEffect(() => {
             </section>
 
             <footer className='wa-input'>
-              <button className='wa-icon-btn' aria-label='emoji'>
-                <i className='bi bi-emoji-smile'></i>
-              </button>
-              <button className='wa-icon-btn' aria-label='attach'>
-                <i className='bi bi-paperclip'></i>
-              </button>
               <textarea
                 className='wa-textarea'
                 rows={1}
@@ -407,17 +420,21 @@ useEffect(() => {
                 <button className='wa-send-btn' onClick={sendMessage} aria-label='send'>
                   <i className='bi bi-send'></i>
                 </button>
-              ) : (
-                <button className='wa-icon-btn' aria-label='mic'>
-                  <i className='bi bi-mic'></i>
-                </button>
-              )}
+              ) : null}
             </footer>
           </>
         ) : (
           <div className='wa-empty'>Pilih percakapan di sebelah kiri</div>
         )}
       </main>
+
+      {isCollapsed && (
+        <div className='wa-collapsed-handle'>
+          <button className='wa-collapsed-btn' aria-label='expand' onClick={() => setIsCollapsed(false)}>
+            <i className='bi bi-chevron-left'></i>
+          </button>
+        </div>
+      )}
     </div>
   )
 }

@@ -2,15 +2,11 @@ import React, {useState, useEffect, FC} from 'react'
 
 import './DashboardAdminWA.css'
 
-import {ChartBarSurvey} from './components/ChartBarSurvey'
-import {MoreInformation} from './components/MoreInformation'
-
 import axios from 'axios'
 import dayjs from 'dayjs'
 import duration from "dayjs/plugin/duration";
 import {Row, Col, Card, Button} from 'react-bootstrap'
-import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import {LoadingOutlined} from '@ant-design/icons'
+import {Table, Spin, DatePicker} from 'antd'
 
 const {RangePicker} = DatePicker
 dayjs.extend(duration);
@@ -20,9 +16,6 @@ const DashboardAdminWA: FC = () => {
   const userRole = localStorage.getItem('userRole') as string;
   const [avgResponseTime, setAvgResponseTime] = useState<number>(0);
   const [avgFirstResponseTime, setAvgFirstResponseTime] = useState<number>(0);
-  const [totalAssign, setTotalAssign] = useState<any>(0);
-  const [totalResolve, setTotalResolved] = useState<any>(0);
-  const [totalUnAssign, setTotalUnAssing] = useState<any>(0);
   const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
@@ -33,6 +26,40 @@ const DashboardAdminWA: FC = () => {
     const year = date.getFullYear()
     return `${day}-${month}-${year}`
   }
+
+  // Broadcast table state (home)
+  const [bLoading, setBLoading] = useState<boolean>(false)
+  const [bData, setBData] = useState<any[]>([])
+  const [bPage, setBPage] = useState<number>(1)
+  const [bPageSize, setBPageSize] = useState<number>(10)
+  const [bTotal, setBTotal] = useState<number>(0)
+
+  const fetchBroadcastsHome = async (page = 1, take = 10, from?: string | null, to?: string | null) => {
+    const base = process.env.REACT_APP_WA_BACKEND_API_URL || ''
+    if (!base) return
+    setBLoading(true)
+    try {
+      const params: string[] = []
+      params.push(`page=${page}`)
+      params.push(`take=${take}`)
+      if (from) params.push(`from=${encodeURIComponent(from)}`)
+      if (to) params.push(`to=${encodeURIComponent(to)}`)
+      const url = `${base.replace(/\/$/, '')}/broadcast?${params.join('&')}`
+      const resp = await axios.get(url)
+      const data = resp?.data?.data || resp?.data || []
+      // If API provides total, use it; otherwise derive from array
+      const total = typeof resp?.data?.total === 'number' ? resp.data.total : Array.isArray(data) ? data.length : 0
+      setBData(Array.isArray(data) ? data : [])
+      setBTotal(total)
+    } catch (err) {
+      console.error('Failed to fetch broadcasts for home', err)
+      setBData([])
+      setBTotal(0)
+    } finally {
+      setBLoading(false)
+    }
+  }
+
   const fetchNewChatAssign = async () => {
     let query = `status=Assigned&user=${userRole}&userName=${userName}`
     try {
@@ -43,8 +70,7 @@ const DashboardAdminWA: FC = () => {
       })
 
       if (res.data) {
-        setTotalAssign(res.data.chats.length)
-        //  console.log(res.data.chats);
+        // keep prior behavior for counts if needed
       }
     } catch (err) {
       console.error('Failed to fetch new chats', err)
@@ -60,8 +86,7 @@ const DashboardAdminWA: FC = () => {
       })
 
       if (res.data) {
-        setTotalUnAssing(res.data.chats.length)
-        //  console.log(res.data.chats);
+        // response received for unassigned chats; not displayed on home
       }
     } catch (err) {
       console.error('Failed to fetch new chats', err)
@@ -77,10 +102,7 @@ const DashboardAdminWA: FC = () => {
       })
 
       if (res.data) {
-        setTotalResolved(res.data.chats.length)
-        // console.log(res.data.chats);
-        
-        //  console.log(res.data.chats);
+        // response received for resolved chats; not displayed on home
       }
     } catch (err) {
       console.error('Failed to fetch new chats', err)
@@ -145,7 +167,16 @@ useEffect(() => {
   fetchNewChatResolve()
   fetchClosedChat()
   fetchFirstChat()
+
+  // initial load for home tables
+  fetchBroadcastsHome(bPage, bPageSize)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [])
+
+useEffect(() => {
+  fetchBroadcastsHome(bPage, bPageSize)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [bPage, bPageSize])
 
   const formatTime = (ms: number) => {
     const duration = dayjs.duration(ms);
@@ -219,18 +250,73 @@ useEffect(() => {
       </Row>
 
       <Row>
-        <Col lg={5} md={12} className='mb-3'>
-          <MoreInformation
-            className='card-xl-stretch'
-            totalAssign={totalAssign}
-            totalResolve={totalResolve}
-            totalUnAssign={totalUnAssign}
-          />
-        </Col>
+        <Col lg={12} md={12} className='mb-3'>
+          <Card className='card'>
+            <Card.Body>
+              <h5 className='mb-3 d-flex justify-content-between align-items-center'>
+                <span>Broadcast History</span>
+                <div className='d-flex align-items-center'>
+                  <RangePicker
+                    format={'DD-MM-YYYY'}
+                    value={dateFrom && dateTo ? [dayjs(dateFrom, 'YYYY-MM-DD'), dayjs(dateTo, 'YYYY-MM-DD')] : undefined}
+                    onChange={(values) => {
+                      if (values && values.length === 2) {
+                        const from = values[0]?.format('YYYY-MM-DD')
+                        const to = values[1]?.format('YYYY-MM-DD')
+                        setDateFrom(from)
+                        setDateTo(to)
+                      } else {
+                        setDateFrom(new Date().toISOString().split('T')[0])
+                        setDateTo(new Date().toISOString().split('T')[0])
+                      }
+                    }}
+                    style={{ marginRight: 8 }}
+                  />
 
-        {/* <Col lg={7} md={12} className='mb-3'>
-          <ChartBarSurvey className='card-xl-stretch' orderData={chartDataOrder} />
-        </Col> */}
+                  <button
+                    className='btn btn-primary btn-sm me-2'
+                    onClick={() => {
+                      setBPage(1)
+                      fetchBroadcastsHome(1, bPageSize, dateFrom, dateTo)
+                    }}
+                  >Filter</button>
+                  <button
+                    className='btn btn-outline-secondary btn-sm'
+                    onClick={() => {
+                      const todayStr = new Date().toISOString().split('T')[0]
+                      setDateFrom(todayStr)
+                      setDateTo(todayStr)
+                      setBPage(1)
+                      fetchBroadcastsHome(1, bPageSize, todayStr, todayStr)
+                    }}
+                  >Reset</button>
+                </div>
+              </h5>
+
+              {bLoading ? (
+                <div className='text-center'><Spin /></div>
+              ) : (
+                <Table
+                  dataSource={bData.map((r:any, idx:number) => ({ key: r.detail_id || idx, ...r }))}
+                  pagination={{
+                    current: bPage,
+                    pageSize: bPageSize,
+                    total: bTotal,
+                    onChange: (pg, ps) => { setBPage(pg); setBPageSize(ps); fetchBroadcastsHome(pg, ps, dateFrom, dateTo) },
+                    showSizeChanger: true,
+                  }}
+                  columns={[
+                    { title: 'No', render: (_: any, __: any, idx: number) => (idx + 1) },
+                    { title: 'Nomor Tujuan', dataIndex: 'phonenumber', key: 'phonenumber' },
+                    { title: 'Pesan', dataIndex: 'message', key: 'message', render: (t: any) => t || '-' },
+                    { title: 'Tanggal', dataIndex: 'CreatedAt', key: 'CreatedAt' },
+                    { title: 'Status', dataIndex: 'status_label', key: 'status_label', render: (s: any) => <span className='badge bg-secondary'>{s || '-'}</span> },
+                  ]}
+                />
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
       </Row>
     </section>
   )

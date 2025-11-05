@@ -17,6 +17,21 @@ const ChatConfig: React.FC = () => {
   const [qrExpiresAt, setQrExpiresAt] = useState<string | null>(null)
   const [isFetchingQr, setIsFetchingQr] = useState(false)
   const [qrError, setQrError] = useState<string | null>(null)
+  const autoRefreshRef = React.useRef<number | null>(null)
+  const expiresTimeoutRef = React.useRef<number | null>(null)
+  const isAutoRefreshingRef = React.useRef<boolean>(false)
+
+  const clearAutoTimers = () => {
+    if (autoRefreshRef.current) {
+      clearInterval(autoRefreshRef.current)
+      autoRefreshRef.current = null
+    }
+    if (expiresTimeoutRef.current) {
+      clearTimeout(expiresTimeoutRef.current)
+      expiresTimeoutRef.current = null
+    }
+    isAutoRefreshingRef.current = false
+  }
 
   const checkStatus = async () => {
     setLoadingStatus(true)
@@ -47,8 +62,14 @@ const ChatConfig: React.FC = () => {
     setLoadingLogout(true)
     setErrorText('')
     try {
-      await logout()
-      await checkStatus()
+      const res = await logout()
+      const ok = res && (res.status === 200 || res.status === 201 || (res.data && (res.data.success === true || res.data.connected === false)))
+      if (ok) {
+        // successful logout; refresh status
+        await checkStatus()
+      } else {
+        setErrorText('Logout gagal: respons tidak berhasil')
+      }
     } catch (err: any) {
       setErrorText('Gagal logout: ' + (err?.message || String(err)))
     } finally {
@@ -72,7 +93,6 @@ const ChatConfig: React.FC = () => {
         setQrError('QR tidak tersedia pada respons server')
         setQrImage(null)
         setQrMessage(payload.message ?? null)
-
         setQrExpiresAt(payload.expiresAt ?? null)
         return
       }
@@ -80,6 +100,31 @@ const ChatConfig: React.FC = () => {
       setQrImage(qrImg)
       setQrMessage(payload.message ?? null)
       setQrExpiresAt(payload.expiresAt ?? null)
+
+      // If auto-refresh is active, schedule regen 5s before expiry
+      if (isAutoRefreshingRef.current && payload.expiresAt) {
+        try {
+          const expiresAt = new Date(payload.expiresAt).getTime()
+          const msUntilRefresh = expiresAt - Date.now() - 5000
+          if (msUntilRefresh > 0) {
+            if (expiresTimeoutRef.current) {
+              clearTimeout(expiresTimeoutRef.current)
+            }
+            // @ts-ignore
+            expiresTimeoutRef.current = window.setTimeout(() => {
+              // only fetch if still auto-refreshing and not connected
+              if (isAutoRefreshingRef.current && !isConnected) fetchQr()
+            }, msUntilRefresh)
+          } else {
+            // expires soon or already expired; fetch immediately next tick
+            setTimeout(() => {
+              if (isAutoRefreshingRef.current && !isConnected) fetchQr()
+            }, 1000)
+          }
+        } catch (e) {
+          // ignore scheduling errors
+        }
+      }
     } catch (err: any) {
       setQrError('Gagal mengambil QR: ' + (err?.message || String(err)))
       setQrImage(null)
@@ -91,19 +136,40 @@ const ChatConfig: React.FC = () => {
     }
   }
 
-  // clear QR when connected or unmount; do NOT auto-fetch — manual only
+  // clear QR when connected or unmount; stop any auto-refresh
   useEffect(() => {
     if (isConnected) {
       setQrImage(null)
       setQrMessage(null)
-
       setQrExpiresAt(null)
+      clearAutoTimers()
     }
     return () => {
-      // nothing to clear (no timers)
+      clearAutoTimers()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected])
+
+  // start auto-refresh interval (every 5s) and fetch immediately
+  const startAutoRefresh = () => {
+    if (isAutoRefreshingRef.current) return
+    isAutoRefreshingRef.current = true
+    // immediate fetch
+    fetchQr()
+    // set interval
+    // @ts-ignore
+    autoRefreshRef.current = window.setInterval(() => {
+      if (!isAutoRefreshingRef.current || isConnected) {
+        clearAutoTimers()
+        return
+      }
+      fetchQr()
+    }, 5000)
+  }
+
+  const stopAutoRefresh = () => {
+    clearAutoTimers()
+  }
 
   useEffect(() => {
     checkStatus()
@@ -138,67 +204,113 @@ const ChatConfig: React.FC = () => {
 
       {/* action-row removed; manual only controls inside QR header */}
 
-      {!isConnected && (
-        <div className='qr-card mt-3'>
-          <div className='qr-header d-flex align-items-center justify-content-between'>
-            <div>
-              <strong>QR Code Login</strong>
-              <div className='text-muted small'>{qrMessage || 'Scan QR dengan WhatsApp Business untuk menghubungkan.'}</div>
+      {!isConnected ? (
+        <div className='qr-and-guide mt-3'>
+          <div className='qr-card'>
+            <div className='qr-header d-flex align-items-center justify-content-between'>
+              <div>
+                <strong>QR Code Login</strong>
+                <div className='text-muted small'>{qrMessage || 'Scan QR dengan WhatsApp Business untuk menghubungkan.'}</div>
+              </div>
+              <div>
+                <div className='d-flex align-items-center gap-2'>
+                  <button
+                    className='btn btn-outline-secondary btn-sm'
+                    onClick={() => {
+                      // toggle auto-refresh
+                      if (isAutoRefreshingRef.current) stopAutoRefresh()
+                      else startAutoRefresh()
+                    }}
+                    disabled={isFetchingQr}
+                  >
+                    {isFetchingQr ? 'Memuat...' : isAutoRefreshingRef.current ? 'Auto Refreshing...' : 'Minta QR Baru'}
+                  </button>
+                  {isAutoRefreshingRef.current && (
+                    <button className='btn btn-sm btn-light' onClick={stopAutoRefresh} aria-label='stop-auto'>Stop</button>
+                  )}
+                </div>
+              </div>
             </div>
-            <div>
-              <button className='btn btn-outline-secondary btn-sm' onClick={fetchQr} disabled={isFetchingQr}>
-                {isFetchingQr ? 'Memuat...' : 'Minta QR Baru'}
-              </button>
+
+            <div className='qr-body d-flex align-items-center justify-content-center qr-body-area'>
+              {qrError && <div className='text-danger'>{qrError}</div>}
+              {!qrError && !qrImage && <div className='text-muted'>QR belum tersedia</div>}
+              {qrImage && (
+                <div className='text-center'>
+                  <img src={qrImage} alt='QR code' className='qr-image' />
+                  {qrExpiresAt && (
+                    <div className='small text-muted mt-2'>
+                      Expired: {new Date(qrExpiresAt).toLocaleString()}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          <div className='qr-body d-flex align-items-center justify-content-center qr-body-area'>
-            {qrError && <div className='text-danger'>{qrError}</div>}
-            {!qrError && !qrImage && <div className='text-muted'>QR belum tersedia</div>}
-            {qrImage && (
-              <div className='text-center'>
-                <img src={qrImage} alt='QR code' className='qr-image' />
-                {qrExpiresAt && (
-                  <div className='small text-muted mt-2'>
-                    Expired: {new Date(qrExpiresAt).toLocaleString()}
-                  </div>
-                )}
-              </div>
-            )}
+          <div className='guide-card'>
+            <div className='guide-title'>Panduan Koneksi</div>
+            <ol className='guide-list'>
+              <li>
+                <strong>Buka WhatsApp Business</strong>
+                <div>Pastikan menggunakan aplikasi WhatsApp Business, bukan WhatsApp biasa.</div>
+              </li>
+              <li>
+                <strong>Masuk ke Perangkat Tertaut</strong>
+                <div>Menu → Perangkat Tertaut → Tautkan Perangkat Baru.</div>
+              </li>
+              <li>
+                <strong>Pindai QR Code</strong>
+                <div>Klik Connect lalu arahkan ponsel ke QR Code di atas.</div>
+              </li>
+              <li>
+                <strong>Selesai!</strong>
+                <div>Akun WhatsApp Business Anda sekarang terhubung ke sistem.</div>
+              </li>
+            </ol>
+
+            <div className='note-box'>
+              <div className='note-title'>Catatan Penting:</div>
+              <ul>
+                <li>Jika QR Code tidak dapat tersambung, pastikan anda meminta QR baru.</li>
+                <li>Pastikan ponsel terhubung ke internet.</li>
+                <li>Hanya satu perangkat yang dapat terhubung pada satu waktu.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className='guide-card mt-3'>
+          <div className='guide-title'>Panduan Koneksi</div>
+          <ol className='guide-list'>
+            <li>
+              <strong>Buka WhatsApp Business</strong>
+              <div>Pastikan menggunakan aplikasi WhatsApp Business, bukan WhatsApp biasa.</div>
+            </li>
+            <li>
+              <strong>Masuk ke Perangkat Tertaut</strong>
+              <div>Menu → Perangkat Tertaut → Tautkan Perangkat Baru.</div>
+            </li>
+            <li>
+              <strong>Pindai QR Code</strong>
+              <div>Klik Connect lalu arahkan ponsel ke QR Code di atas.</div>
+            </li>
+            <li>
+              <strong>Selesai!</strong>
+              <div>Akun WhatsApp Business Anda sekarang terhubung ke sistem.</div>
+            </li>
+          </ol>
+
+          <div className='note-box'>
+            <div className='note-title'>Catatan Penting:</div>
+            <ul>
+              <li>Jika QR Code tidak dapat tersambung, pastikan anda meminta QR baru.</li>
+              <li>Pastikan ponsel terhubung ke internet.</li>
+              <li>Hanya satu perangkat yang dapat terhubung pada satu waktu.</li>
+            </ul>
           </div>
         </div>
       )}
-
-      <div className='guide-card'>
-        <div className='guide-title'>Panduan Koneksi</div>
-        <ol className='guide-list'>
-          <li>
-            <strong>Buka WhatsApp Business</strong>
-            <div>Pastikan menggunakan aplikasi WhatsApp Business, bukan WhatsApp biasa.</div>
-          </li>
-          <li>
-            <strong>Masuk ke Perangkat Tertaut</strong>
-            <div>Menu → Perangkat Tertaut → Tautkan Perangkat Baru.</div>
-          </li>
-          <li>
-            <strong>Pindai QR Code</strong>
-            <div>Klik Connect lalu arahkan ponsel ke QR Code di atas.</div>
-          </li>
-          <li>
-            <strong>Selesai!</strong>
-            <div>Akun WhatsApp Business Anda sekarang terhubung ke sistem.</div>
-          </li>
-        </ol>
-
-        <div className='note-box'>
-          <div className='note-title'>Catatan Penting:</div>
-          <ul>
-            <li>Jika QR Code tidak dapat tersambung, pastikan anda meminta QR baru.</li>
-            <li>Pastikan ponsel terhubung ke internet.</li>
-            <li>Hanya satu perangkat yang dapat terhubung pada satu waktu.</li>
-          </ul>
-        </div>
-      </div>
     </div>
   )
 }

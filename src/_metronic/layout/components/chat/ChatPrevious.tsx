@@ -67,18 +67,36 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
       return
     }
     const counts: {[key: string]: number} = {}
+
+    const fetchWithRetry = async (url: string, retries = 2, delayMs = 1000) => {
+      let attempt = 0
+      while (attempt <= retries) {
+        try {
+          const res = await axios.get(url)
+          return res
+        } catch (err: any) {
+          attempt++
+          const isNetworkError = !err.response
+          console.warn(`Request attempt ${attempt} failed for ${url}:`, err.message || err)
+          if (!isNetworkError) throw err
+          if (attempt > retries) throw err
+          await new Promise((r) => setTimeout(r, delayMs * attempt))
+        }
+      }
+    }
+
     for (const chat of previousChats) {
       try {
-        const url = `${apiChat}/chat/unread/${chat._id}`
-        const res = await axios.get(url)
-        const unreadMessages = res.data.unreadCount.filter(
-          (msg: any) =>
-            msg.sender !==
-            (userRole === 'Owner Vendor'
-              ? vendorName
-              : userRole === 'Super User'
-              ? 'Admin HO'
-              : userRole)
+        const url = `${apiChat.replace(/\/$/, '')}/chat/unread/${chat._id}`
+        const res = await fetchWithRetry(url, 2, 1000)
+        const unreadArr: any[] = res && res.data && Array.isArray((res.data as any).unreadCount) ? (res.data as any).unreadCount : []
+        const unreadMessages = unreadArr.filter((msg: any) =>
+          msg.sender !==
+          (userRole === 'Owner Vendor'
+            ? vendorName
+            : userRole === 'Super User'
+            ? 'Admin HO'
+            : userRole)
         )
 
         counts[chat._id] = unreadMessages.length || 0
@@ -86,7 +104,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
         if (err.response) {
           console.error(`Failed to fetch unread count for chat ${chat._id}. URL: ${apiChat}/chat/unread/${chat._id} Status: ${err.response.status}`, err.response.data)
         } else {
-          console.error(`Failed to fetch unread count for chat ${chat._id}`, err)
+          console.error(`Failed to fetch unread count for chat ${chat._id}`, err.message || err)
         }
         counts[chat._id] = 0
       }
@@ -100,11 +118,30 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
       return
     }
     const latest: {[key: string]: string} = {}
+
+    const fetchWithRetry = async (url: string, retries = 2, delayMs = 1000) => {
+      let attempt = 0
+      while (attempt <= retries) {
+        try {
+          const res = await axios.get(url)
+          return res
+        } catch (err: any) {
+          attempt++
+          const isNetworkError = !err.response
+          console.warn(`Request attempt ${attempt} failed for ${url}:`, err.message || err)
+          if (!isNetworkError) throw err
+          if (attempt > retries) throw err
+          await new Promise((r) => setTimeout(r, delayMs * attempt))
+        }
+      }
+    }
+
     for (const chat of previousChats) {
       try {
-        const res = await axios.get(`${apiChat}/chat/messages/${chat._id}`)
+        const url = `${apiChat.replace(/\/$/, '')}/chat/messages/${chat._id}`
+        const res = await fetchWithRetry(url, 2, 1000)
 
-        if (res.data && res.data.length > 0) {
+        if (res && res.data && res.data.length > 0) {
           res.data.forEach((chats: any) => {
             const {groupId, timestamp} = chats
             if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
@@ -116,7 +153,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
         if (err.response) {
           console.error(`Failed to fetch new chats for chat ${chat._id}. URL: ${apiChat}/chat/messages/${chat._id} Status: ${err.response.status}`, err.response.data)
         } else {
-          console.error('Failed to fetch new chats', err)
+          console.error('Failed to fetch new chats', err.message || err)
         }
       }
     }

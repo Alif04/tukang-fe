@@ -742,10 +742,32 @@ export default function ChatPage(): JSX.Element {
       return
     }
 
-    try {
-      const res = await axios.get(`${apiChat}/chat/messages`)
+    // helper with retries for transient network errors
+    const fetchWithRetry = async (url: string, retries = 2, delayMs = 1000) => {
+      let attempt = 0
+      while (attempt <= retries) {
+        try {
+          // use absolute URL; axios instance will honor full URL
+          const res = await axios.get(url)
+          return res
+        } catch (err: any) {
+          attempt++
+          // If it's not a network error, rethrow
+          const isNetworkError = !err.response
+          console.warn(`fetchNewChats attempt ${attempt} failed`, err.message || err)
+          if (!isNetworkError) throw err
+          if (attempt > retries) throw err
+          // exponential backoff
+          await new Promise((r) => setTimeout(r, delayMs * attempt))
+        }
+      }
+    }
 
-      if (res.data && res.data.length > 0) {
+    try {
+      const url = `${apiChat.replace(/\/$/, '')}/chat/messages`
+      const res = await fetchWithRetry(url, 3, 1000)
+
+      if (res && res.data && res.data.length > 0) {
         const hasNewMessages = res.data.some((chat: any) => {
           let currentUser: string
 
@@ -763,21 +785,26 @@ export default function ChatPage(): JSX.Element {
               currentUser = userRole
           }
 
-          return chat.receiver.some(
+          return chat.receiver && Array.isArray(chat.receiver) && chat.receiver.some(
             (receiver: any) => receiver.user === currentUser && !receiver.read
           )
         })
 
-        if (hasNewMessages) {
-          setNewMessages(true)
-        } else {
-          setNewMessages(false)
-        }
+        setNewMessages(!!hasNewMessages)
       } else {
         setNewMessages(false)
       }
-    } catch (err) {
-      console.error('Failed to fetch new chats', err)
+    } catch (err: any) {
+      // Provide clearer debug info for network errors
+      if (!err.response) {
+        console.error('Failed to fetch new chats: Network Error. Endpoint:', `${apiChat}/chat/messages`, err.message || err)
+      } else {
+        console.error('Failed to fetch new chats', err)
+      }
+      // schedule a retry later
+      setTimeout(() => {
+        try { fetchNewChats() } catch (_) {}
+      }, 5000)
     }
   }
   useEffect(() => {
