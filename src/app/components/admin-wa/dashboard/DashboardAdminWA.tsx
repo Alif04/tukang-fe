@@ -15,7 +15,7 @@ import {LoadingOutlined} from '@ant-design/icons'
 const {RangePicker} = DatePicker
 dayjs.extend(duration);
 
-const apiChat = process.env.REACT_APP_API_CHAT_URL
+const apiChat = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
 const DashboardAdminWA: FC = () => {
   const userRole = localStorage.getItem('userRole') as string;
   const [avgResponseTime, setAvgResponseTime] = useState<number>(0);
@@ -38,7 +38,7 @@ const DashboardAdminWA: FC = () => {
     try {
       const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 
@@ -55,7 +55,7 @@ const DashboardAdminWA: FC = () => {
     try {
       const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 
@@ -72,7 +72,7 @@ const DashboardAdminWA: FC = () => {
     try {
       const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 
@@ -91,7 +91,7 @@ const DashboardAdminWA: FC = () => {
     try {
       const res = await axios.get(`${apiChat}/all-closed-chat?${query}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 
@@ -115,7 +115,7 @@ const DashboardAdminWA: FC = () => {
     try {
       const res = await axios.get(`${apiChat}/first-response-handling?${query}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 

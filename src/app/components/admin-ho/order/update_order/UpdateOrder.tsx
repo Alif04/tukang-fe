@@ -92,7 +92,7 @@ interface Order {
 
   [key: string]: any
 }
-const apiChat = process.env.REACT_APP_API_CHAT_URL
+const apiChat = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
 const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()

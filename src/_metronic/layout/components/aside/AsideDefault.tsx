@@ -140,11 +140,42 @@ const AsideDefault: FC = () => {
     // eslint-disable-next-line
   }, [])
 
+  const MIN_KEY = 'kt_aside_minimized'
+
+  const applyMinState = (min: boolean) => {
+    if (min) {
+      document.body.classList.add('aside-minimize')
+    } else {
+      document.body.classList.remove('aside-minimize')
+    }
+  }
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(MIN_KEY)
+      const isMin = saved === '1'
+      applyMinState(isMin)
+    } catch (e) {
+      // ignore
+    }
+    // eslint-disable-next-line
+  }, [])
+
   const minimize = () => {
+    const willMinimize = !document.body.classList.contains('aside-minimize')
+    // add small animation class to aside
     asideRef.current?.classList.add('animating')
     setTimeout(() => {
       asideRef.current?.classList.remove('animating')
     }, 300)
+
+    applyMinState(willMinimize)
+
+    try {
+      localStorage.setItem(MIN_KEY, willMinimize ? '1' : '0')
+    } catch (e) {
+      // ignore
+    }
   }
   return (
     <div

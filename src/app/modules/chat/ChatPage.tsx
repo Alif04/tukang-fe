@@ -2,6 +2,7 @@ import {Navigate, Route, Routes, Outlet} from 'react-router-dom'
 import {PageLink, PageTitle} from '../../../_metronic/layout/core'
 import {Private} from './components/Private'
 import {Group} from './components/Group'
+import PeringatanService from './PeringatanService'
 
 const chatBreadCrumbs: Array<PageLink> = [
   {
@@ -22,6 +23,15 @@ const ChatPage = () => {
             <>
               <PageTitle breadcrumbs={chatBreadCrumbs}>Chat</PageTitle>
               <Private />
+            </>
+          }
+        />
+        <Route
+          path='peringatan-service'
+          element={
+            <>
+              <PageTitle breadcrumbs={chatBreadCrumbs}>Peringatan Service</PageTitle>
+              <PeringatanService />
             </>
           }
         />

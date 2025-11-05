@@ -6,7 +6,7 @@ import Swal from 'sweetalert2'
 
 const {Search, TextArea} = Input
 const {Option} = Select
-const apiUrl = process.env.REACT_APP_API_CHAT_URL
+const apiUrl = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
 
 const TemplateChat: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
