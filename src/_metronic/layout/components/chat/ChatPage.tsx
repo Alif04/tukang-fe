@@ -13,6 +13,8 @@ import {Button, Modal} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faComment} from '@fortawesome/free-solid-svg-icons'
 
+const enableSockets = process.env.REACT_APP_ENABLE_CHAT_SOCKETS === 'true'
+
 export default function ChatPage(): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [step, setStep] = useState<string>('start')
@@ -42,18 +44,26 @@ export default function ChatPage(): JSX.Element {
   const poveuesiListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const apiUrl = process.env.REACT_APP_API_URL
   const apiChat = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
+  const agentSocketsEnabled = process.env.REACT_APP_ENABLE_CHAT_AGENT_SOCKETS === 'true'
+  const socketsAllowed = (enableSockets && apiChat !== process.env.REACT_APP_API_CHAT_URL) || agentSocketsEnabled
 
   // Use a ref to hold the socket instance so we can initialize it only when apiChat is configured
   const socketRef = useRef<any>(null)
 
   useEffect(() => {
-    // Initialize socket only when apiChat is configured (non-empty)
-    if (!apiChat) {
-      console.warn('REACT_APP_API_CHAT_URL not configured. Socket will not be initialized.')
+    if (!socketsAllowed) {
+      console.info('Chat sockets disabled via flag or REACT_APP_API_CHAT_URL')
+      return
+    }
+    // Determine socket base URL. If agentSocketsEnabled, prefer REACT_APP_API_URL fallback to apiChat
+    const socketBase = agentSocketsEnabled ? (process.env.REACT_APP_API_URL || apiChat) : apiChat
+
+    if (!socketBase) {
+      console.warn('No socket base URL configured. Socket will not be initialized.')
       return
     }
 
-    const url = apiChat.replace(/\/$/, '')
+    const url = socketBase.replace(/\/$/, '')
     socketRef.current = io(`${url}/live-chat`)
 
     const handleReceiveMessage = (msg: {sender: string; message: string; timestamp: any}) => {
@@ -82,7 +92,7 @@ export default function ChatPage(): JSX.Element {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiChat])
+  }, [apiChat, socketsAllowed])
 
   useEffect(() => {
     if (messages.length > 0 && !isOpen) {
@@ -332,7 +342,7 @@ export default function ChatPage(): JSX.Element {
             ...prev,
             {sender: 'Mitra 10', message: `Anda telah bergabung ke grup.`, timestamp},
           ])
-          if (socketRef.current) socketRef.current.emit('joinGroup', res.data.groupId)
+          if (socketsAllowed && socketRef.current) socketRef.current.emit('joinGroup', res.data.groupId)
         } else {
           alert('Gagal memulai chat.')
         }
@@ -402,7 +412,7 @@ export default function ChatPage(): JSX.Element {
             ...prev,
             {sender: 'Mitra 10', message: `Anda telah bergabung ke grup.`, timestamp},
           ])
-          if (socketRef.current) socketRef.current.emit('joinGroup', res.data.groupId)
+          if (socketsAllowed && socketRef.current) socketRef.current.emit('joinGroup', res.data.groupId)
         } else {
           alert('Gagal memulai chat.')
         }
@@ -475,7 +485,7 @@ export default function ChatPage(): JSX.Element {
             ...prev,
             {sender: 'Mitra 10', message: `Anda telah bergabung ke grup.`, timestamp},
           ])
-          if (socketRef.current) socketRef.current.emit('joinGroup', res.data.groupId)
+          if (socketsAllowed && socketRef.current) socketRef.current.emit('joinGroup', res.data.groupId)
         } else {
           alert('Gagal memulai chat.')
         }
@@ -527,7 +537,10 @@ export default function ChatPage(): JSX.Element {
     if (typeof message === 'string') {
       msg.message = message
 
-      if (socketRef.current) socketRef.current.emit('sendMessage', msg)
+      if (socketsAllowed && socketRef.current) socketRef.current.emit('sendMessage', msg)
+      // Refresh lists so UI updates immediately even when sockets are off
+      fetchPreviousChats()
+      if (groupId) fetchMessagesForGroup(groupId)
     } else if (message.type === 'file') {
       const formData = new FormData()
       formData.append('file', message.file)
@@ -540,9 +553,12 @@ export default function ChatPage(): JSX.Element {
         })
         .then((res) => {
           msg.message = res.data.fileUrl // URL dari server setelah upload
-          if (res.data.fileUrl && socketRef.current) {
+          if (res.data.fileUrl && socketsAllowed && socketRef.current) {
             socketRef.current.emit('sendMessage', msg)
           }
+          // After upload/send, refresh UI
+          fetchPreviousChats()
+          if (groupId) fetchMessagesForGroup(groupId)
         })
         .catch((err) => {
           console.error('Upload gagal', err)
@@ -582,13 +598,54 @@ export default function ChatPage(): JSX.Element {
     }
   }
 
+  // Polling when sockets are disabled: refresh previous chats and current conversation periodically
+  useEffect(() => {
+    if (socketsAllowed) return // if sockets enabled, server will push updates
+
+    // initial fetch
+    fetchPreviousChats()
+
+    const prevChatsInterval = setInterval(() => {
+      fetchPreviousChats()
+    }, 5000) // every 5s
+
+    return () => clearInterval(prevChatsInterval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiChat])
+
+  // Poll messages for selected group when sockets are disabled
+  useEffect(() => {
+    if (socketsAllowed) return
+    if (!groupId) return
+
+    // fetch immediately
+    fetchMessagesForGroup(groupId)
+
+    const messagesInterval = setInterval(() => {
+      fetchMessagesForGroup(groupId)
+    }, 3000) // every 3s
+
+    return () => clearInterval(messagesInterval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupId, apiChat])
+
   const handlePreviousChat = async (groupId: any) => {
     setGroupId(groupId)
     setSteps('riwayatChat')
-    if (socketRef.current) socketRef.current.emit('joinGroup', groupId)
+    if (socketsAllowed && socketRef.current) socketRef.current.emit('joinGroup', groupId)
+    await fetchMessagesForGroup(groupId)
+    setUnreadChats((prev: any) => prev.filter((id: any) => id !== groupId))
+  }
+
+  // Fetch messages helper (separate from handlePreviousChat to allow polling without side-effects)
+  async function fetchMessagesForGroup(groupId: any) {
+    if (!apiChat) {
+      console.error('REACT_APP_API_CHAT_URL not configured')
+      return
+    }
     try {
       if (!localStorage.getItem('accessToken')) {
-        console.warn('No access token present, skipping handlePreviousChat')
+        console.warn('No access token present, skipping fetchMessagesForGroup')
         return
       }
       const url = `${apiChat}/chat/messages/${groupId}`
@@ -612,7 +669,6 @@ export default function ChatPage(): JSX.Element {
           })
           setMessages([])
         } else if (err.response.status === 401) {
-          // Let interceptor handle 401 flow; just log here
           console.warn('Unauthorized when fetching conversation detail')
         } else {
           console.error('Error response:', err.response.data)
@@ -621,7 +677,6 @@ export default function ChatPage(): JSX.Element {
         console.error('Failed to fetch conversation detail', err)
       }
     }
-    setUnreadChats((prev: any) => prev.filter((id: any) => id !== groupId))
   }
 
   const handleDeleteChat = (id: any) => {

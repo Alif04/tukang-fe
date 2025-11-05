@@ -3,7 +3,6 @@
 import clsx from 'clsx'
 import {FC, useEffect, useRef, useState} from 'react'
 import { Modal } from 'react-bootstrap'
-import io from 'socket.io-client'
 import { sendWaMessage, sendImage as sendWaImage } from '../../../app/helpers/wautils'
 
 type Props = {
@@ -11,7 +10,7 @@ type Props = {
   chatData: any
   selectedChats: any
 }
-const socket = io(`${(process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || '').replace(/\/$/,'')}/whatsapp`)
+
 const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
   const [message, setMessage] = useState<string>('')
   const [showTemplateModal, setShowTemplateModal] = useState(false)

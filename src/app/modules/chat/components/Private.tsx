@@ -54,13 +54,22 @@ const Private: FC = () => {
   const [draft, setDraft] = useState('')
   const [isCollapsed, setIsCollapsed] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+const conversationsRef = useRef<Conversation[]>([])
+useEffect(() => {
+  conversationsRef.current = conversations
+}, [conversations])
 
   useEffect(() => {
     let mounted = true
+    if (!API_BASE) {
+      return () => {
+        mounted = false
+      }
+    }
     const fetchConversations = async () => {
       try {
         const res = await axios.get(`${API_BASE}/conversation`)
-        const items = Array.isArray(res.data?.data) ? res.data.data : []
+        const items = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : []
         const mapped: Conversation[] = items.map((it: any) => ({
           id: String(it.phonenumber || it.id || ''),
           name: String(it.name || ''),
@@ -73,18 +82,37 @@ const Private: FC = () => {
           status: 'offline',
         }))
         if (mounted) {
-          setConversations(mapped)
-          if (mapped.length) setSelectedId(mapped[0].id)
+          setConversations((prev) => {
+            const prevMap = new Map(prev.map((c) => [c.id, c]))
+            const nextList = mapped.map((n) => {
+              const ex = prevMap.get(n.id)
+              return ex
+                ? {
+                    ...ex,
+                    name: n.name,
+                    phone: n.phone,
+                    avatarText: n.avatarText,
+                    lastMessage: n.lastMessage || ex.lastMessage,
+                    lastTime: n.lastTime || ex.lastTime,
+                    unread: typeof n.unread === 'number' ? n.unread : ex.unread,
+                  }
+                : n
+            })
+            return nextList
+          })
+          if (!selectedId && mapped.length) setSelectedId(mapped[0].id)
         }
       } catch (e) {
-        if (mounted) setConversations([])
+        // keep previous state on error
       }
     }
     fetchConversations()
+    const intervalId = setInterval(fetchConversations, 5000)
     return () => {
       mounted = false
+      clearInterval(intervalId)
     }
-  }, [])
+  }, [selectedId])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -102,20 +130,32 @@ const Private: FC = () => {
 
   const handleSelectConversation = async (conv: Conversation) => {
     setSelectedId(conv.id)
+    if (!API_BASE) return
     try {
       // determine last_id from existing messages, if any
       const lastMsg = conv.messages && conv.messages.length ? conv.messages[conv.messages.length - 1] : null
       const lastId = lastMsg && typeof lastMsg.rawId === 'number' ? lastMsg.rawId : 0
       const max = parseInt(process.env.REACT_APP_CONVERSATION_MAX || '29', 10)
 
-      const res = await axios.get(`${API_BASE}/conversation/${conv.id}?last_id=${lastId}&max=${max}`)
-      const items = Array.isArray(res.data?.data) ? res.data.data : []
+      const res = await axios.get(`${API_BASE}/conversation/detail/${conv.id}?last_id=${lastId}&max=${max}`)
+      // Support multiple response shapes: res.data.data (array) or res.data.data.data (object with data array)
+      const maybeData = res.data?.data
+      let items: any[] = []
+      if (Array.isArray(maybeData)) {
+        items = maybeData
+      } else if (maybeData && Array.isArray((maybeData as any).data)) {
+        items = (maybeData as any).data
+      } else if (Array.isArray(res.data)) {
+        items = res.data
+      } else {
+        items = []
+      }
       const mapped: Message[] = items.map((it: any) => ({
         id: `${String(it.id || it._id || Math.random())}`,
         rawId: typeof it.id === 'number' ? it.id : Number(it.id) || undefined,
         from: it.direction === 'incoming' ? 'them' : 'me',
-        text: String(it.message || ''),
-        time: formatTime(it.CreatedAt || it.CreatedAt),
+        text: String(it.message || it.text || it.msg || ''),
+        time: formatTime(it.CreatedAt || it.created_at || it.createdAt),
       }))
       setConversations((prev) =>
         prev.map((c) =>
@@ -125,6 +165,7 @@ const Private: FC = () => {
                 messages: mapped,
                 lastMessage: mapped.length ? mapped[mapped.length - 1].text : c.lastMessage,
                 lastTime: mapped.length ? mapped[mapped.length - 1].time : c.lastTime,
+                unread: 0,
               }
             : c
         )
@@ -134,6 +175,61 @@ const Private: FC = () => {
       console.error('Failed to fetch conversation detail', err)
     }
   }
+
+  useEffect(() => {
+    if (!API_BASE) return
+    if (!selectedId) return
+    let alive = true
+    const poll = async () => {
+      try {
+        const conv = conversationsRef.current.find((c) => c.id === selectedId)
+        const lastMsg = conv && conv.messages.length ? conv.messages[conv.messages.length - 1] : null
+        const lastId = lastMsg && typeof lastMsg.rawId === 'number' ? lastMsg.rawId : 0
+        const max = parseInt(process.env.REACT_APP_CONVERSATION_MAX || '29', 10)
+        const res = await axios.get(`${API_BASE}/conversation/detail/${selectedId}?last_id=${lastId}&max=${max}`)
+        const maybeData = res.data?.data
+        let items: any[] = []
+        if (Array.isArray(maybeData)) {
+          items = maybeData
+        } else if (maybeData && Array.isArray((maybeData as any).data)) {
+          items = (maybeData as any).data
+        } else if (Array.isArray(res.data)) {
+          items = res.data
+        }
+        const mapped: Message[] = items.map((it: any) => ({
+          id: `${String(it.id || it._id || Math.random())}`,
+          rawId: typeof it.id === 'number' ? it.id : Number(it.id) || undefined,
+          from: it.direction === 'incoming' ? 'them' : 'me',
+          text: String(it.message || it.text || it.msg || ''),
+          time: formatTime(it.CreatedAt || it.created_at || it.createdAt),
+        }))
+        if (!alive || mapped.length === 0) return
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id !== selectedId) return c
+            const existingIds = new Set(c.messages.map((m) => m.id))
+            const newMsgs = mapped.filter((m) => !existingIds.has(m.id))
+            const merged = newMsgs.length ? [...c.messages, ...newMsgs] : c.messages
+            return {
+              ...c,
+              messages: merged,
+              lastMessage: merged.length ? merged[merged.length - 1].text : c.lastMessage,
+              lastTime: merged.length ? merged[merged.length - 1].time : c.lastTime,
+            }
+          })
+        )
+        setTimeout(scrollToBottom, 50)
+      } catch (err) {
+        // silent fail
+      }
+    }
+    poll()
+    const id = setInterval(poll, 3000)
+    return () => {
+      alive = false
+      clearInterval(id)
+    }
+  }, [selectedId])
 
   const sendMessage = async () => {
     const text = draft.trim()
