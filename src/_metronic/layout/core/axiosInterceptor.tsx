@@ -13,9 +13,12 @@ const axiosInstance = axios.create({
 })
 
 // Set global axios default Authorization if token exists (covers modules using axios directly)
-const existingToken = localStorage.getItem('accessToken')
-if (existingToken) {
-  axios.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`
+// Guard against non-browser environments
+if (typeof window !== 'undefined' && window.localStorage) {
+  const existingToken = localStorage.getItem('accessToken')
+  if (existingToken) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`
+  }
 }
 
 // Attach the latest token on each axios-instance request and keep global axios default in sync

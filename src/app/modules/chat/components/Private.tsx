@@ -9,6 +9,8 @@ interface Message {
   from: 'me' | 'them'
   text: string
   time: string // HH:mm or date string
+  img?: string // 🟢 img
+  document?: string // 🟢 file
 }
 
 interface Conversation {
@@ -56,9 +58,9 @@ const Private: FC = () => {
   const [showSearch, setShowSearch] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
-const conversationsRef = useRef<Conversation[]>([])
-const isFetchingConversationsRef = useRef<boolean>(false)
-const isFetchingDetailRef = useRef<boolean>(false)
+  const conversationsRef = useRef<Conversation[]>([])
+  const isFetchingConversationsRef = useRef<boolean>(false)
+  const isFetchingDetailRef = useRef<boolean>(false)
 useEffect(() => {
   conversationsRef.current = conversations
 }, [conversations])
@@ -168,8 +170,11 @@ useEffect(() => {
         rawId: typeof it.id === 'number' ? it.id : Number(it.id) || undefined,
         from: it.direction === 'incoming' ? 'them' : 'me',
         text: String(it.message || it.text || it.msg || ''),
+        img: it.img || '', // 🟢 tambahkan ini
+        document: it.document || '', // 🟢 tambahkan ini
         time: formatTime(it.CreatedAt || it.created_at || it.createdAt),
-      }))
+      }));
+
       setConversations((prev) =>
         prev.map((c) =>
           c.id === conv.id
@@ -216,6 +221,8 @@ useEffect(() => {
           rawId: typeof it.id === 'number' ? it.id : Number(it.id) || undefined,
           from: it.direction === 'incoming' ? 'them' : 'me',
           text: String(it.message || it.text || it.msg || ''),
+          img: it.img || '', // 🟢 tambahkan ini
+          document: it.document || '', // 🟢 tambahkan ini
           time: formatTime(it.CreatedAt || it.created_at || it.createdAt),
         }))
         if (!alive || mapped.length === 0) return
@@ -302,6 +309,8 @@ useEffect(() => {
       sendMessage()
     }
   }
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   return (
     <div className='wa-container'>
@@ -398,16 +407,126 @@ useEffect(() => {
             </header>
 
             <section className='wa-messages'>
-              {active.messages.map((m) => (
-                <div key={m.id} className={`wa-bubble ${m.from === 'me' ? 'outgoing' : 'incoming'}`}>
-                  <div dangerouslySetInnerHTML={{__html: m.text}} />
-                  <span className='wa-bubble-time'>{m.time}</span>
-                </div>
-              ))}
+              {active.messages.map((m) => {
+                const imageUrl = m.img
+                  ? `${API_BASE}${m.img}`
+                  : null;
+                const documentUrl = m.document
+                  ? `${API_BASE}${m.document}`
+                  : null;
+
+                return (
+                  <div key={m.id} className={`wa-bubble ${m.from === 'me' ? 'outgoing' : 'incoming'}`}>
+                    {/* 🖼️ Jika pesan berisi gambar */}
+                    {imageUrl ? (
+                      <img
+                        width={250}
+                        src={imageUrl || undefined}
+                        alt="attachment"
+                        className="wa-bubble-image"
+                      />
+                    ) : null}
+
+                    {/* 📄 Jika pesan berisi dokumen */}
+                    {documentUrl ? (
+                      <div className="wa-bubble-doc">
+                        <i className="bi bi-file-earmark-text" style={{ fontSize: 20, marginRight: 8 }}></i>
+                        <a
+                          href={documentUrl}
+                          download
+                          className="wa-download-btn"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Download File
+                        </a>
+                      </div>
+                    ) : null}
+
+                    {/* 🗨️ Jika pesan teks */}
+                    {m.text && !documentUrl && (
+                      <div dangerouslySetInnerHTML={{ __html: m.text }} />
+                    )}
+
+                    <span className="wa-bubble-time">{m.time}</span>
+                  </div>
+                );
+              })}
+
               <div ref={messagesEndRef} />
             </section>
 
+
             <footer className='wa-input'>
+              {/* 📎 Tombol upload */}
+              <div className='wa-attach'>
+                <label htmlFor='file-upload' className='wa-icon-btn' title='Upload file'>
+                  <i className='bi bi-paperclip'></i>
+                </label>
+                <input
+                  id='file-upload'
+                  ref={fileInputRef}
+                  type='file'
+                  accept='image/*,application/pdf,.doc,.docx,.xls,.xlsx'
+                  style={{ display: 'none' }}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+
+                    reader.onload = async (event) => {
+                      const base64Data = event.target?.result as string;
+                      if (!base64Data) return;
+
+                      const now = new Date();
+                      const hh = now.getHours().toString().padStart(2, '0');
+                      const mm = now.getMinutes().toString().padStart(2, '0');
+
+                      const tempMessage: Message = {
+                        id: `upload-${Date.now()}`,
+                        from: 'me',
+                        text: file.name,
+                        time: `${hh}:${mm}`,
+                      };
+
+                      // setConversations((prev: Conversation[]) =>
+                      //   prev.map((c: Conversation) =>
+                      //     c.id === selectedId
+                      //       ? { ...c, messages: [...c.messages, tempMessage] }
+                      //       : c
+                      //   )
+                      // );
+
+                      try {
+                        const payload = {
+                          phonenumber: selectedId,
+                          message: '',
+                          location: '',
+                          img: file.type.startsWith('image/') ? base64Data : '',
+                          document: !file.type.startsWith('image/') ? base64Data : '',
+                          audio: '',
+                          video: '',
+                        };
+
+                        await axios.post(`${API_BASE}/conversation`, payload, {
+                          headers: { 'Content-Type': 'application/json' },
+                        });
+                      } catch (err) {
+                        console.error('Failed to send file', err);
+                      }
+
+                      // 🧹 PENTING: reset nilai input agar bisa upload file yang sama lagi
+                      e.target.value = '';
+                    };
+
+                    reader.readAsDataURL(file);
+                  }}
+
+
+                />
+              </div>
+
+              {/* 💬 Textarea pesan */}
               <textarea
                 className='wa-textarea'
                 rows={1}
@@ -416,12 +535,15 @@ useEffect(() => {
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={onKeyDown}
               />
+
+              {/* 📨 Tombol kirim */}
               {draft.trim() ? (
                 <button className='wa-send-btn' onClick={sendMessage} aria-label='send'>
                   <i className='bi bi-send'></i>
                 </button>
               ) : null}
             </footer>
+
           </>
         ) : (
           <div className='wa-empty'>Pilih percakapan di sebelah kiri</div>

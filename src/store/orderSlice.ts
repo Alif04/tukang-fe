@@ -24,16 +24,26 @@ interface orderFilter {
   selectedPaymentQuotationStatus: string[]
 }
 
-const userRole = localStorage.getItem('userRole') as string
+const getUserRole = (): string => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return (localStorage.getItem('userRole') as string) || ''
+  }
+  return ''
+}
+
+const getInitialDateFrom = (): string => {
+  const userRole = getUserRole()
+  return ['Super User', 'Admin HO'].includes(userRole)
+    ? new Date(new Date().setDate(new Date().getDate() - 14)).toISOString().split('T')[0]
+    : new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+}
 
 const initialState: orderFilter = {
   queryParams: '',
   searchFilter: '',
   currentPage: 1,
   pageSize: 50,
-  dateFrom: ['Super User', 'Admin HO'].includes(userRole)
-    ? new Date(new Date().setDate(new Date().getDate() - 14)).toISOString().split('T')[0]
-    : new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0],
+  dateFrom: getInitialDateFrom(),
   dateTo: new Date().toISOString().split('T')[0],
   selectedStore: {value: null, label: 'All Store'},
   selectedVendor: {value: null, label: 'All Vendor'},
@@ -82,9 +92,7 @@ const orderSlice = createSlice({
     resetFilters(state) {
       state.queryParams = ''
       state.searchFilter = ''
-      state.dateFrom = ['Super User', 'Admin HO'].includes(userRole)
-        ? new Date(new Date().setDate(new Date().getDate() - 14)).toISOString().split('T')[0]
-        : new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0]
+      state.dateFrom = getInitialDateFrom()
       state.dateTo = new Date().toISOString().split('T')[0]
       state.currentPage = 1
       state.pageSize = 10

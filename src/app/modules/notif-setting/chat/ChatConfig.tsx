@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { requestQr, healthCheck, logout } from '../../../helpers/wautils'
+import { generateQr, healthCheck, logout } from '../../../helpers/wautils'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCircleCheck, faCircleXmark, faRotateRight} from '@fortawesome/free-solid-svg-icons'
 import './ChatConfig.css'
@@ -81,13 +81,13 @@ const ChatConfig: React.FC = () => {
     setIsFetchingQr(true)
     setQrError(null)
     try {
-      const res = await requestQr()
-      console.log('requestQr response:', res )
+      const res = await generateQr()
+      console.log('generateQr response:', res )
       if (!res || (res.status !== 200 && res.status !== 201)) {
-        throw new Error('requestQr gagal atau mengembalikan status bukan 200/201')
+        throw new Error('generateQr gagal atau mengembalikan status bukan 200/201')
       }
       const payload = res.data ?? res
-      const qrImg = payload.qrImage || (payload.qr && (typeof payload.qr === 'string' && payload.qr.startsWith('data:') ? payload.qr : null)) || null
+      const qrImg = payload.image
 
       if (!qrImg) {
         setQrError('QR tidak tersedia pada respons server')

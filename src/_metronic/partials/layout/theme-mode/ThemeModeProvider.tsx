@@ -3,7 +3,17 @@ import {ThemeModeComponent} from '../../../assets/ts/layout'
 import {toAbsoluteUrl} from '../../../helpers'
 
 export type ThemeModeType = 'dark' | 'light' | 'system'
-const systemMode = ThemeModeComponent.getSystemMode() as 'light' | 'dark'
+
+const getSystemMode = (): 'light' | 'dark' => {
+  if (typeof window === 'undefined') {
+    return 'light'
+  }
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light'
+}
+
+const systemMode = getSystemMode()
 
 type ThemeModeContextType = {
   mode: ThemeModeType
@@ -23,7 +33,7 @@ const themeModeLSKey = 'kt_theme_mode_value'
 const themeMenuModeLSKey = 'kt_theme_mode_menu'
 
 const getThemeModeFromLocalStorage = (lsKey: string): ThemeModeType => {
-  if (!localStorage) {
+  if (typeof window === 'undefined' || !window.localStorage) {
     return 'light'
   }
 
@@ -44,8 +54,8 @@ const getThemeModeFromLocalStorage = (lsKey: string): ThemeModeType => {
 }
 
 const defaultThemeMode: ThemeModeContextType = {
-  mode: getThemeModeFromLocalStorage(themeModeLSKey),
-  menuMode: getThemeModeFromLocalStorage(themeMenuModeLSKey),
+  mode: 'light',
+  menuMode: 'light',
   updateMode: (_mode: ThemeModeType) => {},
   updateMenuMode: (_menuMode: ThemeModeType) => {},
 }
@@ -60,8 +70,8 @@ const ThemeModeContext = createContext<ThemeModeContextType>({
 const useThemeMode = () => useContext(ThemeModeContext)
 
 const ThemeModeProvider = ({children}: {children: React.ReactNode}) => {
-  const [mode, setMode] = useState<ThemeModeType>(defaultThemeMode.mode)
-  const [menuMode, setMenuMode] = useState<ThemeModeType>(defaultThemeMode.menuMode)
+  const [mode, setMode] = useState<ThemeModeType>(() => getThemeModeFromLocalStorage(themeModeLSKey))
+  const [menuMode, setMenuMode] = useState<ThemeModeType>(() => getThemeModeFromLocalStorage(themeMenuModeLSKey))
 
   const updateMode = (_mode: ThemeModeType) => {
     const updatedMode = _mode === 'system' ? systemMode : _mode

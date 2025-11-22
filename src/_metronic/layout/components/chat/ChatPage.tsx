@@ -43,7 +43,7 @@ export default function ChatPage(): JSX.Element {
   const vendorListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const poveuesiListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const apiUrl = process.env.REACT_APP_API_URL
-  const apiChat = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
+  const apiChat = process.env.REACT_APP_WA_BACKEND_API_URL || process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
   const agentSocketsEnabled = process.env.REACT_APP_ENABLE_CHAT_AGENT_SOCKETS === 'true'
   const socketsAllowed = (enableSockets && apiChat !== process.env.REACT_APP_API_CHAT_URL) || agentSocketsEnabled
 
@@ -599,19 +599,19 @@ export default function ChatPage(): JSX.Element {
   }
 
   // Polling when sockets are disabled: refresh previous chats and current conversation periodically
-  useEffect(() => {
-    if (socketsAllowed) return // if sockets enabled, server will push updates
+  // useEffect(() => {
+  //   if (socketsAllowed) return // if sockets enabled, server will push updates
 
-    // initial fetch
-    fetchPreviousChats()
+  //   // initial fetch
+  //   fetchPreviousChats()
 
-    const prevChatsInterval = setInterval(() => {
-      fetchPreviousChats()
-    }, 5000) // every 5s
+  //   const prevChatsInterval = setInterval(() => {
+  //     fetchPreviousChats()
+  //   }, 5000) // every 5s
 
-    return () => clearInterval(prevChatsInterval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiChat])
+  //   return () => clearInterval(prevChatsInterval)
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [apiChat])
 
   // Poll messages for selected group when sockets are disabled
   useEffect(() => {

@@ -13,6 +13,7 @@ import {Row, Col, Form, FormGroup, Table, Button, ListGroup, Card} from 'react-b
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import { sendWaMessage, sendImage as sendWaImage } from '../../../../../app/helpers/wautils'
 
 interface StoreItemSelect {
   value: number | null
@@ -97,6 +98,10 @@ interface Order {
 }
 
 const NewOrderHO: FC = () => {
+  
+
+  const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
+  
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([])
@@ -390,6 +395,7 @@ const NewOrderHO: FC = () => {
           setVendor(response.data.data)
         })
         .catch((error) => {
+          setIsLoadingPage(false)
           console.error(error)
         })
     }
@@ -823,12 +829,12 @@ const NewOrderHO: FC = () => {
         if (item?.item && item.item.prices?.length > 0) {
           const minOrder = Number(item.item.prices[0].min_order)
 
-          if (item.quantity < minOrder) {
-            errorBags.push({
-              message: `Quantity item "${item.item_name}" harus lebih dari minimal order (${minOrder}).`,
-            })
-            setIsLoading(false)
-          }
+          // if (item.quantity < minOrder) {
+          //   errorBags.push({
+          //     message: `Quantity item "${item.item_name}" harus lebih dari minimal order (${minOrder}).`,
+          //   })
+          //   setIsLoading(false)
+          // }
         }
 
         requiredOrderDetailsFields.forEach(({key, fieldName}) => {
@@ -901,10 +907,113 @@ const NewOrderHO: FC = () => {
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      .then((response) => {
+      .then(async (response) => {
         const orderId = response.data.data.id
 
         if (response.data.status === 201) {
+          // ====== FORMAT INVOICE WHATSAPP DINAMIS ======
+
+          const orderDate = new Date().toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+          });
+
+          const requestDate = new Date(orderForm.request_survey).toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+          });
+
+          const customerName = selectedMember.full_name || "-";
+          const customerPhone = orderForm.project_number || "-";
+          const customerAddress = orderForm.project_address || "-";
+
+          const storeName = selectedStore?.label || "-";
+          const vendorName = selectedVendor?.label || "-";
+
+          // Generate item list
+          const itemList = orderForm.order_details
+            .map((d, idx) => {
+              return `${d.item_code ?? '-'} | ${d.item_name ?? '-'} | ${d.service_name ?? d.item_notes ?? '-'} | ${d.quantity}`;
+            })
+            .join("\n");
+
+          const invoiceMessage = 
+`*Mitra10 - Instalasi & Service*
+
+🧾 *INVOICE INSTALASI & SERVICE*
+
+*Order ID:* ${orderId}
+*Tgl Order:* ${orderDate}
+*Req Pasang:* ${requestDate}
+
+Hai ${customerName}, selamat pagi 👋
+
+*Detail Item*
+${itemList}
+
+*Grand Total:* *Rp ${grandTotal.toLocaleString('id-ID')}*
+
+──────────────────
+*Detail Pemasangan*
+Nama : ${customerName}
+Alamat : ${customerAddress}
+Telp : ${customerPhone}
+Store : ${storeName}
+Vendor : ${vendorName}
+
+Transaksi berhasil. File tanda terima ada di email Anda.
+
+Hubungi Admin Instalasi:
+📲 087884821089
+
+──────────────────
+*Pembayaran*
+🏦 *BCA*
+a.n *Catur Mitra Sejati Sentosa*
+💳 *429-33-26919*
+
+Kirim bukti bayar ke:
+📞 0819-9154-7735
+📧 cs.ahmadyani@mitra10.com
+
+──────────────────
+
+Hormat kami,  
+*Mitra10*
+              `;
+
+          // KIRIM KE WA
+          // await sendWaMessage({
+          //   number: "085210275004",//orderForm.project_number,
+          //   message: invoiceMessage
+          // });
+
+          // === KIRIM GAMBAR RECEIPT KE WHATSAPP ===
+          if (receiptFiles.length > 0) {
+            for (const file of receiptFiles) {
+              if (!file) continue;
+
+              const base64Img = await fileToBase64(file);
+
+              const payload = {
+                phonenumber: orderForm.project_number,
+                message: invoiceMessage,
+                location: '',
+                img: base64Img ?? '',
+                document:  '',
+                audio: '',
+                video: '',
+              };
+
+              await axios.post(`${API_BASE}/conversation`, payload, {
+                headers: { 'Content-Type': 'application/json' },
+              });
+            }
+          }
+
+
           Swal.fire({
             title: 'Success',
             text: 'Success Add Order',
@@ -1099,6 +1208,19 @@ const NewOrderHO: FC = () => {
       return <p className='text-black'>AVAILABLE</p>
     }
   }
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file); // hasilnya "data:image/png;base64,xxxx"
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+
+
+
 
   return (
     <section id='update-order'>

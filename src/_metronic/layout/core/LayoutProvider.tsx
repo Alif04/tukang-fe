@@ -45,7 +45,10 @@ const disableSplashScreen = () => {
 }
 
 const LayoutProvider: FC<WithChildren> = ({children}) => {
-  const [config, setConfig] = useState(LayoutSetup.config)
+  const [config, setConfig] = useState(() => {
+    LayoutSetup.initConfigFromStorage()
+    return LayoutSetup.config
+  })
   const [classes, setClasses] = useState(LayoutSetup.classes)
   const [attributes, setAttributes] = useState(LayoutSetup.attributes)
   const [cssVariables, setCSSVariables] = useState(LayoutSetup.cssVariables)
