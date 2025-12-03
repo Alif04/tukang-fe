@@ -86,6 +86,7 @@ interface Order {
 }
 
 const NewOrderStoreCS: FC = () => {
+  const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([])
@@ -771,10 +772,11 @@ const NewOrderStoreCS: FC = () => {
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      .then((response) => {
+      .then(async (response) => {
         const orderId = response.data.data.id
 
         if (response.data.status === 201) {
+          // ====== FORMAT INVOICE WHATSAPP DINAMIS ======
           Swal.fire({
             title: 'Success',
             text: 'Order Created',
@@ -806,7 +808,6 @@ const NewOrderStoreCS: FC = () => {
         })
       })
   }
-
   // Submit New Member
   const handleSubmitNewMember = async () => {
     if (selectedMember.value === null) {

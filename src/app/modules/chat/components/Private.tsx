@@ -23,7 +23,9 @@ interface Conversation {
   unread?: number
   messages: Message[]
   status?: 'online' | 'offline' | 'typing'
+  favorite?: boolean          // 🔹 NEW
 }
+
 
 const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
 
@@ -49,9 +51,11 @@ const getInitials = (name: string) => {
   return (first + last).toUpperCase()
 }
 
+
 const Private: FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedId, setSelectedId] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'favorite'>('all') // 🔹 NEW
   const [query, setQuery] = useState('')
   const [draft, setDraft] = useState('')
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -61,9 +65,11 @@ const Private: FC = () => {
   const conversationsRef = useRef<Conversation[]>([])
   const isFetchingConversationsRef = useRef<boolean>(false)
   const isFetchingDetailRef = useRef<boolean>(false)
-useEffect(() => {
-  conversationsRef.current = conversations
-}, [conversations])
+  
+
+  useEffect(() => {
+    conversationsRef.current = conversations
+  }, [conversations])
 
   useEffect(() => {
     let mounted = true
@@ -72,23 +78,36 @@ useEffect(() => {
         mounted = false
       }
     }
+    
     const fetchConversations = async () => {
       if (isFetchingConversationsRef.current) return
       isFetchingConversationsRef.current = true
       try {
-        const res = await axios.get(`${API_BASE}/conversation`)
+        const res = await axios.get(`${API_BASE}/conversation`, {
+          params: {
+            cat: activeTab // bisa 'all', 'read', atau 'favorite'
+          }
+        });
         const items = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : []
-        const mapped: Conversation[] = items.map((it: any) => ({
-          id: String(it.phonenumber || it.id || ''),
-          name: String(it.name || ''),
-          phone: String(it.phonenumber || ''),
-          avatarText: getInitials(String(it.name || '')),
-          lastMessage: String(it.last_message || ''),
-          lastTime: formatTime(it.last_update || it.CreatedAt),
-          unread: typeof it.notread === 'number' ? it.notread : undefined,
-          messages: [],
-          status: 'offline',
-        }))
+
+        const favoriteIds = new Set(loadFavoriteIds()) // 🔹 NEW
+
+        const mapped: Conversation[] = items.map((it: any) => {
+          const id = String(it.phonenumber || it.id || '')
+          return {
+            id,
+            name: String(it.name || ''),
+            phone: String(it.phonenumber || ''),
+            avatarText: getInitials(String(it.name || '')),
+            lastMessage: String(it.last_message || ''),
+            lastTime: formatTime(it.last_update || it.CreatedAt),
+            unread: typeof it.unread === 'number' ? it.unread : 0,
+            messages: [],
+            status: 'offline',
+            favorite: favoriteIds.has(id),                // 🔹 NEW
+          }
+        })
+
         if (mounted) {
           setConversations((prev) => {
             const prevMap = new Map(prev.map((c) => [c.id, c]))
@@ -102,7 +121,8 @@ useEffect(() => {
                     avatarText: n.avatarText,
                     lastMessage: n.lastMessage || ex.lastMessage,
                     lastTime: n.lastTime || ex.lastTime,
-                    unread: typeof n.unread === 'number' ? n.unread : ex.unread,
+                    unread: n.unread ?? ex.unread ?? 0,
+                    favorite: ex.favorite ?? n.favorite,   // 🔹 keep favorite
                   }
                 : n
             })
@@ -116,13 +136,45 @@ useEffect(() => {
         isFetchingConversationsRef.current = false
       }
     }
+
+    // async function toggleFavorite(phone: any) {
+    //   try {
+    //     await axios.post(`${API_BASE}/favorite/${phone}`);
+    //     fetchConversations(); // refresh list
+    //   } catch (err) {
+    //     console.error(err);
+    //   }
+    // }
+
+
     fetchConversations()
-    const intervalId = setInterval(fetchConversations, 5000)
-    return () => {
-      mounted = false
-      clearInterval(intervalId)
-    }
-  }, [selectedId])
+        const intervalId = setInterval(fetchConversations, 5000)
+        return () => {
+          mounted = false
+          clearInterval(intervalId)
+        }
+      }, [selectedId,activeTab])
+
+      const toggleFavorite = async (id: string, phone: string) => {
+
+        try {
+          await axios.post(`${API_BASE}/conversation/favorite/${phone}`);
+        } catch (err) {
+          console.error(err);
+        }
+        setConversations((prev) => {
+          const next = prev.map((c) =>
+            c.id === id ? {...c, favorite: !c.favorite} : c
+          )
+
+          // sync ke localStorage
+          const favIds = next.filter((c) => c.favorite).map((c) => c.id)
+          saveFavoriteIds(favIds)
+
+          return next
+        })
+      }
+
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -142,6 +194,28 @@ useEffect(() => {
 
   const handleSelectConversation = async (conv: Conversation) => {
     setSelectedId(conv.id)
+    const unreadCount = conv.unread || 0;
+
+    // 🟢 Mark as read before fetch new details
+    if (unreadCount > 0) {
+      try {
+        await axios.post(`${API_BASE}/conversation/read`, {
+          phonenumber: conv.id,
+          count: unreadCount
+        });
+      } catch (error) {
+        console.error("Failed update unread:", error);
+      }
+
+      // 🟡 Optimistic UI: immediate update
+      setConversations(prev => 
+        prev.map(c => 
+          c.id === conv.id ? { ...c, unread: 0 } : c
+        )
+      );
+    }
+
+
     // if UI was collapsed, expand when user selects a conversation
     setIsCollapsed(false)
     if (!API_BASE) return
@@ -312,6 +386,26 @@ useEffect(() => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const FAVORITES_KEY = 'waFavorites';
+
+  const loadFavoriteIds = (): string[] => {
+    try {
+      const raw = localStorage.getItem(FAVORITES_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const saveFavoriteIds = (ids: string[]) => {
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(ids));
+    } catch {
+      // ignore
+    }
+  };
   return (
     <div className='wa-container'>
       <aside className='wa-sidebar'>
@@ -362,6 +456,27 @@ useEffect(() => {
             </div>
           </div>
         )}
+        <div className='wa-tabs'>
+          <button
+            className={`wa-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+            onClick={() => setActiveTab('all')}
+          >
+            All
+          </button>
+          <button
+            className={`wa-tab-btn ${activeTab === 'unread' ? 'active' : ''}`}
+            onClick={() => setActiveTab('unread')}
+          >
+            Unread
+          </button>
+          <button
+            className={`wa-tab-btn ${activeTab === 'favorite' ? 'active' : ''}`}
+            onClick={() => setActiveTab('favorite')}
+          >
+            Favorite
+          </button>
+        </div>
+
         <div className='wa-chat-list'>
           {filtered.map((c) => (
             <div
@@ -372,12 +487,25 @@ useEffect(() => {
               <div className='wa-avatar'>{c.avatarText}</div>
               <div className='wa-chat-meta'>
                 <div className='wa-chat-top'>
-                  <div className='wa-chat-name'>{c.name}</div>
+                  <div className='wa-chat-name d-flex align-items-center gap-1'>
+                    {c.name}
+                    <button
+                      className='wa-star-btn'
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleFavorite(c.id, c.phone)
+                      }}
+                      title={c.favorite ? 'Unfavorite' : 'Favorite'}
+                    >
+                      <i className={c.favorite ? 'bi bi-star-fill text-warning' : 'bi bi-star'}></i>
+                    </button>
+                  </div>
                   <div className='d-flex align-items-center gap-1'>
                     <span className='wa-chat-time'>{c.lastTime}</span>
                     {c.unread ? <span className='wa-unread'>{c.unread}</span> : null}
                   </div>
                 </div>
+
                 <div className='wa-chat-last'>{c.lastMessage}</div>
               </div>
             </div>

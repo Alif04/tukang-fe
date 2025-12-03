@@ -55,16 +55,6 @@ export async function generateQr(): Promise<SendResult> {
  * Logout: POST /logout
  */
 export async function logout(): Promise<SendResult> {
-  // Try common logout paths
-  const candidates = ['/logout', '/whatsapp/logout', '/wa/logout', '/whatsapp/disconnect']
-  for (const p of candidates) {
-    try {
-      const resp = await waAxios.post(p)
-      return { status: resp.status, data: resp.data }
-    } catch (_) {
-      // try next
-    }
-  }
   // Last resort: call /logout
   const resp = await waAxios.post('whatsapp/logout')
   return { status: resp.status, data: resp.data }

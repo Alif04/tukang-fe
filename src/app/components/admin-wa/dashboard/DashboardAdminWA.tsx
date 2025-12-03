@@ -162,11 +162,11 @@ const DashboardAdminWA: FC = () => {
     }
   }
 useEffect(() => {
-  fetchNewChatAssign()
-  fetchNewChatUnAssign()
-  fetchNewChatResolve()
-  fetchClosedChat()
-  fetchFirstChat()
+  // fetchNewChatAssign()
+  // fetchNewChatUnAssign()
+  // fetchNewChatResolve()
+  // fetchClosedChat()
+  // fetchFirstChat()
 
   // initial load for home tables
   fetchBroadcastsHome(bPage, bPageSize)

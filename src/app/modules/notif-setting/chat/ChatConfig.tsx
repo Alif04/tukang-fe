@@ -20,6 +20,8 @@ const ChatConfig: React.FC = () => {
   const autoRefreshRef = React.useRef<number | null>(null)
   const expiresTimeoutRef = React.useRef<number | null>(null)
   const isAutoRefreshingRef = React.useRef<boolean>(false)
+  const [connectedPhone, setConnectedPhone] = useState<string | null>(null);
+
 
   const clearAutoTimers = () => {
     if (autoRefreshRef.current) {
@@ -41,14 +43,20 @@ const ChatConfig: React.FC = () => {
       const data: any = res.data ?? res
 
       // Prefer explicit waState, then clientState, then boolean connected
-      const waState: string | null = (typeof data.waState === 'string' && data.waState) || (data?.data && typeof data.data.waState === 'string' && data.data.waState) || null
+      
+      const waState = data?.waState?.state || null
       const clientState: string | null = (typeof data.clientState === 'string' && data.clientState) || (data?.data && typeof data.data.clientState === 'string' && data.data.clientState) || null
       const booleanConnected = typeof data === 'boolean' ? data : (typeof data.connected === 'boolean' ? data.connected : (data?.data && typeof data.data.connected === 'boolean' ? data.data.connected : null))
 
       const connected = (waState && waState.toLowerCase() === 'connected') || (clientState && clientState.toLowerCase() === 'ready') || !!booleanConnected
 
+      const rawPhone = data?.waState?.phone || null
+      // normalize nomor WA
+      const phone = rawPhone ? rawPhone.replace("@c.us", "") : null
+
       setIsConnected(!!connected)
       setStatusDetail(waState ?? clientState ?? null)
+      setConnectedPhone(phone)
     } catch (e: any) {
       setIsConnected(false)
       setStatusDetail(null)
@@ -78,63 +86,66 @@ const ChatConfig: React.FC = () => {
   }
 
   const fetchQr = async () => {
-    setIsFetchingQr(true)
-    setQrError(null)
+    // Cek status dulu untuk menghindari QR generating nggak perlu
+    await checkStatus();
+
+    // Jika sudah connect → STOP total
+    if (isConnected) {
+      setQrImage(null);
+      setQrMessage(null);
+      setQrExpiresAt(null);
+      clearAutoTimers();
+      return;
+    }
+
+    setIsFetchingQr(true);
+    setQrError(null);
+
     try {
-      const res = await generateQr()
-      console.log('generateQr response:', res )
+      const res = await generateQr();
+      console.log('generateQr response:', res);
+
       if (!res || (res.status !== 200 && res.status !== 201)) {
-        throw new Error('generateQr gagal atau mengembalikan status bukan 200/201')
-      }
-      const payload = res.data ?? res
-      const qrImg = payload.image
-
-      if (!qrImg) {
-        setQrError('QR tidak tersedia pada respons server')
-        setQrImage(null)
-        setQrMessage(payload.message ?? null)
-        setQrExpiresAt(payload.expiresAt ?? null)
-        return
+        throw new Error('generateQr gagal atau mengembalikan status bukan 200/201');
       }
 
-      setQrImage(qrImg)
-      setQrMessage(payload.message ?? null)
-      setQrExpiresAt(payload.expiresAt ?? null)
+      const payload = res.data ?? res;
+      const qrImg = payload.image;
 
-      // If auto-refresh is active, schedule regen 5s before expiry
-      if (isAutoRefreshingRef.current && payload.expiresAt) {
-        try {
-          const expiresAt = new Date(payload.expiresAt).getTime()
-          const msUntilRefresh = expiresAt - Date.now() - 5000
-          if (msUntilRefresh > 0) {
-            if (expiresTimeoutRef.current) {
-              clearTimeout(expiresTimeoutRef.current)
-            }
-            // @ts-ignore
-            expiresTimeoutRef.current = window.setTimeout(() => {
-              // only fetch if still auto-refreshing and not connected
-              if (isAutoRefreshingRef.current && !isConnected) fetchQr()
-            }, msUntilRefresh)
-          } else {
-            // expires soon or already expired; fetch immediately next tick
-            setTimeout(() => {
-              if (isAutoRefreshingRef.current && !isConnected) fetchQr()
-            }, 1000)
+      // Jika state masih menunggu QR dan belum connect
+      if (!isConnected && qrImg) {
+        setQrImage(qrImg);
+        setQrMessage(payload.message ?? null);
+        setQrExpiresAt(payload.expiresAt ?? null);
+
+        // Jadwalkan regenerasi sebelum expire
+        if (isAutoRefreshingRef.current && payload.expiresAt) {
+          const expiresAt = new Date(payload.expiresAt).getTime();
+          const msUntilRefresh = expiresAt - Date.now() - 5000;
+
+          if (expiresTimeoutRef.current) {
+            clearTimeout(expiresTimeoutRef.current);
           }
-        } catch (e) {
-          // ignore scheduling errors
+
+          expiresTimeoutRef.current = window.setTimeout(() => {
+            if (!isConnected && isAutoRefreshingRef.current) {
+              fetchQr();
+            }
+          }, Math.max(msUntilRefresh, 2000));
         }
       }
-    } catch (err: any) {
-      setQrError('Gagal mengambil QR: ' + (err?.message || String(err)))
-      setQrImage(null)
-      setQrMessage(null)
 
-      setQrExpiresAt(null)
+    } catch (err: any) {
+      setQrError('Gagal mengambil QR: ' + (err?.message || String(err)));
+      setQrImage(null);
+      setQrMessage(null);
+      setQrExpiresAt(null);
+
     } finally {
-      setIsFetchingQr(false)
+      setIsFetchingQr(false);
     }
-  }
+  };
+
 
   // clear QR when connected or unmount; stop any auto-refresh
   useEffect(() => {
@@ -158,13 +169,17 @@ const ChatConfig: React.FC = () => {
     fetchQr()
     // set interval
     // @ts-ignore
-    autoRefreshRef.current = window.setInterval(() => {
+    autoRefreshRef.current = window.setInterval(async () => {
+      // Cek status dulu
+      await checkStatus();
+
       if (!isAutoRefreshingRef.current || isConnected) {
-        clearAutoTimers()
-        return
+        clearAutoTimers();
+        return;
       }
-      fetchQr()
-    }, 5000)
+      fetchQr();
+    }, 5000);
+
   }
 
   const stopAutoRefresh = () => {
@@ -178,15 +193,15 @@ const ChatConfig: React.FC = () => {
 
   const statusIcon = isConnected ? faCircleCheck : faCircleXmark
   const statusClass = isConnected ? 'connected' : 'disconnected'
-  const statusText = isConnected
-    ? `WhatsApp terhubung${statusDetail ? ' (' + statusDetail + ')' : ''}`
-    : `WhatsApp belum terhubung${statusDetail ? ' (' + statusDetail + ')' : ''}`
+  const statusText = statusDetail
+  ? `${statusDetail.toUpperCase()}${connectedPhone ? ' - ' + connectedPhone : ''}`
+  : (isConnected ? 'CONNECTED' : 'DISCONNECTED');
 
   return (
     <div className='chat-config-wrapper'>
       <div className={`connection-status ${statusClass}`}>
         <FontAwesomeIcon icon={statusIcon} className='status-icon' />
-        <span className='status-text'>{statusText}</span>
+        <span className='status-text'>Whatsapp {statusText}</span>
         <div className='ms-auto d-flex align-items-center gap-2'>
           <button className='btn btn-light btn-sm d-inline-flex align-items-center' onClick={checkStatus} disabled={loadingStatus}>
             <FontAwesomeIcon icon={faRotateRight} className='me-2' />
@@ -216,6 +231,7 @@ const ChatConfig: React.FC = () => {
                 <div className='d-flex align-items-center gap-2'>
                   <button
                     className='btn btn-outline-secondary btn-sm'
+                    style={{ backgroundColor: '#e0e0e0', color: '#333' }}
                     onClick={() => {
                       // toggle auto-refresh
                       if (isAutoRefreshingRef.current) stopAutoRefresh()

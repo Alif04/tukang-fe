@@ -151,6 +151,7 @@ const UpdateQuotationHO: FC = () => {
           if (data) {
             setQuotationData(data)
             setOrderId(data.order_id)
+            setOrder(data.order)
             setStoreId(data.store.id)
             setQuotationNumber(data.id)
             setQuotationDate(new Date(data.quotation_date).toISOString().split('T')[0])
@@ -611,6 +612,8 @@ const UpdateQuotationHO: FC = () => {
             },
           })
           if (response.data.status === 200 || response.data.status === 201) {
+
+            sentWA();
             Swal.fire({
               title: 'Success',
               text: 'Success Update Quotation',
@@ -642,6 +645,100 @@ const UpdateQuotationHO: FC = () => {
       }
     })
   }
+
+  const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
+const [emailDetail, setEmailDetail] = useState<any>()
+const [order, setOrder] = useState<any>()
+const [pdfQuotation, setPdfQuotation] = useState<String>()
+const sentWA = async () => {
+    
+    // ==================================
+    // === TEMPLATE INVOICE WHATSAPP ===
+    // ==================================
+    // Final WhatsApp Message
+    //${apiUrl}/orders/quotation-pdf/${order.id}
+    const invoiceMessage = `
+Hi *${order?.members?.full_name || "-"}*, terima kasih telah menggunakan layanan instalasi Mitra10.
+
+Berikut terlampir *Quotation Jasa Instalasi & Servis Mitra10* untuk pesanan Anda.
+
+Jika Anda menyetujui penawaran tersebut, mohon melakukan pembayaran melalui *kanal resmi Mitra10* sesuai instruksi pada dokumen.
+
+⚠️ *Catatan Penting:*
+• Quotation disusun berdasarkan hasil survey awal
+• Biaya tambahan dapat berlaku jika terdapat pekerjaan tambahan saat pemasangan
+• Jadwal pemasangan akan ditentukan setelah pembayaran terverifikasi
+• Pembayaran hanya berlaku melalui kanal resmi Mitra10
+• Dengan melakukan pembayaran, Anda dianggap menyetujui seluruh ketentuan yang berlaku
+
+Terima kasih atas kepercayaan Anda kepada *Mitra10* 🙏
+`;
+
+
+  
+  
+  // =============================
+  // === KIRIM GAMBAR + PESAN ===
+  // =============================
+    const payload = { 
+        phonenumber: order?.members?.member_number,
+        message: invoiceMessage,
+        location: '',
+        img: '',
+        document: pdfQuotation,
+        audio: '',
+        video: '',
+      };
+  
+      await axios.post(`${API_BASE}/conversation`, payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+    }
+  const downloadToBase64 = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/orders/quotation-pdf/${params.id}`, {
+        mode: 'cors'
+      });
+
+      if (!response.ok) {
+        console.error("❌ Failed to fetch file:", response.statusText);
+        return "";
+      }
+
+      const contentType = response.headers.get("Content-Type") || "";
+      const blob = await response.blob();
+
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      // Ensure prefix exists
+      if (!base64.startsWith("data:")) {
+        setPdfQuotation(`data:${contentType};base64,${base64}`);
+      }
+
+      setPdfQuotation(base64);
+    } catch (err) {
+      console.warn("⚠️ Download to Base64 failed (CORS or network issue):", err);
+      return "";
+    }
+  }
+
+  useEffect(() => {
+    downloadToBase64();
+  },[]);
+  useEffect(() => {
+     if (
+       !order// harus ada info
+     ) return;
+ 
+     console.log("DATA BENAR-BENAR SIAP:", order);
+     //sentWA();
+   }, [order]);
 
   return (
     <section id='update-quotation'>

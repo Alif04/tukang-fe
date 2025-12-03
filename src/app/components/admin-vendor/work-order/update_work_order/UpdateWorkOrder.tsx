@@ -337,6 +337,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   useEffect(() => {
     getTemplate()
+    fetchEmailData()
   }, [])
 
   // Filter Work Order Status
@@ -543,6 +544,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
       if (response.data.status === 200 || response.data.status === 201) {
         sendMessage()
+        sentWA()
 
         Swal.fire({
           title: 'Berhasil',
@@ -612,6 +614,135 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
     }
   }
 
+const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
+const [emailDetail, setEmailDetail] = useState<any>()
+const [headerImg, setHeaderImg] = useState<any>()
+const [footerImg, setFooterImg] = useState<any>()
+const fetchEmailData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/mails`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            order_by: 'asc',
+            type_email_message: 1,
+          },
+        })
+        .then((response) => {
+          const data = response.data.data.data[1]
+          setEmailDetail(data)
+
+          setHeaderImg(
+            apiUrl +
+              '/public/mails-image/' +
+              data.email_message_image.filter((item: any) => item.type === 1)[0]?.path
+          )
+
+          setFooterImg(
+            apiUrl +
+              '/public/mails-image/' +
+              data.email_message_image.filter((item: any) => item.type === 2)[0]?.path
+          )
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+const sentWA = async () => {
+    
+    // ==================================
+    // === TEMPLATE INVOICE WHATSAPP ===
+    // ==================================
+
+    const information_detail = emailDetail?.information_detail
+      ?.map((item: any) => `• ${item.information}`)
+      .join('\n');
+
+    // Final WhatsApp Message
+    const invoiceMessage = `
+Hi *${orderDetail?.members?.full_name || "-"}*, terima kasih telah menggunakan layanan instalasi Mitra10.
+
+Order Anda saat ini *sedang dijadwalkan untuk Survey Lokasi* oleh tim instalasi kami.
+
+👷 *Tujuan Survey:*
+Untuk memastikan kebutuhan material serta kondisi lokasi agar pemasangan berjalan lancar.
+
+📌 *Sebelum Survey Dimulai, Mohon Pastikan:*
+• Area dapat diakses dan aman (tidak licin / tidak ada renovasi besar)
+• Area kerja tidak tertutup barang
+• Untuk layanan air: sumber air dapat diakses
+• Untuk apartemen/perumahan: izin dan akses teknisi sudah disiapkan
+• Hewan peliharaan tidak berada di area kerja
+
+⚠️ *Catatan Penting:*
+• Pihak bertanggung jawab harus ada di lokasi saat survey
+• Reschedule maksimal H-1 konfirmasi
+• Biaya survey *tidak dapat dikembalikan* jika customer tidak hadir sesuai jadwal
+
+──────────────────────
+📞 *Informasi & Bantuan*
+${information_detail}
+
+(📌 Order di luar jam operasional diproses pada hari kerja berikutnya)
+
+${emailDetail?.footer}
+Terima kasih telah memilih *Mitra10* 🙏
+`;
+
+  
+  
+  // =============================
+  // === KIRIM GAMBAR + PESAN ===
+  // =============================
+    const payload = { 
+        phonenumber: orderDetail?.members?.member_number,
+        message: invoiceMessage,
+        location: '',
+        img: '',
+        document: '',
+        audio: '',
+        video: '',
+      };
+  
+      await axios.post(`${API_BASE}/conversation`, payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+    }
+  async function urlToBase64(url: string): Promise<string> {
+    try {
+      const response = await fetch(url)
+      const blob = await response.blob()
+
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
+    } catch (err) {
+      console.warn("⚠️ Failed convert to Base64 (CORS maybe):", err)
+      return "" // kembalikan string kosong jika gagal
+    }
+  }
+
+  useEffect(() => {
+     if (
+       !orderDetail ||
+       !emailDetail ||
+       !orderDetail?.order_details?.length || // harus ada item
+       !orderDetail?.id ||                    // harus ada order ID
+       !emailDetail?.information_detail?.length // harus ada info
+     ) return;
+ 
+     console.log("DATA BENAR-BENAR SIAP:", orderDetail, emailDetail);
+     //sentWA();
+   }, [orderDetail, emailDetail]);
   return (
     <section id='update-work-order'>
       <Card className=' mb-5'>

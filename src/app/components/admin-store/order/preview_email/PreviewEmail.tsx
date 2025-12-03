@@ -12,6 +12,9 @@ import {Table, Row, Col, Card} from 'react-bootstrap'
 const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
+    
+  
+  const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
 
   const [orderDetail, setOrderDetail] = useState<any>()
   const [emailDetail, setEmailDetail] = useState<any>()
@@ -77,11 +80,121 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
       console.error(error)
     }
   }
-
   useEffect(() => {
     fetchOrderData()
     fetchEmailData()
   }, [])
+
+  const sentWA = async () => {
+    
+    // ==================================
+    // === TEMPLATE INVOICE WHATSAPP ===
+    // ==================================
+
+     // Generate item list
+    const paymentType = orderDetail?.payment_type;
+    const showPrice = !(paymentType === 'gratis' || paymentType === 'survey');
+
+    const detailItems = orderDetail?.order_details
+      ?.map((item: any) => {
+        const pemasangan =
+          paymentType === 'survey'
+            ? item?.item_notes
+            : item?.item?.service_name ?? '-';
+
+        const totalPrice = showPrice
+          ? `Rp ${parseInt(item?.total || 0).toLocaleString('id')}`
+          : '-';
+
+        return `[${item?.item_code ?? '-'}] | ${item?.item_name ?? '-'} | ${pemasangan} | ${item?.quantity ?? 0} | ${totalPrice}`;
+      })
+      .join('\n');
+
+      const information_detail= emailDetail?.information_detail?.map((item: any) => item.information).join('\n• '); 
+
+  
+    const invoiceMessage = `
+${emailDetail?.welcome_header} , ${orderDetail?.members?.full_name || "-"}, terima kasih telah memesan layanan instalasi di Mitra10.
+Order Anda berhasil kami terima dan tercatat di sistem, dan saat ini sedang masuk dalam antrean proses oleh tim Instalasi & Servis.
+
+——————————————
+🧾 Detail Order
+• Nama Toko: {Nama Toko}
+• Order ID: *${orderDetail?.id}* 
+• Tanggal Order: *${formatDateWithTime(orderDetail?.created_at)}* 
+• Survey/Pemasangan: *${formatDateWithTime(orderDetail?.created_at)}* 
+• Nama Customer: *${orderDetail?.members?.full_name || "-"}*
+• Alamat: *${orderDetail?.members?.address_1 || "-"}*
+
+——————————————
+📦 Detail Pemasangan
+${detailItems}
+
+——————————————
+⚠️ Catatan Penting:
+• Pastikan produk tersedia di lokasi sebelum survey/pemasangan.
+• Jika produk belum dibeli, teknisi kami akan melakukan survey terlebih dahulu.
+• Layanan hanya berlaku untuk produk yang dibeli di Mitra10.
+
+Tim kami akan segera menghubungi Anda untuk konfirmasi jadwal sesuai antrean dan ketersediaan teknisi.
+
+——————————————
+📞 Informasi & Bantuan:
+${information_detail}
+(📌 Order di luar jam operasional akan diproses pada hari kerja berikutnya.)
+
+${emailDetail?.footer}
+  `;
+  
+  
+  // =============================
+  // === KIRIM GAMBAR + PESAN ===
+  // =============================
+    const payload = { 
+        phonenumber: orderDetail?.members?.member_number,
+        message: invoiceMessage,
+        location: '',
+        img: await urlToBase64(headerImg),
+        document: '',
+        audio: '',
+        video: '',
+      };
+  
+      await axios.post(`${API_BASE}/conversation`, payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+    }
+  async function urlToBase64(url: string): Promise<string> {
+    try {
+      const response = await fetch(url)
+      const blob = await response.blob()
+
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
+    } catch (err) {
+      console.warn("⚠️ Failed convert to Base64 (CORS maybe):", err)
+      return "" // kembalikan string kosong jika gagal
+    }
+  }
+
+  useEffect(() => {
+    if (
+      !orderDetail ||
+      !emailDetail ||
+      !orderDetail?.order_details?.length || // harus ada item
+      !orderDetail?.id ||                    // harus ada order ID
+      !emailDetail?.information_detail?.length // harus ada info
+    ) return;
+
+    console.log("DATA BENAR-BENAR SIAP:", orderDetail, emailDetail);
+    sentWA();
+  }, [orderDetail, emailDetail]);
+
 
   return (
     <section id='preview-email'>
@@ -111,7 +224,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
             <Col md={6} sm={12}>
               <Skeleton active loading={isLoadingPage} paragraph={{rows: 2}}>
                 <div className='header-information'>
-                  <h1 className='fs-5 fw-bold mb-2'>
+                  <h1 className='fs-5 fw-bol  d mb-2'>
                     Tanggal Order :{' '}
                     <span className='fw-normal'>{formatDateWithTime(orderDetail?.created_at)}</span>
                   </h1>

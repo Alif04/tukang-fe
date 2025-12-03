@@ -986,7 +986,47 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       formData.append(key, String(value))
     }
   }
+  const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
+  const sentWA = async () => {
+      
+      // ==================================
+      // === TEMPLATE INVOICE WHATSAPP ===
+      // ==================================
+      // Final WhatsApp Message
+      const invoiceMessage = `
+Hi *${orderDetail?.members?.full_name || "-"}*, terima kasih atas pembayaran Anda.
+Pembayaran untuk layanan instalasi Mitra10 telah kami terima dan terverifikasi.
+Order Anda saat ini sedang dalam tahap persiapan pengerjaan oleh tim instalasi.
+Tim kami akan segera menghubungi Anda untuk mengonfirmasi jadwal pemasangan dan memastikan
+teknisi siap di lokasi sesuai waktu yang disepakati.
+  `;
 
+    
+    
+    // =============================
+    // === KIRIM GAMBAR + PESAN ===
+    // =============================
+      const payload = { 
+        phonenumber: orderDetail?.members?.member_number,
+          message: invoiceMessage,
+          location: '',
+          img: '',
+          document: '',
+          audio: '',
+          video: '',
+        };
+    
+        await axios.post(`${API_BASE}/conversation`, payload, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+    
+      }
+    useEffect(() => {
+      if (!orderDetail) return;
+  
+      console.log("DATA BENAR-BENAR SIAP:", orderDetail);
+      //sentWA();
+    }, [orderDetail]);
   const handleUpdateOrder = async () => {
     // setIsLoading(true)
     const url = `${apiUrl}/orders/${params.id}`
@@ -1103,6 +1143,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
         if (response.data.status === 200 || response.data.status === 201) {
           sendMessage()
+          sentWA();
           Swal.fire({
             title: 'Success',
             text: 'Success Update Order',
