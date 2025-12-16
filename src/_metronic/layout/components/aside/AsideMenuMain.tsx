@@ -510,12 +510,12 @@ export function AsideMenuMain() {
           hasBullet={true}
         /> */}
 
-        <AsideMenuItem
+        {/* <AsideMenuItem
           to='/reports/log-status-chat'
           title='Log chat notif status'
           role={['Admin WA', 'Admin WA2']}
           hasBullet={true}
-        />
+        /> */}
       </AsideMenuItemWithSub>
 
       {/* Halaman Payment */}

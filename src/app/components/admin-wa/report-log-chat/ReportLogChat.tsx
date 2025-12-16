@@ -1,38 +1,99 @@
-import { Button, Input, Table, DatePicker, Tooltip } from 'antd';
-import axios from 'axios';
-import dayjs, { Dayjs } from 'dayjs';
-import isBetween from 'dayjs/plugin/isBetween';
-import React, { useEffect, useState } from 'react';
-
-dayjs.extend(isBetween);
+import { Button, Input, Table, DatePicker, Tooltip } from "antd";
+import axios from "axios";
+import dayjs, { Dayjs } from "dayjs";
+import React, { useEffect, useState } from "react";
 
 const { RangePicker } = DatePicker;
-const apiUrl = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || '';
+const apiUrl = process.env.REACT_APP_WA_BACKEND_API_URL ||  "";
 
 const ReportLogChat: React.FC = () => {
-  const [chats, setChats] = useState<any[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filteredChats, setFilteredChats] = useState<any[]>([]);
-  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null]);
-  const [search, setSearch] = useState('');
+  const [totalRows, setTotalRows] = useState(0);
+
+  const [pageSize, setPageSize] = useState(50);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const [phonenumber, setPhonenumber] = useState("");
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
+    dayjs().startOf("year"),
+    dayjs(),
+  ]);
 
   const fetchChats = async () => {
     setLoading(true);
+
     try {
-      const { data } = await axios.get(`${apiUrl}/all-chat-assign2`);
-      if (data.success) {
-        const mappedChats = data.chats.map((chat: any) => ({
-          id: chat._id,
-          customerNumber: chat.chatId.replace(/@c\.us$/, ''), // Hapus '@c.us'
-          chatId: chat.chatId,
-          chat: chat.message,
-          timestamp: dayjs(chat.timestamp), // KONVERSI ke Day.js object
+      const payload = {
+        phonenumber: phonenumber || null,
+        startDate: dateRange[0]?.format("YYYY-MM-DD") ?? null,
+        endDate: dateRange[1]?.format("YYYY-MM-DD") ?? null,
+        pageSize,
+        pageNumber,
+          types:'Order'
+      };
+
+      const { data } = await axios.post(`${apiUrl}/conversation/report`, payload);
+
+      if (data?.data) {
+        const mapped = data.data.map((row: any) => ({
+          ...row,
+          timestamp: dayjs(row.CreatedAt),
+          customerNumber: row.phonenumber,
+          chat: row.message,
         }));
-        setChats(mappedChats);
-        setFilteredChats(mappedChats);
+        setData(mapped);
+        setTotalRows(data.count || 0);
       }
-    } catch (error) {
-      console.error('Error fetching chats:', error);
+    } catch (err) {
+      console.error("Error fetching report:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDownloadChats = async () => {
+    setLoading(true);
+
+    try {
+      const payload = {
+        phonenumber: phonenumber || null,
+        startDate: dateRange[0]?.format("YYYY-MM-DD") ?? null,
+        endDate: dateRange[1]?.format("YYYY-MM-DD") ?? null,
+      };
+
+      axios.post(
+        `${apiUrl}/conversation/downloadreport`,
+        payload,
+        { responseType: "blob" }
+      ).then(res => {
+        const start = payload.startDate ?? "all";
+        const end = payload.endDate ?? "all";
+        const phone = payload.phonenumber ?? "all";
+
+        // 🔹 Bersihkan filename dari karakter aneh
+        const safeFileName = `chat_${start}_${end}_${phone}.xlsx`
+          .replace(/[^a-zA-Z0-9._-]/g, "_");
+
+        const blob = new Blob([res.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = safeFileName;
+
+        document.body.appendChild(link);
+        link.click();
+
+        // cleanup
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      });
+
+    } catch (err) {
+      console.error("Error fetching report:", err);
     } finally {
       setLoading(false);
     }
@@ -40,89 +101,89 @@ const ReportLogChat: React.FC = () => {
 
   useEffect(() => {
     fetchChats();
-  }, []);
+  }, [pageNumber, pageSize]);
 
-  // Filter data berdasarkan nomor customer & rentang tanggal
-  useEffect(() => {
-    let filtered = chats;
+  const handleSearch = () => {
+    setPageNumber(1);
+    fetchChats();
+  };
 
-    // Filter berdasarkan nomor customer
-    if (search) {
-      filtered = filtered.filter((chat) =>
-        chat.customerNumber.includes(search)
-      );
-    }
-
-    // Filter berdasarkan rentang tanggal
-    if (dateRange[0] && dateRange[1]) {
-      filtered = filtered.filter((chat) =>
-        chat.timestamp.isBetween(dateRange[0], dateRange[1], 'day', '[]')
-      );
-    }
-
-    setFilteredChats(filtered);
-  }, [search, dateRange, chats]);
-
-  // Cek apakah teks adalah URL gambar atau video
-  const renderChatContent = (text: string) => {
+  const renderChat = (text: string) => {
+    if (!text) return "-";
     if (/\.(jpg|jpeg|png|gif)$/i.test(text)) {
-      return (
-        <img src={text} alt="Image" style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 5 }} />
-      );
-    } else if (/\.(mp4|webm|ogg)$/i.test(text)) {
-      return (
-        <video width="120" height="120" controls>
-          <source src={text} type={`video/${text.split('.').pop()}`} />
-          Your browser does not support the video tag.
-        </video>
-      );
-    } else {
-      return (
-        <Tooltip title={text}>
-          {text.length > 30 ? `${text.slice(0, 30)}...` : text}
-        </Tooltip>
-      );
+      return <img src={text} alt="img" style={{ width: 70, borderRadius: 6 }} />;
     }
+    return (
+      <Tooltip title={text}>
+        {text.length > 30 ? text.substring(0, 30) + "..." : text}
+      </Tooltip>
+    );
   };
 
   const columns = [
-    { title: 'Chat ID', dataIndex: 'chatId', key: 'chatId' },
-    { 
-      title: 'Tanggal', 
-      dataIndex: 'timestamp', 
-      key: 'timestamp', 
-      render: (date: Dayjs) => date.format('YYYY-MM-DD HH:mm:ss')
+    {
+      title: "Tanggal",
+      dataIndex: "timestamp",
+      render: (d: Dayjs) => d.format("YYYY-MM-DD HH:mm"),
+      width: 150,
+      sorter: false,
     },
-    { title: 'No Customer', dataIndex: 'customerNumber', key: 'customerNumber' },
-    { 
-      title: 'Chat', 
-      dataIndex: 'chat', 
-      key: 'chat',
-      render: renderChatContent
-    },
+    { title: "No Customer", dataIndex: "customerNumber", width: 130 },
+    { title: "Jenis", dataIndex: "types", width: 100 },
+    { title: "Chat", dataIndex: "chat", render: renderChat },
+    { title: "From", dataIndex: "direction", width: 120 },
   ];
 
   return (
-    <div style={{ padding: 20, background: '#fff', borderRadius: 8 }}>
-      <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
-        <Input 
-          placeholder="Input no customer" 
-          value={search} 
-          onChange={(e) => setSearch(e.target.value)} 
-          style={{ width: 200 }} 
+    <div style={{ padding: 20, background: "#fff", borderRadius: 8 }}>
+      {/* Filter */}
+      <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+        <Input
+          placeholder="Input No HP"
+          value={phonenumber}
+          onChange={(e) => setPhonenumber(e.target.value)}
+          style={{ width: 200 }}
         />
-        <RangePicker 
-          onChange={(dates) => setDateRange(dates as [Dayjs | null, Dayjs | null])} 
-          style={{ width: 300 }}
+
+        <RangePicker
+          value={dateRange}
+          onChange={(dates) => setDateRange(dates as any)}
+          style={{ width: 260 }}
         />
-        <Button type="primary" onClick={fetchChats}>Refresh</Button>
+
+        <Button type="primary" onClick={handleSearch}>
+          Search
+        </Button>
+
+        <Button onClick={fetchChats}>Refresh</Button>
+        <Button
+          onClick={fetchDownloadChats}
+          style={{ backgroundColor: "#28a745", borderColor: "#28a745" }}
+        >
+          Download
+        </Button>
+
+
       </div>
-      <Table 
-        columns={columns} 
-        dataSource={filteredChats} 
-        loading={loading} 
-        rowKey="id" 
-        pagination={{ pageSize: 10 }} 
+
+      {/* Table */}
+      <Table
+        columns={columns}
+        dataSource={data}
+        loading={loading}
+        rowKey="id"
+        pagination={{
+          total: totalRows,
+          current: pageNumber,
+          pageSize,
+          showSizeChanger: true,
+          onChange: (page, size) => {
+            setPageNumber(page);
+            setPageSize(size);
+          },
+        }}
+        bordered
+        size="small"
       />
     </div>
   );

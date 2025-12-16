@@ -289,12 +289,19 @@
 /* INPUT AREA */
 .wa-input {
   display: flex;
-  align-items: center;
+  flex-direction: column; /* ⬅ Ubah! sebelumnya row */
   gap: 8px;
   padding: 10px 12px;
-  border-top: 1px solid var(--bs-gray-200, #e5e7eb);
-  background: var(--bs-white, #fff);
+  border-top: 1px solid var(--bs-gray-200);
+  background: var(--bs-white);
 }
+.wa-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
 
 .wa-textarea {
   flex: 1;
@@ -374,4 +381,82 @@
   align-items: center;
   cursor: pointer;
   font-size: 13px;
+}
+.wa-bubble {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.wa-delete-btn {
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.7;
+  margin-right: 6px;
+  float: right;
+}
+
+.wa-delete-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+.wa-delete-chat-btn {
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px;
+  margin-left: 4px;
+  opacity: 0.6;
+}
+
+.wa-delete-chat-btn:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.wa-reply-preview-full {
+  background-color: #f1f1f1;
+  border-left: 4px solid #0d6efd; /* biru khas reply */
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.wa-reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.wa-reply-from {
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+.wa-reply-cancel {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  font-size: 1rem;
+  padding: 0;
+}
+
+.wa-reply-content {
+  font-size: 0.9rem;
+  color: #333;
+  white-space: pre-wrap; /* biar line break tetap muncul */
+}
+
+.wa-reply-preview-full {
+  width: 100%;
+  display: block;
+  margin-bottom: 8px;
+  order: -1; /* posisikan di atas textarea */
 }

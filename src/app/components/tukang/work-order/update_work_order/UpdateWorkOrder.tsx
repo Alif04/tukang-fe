@@ -770,7 +770,13 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       })
       .then((response) => {
         if (response.data.status === 201 || response.data.status === 200) {
-          sentWA();
+          if(workOrderDetail?.order?.status?.category === 'SURVEYSTART' 
+            || workOrderDetail?.order?.status?.category === 'TUKANGWORK'
+            || workOrderDetail?.order?.status?.category === 'WORKSTART'
+          )
+          {  
+            sentWA();
+          }
           Swal.fire({
             title: 'Success',
             text: 'Work Order Updated',
@@ -877,13 +883,14 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       // ==================================
       // === TEMPLATE INVOICE WHATSAPP ===
       // ==================================
-  
-      const information_detail = emailDetail?.information_detail
-        ?.map((item: any) => `• ${item.information}`)
-        .join('\n');
-  
       // Final WhatsApp Message
-      const invoiceMessage = `
+      let invoiceMessage = ``;
+      let iamgeIcon = '';
+      if(
+        workOrderDetail?.order?.status?.category === 'SURVEYSTART' || workOrderDetail?.order?.status?.category === 'WORKSTART'
+      ){  
+        iamgeIcon = await urlToBase64(window.location.origin + "/media/JASA_INSTALASI_2_CSI_PEKERJAAN.jpg");
+      invoiceMessage = `
 Hi *${workOrderDetail?.order?.members?.full_name || "-"}*, terima kasih telah menggunakan layanan instalasi Mitra10.
 
 📍 Survey lokasi untuk order Anda *telah selesai dilakukan* oleh tim kami.
@@ -896,6 +903,25 @@ Masukan Anda sangat berarti agar kami dapat memberikan pelayanan yang lebih baik
 
 Terima kasih atas waktu dan kepercayaan Anda kepada *Mitra10* 🙏
 `;
+      }else if (workOrderDetail?.order?.status?.category === 'TUKANGWORK'){
+invoiceMessage = `
+Hi *${workOrderDetail?.order?.members?.full_name || "-"}*,
+
+Kami informasikan bahwa tim teknisi Instalasi Mitra10 telah *memulai pengerjaan* sesuai pesanan Anda.
+
+Mohon pastikan area kerja dapat diakses dengan baik dan bebas dari barang pribadi, perabot, atau benda pecah belah, agar pengerjaan berjalan lancar. 🙏
+
+⚠️ Kerusakan atau kehilangan pada barang pribadi/perabot di area kerja menjadi tanggung jawab customer. Kami menyarankan untuk mengamankan barang-barang tersebut sebelum pengerjaan dimulai.
+
+Setelah pekerjaan selesai, Anda akan menerima notifikasi otomatis untuk melakukan *Konfirmasi Hasil Pekerjaan*.
+
+📝 Catatan:
+Dengan dimulainya pengerjaan ini, Anda dianggap telah menyetujui hasil survey dan penawaran harga sebelumnya.
+
+Terima kasih telah memilih Mitra10! 😊
+
+`;
+            }
 
   
     
@@ -907,10 +933,11 @@ Terima kasih atas waktu dan kepercayaan Anda kepada *Mitra10* 🙏
         phonenumber: workOrderDetail?.order?.members?.member_number,
           message: invoiceMessage,
           location: '',
-          img: '',
+          img: iamgeIcon,
           document: '',
           audio: '',
           video: '',
+          types:'Order'
         };
     
         await axios.post(`${API_BASE}/conversation`, payload, {
@@ -922,7 +949,7 @@ Terima kasih atas waktu dan kepercayaan Anda kepada *Mitra10* 🙏
       try {
         const response = await fetch(url)
         const blob = await response.blob()
-  
+
         return await new Promise((resolve, reject) => {
           const reader = new FileReader()
           reader.onloadend = () => resolve(reader.result as string)

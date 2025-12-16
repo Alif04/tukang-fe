@@ -612,8 +612,9 @@ const UpdateQuotationHO: FC = () => {
             },
           })
           if (response.data.status === 200 || response.data.status === 201) {
-
+          if(order?.status?.category === 'APPROVED'){  
             sentWA();
+          }
             Swal.fire({
               title: 'Success',
               text: 'Success Update Quotation',
@@ -688,6 +689,7 @@ Terima kasih atas kepercayaan Anda kepada *Mitra10* 🙏
         document: pdfQuotation,
         audio: '',
         video: '',
+          types:'Order'
       };
   
       await axios.post(`${API_BASE}/conversation`, payload, {
@@ -697,7 +699,8 @@ Terima kasih atas kepercayaan Anda kepada *Mitra10* 🙏
     }
   const downloadToBase64 = async () => {
     try {
-      const response = await fetch(`${apiUrl}/orders/quotation-pdf/${params.id}`, {
+      console.log("Memulai unduhan PDF untuk order ID:", order.id); 
+      const response = await fetch(`${apiUrl}/orders/quotation-pdf/${order.id}`, {
         mode: 'cors'
       });
 
@@ -729,14 +732,17 @@ Terima kasih atas kepercayaan Anda kepada *Mitra10* 🙏
   }
 
   useEffect(() => {
-    downloadToBase64();
-  },[]);
+      if (
+       !pdfQuotation
+     ) return;
+     console.log("DATA BENAR-BENAR SIAP:", order,pdfQuotation);
+  },[pdfQuotation]);
   useEffect(() => {
      if (
        !order// harus ada info
      ) return;
  
-     console.log("DATA BENAR-BENAR SIAP:", order);
+     downloadToBase64();
      //sentWA();
    }, [order]);
 

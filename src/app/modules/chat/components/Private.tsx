@@ -24,6 +24,7 @@ interface Conversation {
   messages: Message[]
   status?: 'online' | 'offline' | 'typing'
   favorite?: boolean          // 🔹 NEW
+  member_id?: string | null   // untuk cek member atau bukan
 }
 
 
@@ -55,7 +56,8 @@ const getInitials = (name: string) => {
 const Private: FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedId, setSelectedId] = useState<string>('')
-  const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'favorite'>('all') // 🔹 NEW
+  const [activeTab, setActiveTab] = useState<'member' | 'favorite' | 'nonmember'>('member')
+
   const [query, setQuery] = useState('')
   const [draft, setDraft] = useState('')
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -65,7 +67,7 @@ const Private: FC = () => {
   const conversationsRef = useRef<Conversation[]>([])
   const isFetchingConversationsRef = useRef<boolean>(false)
   const isFetchingDetailRef = useRef<boolean>(false)
-  
+  const [replyToId, setReplyToId] = useState<string | null>(null)
 
   useEffect(() => {
     conversationsRef.current = conversations
@@ -105,6 +107,7 @@ const Private: FC = () => {
             messages: [],
             status: 'offline',
             favorite: favoriteIds.has(id),                // 🔹 NEW
+            member_id: it.member_id ? it.member_id : null   // untuk cek member atau bukan
           }
         })
 
@@ -240,13 +243,12 @@ const Private: FC = () => {
         items = []
       }
       const mapped: Message[] = items.map((it: any) => ({
-        id: `${String(it.id || it._id || Math.random())}`,
-        rawId: typeof it.id === 'number' ? it.id : Number(it.id) || undefined,
+        id: `${String(it.id) || '0'}`,
         from: it.direction === 'incoming' ? 'them' : 'me',
-        text: String(it.message || it.text || it.msg || ''),
+        text: String(it.message|| ''),
         img: it.img || '', // 🟢 tambahkan ini
         document: it.document || '', // 🟢 tambahkan ini
-        time: formatTime(it.CreatedAt || it.created_at || it.createdAt),
+        time: formatTime(it.CreatedAt || ''),
       }));
 
       setConversations((prev) =>
@@ -339,20 +341,20 @@ const Private: FC = () => {
 
     const newMsg: Message = {id: `${active.id}-${Date.now()}`, from: 'me', text, time: `${hh}:${mm}`}
 
-    // Optimistic UI update
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === active.id
-          ? {
-              ...c,
-              messages: [...c.messages, newMsg],
-              lastMessage: text,
-              lastTime: `${hh}:${mm}`,
-              unread: 0,
-            }
-          : c
-      )
-    )
+    // // Optimistic UI update
+    // setConversations((prev) =>
+    //   prev.map((c) =>
+    //     c.id === active.id
+    //       ? {
+    //           ...c,
+    //           messages: [...c.messages, newMsg],
+    //           lastMessage: text,
+    //           lastTime: `${hh}:${mm}`,
+    //           unread: 0,
+    //         }
+    //       : c
+    //   )
+    // )
     setDraft('')
     setTimeout(scrollToBottom, 50)
 
@@ -366,10 +368,13 @@ const Private: FC = () => {
         audio: '',
         video: '',
         document: '',
+        types:'Agent',
+        reply_to_id: replyToId || '',   // ADD THIS
       }
       await axios.post(`${API_BASE}/conversation`, payload, {
         headers: { 'Content-Type': 'application/json' },
       })
+      setReplyToId(null); // reset replyToId setelah mengirim file
       // Optionally, you could refresh the conversation list or update message id/status here
     } catch (err) {
       console.error('Failed to send message', err)
@@ -379,10 +384,19 @@ const Private: FC = () => {
 
   const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      sendMessage()
+      e.preventDefault();
+      sendMessage();
     }
-  }
+  };
+  const handleDraftChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setDraft(e.target.value);
+      
+      // Auto resize
+      e.target.style.height = 'auto';
+      e.target.style.height = `${e.target.scrollHeight}px`;
+    };
+
+
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -406,6 +420,75 @@ const Private: FC = () => {
       // ignore
     }
   };
+
+  const handleDeleteMessage = async (msgId: string) => {
+    if (!msgId) return;
+
+    const result = window.confirm("Yakin ingin menghapus pesan ini?");
+    if (!result) return;
+
+    try {
+      await axios.post(`${API_BASE}/conversation/deletechatdetail/${msgId}`);
+      console.log("Pesan terhapus:", msgId);
+      // 🧹 Hapus bubble di panel langsung
+      setConversations(prev =>
+        prev.map(c =>
+          c.id === selectedId
+            ? {
+                ...c,
+                messages: c.messages.filter(m => m.id !== msgId)
+              }
+            : c
+        )
+      );
+    } catch (err) {
+      console.error("Gagal hapus pesan", err);
+    }
+  };
+  const handleDeleteConversation = async (phone: string) => {
+    const confirmDelete = window.confirm(`Hapus seluruh chat dengan ${phone}?`);
+    if (!confirmDelete) return;
+
+    try {
+      await axios.post(`${API_BASE}/conversation/deletechat/${phone}`);
+      
+      // Update UI setelah delete
+      setConversations(prev => prev.filter(c => c.phone !== phone));
+
+      if (selectedId === phone) {
+        setSelectedId(''); // jika yang dihapus sedang dibuka
+      }
+
+    } catch (err) {
+      console.error("Gagal hapus percakapan", err);
+    }
+  };
+
+  // 1️⃣ Cari pesan yang sedang direply
+  const replyMessage = useMemo(() => {
+    if (!replyToId || !active) return null;
+    return active.messages.find((m) => m.id === replyToId) || null;
+  }, [replyToId, active]);
+
+  const ReplyPreview: FC<{ message: Message; onCancel: () => void; activeName: string }> = ({ message, onCancel, activeName }) => {
+    if (!message) return null;
+
+    return (
+      <div className="wa-reply-preview">
+        <div className="wa-reply-header">
+          <span className="wa-reply-from">{message.from === 'me' ? 'Anda' : activeName}</span>
+          <button className="wa-reply-cancel" onClick={onCancel} title="Batal reply">
+            ✖
+          </button>
+        </div>
+        <div className="wa-reply-text">
+          {message.text.length > 150 ? message.text.slice(0, 150) + '...' : message.text}
+        </div>
+      </div>
+    );
+  };
+
+
   return (
     <div className='wa-container'>
       <aside className='wa-sidebar'>
@@ -458,16 +541,10 @@ const Private: FC = () => {
         )}
         <div className='wa-tabs'>
           <button
-            className={`wa-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
-            onClick={() => setActiveTab('all')}
+            className={`wa-tab-btn ${activeTab === 'member' ? 'active' : ''}`}
+            onClick={() => setActiveTab('member')}
           >
-            All
-          </button>
-          <button
-            className={`wa-tab-btn ${activeTab === 'unread' ? 'active' : ''}`}
-            onClick={() => setActiveTab('unread')}
-          >
-            Unread
+            Member
           </button>
           <button
             className={`wa-tab-btn ${activeTab === 'favorite' ? 'active' : ''}`}
@@ -475,7 +552,14 @@ const Private: FC = () => {
           >
             Favorite
           </button>
+          <button
+            className={`wa-tab-btn ${activeTab === 'nonmember' ? 'active' : ''}`}
+            onClick={() => setActiveTab('nonmember')}
+          >
+            Non Member
+          </button>
         </div>
+
 
         <div className='wa-chat-list'>
           {filtered.map((c) => (
@@ -485,21 +569,35 @@ const Private: FC = () => {
               onClick={() => handleSelectConversation(c)}
             >
               <div className='wa-avatar'>{c.avatarText}</div>
-              <div className='wa-chat-meta'>
-                <div className='wa-chat-top'>
-                  <div className='wa-chat-name d-flex align-items-center gap-1'>
-                    {c.name}
-                    <button
-                      className='wa-star-btn'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        toggleFavorite(c.id, c.phone)
-                      }}
-                      title={c.favorite ? 'Unfavorite' : 'Favorite'}
-                    >
-                      <i className={c.favorite ? 'bi bi-star-fill text-warning' : 'bi bi-star'}></i>
-                    </button>
-                  </div>
+                <div className='wa-chat-meta'>
+                  <div className='wa-chat-top'>
+                    <div className='wa-chat-name d-flex align-items-center gap-1'>
+                      {c.name}
+                       {/* ⭐ Favorite toggle */}
+                        {c.member_id ? (
+                          <button
+                            className='wa-star-btn'
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              toggleFavorite(c.id, c.phone)
+                            }}
+                          >
+                            <i className={c.favorite ? 'bi bi-star-fill text-warning' : 'bi bi-star'}></i>
+                          </button>
+                        ) : null}
+
+                        {/* 🗑 Delete conversation */}
+                        <button
+                          className='wa-delete-chat-btn'
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDeleteConversation(c.phone)
+                          }}
+                          title="Hapus seluruh chat"
+                        >
+                          <i className='bi bi-trash'></i>
+                        </button>
+                    </div>
                   <div className='d-flex align-items-center gap-1'>
                     <span className='wa-chat-time'>{c.lastTime}</span>
                     {c.unread ? <span className='wa-unread'>{c.unread}</span> : null}
@@ -536,44 +634,59 @@ const Private: FC = () => {
 
             <section className='wa-messages'>
               {active.messages.map((m) => {
-                const imageUrl = m.img
-                  ? `${API_BASE}${m.img}`
-                  : null;
-                const documentUrl = m.document
-                  ? `${API_BASE}${m.document}`
-                  : null;
+                const imageUrl = m.img ? `${API_BASE}${m.img}` : null;
+                const documentUrl = m.document ? `${API_BASE}${m.document}` : null;
 
                 return (
                   <div key={m.id} className={`wa-bubble ${m.from === 'me' ? 'outgoing' : 'incoming'}`}>
-                    {/* 🖼️ Jika pesan berisi gambar */}
-                    {imageUrl ? (
-                      <img
-                        width={250}
-                        src={imageUrl || undefined}
-                        alt="attachment"
-                        className="wa-bubble-image"
-                      />
-                    ) : null}
+                    
+                    {/* 🗑 DELETE BUTTON → hanya untuk pesan yang dikirim oleh admin/me */}
+                    {m.from === 'me' && (
+                      <button
+                        className="wa-delete-btn"
+                        title="Hapus pesan ini"
+                        onClick={() => handleDeleteMessage(m.id)}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    )}
+                   {/* 📨 Tombol reply sebagai icon saja */}
+                   {/* {m.from === 'them' && ( */}
+                      <button
+                        className="wa-reply-btn"
+                        title="Reply"
+                        onClick={() => setReplyToId(m.id)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: 0,
+                          marginLeft: 8
+                        }}
+                      >
+                        <i className="bi bi-reply-fill" style={{ fontSize: 16, color: "#555" }}></i>
+                      </button>
+                   {/* )} */}
 
-                    {/* 📄 Jika pesan berisi dokumen */}
-                    {documentUrl ? (
+                    {imageUrl && (
+                      <img width={250} src={imageUrl} alt="attachment" className="wa-bubble-image" />
+                    )}
+
+                    {documentUrl && (
                       <div className="wa-bubble-doc">
                         <i className="bi bi-file-earmark-text" style={{ fontSize: 20, marginRight: 8 }}></i>
-                        <a
-                          href={documentUrl}
-                          download
-                          className="wa-download-btn"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
+                        <a href={documentUrl} download target="_blank" rel="noopener noreferrer">
                           Download File
                         </a>
                       </div>
-                    ) : null}
+                    )}
 
-                    {/* 🗨️ Jika pesan teks */}
                     {m.text && !documentUrl && (
-                      <div dangerouslySetInnerHTML={{ __html: m.text }} />
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: m.text.replace(/\n/g, '<br/>'),
+                        }}
+                      />
                     )}
 
                     <span className="wa-bubble-time">{m.time}</span>
@@ -581,95 +694,108 @@ const Private: FC = () => {
                 );
               })}
 
+
               <div ref={messagesEndRef} />
             </section>
 
 
             <footer className='wa-input'>
-              {/* 📎 Tombol upload */}
-              <div className='wa-attach'>
-                <label htmlFor='file-upload' className='wa-icon-btn' title='Upload file'>
-                  <i className='bi bi-paperclip'></i>
-                </label>
-                <input
-                  id='file-upload'
-                  ref={fileInputRef}
-                  type='file'
-                  accept='image/*,application/pdf,.doc,.docx,.xls,.xlsx'
-                  style={{ display: 'none' }}
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const reader = new FileReader();
+              
+              {replyMessage && (
+                <ReplyPreview message={replyMessage} onCancel={() => setReplyToId(null)} activeName={active.name} />
+              )}
 
-                    reader.onload = async (event) => {
-                      const base64Data = event.target?.result as string;
-                      if (!base64Data) return;
+              <div className="wa-input-row">
+                {/* 📎 Tombol upload */}
+                <div className='wa-attach'>
+                  <label htmlFor='file-upload' className='wa-icon-btn' title='Upload file'>
+                    <i className='bi bi-paperclip'></i>
+                  </label>
+                  <input
+                    id='file-upload'
+                    ref={fileInputRef}
+                    type='file'
+                    accept='image/*,application/pdf,.doc,.docx,.xls,.xlsx'
+                    style={{ display: 'none' }}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
 
-                      const now = new Date();
-                      const hh = now.getHours().toString().padStart(2, '0');
-                      const mm = now.getMinutes().toString().padStart(2, '0');
+                      reader.onload = async (event) => {
+                        const base64Data = event.target?.result as string;
+                        if (!base64Data) return;
 
-                      const tempMessage: Message = {
-                        id: `upload-${Date.now()}`,
-                        from: 'me',
-                        text: file.name,
-                        time: `${hh}:${mm}`,
-                      };
+                        const now = new Date();
+                        const hh = now.getHours().toString().padStart(2, '0');
+                        const mm = now.getMinutes().toString().padStart(2, '0');
 
-                      // setConversations((prev: Conversation[]) =>
-                      //   prev.map((c: Conversation) =>
-                      //     c.id === selectedId
-                      //       ? { ...c, messages: [...c.messages, tempMessage] }
-                      //       : c
-                      //   )
-                      // );
-
-                      try {
-                        const payload = {
-                          phonenumber: selectedId,
-                          message: '',
-                          location: '',
-                          img: file.type.startsWith('image/') ? base64Data : '',
-                          document: !file.type.startsWith('image/') ? base64Data : '',
-                          audio: '',
-                          video: '',
+                        const tempMessage: Message = {
+                          id: `upload-${Date.now()}`,
+                          from: 'me',
+                          text: file.name,
+                          time: `${hh}:${mm}`,
                         };
 
-                        await axios.post(`${API_BASE}/conversation`, payload, {
-                          headers: { 'Content-Type': 'application/json' },
-                        });
-                      } catch (err) {
-                        console.error('Failed to send file', err);
-                      }
+                        // setConversations((prev: Conversation[]) =>
+                        //   prev.map((c: Conversation) =>
+                        //     c.id === selectedId
+                        //       ? { ...c, messages: [...c.messages, tempMessage] }
+                        //       : c
+                        //   )
+                        // );
 
-                      // 🧹 PENTING: reset nilai input agar bisa upload file yang sama lagi
-                      e.target.value = '';
-                    };
+                        try {
+                          const payload = {
+                            phonenumber: selectedId,
+                            message: '',
+                            location: '',
+                            img: file.type.startsWith('image/') ? base64Data : '',
+                            document: !file.type.startsWith('image/') ? base64Data : '',
+                            audio: '',
+                            video: '',
+                            reply_to_id: replyToId || '',   // ADD THIS
+                            types : 'Agent',
+                          };
 
-                    reader.readAsDataURL(file);
-                  }}
+                          await axios.post(`${API_BASE}/conversation`, payload, {
+                            headers: { 'Content-Type': 'application/json' },
+                          });
+                          setReplyToId(null); // reset replyToId setelah mengirim file
+                        } catch (err) {
+                          console.error('Failed to send file', err);
+                        }
+
+                        // 🧹 PENTING: reset nilai input agar bisa upload file yang sama lagi
+                        e.target.value = '';
+                      };
+
+                      reader.readAsDataURL(file);
+                    }}
 
 
+                  />
+                </div>
+
+
+
+                {/* 💬 Textarea pesan */}
+                <textarea
+                  className='wa-textarea'
+                  rows={1}
+                  placeholder='Ketik pesan'
+                  value={draft}
+                  onChange={handleDraftChange}  // ⬅ pakai fungsi baru
+                  onKeyDown={onKeyDown}
                 />
+
+                {/* 📨 Tombol kirim */}
+                {draft.trim() ? (
+                  <button className='wa-send-btn' onClick={sendMessage} aria-label='send'>
+                    <i className='bi bi-send'></i>
+                  </button>
+                ) : null}
               </div>
-
-              {/* 💬 Textarea pesan */}
-              <textarea
-                className='wa-textarea'
-                rows={1}
-                placeholder='Ketik pesan'
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={onKeyDown}
-              />
-
-              {/* 📨 Tombol kirim */}
-              {draft.trim() ? (
-                <button className='wa-send-btn' onClick={sendMessage} aria-label='send'>
-                  <i className='bi bi-send'></i>
-                </button>
-              ) : null}
             </footer>
 
           </>
