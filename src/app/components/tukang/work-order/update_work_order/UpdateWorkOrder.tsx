@@ -887,7 +887,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       let invoiceMessage = ``;
       let iamgeIcon = '';
       if(
-        workOrderDetail?.order?.status?.category === 'SURVEYSTART' || workOrderDetail?.order?.status?.category === 'WORKSTART'
+        workOrderDetail?.order?.status?.category === 'SURVEYSTART'
       ){  
         iamgeIcon = await urlToBase64(window.location.origin + "/media/JASA_INSTALASI_2_CSI_PEKERJAAN.jpg");
       invoiceMessage = `
@@ -903,7 +903,24 @@ Masukan Anda sangat berarti agar kami dapat memberikan pelayanan yang lebih baik
 
 Terima kasih atas waktu dan kepercayaan Anda kepada *Mitra10* 🙏
 `;
-      }else if (workOrderDetail?.order?.status?.category === 'TUKANGWORK'){
+      }
+      else if(workOrderDetail?.order?.status?.category === 'WORKSTART'){
+          iamgeIcon = await urlToBase64(window.location.origin + "/media/JASA_INSTALASI_2_CSI_PEKERJAAN.jpg");
+          invoiceMessage = `
+    Hi *${workOrderDetail?.order?.members?.full_name || "-"}*, terima kasih telah menggunakan layanan instalasi Mitra10.
+
+    📍 Pekerjaan lAnda *telah selesai dilakukan* oleh tim kami.
+
+    Untuk membantu kami meningkatkan kualitas layanan, mohon kesediaannya untuk mengisi:
+    📝 *Survei Kepuasan Pelanggan (CSI)*  
+    Melalui link berikut: https://forms.gle/YJfkjJqDNDN5ekyK8 
+
+    Masukan Anda sangat berarti agar kami dapat memberikan pelayanan yang lebih baik lagi ke depannya 😊
+
+    Terima kasih atas waktu dan kepercayaan Anda kepada *Mitra10* 🙏
+    `;
+      }
+      else if (workOrderDetail?.order?.status?.category === 'TUKANGWORK'){
 invoiceMessage = `
 Hi *${workOrderDetail?.order?.members?.full_name || "-"}*,
 

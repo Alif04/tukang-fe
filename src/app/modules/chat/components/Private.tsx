@@ -216,6 +216,10 @@ const Private: FC = () => {
           c.id === conv.id ? { ...c, unread: 0 } : c
         )
       );
+
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
     }
 
 
@@ -316,7 +320,7 @@ const Private: FC = () => {
             }
           })
         )
-        setTimeout(scrollToBottom, 50)
+        //setTimeout(scrollToBottom, 50)
       } catch (err) {
         // silent fail
       } finally {
@@ -811,7 +815,6 @@ const Private: FC = () => {
           </button>
         </div>
       )}
-    </div>
     </div>
   )
 

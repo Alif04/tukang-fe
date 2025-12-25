@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState, useRef, ChangeEvent} from 'react'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
-import { formatDateWithTime} from '../../../../../_metronic/helpers'
+import { formatDateWithTime,formatDateNoTime} from '../../../../../_metronic/helpers'
 
 import './NewOrder.css'
 
@@ -984,10 +984,10 @@ const NewOrderStoreStaff: FC = () => {
   
   ——————————————
   🧾 Detail Order
-  • Nama Toko: {Nama Toko}
+  • Nama Toko: ${staffStoreName}
   • Order ID: *${orderDetail?.id}* 
-  • Tanggal Order: *${formatDateWithTime(orderDetail?.created_at)}* 
-  • Survey/Pemasangan: *${formatDateWithTime(orderDetail?.created_at)}* 
+  • Tanggal Order: *${formatDateNoTime(orderDetail?.created_at)}* 
+  • Survey/Pemasangan: *${formatDateNoTime(orderDetail?.request_survey)}* 
   • Nama Customer: *${orderDetail?.members?.full_name || "-"}*
   • Alamat: *${orderDetail?.members?.address_1 || "-"}*
   
@@ -1008,7 +1008,8 @@ const NewOrderStoreStaff: FC = () => {
   ${information_detail}
   (📌 Order di luar jam operasional akan diproses pada hari kerja berikutnya.)
   
-  ${emailDetail?.footer}
+Terima kasih telah menggunakan layanan instalasi Mitra10. Jika membutuhkan bantuan, silakan hubungi
+kami pada jam operasional.
     `;
     
     
@@ -1089,7 +1090,7 @@ const NewOrderStoreStaff: FC = () => {
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
                     <Form.Group className='form-header'>
                       <Form.Label className='title'>
-                        Nama Toko
+                        Nama Toko 1
                         <span className='fs-5 ms-2 pt-2 pb-2 fw-semibold bg-secondary'>
                           {staffStoreName}
                         </span>

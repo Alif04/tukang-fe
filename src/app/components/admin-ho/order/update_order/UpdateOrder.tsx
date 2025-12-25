@@ -1043,13 +1043,11 @@ Untuk memastikan kebutuhan material serta kondisi lokasi agar pemasangan berjala
 • Reschedule maksimal H-1 konfirmasi
 • Biaya survey *tidak dapat dikembalikan* jika customer tidak hadir sesuai jadwal
 
+Tim kami akan menghubungi Anda untuk konfirmasi jadwal survey.
 ──────────────────────
 📞 *Informasi & Bantuan*
 ${information_detail}
 
-(📌 Order di luar jam operasional diproses pada hari kerja berikutnya)
-
-${emailDetail?.footer}
 Terima kasih telah memilih *Mitra10* 🙏
 `;
       } else if (orderDetail?.status?.category === 'QUOTATIONPAID') {
@@ -1065,8 +1063,6 @@ teknisi siap di lokasi sesuai waktu yang disepakati.
 Dengan terselesaikannya pembayaran, Anda dianggap telah menyetujui seluruh **Syarat & Ketentuan
 Layanan Mitra10** sesuai penawaran sebelumnya.
 
-
-${emailDetail?.footer}
 Terima kasih telah memilih Mitra10.
             `;
       }

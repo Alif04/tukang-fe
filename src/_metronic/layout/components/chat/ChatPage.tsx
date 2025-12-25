@@ -806,6 +806,8 @@ export default function ChatPage(): JSX.Element {
   }
 
   const fetchNewChats = async () => {
+    
+    let unreadCounter = 0
     if (!apiChat) {
       console.error('REACT_APP_API_CHAT_URL not configured')
       return
@@ -863,6 +865,10 @@ export default function ChatPage(): JSX.Element {
             (receiver: any) => receiver.user === currentUser && !receiver.read
           ).length
 
+          // Hitung jumlah pesan yang belum dibaca untuk user ini
+          const unreadForUser = chat.receiver.filter(
+            (receiver: any) => receiver.user === currentUser && !receiver.read
+          ).length
           unreadCounter += unreadForUser
         })
 

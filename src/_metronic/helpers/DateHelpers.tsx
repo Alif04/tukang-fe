@@ -43,6 +43,21 @@ export const formatDateWithTime = (date: Date | string) => {
   return `${day} ${month} ${year} pukul ${hours}:${minutes}`
 }
 
+export const formatDateNoTime = (date: Date | string) => {
+  if (!date) return '-'
+
+  const newDate = new Date(date)
+
+  // UTC
+  const day = newDate.getUTCDate().toString().padStart(2, '0')
+  const month = newDate.toLocaleString('id-ID', {month: 'long', timeZone: 'UTC'})
+  const year = newDate.getUTCFullYear()
+  const hours = newDate.getUTCHours().toString().padStart(2, '0')
+  const minutes = newDate.getUTCMinutes().toString().padStart(2, '0')
+
+  return `${day} ${month} ${year}`
+}
+
 export const formatDateWithTimeZone = (date: Date | string) => {
   if (!date) return '-'
 
