@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, {useState, useEffect, useRef} from 'react'
 import io from 'socket.io-client'
-import axios from 'axios'
+import axios from '../../core/axiosInterceptor'
 import Swal from 'sweetalert2'
 import ChatStart from './ChatStart'
 import ChatVendor from './ChatVendor'
@@ -14,7 +14,7 @@ import {Button, Modal} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faComment} from '@fortawesome/free-solid-svg-icons'
 
-const socket = io(`${process.env.REACT_APP_API_CHAT_URL}/live-chat`)
+const enableSockets = process.env.REACT_APP_ENABLE_CHAT_SOCKETS === 'true'
 
 export default function ChatPage(): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -45,11 +45,59 @@ export default function ChatPage(): JSX.Element {
   const vendorListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const poveuesiListRef = useRef<HTMLDivElement>(null) // Reference for vendor list container
   const apiUrl = process.env.REACT_APP_API_URL
-  const apiChat = process.env.REACT_APP_API_CHAT_URL
+  const apiChat = process.env.REACT_APP_WA_BACKEND_API_URL || process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
+  const agentSocketsEnabled = process.env.REACT_APP_ENABLE_CHAT_AGENT_SOCKETS === 'true'
+  const socketsAllowed = (enableSockets && apiChat !== process.env.REACT_APP_API_CHAT_URL) || agentSocketsEnabled
+
+  // Use a ref to hold the socket instance so we can initialize it only when apiChat is configured
+  const socketRef = useRef<any>(null)
+
+  useEffect(() => {
+    if (!socketsAllowed) {
+      console.info('Chat sockets disabled via flag or REACT_APP_API_CHAT_URL')
+      return
+    }
+    // Determine socket base URL. If agentSocketsEnabled, prefer REACT_APP_API_URL fallback to apiChat
+    const socketBase = agentSocketsEnabled ? (process.env.REACT_APP_API_URL || apiChat) : apiChat
+
+    if (!socketBase) {
+      console.warn('No socket base URL configured. Socket will not be initialized.')
+      return
+    }
+
+    const url = socketBase.replace(/\/$/, '')
+    socketRef.current = io(`${url}/live-chat`)
+
+    const handleReceiveMessage = (msg: {sender: string; message: string; timestamp: any}) => {
+      if (
+        msg.sender !==
+        (userRole === 'Owner Vendor'
+          ? vendorName
+          : userRole === 'Super User'
+          ? 'Admin HO'
+          : userRole === 'Store CS'
+          ? storeName
+          : userRole)
+      ) {
+        setNewMessages(true)
+      }
+      setMessages((prev) => [...prev, msg])
+    }
+
+    socketRef.current.on('receiveMessage', handleReceiveMessage)
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off('receiveMessage', handleReceiveMessage)
+        socketRef.current.disconnect()
+        socketRef.current = null
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiChat, socketsAllowed])
+
   useEffect(() => {
     if (messages.length > 0 && !isOpen) {
-      // setNewMessages(true)
-      // Add to unread chats
       setUnreadChats((prev: any) => {
         const lastChat = messages[messages.length - 1]
         if (!prev.includes(lastChat.sender)) {
@@ -99,7 +147,6 @@ export default function ChatPage(): JSX.Element {
   }
 
   const GetVendor = async () => {
-    // setLoadingVendors(true);
     let apiUrlWithParams = `${apiUrl}/vendor?order_by=desc&page=${page}&take=10` // Update query parameters as needed
     if (userRole === 'Store CS') {
       apiUrlWithParams += `&store_id=${storeId}`
@@ -117,10 +164,8 @@ export default function ChatPage(): JSX.Element {
       },
     })
     setVendorList(res.data.data)
-    // setLoadingVendors(false);
   }
   const getStore = async () => {
-    // setLoadingVendors(true);
     let apiUrlWithParams = `${apiUrl}/stores?order_by=desc&page=${page}&take=10` // Update query parameters as needed
     if (userRole === 'Owner Vendor') {
       apiUrlWithParams += `&vendor_id=${vendorId}`
@@ -138,7 +183,6 @@ export default function ChatPage(): JSX.Element {
     })
 
     setStoreList(res.data.data)
-    // setLoadingVendors(false);
   }
   useEffect(() => {
     getStore()
@@ -156,53 +200,33 @@ export default function ChatPage(): JSX.Element {
     }
   }
 
-  useEffect(() => {
-    const handleReceiveMessage = (msg: {sender: string; message: string; timestamp: any}) => {
-      if (
-        msg.sender !==
-        (userRole === 'Owner Vendor'
-          ? vendorName
-          : userRole === 'Super User'
-          ? 'Admin HO'
-          : userRole === 'Store CS'
-          ? storeName
-          : userRole)
-      ) {
-        if (!isOpen) {
-          setNewMessages(true)
-          setUnreadCount((prev) => prev + 1) // Tambah counter
-        }
-      }
-      setMessages((prev) => [...prev, msg])
-    }
-
-    socket.on('receiveMessage', handleReceiveMessage)
-
-    return () => {
-      socket.off('receiveMessage', handleReceiveMessage)
-    }
-  }, [socket, isOpen])
   const datasss = async () => {
-    const res = await axios.get(`${apiChat}/chat/organisasi/Mitra 10`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    })
-    setOrganisasiId(res.data.groups._id)
-    const timestamp = new Date()
+    if (!apiChat) return
+    try {
+      const res = await axios.get(`${apiChat}/chat/organisasi/Mitra 10`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      })
+      setOrganisasiId(res.data.groups._id)
+      const timestamp = new Date()
 
-    setMessages([
-      {
-        sender: 'Mitra 10',
-        message: res.data.groups.description,
-        timestamp,
-      },
-    ])
+      setMessages([
+        {
+          sender: 'Mitra 10',
+          message: res.data.groups.description,
+          timestamp,
+        },
+      ])
+    } catch (err) {
+      console.error('Failed to load organisasi data', err)
+    }
   }
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       datasss()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   const handleChatTypeSelection = async (option: string) => {
@@ -301,10 +325,38 @@ export default function ChatPage(): JSX.Element {
             }
           }
         }
-      }
-      // Store CS logic
-      else if (userRole === 'Store CS' && (type === 'ho' || type === 'vendor' || type === 'id')) {
-        payload = {
+
+        const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        })
+        if (res.data.success) {
+          const dataReciver = res.data.group.members.filter(
+            (member: any) =>
+              member !==
+              (userRole === 'Owner Vendor'
+                ? vendorName
+                : userRole === 'Super User'
+                ? 'Admin HO'
+                : userRole === 'Store CS'
+                ? storeName
+                : userRole)
+          )
+          setReciver(dataReciver)
+          setGroupId(res.data.groupId)
+          setStep('chat')
+
+          setMessages((prev) => [
+            ...prev,
+            {sender: 'Mitra 10', message: `Anda telah bergabung ke grup.`, timestamp},
+          ])
+          if (socketsAllowed && socketRef.current) socketRef.current.emit('joinGroup', res.data.groupId)
+        } else {
+          alert('Gagal memulai chat.')
+        }
+      } else if (userRole === 'Store CS' && (type === 'ho' || type === 'vendor' || type === 'id')) {
+        let payload: any = {
           role_admin: 'Admin HO',
           role: userRole,
           option: type,
@@ -347,13 +399,38 @@ export default function ChatPage(): JSX.Element {
                 {sender: 'Mitra 10', message: 'Silakan isi Order ID Anda.', timestamp},
               ])
               setStep('orderId')
-              return
             }
           }
         }
-      }
-      // Owner Vendor logic
-      else if (
+        const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        })
+        if (res.data.success) {
+          const dataReciver = res.data.group.members.filter(
+            (member: any) =>
+              member !==
+              (userRole === 'Owner Vendor'
+                ? vendorName
+                : userRole === 'Super User'
+                ? 'Admin HO'
+                : userRole === 'Store CS'
+                ? storeName
+                : userRole)
+          )
+          setReciver(dataReciver)
+          setGroupId(res.data.groupId)
+          setStep('chat')
+          setMessages((prev) => [
+            ...prev,
+            {sender: 'Mitra 10', message: `Anda telah bergabung ke grup.`, timestamp},
+          ])
+          if (socketsAllowed && socketRef.current) socketRef.current.emit('joinGroup', res.data.groupId)
+        } else {
+          alert('Gagal memulai chat.')
+        }
+      } else if (
         userRole === 'Owner Vendor' &&
         (type === 'ho' || type === 'store' || type === 'id')
       ) {
@@ -404,67 +481,25 @@ export default function ChatPage(): JSX.Element {
             }
           }
         }
-      }
-
-      // MAJOR CHANGE: Handle new backend response structure
-      const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
-
-      if (res.data.success) {
-        const dataReciver = res.data.group.members.filter(
-          (member: any) =>
-            member !==
-            (userRole === 'Owner Vendor'
-              ? vendorName
-              : userRole === 'Super User'
-              ? 'Admin HO'
-              : userRole === 'Store CS'
-              ? storeName
-              : userRole)
-        )
-
-        setReciver(dataReciver)
-        setGroupId(res.data.groupId)
-
-        // NEW LOGIC: Handle existing vs new group
-        if (res.data.isExisting) {
-          // Existing group found - redirect to previous chat
-          console.log('Existing group detected, redirecting to previous chat...')
-
-          setStep('previous')
-          setMessages((prev) => [
-            ...prev,
-            {
-              sender: 'Mitra 10',
-              message: res.data.message || 'Mengarahkan ke chat yang sudah ada...',
-              timestamp,
-            },
-          ])
-
-          // Fetch previous chats first to ensure data is available
-          await fetchPreviousChats()
-
-          // Auto-load the existing chat after a short delay
-          setTimeout(() => {
-            // handlePreviousChat(res.data.groupId)
-            setSteps('autoRedirect')
-            // Optional: Show additional message
-            setMessages((prev) => [
-              ...prev,
-              {
-                sender: 'Mitra 10',
-                message: 'Chat history dimuat.',
-                timestamp: new Date(),
-              },
-            ])
-          }, 1500)
-        } else {
-          // New group - proceed with normal chat flow
-          console.log('New group created, proceeding to chat...')
-
+        const res = await axios.post(`${apiChat}/chat/createGroup`, payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        })
+        if (res.data.success) {
+          const dataReciver = res.data.group.members.filter(
+            (member: any) =>
+              member !==
+              (userRole === 'Owner Vendor'
+                ? vendorName
+                : userRole === 'Super User'
+                ? 'Admin HO'
+                : userRole === 'Store CS'
+                ? storeName
+                : userRole)
+          )
+          setReciver(dataReciver)
+          setGroupId(res.data.groupId)
           setStep('chat')
           setMessages((prev) => [
             ...prev,
@@ -474,10 +509,10 @@ export default function ChatPage(): JSX.Element {
               timestamp,
             },
           ])
-          socket.emit('joinGroup', res.data.groupId)
+          if (socketsAllowed && socketRef.current) socketRef.current.emit('joinGroup', res.data.groupId)
+        } else {
+          alert('Gagal memulai chat.')
         }
-      } else {
-        alert('Gagal memulai chat.')
       }
     } catch (err) {
       console.error('Error in startChat:', err)
@@ -485,13 +520,11 @@ export default function ChatPage(): JSX.Element {
         ...prev,
         {sender: 'Mitra 10', message: 'Terjadi kesalahan, silakan coba lagi.', timestamp},
       ])
-      if (type === 'id') {
-        setMessages((prev) => [
-          ...prev,
-          {sender: 'Mitra 10', message: 'Silakan isi Order ID Anda.', timestamp},
-        ])
-        setStep('orderId')
-      }
+      setMessages((prev) => [
+        ...prev,
+        {sender: 'Mitra 10', message: 'Silakan isi Order ID Anda.', timestamp},
+      ])
+      setStep('orderId')
     }
   }
 
@@ -510,7 +543,6 @@ export default function ChatPage(): JSX.Element {
   }
 
   const sendMessage = () => {
-    // if (!message.trim()) return
     const timestamp = new Date()
     let msg = {
       groupId,
@@ -531,9 +563,11 @@ export default function ChatPage(): JSX.Element {
     if (typeof message === 'string') {
       msg.message = message
 
-      socket.emit('sendMessage', msg)
+      if (socketsAllowed && socketRef.current) socketRef.current.emit('sendMessage', msg)
+      // Refresh lists so UI updates immediately even when sockets are off
+      fetchPreviousChats()
+      if (groupId) fetchMessagesForGroup(groupId)
     } else if (message.type === 'file') {
-      // Handle upload file sebelum mengirim pesan
       const formData = new FormData()
       formData.append('file', message.file)
 
@@ -545,9 +579,12 @@ export default function ChatPage(): JSX.Element {
         })
         .then((res) => {
           msg.message = res.data.fileUrl // URL dari server setelah upload
-          if (res.data.fileUrl) {
-            socket.emit('sendMessage', msg)
+          if (res.data.fileUrl && socketsAllowed && socketRef.current) {
+            socketRef.current.emit('sendMessage', msg)
           }
+          // After upload/send, refresh UI
+          fetchPreviousChats()
+          if (groupId) fetchMessagesForGroup(groupId)
         })
         .catch((err) => {
           console.error('Upload gagal', err)
@@ -555,13 +592,15 @@ export default function ChatPage(): JSX.Element {
     } else {
       return
     }
-    // console.log(msg);
-
-    // setMessages((prev) => [...prev, { sender: msg.sender, message: msg.message, timestamp: msg.timestamp }]); // Update local state with the new message
     setMessage('')
   }
 
   const fetchPreviousChats = async () => {
+    if (!apiChat) {
+      console.error('REACT_APP_API_CHAT_URL not configured')
+      return
+    }
+
     try {
       const role =
         userRole === 'Admin HO'
@@ -571,11 +610,11 @@ export default function ChatPage(): JSX.Element {
           : userRole === 'Store CS'
           ? storeName
           : vendorName
-      const res = await axios.get(`${apiChat}/chat/previousChats/${role}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
+      if (!localStorage.getItem('accessToken')) {
+        console.warn('No access token present, skipping fetchPreviousChats')
+        return
+      }
+      const res = await axios.get(`${apiChat}/chat/previousChats/${role}`)
       if (res.status === 200) {
         setPreviousChats(res.data.groups)
       }
@@ -585,17 +624,58 @@ export default function ChatPage(): JSX.Element {
     }
   }
 
+  // Polling when sockets are disabled: refresh previous chats and current conversation periodically
+  // useEffect(() => {
+  //   if (socketsAllowed) return // if sockets enabled, server will push updates
+
+  //   // initial fetch
+  //   fetchPreviousChats()
+
+  //   const prevChatsInterval = setInterval(() => {
+  //     fetchPreviousChats()
+  //   }, 5000) // every 5s
+
+  //   return () => clearInterval(prevChatsInterval)
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [apiChat])
+
+  // Poll messages for selected group when sockets are disabled
+  useEffect(() => {
+    if (socketsAllowed) return
+    if (!groupId) return
+
+    // fetch immediately
+    fetchMessagesForGroup(groupId)
+
+    const messagesInterval = setInterval(() => {
+      fetchMessagesForGroup(groupId)
+    }, 3000) // every 3s
+
+    return () => clearInterval(messagesInterval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupId, apiChat])
+
   const handlePreviousChat = async (groupId: any) => {
     setGroupId(groupId)
     setSteps('riwayatChat')
-    socket.emit('joinGroup', groupId)
+    if (socketsAllowed && socketRef.current) socketRef.current.emit('joinGroup', groupId)
+    await fetchMessagesForGroup(groupId)
+    setUnreadChats((prev: any) => prev.filter((id: any) => id !== groupId))
+  }
 
+  // Fetch messages helper (separate from handlePreviousChat to allow polling without side-effects)
+  async function fetchMessagesForGroup(groupId: any) {
+    if (!apiChat) {
+      console.error('REACT_APP_API_CHAT_URL not configured')
+      return
+    }
     try {
-      const res = await axios.get(`${apiChat}/chat/messages/${groupId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
+      if (!localStorage.getItem('accessToken')) {
+        console.warn('No access token present, skipping fetchMessagesForGroup')
+        return
+      }
+      const url = `${apiChat}/chat/messages/${groupId}`
+      const res = await axios.get(url)
       if (res.status === 200) {
         setMessages(res.data)
 
@@ -647,13 +727,30 @@ export default function ChatPage(): JSX.Element {
           console.error('Failed to update read status:', updateError)
         }
       } else {
-        alert('Gagal mengambil pesan grup.')
+        console.warn(`Unexpected response fetching conversation (${url}):`, res.status, res.data)
+        setMessages([])
       }
-    } catch (err) {
-      console.error(err)
-      alert('Terjadi kesalahan saat mengambil pesan grup.')
+    } catch (err: any) {
+      if (err.response) {
+        console.error(`Failed to fetch conversation detail. URL: ${apiChat}/chat/messages/${groupId} Status: ${err.response.status}`, err.response.data)
+        if (err.response.status === 404) {
+          Swal.fire({
+            title: 'Conversation not found',
+            text: 'Percakapan tidak ditemukan atau sudah dihapus.',
+            icon: 'warning',
+            timer: 2500,
+            showConfirmButton: false,
+          })
+          setMessages([])
+        } else if (err.response.status === 401) {
+          console.warn('Unauthorized when fetching conversation detail')
+        } else {
+          console.error('Error response:', err.response.data)
+        }
+      } else {
+        console.error('Failed to fetch conversation detail', err)
+      }
     }
-    setUnreadChats((prev: any) => prev.filter((id: any) => id !== groupId))
   }
 
   const handleDeleteChat = (id: any) => {
@@ -669,7 +766,7 @@ export default function ChatPage(): JSX.Element {
       if (result.isConfirmed) {
         const res = await axios.delete(`${apiChat}/chat/delete/${id}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
         })
         if (res.status === 200) {
@@ -688,12 +785,11 @@ export default function ChatPage(): JSX.Element {
   const [messageIndexToEdit, setMessageIndexToEdit] = useState<number | null>(null)
 
   const handleEditMessage = () => {
-    // setMessageToEdit(messages[index].message);
-    // setMessageIndexToEdit(index);
     setIsEditModalOpen(true)
   }
 
   const handleSaveEditedMessage = async (newMessage: string) => {
+    if (!apiChat) return
     const res = await axios.post(
       `${apiChat}/chat/organisasi/`,
       {
@@ -702,7 +798,7 @@ export default function ChatPage(): JSX.Element {
       },
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       }
     )
@@ -710,17 +806,43 @@ export default function ChatPage(): JSX.Element {
   }
 
   const fetchNewChats = async () => {
+    if (!apiChat) {
+      console.error('REACT_APP_API_CHAT_URL not configured')
+      return
+    }
+
+    if (!localStorage.getItem('accessToken')) {
+      console.warn('No access token present, skipping fetchNewChats')
+      return
+    }
+
+    // helper with retries for transient network errors
+    const fetchWithRetry = async (url: string, retries = 2, delayMs = 1000) => {
+      let attempt = 0
+      while (attempt <= retries) {
+        try {
+          // use absolute URL; axios instance will honor full URL
+          const res = await axios.get(url)
+          return res
+        } catch (err: any) {
+          attempt++
+          // If it's not a network error, rethrow
+          const isNetworkError = !err.response
+          console.warn(`fetchNewChats attempt ${attempt} failed`, err.message || err)
+          if (!isNetworkError) throw err
+          if (attempt > retries) throw err
+          // exponential backoff
+          await new Promise((r) => setTimeout(r, delayMs * attempt))
+        }
+      }
+    }
+
     try {
-      const res = await axios.get(`${apiChat}/chat/messages`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
+      const url = `${apiChat.replace(/\/$/, '')}/chat/messages`
+      const res = await fetchWithRetry(url, 3, 1000)
 
-      if (res.data && res.data.length > 0) {
-        let unreadCounter = 0
-
-        res.data.forEach((chat: any) => {
+      if (res && res.data && res.data.length > 0) {
+        const hasNewMessages = res.data.some((chat: any) => {
           let currentUser: string
 
           switch (userRole) {
@@ -737,31 +859,34 @@ export default function ChatPage(): JSX.Element {
               currentUser = userRole
           }
 
-          // Hitung jumlah pesan yang belum dibaca untuk user ini
-          const unreadForUser = chat.receiver.filter(
+          return chat.receiver && Array.isArray(chat.receiver) && chat.receiver.some(
             (receiver: any) => receiver.user === currentUser && !receiver.read
           ).length
 
           unreadCounter += unreadForUser
         })
 
-        if (unreadCounter > 0) {
-          setNewMessages(true)
-          setUnreadCount(unreadCounter)
-        } else {
-          setNewMessages(false)
-          setUnreadCount(0)
-        }
+        setNewMessages(!!hasNewMessages)
       } else {
         setNewMessages(false)
         setUnreadCount(0)
       }
-    } catch (err) {
-      console.error('Failed to fetch new chats', err)
+    } catch (err: any) {
+      // Provide clearer debug info for network errors
+      if (!err.response) {
+        console.error('Failed to fetch new chats: Network Error. Endpoint:', `${apiChat}/chat/messages`, err.message || err)
+      } else {
+        console.error('Failed to fetch new chats', err)
+      }
+      // schedule a retry later
+      setTimeout(() => {
+        try { fetchNewChats() } catch (_) {}
+      }, 5000)
     }
   }
   useEffect(() => {
     fetchNewChats()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const NotificationBadge = ({count}: {count: number}) => {
     if (count === 0) return null
@@ -930,251 +1055,96 @@ export default function ChatPage(): JSX.Element {
             >
               <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                 {step !== 'start' && (
-                  <button
+                  <Button
+                    variant='link'
                     onClick={() => {
                       setStep('start')
-                      setSteps('')
-                      datasss()
-                      setOrderId('')
-                      setChatType('')
+                      setMessages([])
                       setGroupId('')
-                      setLoadingVendors(false)
-                      setSearchQuery('')
                     }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'white',
-                      fontSize: '18px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
+                    style={{color: 'white'}}
                   >
-                    <i
-                      className='bi bi-arrow-left'
-                      style={{marginRight: '8px', color: 'white', fontSize: '24px'}}
-                    ></i>{' '}
-                    {/* Icon Kembali */}
-                  </button>
+                    Back
+                  </Button>
                 )}
-                <div
-                  style={{
-                    width: '50px', // Ukuran lingkaran
-                    height: '50px', // Ukuran lingkaran
-                    borderRadius: '50%', // Membuat area berbentuk lingkaran
-                    overflow: 'hidden', // Memastikan gambar hanya terlihat dalam lingkaran
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <img
-                    alt='Logo'
-                    className='logo'
-                    src={toAbsoluteUrl('/media/auth/logo-mitra.png')}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain', // Menyesuaikan gambar agar tidak terpotong
-                    }}
-                  />
-                </div>
-
-                <span
-                  style={{
-                    flex: 1,
-                    textAlign: step !== 'start' ? 'center' : 'left',
-                    marginLeft: 20,
-                    fontSize: 16,
-                  }}
-                >
-                  Layanan Live Chat
-                </span>
+                <div style={{marginLeft: 10}}>Live Chat</div>
               </div>
-              {/* Tombol Titik Tiga */}
-              <div style={{position: 'relative'}}>
-                <button
-                  onClick={resetChat} // Toggle menu
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'white',
-                    fontSize: '24px',
-                    cursor: 'pointer',
+
+              <div style={{display: 'flex', alignItems: 'center'}}>
+                <Button
+                  variant='link'
+                  onClick={() => {
+                    setIsOpen(false)
                   }}
+                  style={{color: 'white'}}
                 >
-                  <i className='bi bi-chevron-down fs-1'></i>
-                </button>
+                  Close
+                </Button>
               </div>
             </div>
-            {step !== 'previous' && (
-              <div
-                style={{
-                  flex: 1,
-                  overflowY: 'auto',
-                  padding: '10px',
-                  backgroundColor: '#f9f9f9',
-                }}
-                // Add reference to the container
-              >
-                {messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      textAlign:
-                        msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                        msg.sender === vendorName ||
-                        msg.sender === storeName
-                          ? 'right'
-                          : 'left',
-                      marginBottom: '10px', // Jarak antar pesan
-                    }}
-                  >
-                    {/* Nama pengirim */}
-                    <div
-                      style={{
-                        fontSize: '12px',
-                        color: '#999', // Warna teks abu-abu
-                        marginBottom: '5px', // Jarak nama ke kotak pesan
-                      }}
-                    >
-                      {msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole)
-                        ? userRole === 'Super User'
-                          ? 'Admin HO'
-                          : userRole
-                        : msg.sender}
-                    </div>
 
-                    {/* Kotak pesan */}
-                    <div
-                      style={{
-                        display: 'inline-block',
-                        backgroundColor:
-                          msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                          msg.sender === vendorName
-                            ? '#e0f7fa'
-                            : '#f1f1f1', // Warna kotak pesan
-                        color:
-                          msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                          msg.sender === vendorName
-                            ? '#333'
-                            : '#333', // Warna teks
-                        padding: '10px',
-                        borderRadius: '8px', // Membuat kotak jadi rounded
-                        maxWidth: '60%', // Maksimal lebar pesan
-                        wordBreak: 'break-word', // Memastikan teks panjang tidak melampaui kotak
-                      }}
-                    >
-                      {msg.message.startsWith('http') && msg.message.includes('/uploads/') ? (
-                        msg.message.match(/\.(jpeg|jpg|png|gif)$/) ? (
-                          <img
-                            src={msg.message}
-                            alt='Uploaded File'
-                            style={{maxWidth: '100%', borderRadius: '5px'}}
-                            onClick={() => setPreviewImage(msg.message)}
-                          />
-                        ) : msg.message.match(/\.(mp4|mov|avi)$/) ? (
-                          <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
-                            <source src={msg.message} type='video/mp4' />
-                            Your browser does not support the video tag.
-                          </video>
-                        ) : (
-                          <a href={msg.message} target='_blank' rel='noopener noreferrer'>
-                            {msg.message}
-                          </a>
-                        )
-                      ) : (
-                        msg.message
-                      )}
-                      <div
-                        style={{
-                          fontSize: '10px',
-                          color: 'rgba(92, 92, 92, 0.7)',
-                          textAlign: 'right',
-                          marginTop: '5px',
-                        }}
-                      >
-                        {new Date(msg.timestamp).toLocaleString('id-ID', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: false,
-                        })}
-                      </div>
-                    </div>
-                    {previewImage && (
-                      <Modal show={!!previewImage} onHide={() => setPreviewImage('')} centered>
-                        <Modal.Body>
-                          <img src={previewImage} alt='Preview' style={{width: '100%'}} />
-                        </Modal.Body>
-                      </Modal>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-            {step === 'start' && (
-              <ChatStart
-                handleChatTypeSelection={handleChatTypeSelection}
-                userRole={userRole}
-                handleEditMessage={handleEditMessage}
-              />
-            )}
-            {step === 'previous' && (
-              <ChatPrevious
-                vendorName={vendorName}
-                setMessage={setMessage}
-                sendMessage={sendMessage}
-                setReciver={setReciver}
-                messages={messages}
-                message={message}
-                previousChats={previousChats}
-                handlePreviousChat={handlePreviousChat}
-                handleDeleteChat={handleDeleteChat}
-                unreadChats={unreadChats}
-                userRole={userRole}
-                fetchNewChats={fetchNewChats}
-                storeName={storeName}
-                groupId={groupId} // NEW: pass groupId
-                steps={steps} // NEW: pass steps
-              />
-            )}
-            {step === 'vendor' && (
-              <ChatVendor
-                vendorList={vendorList}
-                StoreList={StoreList}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                loadingVendors={loadingVendors}
-                startChat={startChat}
-                chatType={chatType}
-                vendorListRef={vendorListRef}
-                handleScroll={handleScroll}
-              />
-            )}
-            {step === 'orderId' && (
-              <ChatOrderId orderId={orderId} setOrderId={setOrderId} startChat={startChat} />
-            )}
-            {step === 'chat' && (
-              <ChatActive
-                messages={messages}
-                message={message}
-                setMessage={setMessage}
-                sendMessage={sendMessage}
-              />
-            )}
-            <EditMessageModal
-              isOpen={isEditModalOpen}
-              message={messageToEdit}
-              onClose={() => setIsEditModalOpen(false)}
-              onSave={handleSaveEditedMessage}
-            />
+            <div style={{display: 'flex', flex: 1}}>
+              {step === 'start' && (
+                <ChatStart handleChatTypeSelection={handleChatTypeSelection} userRole={userRole} handleEditMessage={handleEditMessage} />
+              )}
+              {step === 'vendor' && (
+                <ChatVendor
+                  vendorList={vendorList}
+                  loadingVendors={loadingVendors}
+                  startChat={(type: string, datas: any) => startChat(type, datas)}
+                  chatType={chatType}
+                  vendorListRef={vendorListRef}
+                  handleScroll={handleScroll}
+                  setSearchQuery={setSearchQuery}
+                  searchQuery={searchQuery}
+                  StoreList={StoreList}
+                />
+              )}
+              {step === 'orderId' && (
+                <ChatOrderId
+                  orderId={orderId}
+                  setOrderId={setOrderId}
+                  startChat={(type: string, id: string) => startChat(type, id)}
+                />
+              )}
+              {step === 'previous' && (
+                <ChatPrevious
+                  previousChats={previousChats}
+                  handlePreviousChat={handlePreviousChat}
+                  handleDeleteChat={handleDeleteChat}
+                  unreadChats={unreadChats}
+                  userRole={userRole}
+                  messages={messages}
+                  message={message}
+                  setMessage={setMessage}
+                  sendMessage={sendMessage}
+                  vendorName={vendorName}
+                  fetchNewChats={fetchNewChats}
+                  storeName={storeName}
+                  setReciver={setReciver}
+                />
+              )}
+              {step === 'chat' && (
+                <ChatActive
+                  messages={messages}
+                  message={message}
+                  setMessage={setMessage}
+                  sendMessage={sendMessage}
+                />
+              )}
+            </div>
           </div>
         )}
       </div>
+
+      <Modal show={isEditModalOpen} onHide={() => setIsEditModalOpen(false)}>
+        <EditMessageModal
+          isOpen={isEditModalOpen}
+          message={messageToEdit}
+          onSave={handleSaveEditedMessage}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      </Modal>
     </div>
   )
 }

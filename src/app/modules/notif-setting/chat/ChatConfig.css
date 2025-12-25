@@ -1,0 +1,22 @@
+.chat-config-wrapper{padding:16px}
+.connection-status{display:flex;align-items:center;gap:8px;border:1px dashed rgba(0,0,0,0.25);border-radius:12px;padding:12px 16px;background:#fff}
+.connection-status .status-icon{font-size:18px}
+.connection-status.disconnected .status-icon{color:#d9534f}
+.connection-status.connected .status-icon{color:#28a745}
+.connection-status .status-text{font-weight:600}
+.action-row{display:flex;gap:12px;margin-top:16px}
+.action-btn{min-width:140px;border-radius:10px}
+.qr-and-guide{display:flex;gap:16px;align-items:flex-start}
+.qr-card{background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:16px;flex:0 0 360px;max-width:100%}
+.guide-card{background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:16px;flex:1}
+.guide-title{font-weight:700;margin-bottom:8px}
+.guide-list{margin:0 0 12px 16px}
+.note-box{border-radius:10px;background:#fff8e1;border:1px solid #ffecb5;padding:12px}
+.note-title{font-weight:600;margin-bottom:6px}
+.qr-body-area{min-height:260px}
+.qr-image{max-width:320px;max-height:320px}
+@media (max-width: 768px){
+  .qr-and-guide{flex-direction:column}
+  .qr-card{flex:1}
+  .guide-card{flex:1}
+}

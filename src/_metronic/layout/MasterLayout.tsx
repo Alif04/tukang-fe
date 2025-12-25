@@ -41,10 +41,10 @@ const MasterLayout = () => {
               <Content>
                 <Outlet />
               </Content>
-              {(userRole === 'Admin HO' ||
+              {/* {(userRole === 'Admin HO' ||
                 userRole === 'Store CS' ||
                 userRole === 'Owner Vendor' ||
-                userRole === 'Super User') && <ChatPage />}
+                userRole === 'Super User') && <ChatPage />} */}
             </div>
           </div>
         </div>

@@ -92,7 +92,7 @@ interface Order {
 
   [key: string]: any
 }
-const apiChat = process.env.REACT_APP_API_CHAT_URL
+const apiChat = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
 const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
@@ -986,7 +986,118 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       formData.append(key, String(value))
     }
   }
+  const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
+  const [emailDetail, setEmailDetail] = useState<any>()
+   useEffect(() => {
+     fetchEmailData()
+   }, []);
+  const fetchEmailData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/mails`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            order_by: 'asc',
+            type_email_message: 1,
+          },
+        })
+        .then((response) => {
+          const data = response.data.data.data[1]
+          setEmailDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  const sentWA = async () => {
+      
+      // ==================================
+      // === TEMPLATE INVOICE WHATSAPP ===
+      // ==================================
+      // Final WhatsApp Message
+      let invoiceMessage='';
+      if (orderDetail?.status?.category === 'BOOKED') {
+        const information_detail= emailDetail?.information_detail?.map((item: any) => item.information).join('\n• '); 
+        invoiceMessage = `
+Hi *${orderDetail?.members?.full_name || "-"}*, terima kasih telah menggunakan layanan instalasi Mitra10.
 
+Order Anda saat ini *sedang dijadwalkan untuk Survey Lokasi* oleh tim instalasi kami.
+
+👷 *Tujuan Survey:*
+Untuk memastikan kebutuhan material serta kondisi lokasi agar pemasangan berjalan lancar.
+
+📌 *Sebelum Survey Dimulai, Mohon Pastikan:*
+• Area dapat diakses dan aman (tidak licin / tidak ada renovasi besar)
+• Area kerja tidak tertutup barang
+• Untuk layanan air: sumber air dapat diakses
+• Untuk apartemen/perumahan: izin dan akses teknisi sudah disiapkan
+• Hewan peliharaan tidak berada di area kerja
+
+⚠️ *Catatan Penting:*
+• Pihak bertanggung jawab harus ada di lokasi saat survey
+• Reschedule maksimal H-1 konfirmasi
+• Biaya survey *tidak dapat dikembalikan* jika customer tidak hadir sesuai jadwal
+
+──────────────────────
+📞 *Informasi & Bantuan*
+${information_detail}
+
+(📌 Order di luar jam operasional diproses pada hari kerja berikutnya)
+
+${emailDetail?.footer}
+Terima kasih telah memilih *Mitra10* 🙏
+`;
+      } else if (orderDetail?.status?.category === 'QUOTATIONPAID') {
+        invoiceMessage = `
+${emailDetail?.welcome_header} , ${orderDetail?.members?.full_name || "-"}, terima kasih atas pembayaran Anda.
+Pembayaran untuk layanan instalasi Mitra10 telah kami terima dan terverifikasi.
+
+Order Anda saat ini sedang **dalam tahap persiapan pengerjaan** oleh tim instalasi.
+Tim kami akan segera menghubungi Anda untuk **mengonfirmasi jadwal pemasangan** dan memastikan
+teknisi siap di lokasi sesuai waktu yang disepakati.
+
+**Catatan**:
+Dengan terselesaikannya pembayaran, Anda dianggap telah menyetujui seluruh **Syarat & Ketentuan
+Layanan Mitra10** sesuai penawaran sebelumnya.
+
+
+${emailDetail?.footer}
+Terima kasih telah memilih Mitra10.
+            `;
+      }
+
+    
+    
+    // =============================
+    // === KIRIM GAMBAR + PESAN ===
+    // =============================
+      const payload = { 
+        phonenumber: orderDetail?.members?.member_number,
+          message: invoiceMessage,
+          location: '',
+          img: '',
+          document: '',
+          audio: '',
+          video: '',
+          types:'Order'
+        };
+    
+        await axios.post(`${API_BASE}/conversation`, payload, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+    
+      }
+    useEffect(() => {
+      if (!orderDetail || !emailDetail) return;
+  
+      console.log("DATA BENAR-BENAR SIAP:", orderDetail,emailDetail);
+      //sentWA();
+    }, [orderDetail]);
   const handleUpdateOrder = async () => {
     // setIsLoading(true)
     const url = `${apiUrl}/orders/${params.id}`
@@ -1103,6 +1214,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
         if (response.data.status === 200 || response.data.status === 201) {
           sendMessage()
+          sentWA();
           Swal.fire({
             title: 'Success',
             text: 'Success Update Order',
@@ -1225,7 +1337,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                   <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='mb-3'>
                     <Form.Group as={Row} className='mb-5'>
                       <Form.Label column sm='4'>
-                        Nama Toko
+                        Nama Toko tes
                       </Form.Label>
 
                       <Col sm='8'>

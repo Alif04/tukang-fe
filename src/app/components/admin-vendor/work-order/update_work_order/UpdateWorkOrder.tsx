@@ -543,7 +543,7 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
       if (response.data.status === 200 || response.data.status === 201) {
         sendMessage()
-
+        
         Swal.fire({
           title: 'Berhasil',
           text: 'Data Work Order telah berhasil disimpan.',
@@ -611,7 +611,6 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         })
     }
   }
-
   return (
     <section id='update-work-order'>
       <Card className=' mb-5'>

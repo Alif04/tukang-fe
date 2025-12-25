@@ -438,13 +438,26 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
       {/* Halaman Chat Admin WA */}
-      <AsideMenuItem
-        to='/chat/view-chat'
-        icon='/media/icons/duotune/communication/com003.svg'
+      <AsideMenuItemWithSub
+        to='/chat'
         title='Chat'
+        icon='/media/icons/duotune/communication/com003.svg'
         fontIcon='bi-app-indicator'
         role={['Admin WA', 'Admin WA2']}
-      />
+      >
+        <AsideMenuItem
+          to='/chat/view-chat'
+          title='Agent Chat'
+          role={['Admin WA', 'Admin WA2']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/chat/peringatan-service'
+          title='Broadcast Message '
+          role={['Admin WA', 'Admin WA2']}
+          hasBullet={true}
+        />
+      </AsideMenuItemWithSub>
       {/* Halaman Reports */}
       <AsideMenuItemWithSub
         to='/reports'
@@ -497,12 +510,12 @@ export function AsideMenuMain() {
           hasBullet={true}
         /> */}
 
-        <AsideMenuItem
+        {/* <AsideMenuItem
           to='/reports/log-status-chat'
           title='Log chat notif status'
           role={['Admin WA', 'Admin WA2']}
           hasBullet={true}
-        />
+        /> */}
       </AsideMenuItemWithSub>
 
       {/* Halaman Payment */}

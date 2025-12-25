@@ -13,6 +13,7 @@ import {Row, Col, Form, FormGroup, Table, Button, ListGroup, Card} from 'react-b
 import {Image} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import { sendWaMessage, sendImage as sendWaImage } from '../../../../../app/helpers/wautils'
 
 interface StoreItemSelect {
   value: number | null
@@ -97,12 +98,20 @@ interface Order {
 }
 
 const NewOrderHO: FC = () => {
+  
+
+  const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
+  
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([])
 
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  
+    const [orderDetail, setOrderDetail] = useState<any>()
+      const [emailDetail, setEmailDetail] = useState<any>()
 
   // Store
   const [store, setStore] = useState<StoreItemSelect[]>([])
@@ -390,6 +399,7 @@ const NewOrderHO: FC = () => {
           setVendor(response.data.data)
         })
         .catch((error) => {
+          setIsLoadingPage(false)
           console.error(error)
         })
     }
@@ -823,12 +833,12 @@ const NewOrderHO: FC = () => {
         if (item?.item && item.item.prices?.length > 0) {
           const minOrder = Number(item.item.prices[0].min_order)
 
-          if (item.quantity < minOrder) {
-            errorBags.push({
-              message: `Quantity item "${item.item_name}" harus lebih dari minimal order (${minOrder}).`,
-            })
-            setIsLoading(false)
-          }
+          // if (item.quantity < minOrder) {
+          //   errorBags.push({
+          //     message: `Quantity item "${item.item_name}" harus lebih dari minimal order (${minOrder}).`,
+          //   })
+          //   setIsLoading(false)
+          // }
         }
 
         requiredOrderDetailsFields.forEach(({key, fieldName}) => {
@@ -892,7 +902,7 @@ const NewOrderHO: FC = () => {
       return false
     }
 
-    await axios
+    let response = axios
       .post(url, formData, {
         headers: {
           Accept: 'application/json',
@@ -901,7 +911,7 @@ const NewOrderHO: FC = () => {
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      .then((response) => {
+      .then(async (response) => {
         const orderId = response.data.data.id
 
         if (response.data.status === 201) {
@@ -936,7 +946,6 @@ const NewOrderHO: FC = () => {
         })
       })
   }
-
   // Submit New Member
   const handleSubmitNewMember = async () => {
     if (selectedMember.value === null) {
@@ -1099,6 +1108,19 @@ const NewOrderHO: FC = () => {
       return <p className='text-black'>AVAILABLE</p>
     }
   }
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file); // hasilnya "data:image/png;base64,xxxx"
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+
+
+
 
   return (
     <section id='update-order'>

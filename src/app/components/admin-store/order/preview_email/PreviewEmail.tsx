@@ -12,7 +12,7 @@ import {Table, Row, Col, Card} from 'react-bootstrap'
 const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const params = useParams()
-
+    
   const [orderDetail, setOrderDetail] = useState<any>()
   const [emailDetail, setEmailDetail] = useState<any>()
   const [headerImg, setHeaderImg] = useState<any>()
@@ -77,12 +77,11 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
       console.error(error)
     }
   }
-
   useEffect(() => {
     fetchOrderData()
     fetchEmailData()
   }, [])
-
+  
   return (
     <section id='preview-email'>
       <Card>
@@ -111,7 +110,7 @@ const PreviewEmailOrder: FC<{updatePageTitle: (order: Orders) => void}> = ({upda
             <Col md={6} sm={12}>
               <Skeleton active loading={isLoadingPage} paragraph={{rows: 2}}>
                 <div className='header-information'>
-                  <h1 className='fs-5 fw-bold mb-2'>
+                  <h1 className='fs-5 fw-bol  d mb-2'>
                     Tanggal Order :{' '}
                     <span className='fw-normal'>{formatDateWithTime(orderDetail?.created_at)}</span>
                   </h1>

@@ -1,17 +1,16 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import axios from 'axios'
 import clsx from 'clsx'
 import {FC, useEffect, useRef, useState} from 'react'
 import { Modal } from 'react-bootstrap'
-import io from 'socket.io-client'
+import { sendWaMessage, sendImage as sendWaImage } from '../../../app/helpers/wautils'
 
 type Props = {
   isDrawer?: boolean
   chatData: any
   selectedChats: any
 }
-const socket = io(`${process.env.REACT_APP_API_CHAT_URL}/whatsapp`)
+
 const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
   const [message, setMessage] = useState<string>('')
   const [showTemplateModal, setShowTemplateModal] = useState(false)
@@ -26,15 +25,15 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
     fileInputRef.current?.click()
   }
   const getRoleList = async () => {
-    let apiUrlWithParams = `${apiChat}/templates`
+    const base = (process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || '').replace(/\/$/, '')
+    const apiUrlWithParams = `${base}/templates`
 
     try {
-      const response = await axios.get(apiUrlWithParams)
-      if (response.data) {
-        setTemplates(response.data)
-      }
-      // console.log(response.data.data.data);
-    } catch (error) {
+      const res = await fetch(apiUrlWithParams)
+      if (!res.ok) throw new Error('Failed to fetch templates: ' + res.status)
+      const data = await res.json()
+      if (data) setTemplates(data)
+    } catch (error: any) {
       console.error('Error fetching data:', error)
     }
   }
@@ -48,7 +47,6 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatData])
-  const apiChat = process.env.REACT_APP_API_CHAT_URL
   const userRole = localStorage.getItem('userRole') as string
   const userName = localStorage.getItem('username') as string
   const sendMessage = async () => {
@@ -59,20 +57,12 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
       userName: userName
     }
     setMessage('')
-    await axios
-      .post(`${apiChat}/send-message`, data)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((error) => {
-        console.error(error)
-
-        // Swal.fire({
-        //   title: 'Error',
-        //   text: error.response.data.message,
-        //   icon: 'error',
-        // })
-      })
+    try {
+      const resp = await sendWaMessage(data)
+      console.log(resp)
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const onEnterPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -81,25 +71,25 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
       sendMessage()
     }
   }
-  useEffect(() => {
-    const handleReceiveMessage = (msg: {
-      chatId: string
-      message: string
-      timestamp: string
-      fromMe: boolean
-      sender: string
-    }) => {
-      if (msg.chatId === selectedChats) {
-        setChatDatas((prev) => [...prev, msg]) // Tambahkan pesan baru ke chatData
-      }
-    }
+  // useEffect(() => {
+  //   const handleReceiveMessage = (msg: {
+  //     chatId: string
+  //     message: string
+  //     timestamp: string
+  //     fromMe: boolean
+  //     sender: string
+  //   }) => {
+  //     if (msg.chatId === selectedChats) {
+  //       setChatDatas((prev) => [...prev, msg]) // Tambahkan pesan baru ke chatData
+  //     }
+  //   }
 
-    socket.on('receiveMessage', handleReceiveMessage)
+  //   socket.on('receiveMessage', handleReceiveMessage)
 
-    return () => {
-      socket.off('receiveMessage', handleReceiveMessage)
-    }
-  }, [socket])
+  //   return () => {
+  //     socket.off('receiveMessage', handleReceiveMessage)
+  //   }
+  // }, [socket])
 
   const sendImage = async (file:any, caption = '') => {
     if (!file) return;
@@ -111,15 +101,10 @@ const ChatInner: FC<Props> = ({isDrawer = false, chatData, selectedChats}) => {
     formData.append('adminRole', userRole);
   
     try {
-      await axios.post(`${apiChat}/send-image`, formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const resp = await sendWaImage(formData)
       setMessage('');
       setPreviewImages(null);
-      console.log('Gambar terkirim!');
+      console.log('Gambar terkirim!', resp);
     } catch (error) {
       console.error('Gagal mengirim gambar:', error);
     }

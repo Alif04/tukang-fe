@@ -1,28 +1,30 @@
-import React, {useState, useEffect, FC} from 'react'
+import React, {useMemo, useState, useEffect, FC} from 'react'
 
 import './DashboardAdminWA.css'
-
-import {ChartBarSurvey} from './components/ChartBarSurvey'
-import {MoreInformation} from './components/MoreInformation'
 
 import axios from 'axios'
 import dayjs from 'dayjs'
 import duration from "dayjs/plugin/duration";
 import {Row, Col, Card, Button} from 'react-bootstrap'
-import {Table, PaginationProps, Spin, Pagination, DatePicker} from 'antd'
-import {LoadingOutlined} from '@ant-design/icons'
+import {Table, Spin, DatePicker} from 'antd'
 
 const {RangePicker} = DatePicker
 dayjs.extend(duration);
 
-const apiChat = process.env.REACT_APP_API_CHAT_URL
+interface AvgResponseSummary {
+  AvgResponseSeconds: number;
+  AvgResponseMinutes: number;
+  TotalChatsToday?: number;
+  TotalClientMessages?: number;
+  TotalResponded?: number;
+}
+
+
+const apiChat = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
 const DashboardAdminWA: FC = () => {
+   const base = process.env.REACT_APP_WA_BACKEND_API_URL || ''
+    
   const userRole = localStorage.getItem('userRole') as string;
-  const [avgResponseTime, setAvgResponseTime] = useState<number>(0);
-  const [avgFirstResponseTime, setAvgFirstResponseTime] = useState<number>(0);
-  const [totalAssign, setTotalAssign] = useState<any>(0);
-  const [totalResolve, setTotalResolved] = useState<any>(0);
-  const [totalUnAssign, setTotalUnAssing] = useState<any>(0);
   const today = new Date()
   const [dateFrom, setDateFrom] = useState<any>(new Date().toISOString().split('T')[0])
   const [dateTo, setDateTo] = useState<any>(new Date().toISOString().split('T')[0])
@@ -33,18 +35,83 @@ const DashboardAdminWA: FC = () => {
     const year = date.getFullYear()
     return `${day}-${month}-${year}`
   }
+
+  // Broadcast table state (home)
+  const [bLoading, setBLoading] = useState<boolean>(false)
+  const [bData, setBData] = useState<any[]>([])
+  const [bPage, setBPage] = useState<number>(1)
+  const [bPageSize, setBPageSize] = useState<number>(10)
+  const [bTotal, setBTotal] = useState<number>(0)
+  const [favgData, setFavgData] = useState<AvgResponseSummary | null>(null);
+  const [davgData, setDavgData] = useState<AvgResponseSummary | null>(null);
+
+
+  const avgFirstResponseTime = useMemo(() => {
+    if (!favgData) return 0;
+    return (favgData.AvgResponseSeconds ?? 0) * 1000; // jadi ms
+  }, [favgData]);
+
+  const avgResponseTime = useMemo(() => {
+    if (!davgData) return 0;
+    return (davgData.AvgResponseSeconds ?? 0) * 1000;
+  }, [davgData]);
+
+
+
+  const fetchAVGFirst = async () => {
+    try {
+       const url = `${base.replace(/\/$/, '')}/conversation/reportavgfirst`
+      const resp = await axios.get(url)
+      const data = resp?.data?.data || resp?.data || []
+      setFavgData(data);
+    }catch (err) {  
+    }
+  }
+  const fetchAVGDays = async () => {
+    try {
+       const url = `${base.replace(/\/$/, '')}/conversation/reportday`
+      const resp = await axios.get(url)
+      const data = resp?.data?.data || resp?.data || []
+      setDavgData(data);
+    }catch (err) {  
+    }
+  }
+  const fetchBroadcastsHome = async (page = 1, take = 10, from?: string | null, to?: string | null) => {
+   if (!base) return
+    setBLoading(true)
+    try {
+      const params: string[] = []
+      params.push(`page=${page}`)
+      params.push(`take=${take}`)
+      if (from) params.push(`from=${encodeURIComponent(from)}`)
+      if (to) params.push(`to=${encodeURIComponent(to)}`)
+      const url = `${base.replace(/\/$/, '')}/broadcast?${params.join('&')}`
+      const resp = await axios.get(url)
+      const data = resp?.data?.data || resp?.data || []
+      // If API provides total, use it; otherwise derive from array
+      const total = typeof resp?.data?.total === 'number' ? resp.data.total : Array.isArray(data) ? data.length : 0
+      setBData(Array.isArray(data) ? data : [])
+      setBTotal(total)
+    } catch (err) {
+      console.error('Failed to fetch broadcasts for home', err)
+      setBData([])
+      setBTotal(0)
+    } finally {
+      setBLoading(false)
+    }
+  }
+
   const fetchNewChatAssign = async () => {
     let query = `status=Assigned&user=${userRole}&userName=${userName}`
     try {
       const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 
       if (res.data) {
-        setTotalAssign(res.data.chats.length)
-        //  console.log(res.data.chats);
+        // keep prior behavior for counts if needed
       }
     } catch (err) {
       console.error('Failed to fetch new chats', err)
@@ -55,13 +122,12 @@ const DashboardAdminWA: FC = () => {
     try {
       const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 
       if (res.data) {
-        setTotalUnAssing(res.data.chats.length)
-        //  console.log(res.data.chats);
+        // response received for unassigned chats; not displayed on home
       }
     } catch (err) {
       console.error('Failed to fetch new chats', err)
@@ -72,15 +138,12 @@ const DashboardAdminWA: FC = () => {
     try {
       const res = await axios.get(`${apiChat}/all-chat-assign?${query}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 
       if (res.data) {
-        setTotalResolved(res.data.chats.length)
-        // console.log(res.data.chats);
-        
-        //  console.log(res.data.chats);
+        // response received for resolved chats; not displayed on home
       }
     } catch (err) {
       console.error('Failed to fetch new chats', err)
@@ -91,7 +154,7 @@ const DashboardAdminWA: FC = () => {
     try {
       const res = await axios.get(`${apiChat}/all-closed-chat?${query}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 
@@ -101,7 +164,7 @@ const DashboardAdminWA: FC = () => {
           (acc: number, chat: { avgResponseTime: number }) => acc + chat.avgResponseTime,
           0
         );
-        setAvgResponseTime(totalAvgResponseTime)
+        //(totalAvgResponseTime)
         // console.log("Total Average Response Time:", totalAvgResponseTime);
         
         //  console.log(res.data.chats);
@@ -115,7 +178,7 @@ const DashboardAdminWA: FC = () => {
     try {
       const res = await axios.get(`${apiChat}/first-response-handling?${query}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
       })
 
@@ -130,7 +193,7 @@ const DashboardAdminWA: FC = () => {
         //   (acc: number, chat: { avgResponseTime: number }) => acc + chat.avgResponseTime,
         //   0
         // );
-        setAvgFirstResponseTime(totalTime)
+        //setAvgFirstResponseTime(totalTime)
         // console.log("Total Average Response Time:", totalAvgResponseTime);
         
         //  console.log(res.data.chats);
@@ -140,21 +203,39 @@ const DashboardAdminWA: FC = () => {
     }
   }
 useEffect(() => {
-  fetchNewChatAssign()
-  fetchNewChatUnAssign()
-  fetchNewChatResolve()
-  fetchClosedChat()
-  fetchFirstChat()
+  // fetchNewChatAssign()
+  // fetchNewChatUnAssign()
+  // fetchNewChatResolve()
+  // fetchClosedChat()
+  // fetchFirstChat()
+
+  // initial load for home tables
+  fetchBroadcastsHome(bPage, bPageSize)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  fetchAVGDays()
+  fetchAVGFirst()
 }, [])
 
-  const formatTime = (ms: number) => {
-    const duration = dayjs.duration(ms);
-    const hours = String(duration.hours()).padStart(2, "0");
-    const minutes = String(duration.minutes()).padStart(2, "0");
-    const seconds = String(duration.seconds()).padStart(2, "0");
-    const milliseconds = String(duration.milliseconds()).padStart(3, "0");
-    return `${hours}h ${minutes}m ${seconds}s ${milliseconds}ms`;
-  };
+useEffect(() => {
+  fetchBroadcastsHome(bPage, bPageSize)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [bPage, bPageSize])
+
+ function formatTimeFromMs(totalMs: number | null | undefined) {
+    if (!totalMs || totalMs <= 0) return "00h 00m 00s 000ms";
+
+    const ms = totalMs % 1000;
+    const totalSeconds = Math.floor(totalMs / 1000);
+    const seconds = totalSeconds % 60;
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const minutes = totalMinutes % 60;
+    const hours = Math.floor(totalMinutes / 60);
+
+    const pad = (n: number, len = 2) => String(n).padStart(len, "0");
+
+    return `${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s ${pad(ms, 3)}ms`;
+  }
+
   return (
     <section id='dashboard-tukang'>
       <Row>
@@ -202,35 +283,99 @@ useEffect(() => {
         <Col xxl={6} xl={6} lg={12} className='mb-5'></Col>
       </Row>
 
-      <Row className='g-5 g-xl-8 mb-5'>
-    
-        <Col xl={6}>
+     <Row className="g-4">
+      <Col xl={6}>
         <Card className="text-center p-4 shadow-sm">
-      <h2 className="fw-bold">{formatTime(avgFirstResponseTime)}</h2>
-      <p className="text-muted">Average First Response Time</p>
-    </Card>
-        </Col>
-        <Col xl={6}>
+          <h2 className="fw-bold">
+            {formatTimeFromMs(avgFirstResponseTime)}
+          </h2>
+          <p className="text-muted mb-0">
+            Average First Response Time
+          </p>
+        </Card>
+      </Col>
+
+      <Col xl={6}>
         <Card className="text-center p-4 shadow-sm">
-      <h2 className="fw-bold">{formatTime(avgResponseTime)}</h2>
-      <p className="text-muted">Average Response Time</p>
-    </Card>
-        </Col>
-      </Row>
+          <h2 className="fw-bold">
+            {formatTimeFromMs(avgResponseTime)}
+          </h2>
+          <p className="text-muted mb-0">
+            Average Response Time
+          </p>
+        </Card>
+      </Col>
+    </Row>
+
 
       <Row>
-        <Col lg={5} md={12} className='mb-3'>
-          <MoreInformation
-            className='card-xl-stretch'
-            totalAssign={totalAssign}
-            totalResolve={totalResolve}
-            totalUnAssign={totalUnAssign}
-          />
-        </Col>
+        <Col lg={12} md={12} className='mb-3'>
+          <Card className='card'>
+            <Card.Body>
+              <h5 className='mb-3 d-flex justify-content-between align-items-center'>
+                <span>Broadcast History</span>
+                <div className='d-flex align-items-center'>
+                  <RangePicker
+                    format={'DD-MM-YYYY'}
+                    value={dateFrom && dateTo ? [dayjs(dateFrom, 'YYYY-MM-DD'), dayjs(dateTo, 'YYYY-MM-DD')] : undefined}
+                    onChange={(values) => {
+                      if (values && values.length === 2) {
+                        const from = values[0]?.format('YYYY-MM-DD')
+                        const to = values[1]?.format('YYYY-MM-DD')
+                        setDateFrom(from)
+                        setDateTo(to)
+                      } else {
+                        setDateFrom(new Date().toISOString().split('T')[0])
+                        setDateTo(new Date().toISOString().split('T')[0])
+                      }
+                    }}
+                    style={{ marginRight: 8 }}
+                  />
 
-        {/* <Col lg={7} md={12} className='mb-3'>
-          <ChartBarSurvey className='card-xl-stretch' orderData={chartDataOrder} />
-        </Col> */}
+                  <button
+                    className='btn btn-primary btn-sm me-2'
+                    onClick={() => {
+                      setBPage(1)
+                      fetchBroadcastsHome(1, bPageSize, dateFrom, dateTo)
+                    }}
+                  >Filter</button>
+                  <button
+                    className='btn btn-outline-secondary btn-sm'
+                    onClick={() => {
+                      const todayStr = new Date().toISOString().split('T')[0]
+                      setDateFrom(todayStr)
+                      setDateTo(todayStr)
+                      setBPage(1)
+                      fetchBroadcastsHome(1, bPageSize, todayStr, todayStr)
+                    }}
+                  >Reset</button>
+                </div>
+              </h5>
+
+              {bLoading ? (
+                <div className='text-center'><Spin /></div>
+              ) : (
+                <Table
+                  dataSource={bData.map((r:any, idx:number) => ({ key: r.detail_id || idx, ...r }))}
+                  pagination={{
+                    current: bPage,
+                    pageSize: bPageSize,
+                    total: bTotal,
+                    onChange: (pg, ps) => { setBPage(pg); setBPageSize(ps); fetchBroadcastsHome(pg, ps, dateFrom, dateTo) },
+                    showSizeChanger: true,
+                  }}
+                  columns={[
+                    { title: 'No', render: (_: any, __: any, idx: number) => (idx + 1) },
+                    { title: 'Nomor Tujuan', dataIndex: 'phonenumber', key: 'phonenumber' },
+                    { title: 'Pesan', dataIndex: 'message', key: 'message', render: (t: any) => t || '-' },
+                    { title: 'Tanggal', dataIndex: 'CreatedAt', key: 'CreatedAt' },
+                    { title: 'Status', dataIndex: 'status_label', key: 'status_label', render: (s: any) => <span className='badge bg-secondary'>{s || '-'}</span> },
+                  ]}
+                />
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
       </Row>
     </section>
   )

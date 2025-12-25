@@ -15,6 +15,9 @@ import {DefaultLayoutConfig} from './DefaultLayoutConfig'
 const LAYOUT_CONFIG_KEY = process.env.REACT_APP_BASE_LAYOUT_CONFIG_KEY || 'LayoutConfig'
 
 export function getLayout(): ILayout {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return DefaultLayoutConfig
+  }
   const ls = localStorage.getItem(LAYOUT_CONFIG_KEY)
   if (ls) {
     try {
@@ -27,6 +30,9 @@ export function getLayout(): ILayout {
 }
 
 function setLayout(config: ILayout): void {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return
+  }
   try {
     localStorage.setItem(LAYOUT_CONFIG_KEY, JSON.stringify(config))
   } catch (er) {
@@ -71,10 +77,16 @@ export function getEmptyCSSVariables() {
 
 export class LayoutSetup {
   public static isLoaded: boolean = false
-  public static config: ILayout = getLayout()
+  public static config: ILayout = DefaultLayoutConfig
   public static classes: ILayoutCSSClasses = getEmptyCssClasses()
   public static attributes: ILayoutHTMLAttributes = getEmptyHTMLAttributes()
   public static cssVariables: ILayoutCSSVariables = getEmptyCSSVariables()
+
+  public static initConfigFromStorage(): void {
+    if (typeof window !== 'undefined') {
+      LayoutSetup.config = getLayout()
+    }
+  }
 
   private static initCSSClasses(): void {
     LayoutSetup.classes = getEmptyCssClasses()

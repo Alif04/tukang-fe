@@ -1,6 +1,7 @@
 import React, {FC, useEffect, useState, useRef, ChangeEvent} from 'react'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
+import { formatDateWithTime} from '../../../../../_metronic/helpers'
 
 import './NewOrder.css'
 
@@ -771,21 +772,11 @@ const NewOrderStoreCS: FC = () => {
           'ngrok-skip-browser-warning': 'true',
         },
       })
-      .then((response) => {
-        const orderId = response.data.data.id
+      .then(async (response) => {
+        orderId = response.data.data.id
 
         if (response.data.status === 201) {
-          Swal.fire({
-            title: 'Success',
-            text: 'Order Created',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500,
-          }).then(() => {
-            navigate(`/order/printout-order-dipesan/${orderId}`)
-          })
-
-          setIsLoading(false)
+         sentReadDataWA();
         } else {
           Swal.fire({
             title: 'Error',
@@ -806,7 +797,6 @@ const NewOrderStoreCS: FC = () => {
         })
       })
   }
-
   // Submit New Member
   const handleSubmitNewMember = async () => {
     if (selectedMember.value === null) {
@@ -969,6 +959,183 @@ const NewOrderStoreCS: FC = () => {
       return <p className='text-black'>AVAILABLE</p>
     }
   }
+
+  //WA  
+  const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
+  let orderId = 0
+  let statusWA = false;
+  const [orderDetail, setOrderDetail] = useState<any>()
+  const [emailDetail, setEmailDetail] = useState<any>()
+
+  const fetchOrderData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/orders/${orderId}`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        })
+        .then((response) => {
+          const data = response.data.data
+
+          setOrderDetail(data)
+          setIsLoadingPage(false)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const fetchEmailData = async () => {
+    try {
+      await axios
+        .get(`${apiUrl}/mails`, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Access-Control-Allow-Origin': '*',
+            'ngrok-skip-browser-warning': 'true',
+          },
+          params: {
+            order_by: 'asc',
+            type_email_message: 1,
+          },
+        })
+        .then((response) => {
+          const data = response.data.data.data[0]
+          setEmailDetail(data)
+        })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const sentWA = async () => {
+    
+    // ==================================
+    // === TEMPLATE INVOICE WHATSAPP ===
+    // ==================================
+
+     // Generate item list
+    const paymentType = orderDetail?.payment_type;
+    const showPrice = !(paymentType === 'gratis' || paymentType === 'survey');
+
+    const detailItems = orderDetail?.order_details
+      ?.map((item: any) => {
+        const pemasangan =
+          paymentType === 'survey'
+            ? item?.item_notes
+            : item?.item?.service_name ?? '-';
+
+        const totalPrice = showPrice
+          ? `Rp ${parseInt(item?.total || 0).toLocaleString('id')}`
+          : '-';
+
+        return `[${item?.item_code ?? '-'}] | ${item?.item_name ?? '-'} | ${pemasangan} | ${item?.quantity ?? 0} | ${totalPrice}`;
+      })
+      .join('\n');
+
+      const information_detail= emailDetail?.information_detail?.map((item: any) => item.information).join('\n• '); 
+
+  
+    const invoiceMessage = `
+${emailDetail?.welcome_header} , ${orderDetail?.members?.full_name || "-"}, terima kasih telah memesan layanan instalasi di Mitra10.
+Order Anda berhasil kami terima dan tercatat di sistem, dan saat ini sedang masuk dalam antrean proses oleh tim Instalasi & Servis.
+
+——————————————
+🧾 Detail Order
+• Nama Toko: {Nama Toko}
+• Order ID: *${orderDetail?.id}* 
+• Tanggal Order: *${formatDateWithTime(orderDetail?.created_at)}* 
+• Survey/Pemasangan: *${formatDateWithTime(orderDetail?.created_at)}* 
+• Nama Customer: *${orderDetail?.members?.full_name || "-"}*
+• Alamat: *${orderDetail?.members?.address_1 || "-"}*
+
+——————————————
+📦 Detail Pemasangan
+${detailItems}
+
+——————————————
+⚠️ Catatan Penting:
+• Pastikan produk tersedia di lokasi sebelum survey/pemasangan.
+• Jika produk belum dibeli, teknisi kami akan melakukan survey terlebih dahulu.
+• Layanan hanya berlaku untuk produk yang dibeli di Mitra10.
+
+Tim kami akan segera menghubungi Anda untuk konfirmasi jadwal sesuai antrean dan ketersediaan teknisi.
+
+——————————————
+📞 Informasi & Bantuan:
+${information_detail}
+(📌 Order di luar jam operasional akan diproses pada hari kerja berikutnya.)
+
+${emailDetail?.footer}
+  `;
+  
+  
+  // =============================
+  // === KIRIM GAMBAR + PESAN ===
+  // =============================
+    const payload = { 
+        phonenumber: orderDetail?.members?.member_number,
+        message: invoiceMessage,
+        location: '',
+        img: await urlToBase64(window.location.origin + "/media/INSTALASI_HIRES.jpeg"),
+        document: '',
+        audio: '',
+        video: '',
+          types:'Order'
+      };
+  
+      await axios.post(`${API_BASE}/conversation`, payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+    }
+  async function urlToBase64(url: string): Promise<string> {
+    try {
+      const response = await fetch(url)
+      const blob = await response.blob()
+
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
+    } catch (err) {
+      console.warn("⚠️ Failed convert to Base64 (CORS maybe):", err)
+      return "" // kembalikan string kosong jika gagal
+    }
+  }
+  const sentReadDataWA = async () => {
+    fetchOrderData()
+    fetchEmailData()
+  }
+  useEffect(() => {
+    if (
+      !orderDetail ||
+      !emailDetail
+    ) return;
+
+     // ====== FORMAT INVOICE WHATSAPP DINAMIS ======
+    console.log("DATA BENAR-BENAR SIAP:", orderDetail, emailDetail);
+    sentWA();
+      Swal.fire({
+        title: 'Success',
+        text: 'Order Created',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => {
+        navigate(`/order/printout-order-dipesan/${orderDetail.id}`)
+      })
+
+      setIsLoading(false)
+  }, [orderDetail, emailDetail]);
+
 
   return (
     <section id='pre-order'>

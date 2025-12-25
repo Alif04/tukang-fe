@@ -759,7 +759,6 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         }
       })
     }
-
     await axios
       .post(`${apiUrl}/work-orders/${workOrder.id}/set-materials`, formData, {
         headers: {
@@ -771,6 +770,13 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       })
       .then((response) => {
         if (response.data.status === 201 || response.data.status === 200) {
+          if(workOrderDetail?.order?.status?.category === 'SURVEYSTART' 
+            || workOrderDetail?.order?.status?.category === 'TUKANGWORK'
+            || workOrderDetail?.order?.status?.category === 'WORKSTART'
+          )
+          {  
+            sentWA();
+          }
           Swal.fire({
             title: 'Success',
             text: 'Work Order Updated',
@@ -802,6 +808,172 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
         })
       })
   }
+
+  const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
+  const [emailDetail, setEmailDetail] = useState<any>()
+  const [orderDetail, setOrderDetail] = useState<any>({})
+  const [headerImg, setHeaderImg] = useState<any>()
+  const [footerImg, setFooterImg] = useState<any>()
+  const fetchOrderData = async () => {
+      try {
+        await axios
+          .get(`${apiUrl}/orders/${params.id}`, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          })
+          .then((response) => {
+            const data = response.data.data
+  
+            setOrderDetail(data)
+          })
+      } catch (error: any) {
+        if (error.response && error.response.status === 401) {
+          Swal.fire({
+            title: 'Sesi Anda Telah Berakhir',
+            text: 'Silahkan Logout dan Login Ulang Kembali',
+            icon: 'warning',
+            confirmButtonText: 'Ok',
+          })
+        } else {
+          console.log('error when fetching data', error)
+        }
+      }
+    }
+  const fetchEmailData = async () => {
+      try {
+        await axios
+          .get(`${apiUrl}/mails`, {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              'Access-Control-Allow-Origin': '*',
+              'ngrok-skip-browser-warning': 'true',
+            },
+            params: {
+              order_by: 'asc',
+              type_email_message: 1,
+            },
+          })
+          .then((response) => {
+            const data = response.data.data.data[1]
+            setEmailDetail(data)
+  
+            setHeaderImg(
+              apiUrl +
+                '/public/mails-image/' +
+                data.email_message_image.filter((item: any) => item.type === 1)[0]?.path
+            )
+  
+            setFooterImg(
+              apiUrl +
+                '/public/mails-image/' +
+                data.email_message_image.filter((item: any) => item.type === 2)[0]?.path
+            )
+          })
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  const sentWA = async () => {
+      
+      // ==================================
+      // === TEMPLATE INVOICE WHATSAPP ===
+      // ==================================
+      // Final WhatsApp Message
+      let invoiceMessage = ``;
+      let iamgeIcon = '';
+      if(
+        workOrderDetail?.order?.status?.category === 'SURVEYSTART' || workOrderDetail?.order?.status?.category === 'WORKSTART'
+      ){  
+        iamgeIcon = await urlToBase64(window.location.origin + "/media/JASA_INSTALASI_2_CSI_PEKERJAAN.jpg");
+      invoiceMessage = `
+Hi *${workOrderDetail?.order?.members?.full_name || "-"}*, terima kasih telah menggunakan layanan instalasi Mitra10.
+
+📍 Survey lokasi untuk order Anda *telah selesai dilakukan* oleh tim kami.
+
+Untuk membantu kami meningkatkan kualitas layanan, mohon kesediaannya untuk mengisi:
+📝 *Survei Kepuasan Pelanggan (CSI)*  
+Melalui link berikut: https://forms.gle/YJfkjJqDNDN5ekyK8 
+
+Masukan Anda sangat berarti agar kami dapat memberikan pelayanan yang lebih baik lagi ke depannya 😊
+
+Terima kasih atas waktu dan kepercayaan Anda kepada *Mitra10* 🙏
+`;
+      }else if (workOrderDetail?.order?.status?.category === 'TUKANGWORK'){
+invoiceMessage = `
+Hi *${workOrderDetail?.order?.members?.full_name || "-"}*,
+
+Kami informasikan bahwa tim teknisi Instalasi Mitra10 telah *memulai pengerjaan* sesuai pesanan Anda.
+
+Mohon pastikan area kerja dapat diakses dengan baik dan bebas dari barang pribadi, perabot, atau benda pecah belah, agar pengerjaan berjalan lancar. 🙏
+
+⚠️ Kerusakan atau kehilangan pada barang pribadi/perabot di area kerja menjadi tanggung jawab customer. Kami menyarankan untuk mengamankan barang-barang tersebut sebelum pengerjaan dimulai.
+
+Setelah pekerjaan selesai, Anda akan menerima notifikasi otomatis untuk melakukan *Konfirmasi Hasil Pekerjaan*.
+
+📝 Catatan:
+Dengan dimulainya pengerjaan ini, Anda dianggap telah menyetujui hasil survey dan penawaran harga sebelumnya.
+
+Terima kasih telah memilih Mitra10! 😊
+
+`;
+            }
+
+  
+    
+    
+    // =============================
+    // === KIRIM GAMBAR + PESAN ===
+    // =============================
+      const payload = { 
+        phonenumber: workOrderDetail?.order?.members?.member_number,
+          message: invoiceMessage,
+          location: '',
+          img: iamgeIcon,
+          document: '',
+          audio: '',
+          video: '',
+          types:'Order'
+        };
+    
+        await axios.post(`${API_BASE}/conversation`, payload, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+    
+      }
+    async function urlToBase64(url: string): Promise<string> {
+      try {
+        const response = await fetch(url)
+        const blob = await response.blob()
+
+        return await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onloadend = () => resolve(reader.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(blob)
+        })
+      } catch (err) {
+        console.warn("⚠️ Failed convert to Base64 (CORS maybe):", err)
+        return "" // kembalikan string kosong jika gagal
+      }
+    }
+    useEffect(() => {
+      fetchOrderData();
+      fetchEmailData();
+     }, []);
+    useEffect(() => {
+       if (
+         !workOrderDetail ||
+         !emailDetail
+       ) return;
+   
+       console.log("DATA BENAR-BENAR SIAP:", workOrderDetail, emailDetail);
+       //sentWA();
+     }, [workOrderDetail, emailDetail]);
 
   return (
     <section id='update-work-order-tukang'>
@@ -1088,7 +1260,7 @@ const UpdateWorkTukang: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
                             column
                             md='4'
                           >
-                            Upload Foto Sesudah
+                           Upload Foto Sesudah
                           </Form.Label>
 
                           <Col md='8'>

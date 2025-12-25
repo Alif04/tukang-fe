@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react'
-import axios from 'axios'
+import axios from '../../core/axiosInterceptor'
 import {Modal} from 'react-bootstrap'
 import Swal from 'sweetalert2'
 
@@ -26,7 +26,29 @@ interface ChatPreviousProps {
   groupId?: string // NEW: untuk auto-select chat
   steps?: string // NEW: untuk detect auto-redirect
 }
-const apiChat = process.env.REACT_APP_API_CHAT_URL
+const apiChat = process.env.REACT_APP_WA_BACKEND_API_URL || process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
+
+/* eslint-disable no-loop-func */
+// Helper sleep function to avoid declaring functions inside loops
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+// Helper to perform GET requests with retry for transient network errors
+const fetchWithRetry = async (url: string, retries = 2, delayMs = 1000) => {
+  let attempt = 0
+  while (attempt <= retries) {
+    try {
+      const res = await axios.get(url)
+      return res
+    } catch (err: any) {
+      attempt++
+      const isNetworkError = !err.response
+      console.warn(`Request attempt ${attempt} failed for ${url}:`, err.message || err)
+      if (!isNetworkError) throw err
+      if (attempt > retries) throw err
+      await sleep(delayMs * attempt)
+    }
+  }
+}
 const ChatPrevious: React.FC<ChatPreviousProps> = ({
   previousChats,
   handlePreviousChat,
@@ -49,7 +71,7 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   const [, setImage] = useState<File | null>(null) // State untuk gambar
   const [latestMessages, setLatestMessages] = useState<{[key: string]: string}>({})
   const chatContainerRef = useRef<HTMLDivElement | null>(null)
-  const [previewImage, setPreviewImage] = useState(null)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   // Function to scroll to the bottom of the chat
   const scrollToBottom = () => {
@@ -89,27 +111,33 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
     }
   }, [steps, groupId, previousChats, selectedChat])
   const fetchUnreadCounts = async () => {
+    if (!apiChat) {
+      console.error('REACT_APP_API_CHAT_URL not configured')
+      return
+    }
     const counts: {[key: string]: number} = {}
+
     for (const chat of previousChats) {
       try {
-        const res = await axios.get(`${apiChat}/chat/unread/${chat._id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        })
-        const unreadMessages = res.data.unreadCount.filter(
-          (msg: any) =>
-            msg.sender !==
-            (userRole === 'Owner Vendor'
-              ? vendorName
-              : userRole === 'Super User'
-              ? 'Admin HO'
-              : userRole)
+        const url = `${apiChat.replace(/\/$/, '')}/chat/unread/${chat._id}`
+        const res = await fetchWithRetry(url, 2, 1000)
+        const unreadArr: any[] = res && res.data && Array.isArray((res.data as any).unreadCount) ? (res.data as any).unreadCount : []
+        const unreadMessages = unreadArr.filter((msg: any) =>
+          msg.sender !==
+          (userRole === 'Owner Vendor'
+            ? vendorName
+            : userRole === 'Super User'
+            ? 'Admin HO'
+            : userRole)
         )
 
         counts[chat._id] = unreadMessages.length || 0
-      } catch (err) {
-        console.error(`Failed to fetch unread count for chat ${chat._id}`, err)
+      } catch (err: any) {
+        if (err.response) {
+          console.error(`Failed to fetch unread count for chat ${chat._id}. URL: ${apiChat}/chat/unread/${chat._id} Status: ${err.response.status}`, err.response.data)
+        } else {
+          console.error(`Failed to fetch unread count for chat ${chat._id}`, err.message || err)
+        }
         counts[chat._id] = 0
       }
     }
@@ -117,16 +145,18 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
   }
 
   const fetchNewChat = async () => {
+    if (!apiChat) {
+      console.error('REACT_APP_API_CHAT_URL not configured')
+      return
+    }
     const latest: {[key: string]: string} = {}
+
     for (const chat of previousChats) {
       try {
-        const res = await axios.get(`${apiChat}/chat/messages/${chat._id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        })
+        const url = `${apiChat.replace(/\/$/, '')}/chat/messages/${chat._id}`
+        const res = await fetchWithRetry(url, 2, 1000)
 
-        if (res.data && res.data.length > 0) {
+        if (res && res.data && res.data.length > 0) {
           res.data.forEach((chats: any) => {
             const {groupId, timestamp} = chats
             if (!latest[groupId] || new Date(timestamp) > new Date(latest[groupId])) {
@@ -134,8 +164,12 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
             }
           })
         }
-      } catch (err) {
-        console.error('Failed to fetch new chats', err)
+      } catch (err: any) {
+        if (err.response) {
+          console.error(`Failed to fetch new chats for chat ${chat._id}. URL: ${apiChat}/chat/messages/${chat._id} Status: ${err.response.status}`, err.response.data)
+        } else {
+          console.error('Failed to fetch new chats', err.message || err)
+        }
       }
     }
     setLatestMessages(latest)
@@ -168,23 +202,20 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
     handlePreviousChat(chat._id)
     
     try {
-      const sender =
-        userRole === 'Owner Vendor'
-          ? vendorName
-          : userRole === 'Super User'
-          ? 'Admin HO'
-          : userRole === 'Store CS'
-          ? storeName
-          : userRole
-      await axios.put(
-        `${apiChat}/chat/status/${chat._id}`,
-        {sender},
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      )
+      if (!apiChat) {
+        console.error('REACT_APP_API_CHAT_URL not configured')
+      } else {
+        const sender =
+          userRole === 'Owner Vendor'
+            ? vendorName
+            : userRole === 'Super User'
+            ? 'Admin HO'
+            : userRole === 'Store CS'
+            ? storeName
+            : userRole
+        await axios.put(`${apiChat}/chat/status/${chat._id}`, { sender })
+      }
+
       fetchNewChats()
       fetchUnreadCounts()
       scrollToBottom()
@@ -401,67 +432,194 @@ const ChatPrevious: React.FC<ChatPreviousProps> = ({
                       : msg.sender}
                   </div>
 
-                  {/* Kotak pesan */}
-                  <div
-                    style={{
-                      display: 'inline-block',
-                      backgroundColor:
-                        msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
-                        msg.sender === vendorName ||
-                        msg.sender === storeName
-                          ? '#e0f7fa'
-                          : '#f1f1f1',
-                      color: '#333',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      maxWidth: '60%',
-                      wordBreak: 'break-word',
-                      position: 'relative',
-                    }}
-                  >
-                    {msg?.message?.startsWith('http') && msg?.message?.includes('/uploads/') ? (
-                      msg?.message?.match(/\.(jpeg|jpg|png|gif)$/) ? (
-                        <img
-                          src={msg.message}
-                          alt='Uploaded File'
-                          style={{maxWidth: '100%', borderRadius: '5px'}}
-                          onClick={() => setPreviewImage(msg.message)}
-                        />
-                      ) : msg?.message?.match(/\.(mp4|mov|avi)$/) ? (
-                        <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
-                          <source src={msg.message} type='video/mp4' />
-                          Your browser does not support the video tag.
-                        </video>
-                      ) : (
-                        <a href={msg.message} target='_blank' rel='noopener noreferrer'>
-                          {msg.message}
+                {/* Kotak pesan */}
+                <div
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor:
+                      msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
+                      msg.sender === vendorName ||
+                      msg.sender === storeName
+                        ? '#e0f7fa'
+                        : '#f1f1f1',
+                    color:
+                      msg.sender === (userRole === 'Super User' ? 'Admin HO' : userRole) ||
+                      msg.sender === vendorName ||
+                      msg.sender === storeName
+                        ? '#333'
+                        : '#333',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    maxWidth: '60%',
+                    wordBreak: 'break-word',
+                    position: 'relative',
+                  }}
+                >
+                  {(() => {
+                    const rawMedia =
+                      // If conversation detail contains an img object with a src property, prefer that
+                      msg?.img && typeof msg.img === 'object' && msg.img.src
+                        ? msg.img.src
+                        : // if img is a simple string path (e.g. "/received_media/.."), use it
+                        typeof msg?.img === 'string' && msg.img
+                        ? msg.img
+                        : typeof msg.message === 'string' && msg.message.startsWith('http') && msg.message.includes('/uploads/')
+                        ? msg.message
+                        : msg?.image || (msg?.images && msg.images[0]) || (msg?.data && (msg.data.image || msg.data.img)) || null
+
+                    const waBase = process.env.REACT_APP_WA_BACKEND_API_URL || apiChat || ''
+
+                    const resolveMediaUrl = (url: string | null) => {
+                      if (!url) return null
+                      // If url already absolute
+                      if (url.startsWith('http')) return url
+
+                      // If it's a received_media path or contains received_media, extract basename and build full WA backend URL
+                      const matchReceived = url.match(/([^/]*received_media[^/]*)\/?(.*)/i)
+                      if (matchReceived || url.includes('received_media')) {
+                        const parts = url.split('/')
+                        const basename = parts.filter(Boolean).pop() || ''
+                        const base = waBase ? waBase.replace(/\/$/, '') : ''
+                        if (base) return `${base}/received_media/${basename}`
+                        return `/received_media/${basename}`
+                      }
+
+                      // Generic relative path
+                      const base = apiChat ? apiChat.replace(/\/$/, '') : ''
+                      if (base) return `${base}${url.startsWith('/') ? url : '/' + url}`
+                      return url
+                    }
+
+                    const mediaUrl = resolveMediaUrl(rawMedia)
+
+                    const extractFilename = (u: string | null) => {
+                      if (!u) return ''
+                      try {
+                        const p = u.split('/').pop() || u
+                        return p
+                      } catch (e) {
+                        return u
+                      }
+                    }
+
+                    const filename = extractFilename(rawMedia)
+
+                    // Console diagnostics to help debug missing images
+                    try {
+                      console.info('[ChatPrevious] media detection', { rawMedia, mediaUrl, filename, msgId: msg?.id })
+                    } catch (e) {
+                      // ignore logging errors
+                    }
+
+                    if (mediaUrl) {
+                      if (/\.(jpeg|jpg|png|gif)$/.test(mediaUrl)) {
+                        // Component to try fallback URLs if the first fails (CORS, wrong base, path differences)
+                        const ImageWithFallback: React.FC<{
+                          initialUrl: string
+                          raw: string | null
+                          filename?: string
+                        }> = ({initialUrl, raw, filename}) => {
+                          const [src, setSrc] = useState(initialUrl)
+                          const [attempt, setAttempt] = useState(0)
+
+                          const tryNext = () => {
+                            const waBase = process.env.REACT_APP_WA_BACKEND_API_URL || apiChat || ''
+                            const baseNoWaApi = waBase.replace(/\/wa-api\/?$/, '')
+                            const alternatives: string[] = []
+
+                            // Attempt 1: base/received_media/basename (what we did already)
+                            // Attempt 2: base + raw path (if raw provided)
+                            if (raw) {
+                              if (raw.startsWith('/')) alternatives.push((waBase ? waBase.replace(/\/$/, '') : '') + raw)
+                              else alternatives.push((waBase ? waBase.replace(/\/$/, '') : '') + '/' + raw)
+                            }
+
+                            // Attempt 3: use base without /wa-api + /received_media/basename
+                            const basename = (raw || initialUrl).split('/').filter(Boolean).pop() || ''
+                            if (baseNoWaApi) alternatives.push(`${baseNoWaApi}/received_media/${basename}`)
+
+                            // Attempt 4: try the raw path directly (relative)
+                            if (raw) alternatives.push(raw)
+
+                            const next = alternatives[attempt]
+                            if (next) {
+                              console.warn('Image load failed, trying fallback URL:', next)
+                              setSrc(next)
+                              setAttempt((a) => a + 1)
+                            }
+                          }
+
+                          return (
+                            <>
+                              <img
+                                src={src}
+                                alt={filename || 'Uploaded File'}
+                                style={{maxWidth: '100%', borderRadius: '5px'}}
+                                onClick={() => setPreviewImage(src)}
+                                onError={() => {
+                                  if (attempt < 4) tryNext()
+                                  else console.error('Image failed to load after fallbacks:', src)
+                                }}
+                              />
+                              {filename && (
+                                <div style={{fontSize: '12px', color: '#666', marginTop: '6px'}}>{filename}</div>
+                              )}
+                            </>
+                          )
+                        }
+
+                        return <ImageWithFallback initialUrl={mediaUrl} raw={rawMedia} filename={filename} />
+                      } else if (/\.(mp4|mov|avi)$/.test(mediaUrl)) {
+                        return (
+                          <>
+                            <video controls style={{maxWidth: '100%', borderRadius: '5px'}}>
+                              <source src={mediaUrl} />
+                              Your browser does not support the video tag.
+                            </video>
+                            {filename && (
+                              <div style={{fontSize: '12px', color: '#666', marginTop: '6px'}}>{filename}</div>
+                            )}
+                          </>
+                        )
+                      }
+
+                      return (
+                        <a href={mediaUrl} target='_blank' rel='noopener noreferrer'>
+                          {filename || mediaUrl}
                         </a>
                       )
-                    ) : (
-                      msg.message
-                    )}
-                    {/* Timestamp */}
-                    <div
-                      style={{
-                        fontSize: '10px',
-                        color: 'rgba(92, 92, 92, 0.7)',
-                        textAlign: 'right',
-                        marginTop: '5px',
-                      }}
-                    >
-                      {new Date(msg.timestamp).toLocaleString('id-ID', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      })}
-                    </div>
+                    }
+
+                    return msg.message
+                  })()}
+                  {/* Timestamp */}
+                  <div
+                    style={{
+                      fontSize: '10px',
+                      color: 'rgba(92, 92, 92, 0.7)',
+                      textAlign: 'right',
+                      marginTop: '5px',
+                    }}
+                  >
+                    {new Date(msg.timestamp).toLocaleString('id-ID', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })}
                   </div>
                 </div>
-              ))
-            )}
+                {previewImage && (
+                  <Modal show={!!previewImage} onHide={() => setPreviewImage(null)} centered>
+                    <Modal.Body>
+                      <img src={previewImage} alt='Preview' style={{width: '100%'}} />
+                    </Modal.Body>
+                  </Modal>
+                )}
+              </div>
+            ))}
           </div>
 
           {/* Message Input */}
