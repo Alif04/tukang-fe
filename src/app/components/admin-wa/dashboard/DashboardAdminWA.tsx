@@ -58,48 +58,67 @@ const DashboardAdminWA: FC = () => {
 
 
 
-  const fetchAVGFirst = async () => {
+  const fetchAVGFirst = async (from?: string | null, to?: string | null) => {
     try {
-       const url = `${base.replace(/\/$/, '')}/conversation/reportavgfirst`
-      const resp = await axios.get(url)
-      const data = resp?.data?.data || resp?.data || []
+      let url = `${base.replace(/\/$/, '')}/conversation/reportavgfirst`;
+      const params: string[] = [];
+      if (from) params.push(`from=${encodeURIComponent(from)}`);
+      if (to) params.push(`to=${encodeURIComponent(to)}`);
+      if (params.length) url += `?${params.join('&')}`;
+
+      const resp = await axios.get(url);
+      const data = resp?.data?.data || resp?.data || [];
       setFavgData(data);
-    }catch (err) {  
-    }
-  }
-  const fetchAVGDays = async () => {
-    try {
-       const url = `${base.replace(/\/$/, '')}/conversation/reportday`
-      const resp = await axios.get(url)
-      const data = resp?.data?.data || resp?.data || []
-      setDavgData(data);
-    }catch (err) {  
-    }
-  }
-  const fetchBroadcastsHome = async (page = 1, take = 10, from?: string | null, to?: string | null) => {
-   if (!base) return
-    setBLoading(true)
-    try {
-      const params: string[] = []
-      params.push(`page=${page}`)
-      params.push(`take=${take}`)
-      if (from) params.push(`from=${encodeURIComponent(from)}`)
-      if (to) params.push(`to=${encodeURIComponent(to)}`)
-      const url = `${base.replace(/\/$/, '')}/broadcast?${params.join('&')}`
-      const resp = await axios.get(url)
-      const data = resp?.data?.data || resp?.data || []
-      // If API provides total, use it; otherwise derive from array
-      const total = typeof resp?.data?.total === 'number' ? resp.data.total : Array.isArray(data) ? data.length : 0
-      setBData(Array.isArray(data) ? data : [])
-      setBTotal(total)
     } catch (err) {
-      console.error('Failed to fetch broadcasts for home', err)
-      setBData([])
-      setBTotal(0)
-    } finally {
-      setBLoading(false)
+      console.error('Failed to fetch first average', err);
     }
-  }
+  };
+
+  const fetchAVGDays = async (from?: string | null, to?: string | null) => {
+    try {
+      let url = `${base.replace(/\/$/, '')}/conversation/reportday`;
+      const params: string[] = [];
+      if (from) params.push(`from=${encodeURIComponent(from)}`);
+      if (to) params.push(`to=${encodeURIComponent(to)}`);
+      if (params.length) url += `?${params.join('&')}`;
+      
+      const resp = await axios.get(url+params);
+      const data = resp?.data?.data || resp?.data || [];
+      setDavgData(data);
+    } catch (err) {
+      console.error('Failed to fetch daily average', err);
+    }
+  };
+
+  const fetchBroadcastsHome = async (
+    page = 1,
+    take = 10,
+    from?: string | null,
+    to?: string | null
+  ) => {
+    if (!base) return;
+    setBLoading(true);
+    try {
+      const params: string[] = [];
+      params.push(`page=${page}`);
+      params.push(`take=${take}`);
+      if (from) params.push(`from=${encodeURIComponent(from)}`);
+      if (to) params.push(`to=${encodeURIComponent(to)}`);
+      const url = `${base.replace(/\/$/, '')}/broadcast?${params.join('&')}`;
+      const resp = await axios.get(url);
+      const data = resp?.data?.data || resp?.data || [];
+      const total = typeof resp?.data?.total === 'number' ? resp.data.total : Array.isArray(data) ? data.length : 0;
+      setBData(Array.isArray(data) ? data : []);
+      setBTotal(total);
+    } catch (err) {
+      console.error('Failed to fetch broadcasts for home', err);
+      setBData([]);
+      setBTotal(0);
+    } finally {
+      setBLoading(false);
+    }
+  };
+
 
   const fetchNewChatAssign = async () => {
     let query = `status=Assigned&user=${userRole}&userName=${userName}`
@@ -210,14 +229,13 @@ useEffect(() => {
   // fetchFirstChat()
 
   // initial load for home tables
-  fetchBroadcastsHome(bPage, bPageSize)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  fetchAVGDays()
-  fetchAVGFirst()
+   fetchBroadcastsHome(bPage, bPageSize, dateFrom, dateTo)
+  fetchAVGDays(dateFrom, dateTo)   // fetch average harian
+  fetchAVGFirst(dateFrom, dateTo)  // fetch average first response
 }, [])
 
 useEffect(() => {
-  fetchBroadcastsHome(bPage, bPageSize)
+   fetchBroadcastsHome(bPage, bPageSize, dateFrom, dateTo)
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [bPage, bPageSize])
 
@@ -272,7 +290,13 @@ useEffect(() => {
               <Button
                 className='btn-dark-primary button-submit m-0'
                 // disabled={loadingButton}
-                // onClick={handleSubmitFilter}
+                onClick={() => {
+                  // panggil fetch untuk broadcast dan average berdasarkan tanggal range
+                  fetchBroadcastsHome(bPage, bPageSize, dateFrom, dateTo)
+                  fetchAVGDays(dateFrom, dateTo)   // fetch average harian
+                  fetchAVGFirst(dateFrom, dateTo)  // fetch average first response
+                  setBPage(1)      // reset page ke 1
+                }}
               >
                 Sumbit
               </Button>
@@ -314,42 +338,6 @@ useEffect(() => {
             <Card.Body>
               <h5 className='mb-3 d-flex justify-content-between align-items-center'>
                 <span>Broadcast History</span>
-                <div className='d-flex align-items-center'>
-                  <RangePicker
-                    format={'DD-MM-YYYY'}
-                    value={dateFrom && dateTo ? [dayjs(dateFrom, 'YYYY-MM-DD'), dayjs(dateTo, 'YYYY-MM-DD')] : undefined}
-                    onChange={(values) => {
-                      if (values && values.length === 2) {
-                        const from = values[0]?.format('YYYY-MM-DD')
-                        const to = values[1]?.format('YYYY-MM-DD')
-                        setDateFrom(from)
-                        setDateTo(to)
-                      } else {
-                        setDateFrom(new Date().toISOString().split('T')[0])
-                        setDateTo(new Date().toISOString().split('T')[0])
-                      }
-                    }}
-                    style={{ marginRight: 8 }}
-                  />
-
-                  <button
-                    className='btn btn-primary btn-sm me-2'
-                    onClick={() => {
-                      setBPage(1)
-                      fetchBroadcastsHome(1, bPageSize, dateFrom, dateTo)
-                    }}
-                  >Filter</button>
-                  <button
-                    className='btn btn-outline-secondary btn-sm'
-                    onClick={() => {
-                      const todayStr = new Date().toISOString().split('T')[0]
-                      setDateFrom(todayStr)
-                      setDateTo(todayStr)
-                      setBPage(1)
-                      fetchBroadcastsHome(1, bPageSize, todayStr, todayStr)
-                    }}
-                  >Reset</button>
-                </div>
               </h5>
 
               {bLoading ? (
@@ -361,7 +349,7 @@ useEffect(() => {
                     current: bPage,
                     pageSize: bPageSize,
                     total: bTotal,
-                    onChange: (pg, ps) => { setBPage(pg); setBPageSize(ps); fetchBroadcastsHome(pg, ps, dateFrom, dateTo) },
+                    onChange: (pg, ps) => { setBPage(pg); setBPageSize(ps); },
                     showSizeChanger: true,
                   }}
                   columns={[

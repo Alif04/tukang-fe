@@ -16,8 +16,8 @@ const ReportLogChat: React.FC = () => {
 
   const [phonenumber, setPhonenumber] = useState("");
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
-    dayjs().startOf("year"),
-    dayjs(),
+   dayjs().startOf("day"), // awal hari ini
+    dayjs().endOf("day"),   // akhir hari ini
   ]);
 
   const fetchChats = async () => {
