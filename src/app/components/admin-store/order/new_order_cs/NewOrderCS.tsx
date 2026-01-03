@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState, useRef, ChangeEvent} from 'react'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
-import { formatDateWithTime} from '../../../../../_metronic/helpers'
+import { formatDateTimeZone,formatInputDate} from '../../../../../_metronic/helpers'
 
 import './NewOrder.css'
 
@@ -1047,10 +1047,10 @@ Order Anda berhasil kami terima dan tercatat di sistem, dan saat ini sedang masu
 
 ——————————————
 🧾 Detail Order
-• Nama Toko: {Nama Toko}
+• Nama Toko: ${staffStoreName}
 • Order ID: *${orderDetail?.id}* 
-• Tanggal Order: *${formatDateWithTime(orderDetail?.created_at)}* 
-• Survey/Pemasangan: *${formatDateWithTime(orderDetail?.created_at)}* 
+• Tanggal Order: *${formatDateTimeZone(orderDetail?.created_at)}* 
+• Survey/Pemasangan: *${formatDateTimeZone(orderDetail?.request_survey)}* 
 • Nama Customer: *${orderDetail?.members?.full_name || "-"}*
 • Alamat: *${orderDetail?.members?.address_1 || "-"}*
 

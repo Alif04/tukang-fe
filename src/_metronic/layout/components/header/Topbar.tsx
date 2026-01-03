@@ -98,16 +98,16 @@ const Topbar: FC = () => {
     }
   }
 
-  // useEffect(() => {
-  //   getNotifications(currentPage, pageSize)
+  useEffect(() => {
+    getNotifications(currentPage, pageSize)
 
-  //   const intervalId = setInterval(() => {
-  //     getNotifications(currentPage, pageSize)
-  //   }, 30000)
+    const intervalId = setInterval(() => {
+      getNotifications(currentPage, pageSize)
+    }, 30000)
 
-  //   return () => clearInterval(intervalId)
-  //   // eslint-disable-next-line
-  // }, [currentPage, pageSize])
+    return () => clearInterval(intervalId)
+    // eslint-disable-next-line
+  }, [currentPage, pageSize])
 
   useEffect(() => {
     getStatus()

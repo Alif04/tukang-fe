@@ -82,7 +82,7 @@ const DashboardAdminWA: FC = () => {
       if (to) params.push(`to=${encodeURIComponent(to)}`);
       if (params.length) url += `?${params.join('&')}`;
       
-      const resp = await axios.get(url+params);
+      const resp = await axios.get(url);
       const data = resp?.data?.data || resp?.data || [];
       setDavgData(data);
     } catch (err) {
