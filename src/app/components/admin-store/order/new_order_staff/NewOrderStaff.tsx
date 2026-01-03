@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useState, useRef, ChangeEvent} from 'react'
 import axiosInstance from '../../../../../_metronic/layout/core/axiosInterceptor'
 import {useNavigate} from 'react-router-dom'
-import { formatDateWithTime,formatDateNoTime} from '../../../../../_metronic/helpers'
+import { formatDateTimeZone,formatInputDate} from '../../../../../_metronic/helpers'
 
 import './NewOrder.css'
 
@@ -986,8 +986,8 @@ const NewOrderStoreStaff: FC = () => {
   🧾 Detail Order
   • Nama Toko: ${staffStoreName}
   • Order ID: *${orderDetail?.id}* 
-  • Tanggal Order: *${formatDateNoTime(orderDetail?.created_at)}* 
-  • Survey/Pemasangan: *${formatDateNoTime(orderDetail?.request_survey)}* 
+  • Tanggal Order: *${formatDateTimeZone(orderDetail?.created_at)}* 
+  • Survey/Pemasangan: *${formatDateTimeZone(orderDetail?.request_survey)}* 
   • Nama Customer: *${orderDetail?.members?.full_name || "-"}*
   • Alamat: *${orderDetail?.members?.address_1 || "-"}*
   

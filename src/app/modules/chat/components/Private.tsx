@@ -11,6 +11,7 @@ interface Message {
   time: string // HH:mm or date string
   img?: string // 🟢 img
   document?: string // 🟢 file
+  from_group?: string
 }
 
 interface Conversation {
@@ -25,6 +26,7 @@ interface Conversation {
   status?: 'online' | 'offline' | 'typing'
   favorite?: boolean          // 🔹 NEW
   member_id?: string | null   // untuk cek member atau bukan
+  group?: string
 }
 
 
@@ -54,9 +56,14 @@ const getInitials = (name: string) => {
 
 
 const Private: FC = () => {
+  const [shortcuts, setShortcuts] = useState<{id: string, chat_message: string}[]>([]);
+const [showShortcut, setShowShortcut] = useState(false);
+
+
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedId, setSelectedId] = useState<string>('')
-  const [activeTab, setActiveTab] = useState<'member' | 'favorite' | 'nonmember'>('member')
+  const [activeTab, setActiveTab] = useState<'member' | 'unread' |'favorite' | 'nonmember' | 'group'>('member')
+  const [isLoading, setIsLoading] = useState(false);
 
   const [query, setQuery] = useState('')
   const [draft, setDraft] = useState('')
@@ -68,6 +75,9 @@ const Private: FC = () => {
   const isFetchingConversationsRef = useRef<boolean>(false)
   const isFetchingDetailRef = useRef<boolean>(false)
   const [replyToId, setReplyToId] = useState<string | null>(null)
+  // Guard: ignore clicks caused by dragging/scrolling so selection only happens on deliberate clicks
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null)
+  const pointerMovedRef = useRef<boolean>(false)
 
   useEffect(() => {
     conversationsRef.current = conversations
@@ -95,7 +105,7 @@ const Private: FC = () => {
         const favoriteIds = new Set(loadFavoriteIds()) // 🔹 NEW
 
         const mapped: Conversation[] = items.map((it: any) => {
-          const id = String(it.phonenumber || it.id || '')
+          const id = String(it.phonenumber);
           return {
             id,
             name: String(it.name || ''),
@@ -107,7 +117,8 @@ const Private: FC = () => {
             messages: [],
             status: 'offline',
             favorite: favoriteIds.has(id),                // 🔹 NEW
-            member_id: it.member_id ? it.member_id : null   // untuk cek member atau bukan
+            member_id: it.member_id ? it.member_id : null,   // untuk cek member atau bukan
+            group: it.group
           }
         })
 
@@ -126,12 +137,14 @@ const Private: FC = () => {
                     lastTime: n.lastTime || ex.lastTime,
                     unread: n.unread ?? ex.unread ?? 0,
                     favorite: ex.favorite ?? n.favorite,   // 🔹 keep favorite
+                    group: ex.group
                   }
                 : n
             })
             return nextList
           })
-          if (!selectedId && mapped.length) setSelectedId(mapped[0].id)
+          // Do not auto-select conversation on fetch — selection only via explicit click
+          // if (!selectedId && mapped.length) setSelectedId(mapped[0].id)
         }
       } catch (e) {
         // keep previous state on error
@@ -156,7 +169,7 @@ const Private: FC = () => {
           mounted = false
           clearInterval(intervalId)
         }
-      }, [selectedId,activeTab])
+  }, [activeTab])
 
       const toggleFavorite = async (id: string, phone: string) => {
 
@@ -194,9 +207,30 @@ const Private: FC = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
   }
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+
+  useEffect(() => {
+    // 🔹 Kosongkan semua saat pindah tab
+    setConversations([]);
+    setSelectedId('');
+  }, [activeTab]);
 
   const handleSelectConversation = async (conv: Conversation) => {
-    setSelectedId(conv.id)
+    if (isLoading) return; // ⛔ cegah double click
+    
+    setIsLoading(true);
+    setSelectedId(conv.id);
+    setIsLoadingMessages(true);
+
+    // 🧹 KOSONGKAN PANEL KANAN DULU
+    setConversations(prev =>
+      prev.map(c =>
+        c.id === conv.id
+          ? { ...c, messages: [] }
+          : c
+      )
+    );
+
     const unreadCount = conv.unread || 0;
 
     // 🟢 Mark as read before fetch new details
@@ -225,9 +259,11 @@ const Private: FC = () => {
 
     // if UI was collapsed, expand when user selects a conversation
     setIsCollapsed(false)
+    
     if (!API_BASE) return
     if (isFetchingDetailRef.current) return
     try {
+      /*
       // determine last_id from existing messages, if any
       const lastMsg = conv.messages && conv.messages.length ? conv.messages[conv.messages.length - 1] : null
       const lastId = lastMsg && typeof lastMsg.rawId === 'number' ? lastMsg.rawId : 0
@@ -253,6 +289,7 @@ const Private: FC = () => {
         img: it.img || '', // 🟢 tambahkan ini
         document: it.document || '', // 🟢 tambahkan ini
         time: formatTime(it.CreatedAt || ''),
+        from_group: it.from_group, // 🟢 dari backend
       }));
 
       setConversations((prev) =>
@@ -267,13 +304,15 @@ const Private: FC = () => {
               }
             : c
         )
-      )
-      setTimeout(scrollToBottom, 50)
+      )*/
     } catch (err) {
       console.error('Failed to fetch conversation detail', err)
+    }finally {
+      setIsLoading(false); // ✅ AKTIFKAN LAGI
     }
   }
 
+  const prevMessageCountRef = useRef(0);
   useEffect(() => {
     if (!API_BASE) return
     if (!selectedId) return
@@ -304,23 +343,35 @@ const Private: FC = () => {
           img: it.img || '', // 🟢 tambahkan ini
           document: it.document || '', // 🟢 tambahkan ini
           time: formatTime(it.CreatedAt || it.created_at || it.createdAt),
+          from_group: it.from_group,
         }))
+         
         if (!alive || mapped.length === 0) return
         setConversations((prev) =>
           prev.map((c) => {
-            if (c.id !== selectedId) return c
-            const existingIds = new Set(c.messages.map((m) => m.id))
-            const newMsgs = mapped.filter((m) => !existingIds.has(m.id))
-            const merged = newMsgs.length ? [...c.messages, ...newMsgs] : c.messages
+            if (c.id !== selectedId) return c;
+
+            const existingIds = new Set(c.messages.map((m) => m.id));
+            const newMsgs = mapped.filter((m) => !existingIds.has(m.id));
+
+            if (newMsgs.length > 0) {
+              setTimeout(scrollToBottom, 50); // ✅ scroll HANYA jika ada pesan baru
+            }
+
             return {
               ...c,
-              messages: merged,
-              lastMessage: merged.length ? merged[merged.length - 1].text : c.lastMessage,
-              lastTime: merged.length ? merged[merged.length - 1].time : c.lastTime,
-            }
+              messages: newMsgs.length ? [...c.messages, ...newMsgs] : c.messages,
+              lastMessage: newMsgs.length
+                ? newMsgs[newMsgs.length - 1].text
+                : c.lastMessage,
+              lastTime: newMsgs.length
+                ? newMsgs[newMsgs.length - 1].time
+                : c.lastTime,
+            };
           })
-        )
-        //setTimeout(scrollToBottom, 50)
+        );
+
+        setTimeout(scrollToBottom, 50)
       } catch (err) {
         // silent fail
       } finally {
@@ -335,6 +386,22 @@ const Private: FC = () => {
     }
   }, [selectedId])
 
+  useEffect(() => {
+    const fetchShortcuts = async () => {
+      if (!API_BASE) return;
+      try {
+        const res = await axios.get(`${API_BASE}/conversation/shortcut`);
+        const data = Array.isArray(res.data?.data?.data) ? res.data.data.data : [];
+        setShortcuts(data);
+      } catch (err) {
+        console.error('Failed to load shortcuts', err);
+      }
+    };
+    fetchShortcuts();
+  }, []);
+
+
+
   const sendMessage = async () => {
     const text = draft.trim()
     if (!text || !active) return
@@ -344,21 +411,6 @@ const Private: FC = () => {
     const mm = now.getMinutes().toString().padStart(2, '0')
 
     const newMsg: Message = {id: `${active.id}-${Date.now()}`, from: 'me', text, time: `${hh}:${mm}`}
-
-    // // Optimistic UI update
-    // setConversations((prev) =>
-    //   prev.map((c) =>
-    //     c.id === active.id
-    //       ? {
-    //           ...c,
-    //           messages: [...c.messages, newMsg],
-    //           lastMessage: text,
-    //           lastTime: `${hh}:${mm}`,
-    //           unread: 0,
-    //         }
-    //       : c
-    //   )
-    // )
     setDraft('')
     setTimeout(scrollToBottom, 50)
 
@@ -449,6 +501,29 @@ const Private: FC = () => {
       console.error("Gagal hapus pesan", err);
     }
   };
+  
+  const [showBindName, setShowBindName] = useState(false);
+  const [bindName, setBindName] = useState('');
+  const [idBindName, setIdBindName] = useState('0');
+
+  const handleChangeGroupName = async (id: string) => {
+      setShowBindName(true);
+      setIdBindName(id);
+  }
+
+  const handleChangeGroupNameApprove = async () => {
+    const confirmDelete = window.confirm(`apakah anda mau ganti group ini?`);
+    if (!confirmDelete) return;
+
+    try {
+      await axios.get(`${API_BASE}/conversation/changename?id=${idBindName}&name=${bindName}`);
+      setShowBindName(false);
+      setBindName('');
+      setIdBindName('');
+    } catch (err) {
+      console.error("Gagal hapus percakapan", err);
+    }
+  }
   const handleDeleteConversation = async (phone: string) => {
     const confirmDelete = window.confirm(`Hapus seluruh chat dengan ${phone}?`);
     if (!confirmDelete) return;
@@ -551,6 +626,12 @@ const Private: FC = () => {
             Member
           </button>
           <button
+            className={`wa-tab-btn ${activeTab === 'unread' ? 'active' : ''}`}
+            onClick={() => setActiveTab('unread')}
+          >
+            Unread
+          </button>
+          <button
             className={`wa-tab-btn ${activeTab === 'favorite' ? 'active' : ''}`}
             onClick={() => setActiveTab('favorite')}
           >
@@ -562,21 +643,63 @@ const Private: FC = () => {
           >
             Non Member
           </button>
+          <button
+            className={`wa-tab-btn ${activeTab === 'group' ? 'active' : ''}`}
+            onClick={() => setActiveTab('group')}
+          >
+            Group
+          </button>
         </div>
 
 
         <div className='wa-chat-list'>
-          {filtered.map((c) => (
+          {filtered.map((c, index) => (
             <div
               key={c.id}
               className={`wa-chat-item ${selectedId === c.id ? 'active' : ''}`}
-              onClick={() => handleSelectConversation(c)}
+              onPointerDown={(e) => {
+                pointerMovedRef.current = false;
+                pointerStartRef.current = { x: (e as React.PointerEvent).clientX, y: (e as React.PointerEvent).clientY };
+              }}
+              onPointerMove={(e) => {
+                if (!pointerStartRef.current) return;
+                const dx = Math.abs((e as React.PointerEvent).clientX - pointerStartRef.current.x);
+                const dy = Math.abs((e as React.PointerEvent).clientY - pointerStartRef.current.y);
+                if (dx > 6 || dy > 6) pointerMovedRef.current = true;
+              }}
+              onPointerUp={() => { pointerStartRef.current = null; }}
+              onClick={(e) => {
+                // ignore clicks caused by dragging/scrolling
+                if (pointerMovedRef.current) {
+                  pointerMovedRef.current = false;
+                  return;
+                }
+                // only primary button
+                if ((e as React.MouseEvent).button !== 0) return;
+                setIsLoading(false);
+                handleSelectConversation(c);
+              }}
             >
-              <div className='wa-avatar'>{c.avatarText}</div>
+                <div className='wa-avatar'>
+                {c.avatarText}
+                </div>
+                {c.group === '1' && (
+                <button
+                  className="wa-icon-btn"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleChangeGroupName(c.id);
+                  }}
+                >
+                  <i className="bi bi-pencil"></i>
+                </button>
+                )}
                 <div className='wa-chat-meta'>
                   <div className='wa-chat-top'>
                     <div className='wa-chat-name d-flex align-items-center gap-1'>
                       {c.name}
+                    </div>
+                    <div className='wa-chat-name d-flex align-items-center gap-1'>
                        {/* ⭐ Favorite toggle */}
                         {c.member_id ? (
                           <button
@@ -602,6 +725,7 @@ const Private: FC = () => {
                           <i className='bi bi-trash'></i>
                         </button>
                     </div>
+                  <br/>
                   <div className='d-flex align-items-center gap-1'>
                     <span className='wa-chat-time'>{c.lastTime}</span>
                     {c.unread ? <span className='wa-unread'>{c.unread}</span> : null}
@@ -637,10 +761,12 @@ const Private: FC = () => {
             </header>
 
             <section className='wa-messages'>
-              {active.messages.map((m) => {
+               {isLoadingMessages && (
+                <div className="wa-loading">Memuat pesan...</div>
+              )}
+              {active.messages.map((m, index) => {
                 const imageUrl = m.img ? `${API_BASE}${m.img}` : null;
                 const documentUrl = m.document ? `${API_BASE}${m.document}` : null;
-
                 return (
                   <div key={m.id} className={`wa-bubble ${m.from === 'me' ? 'outgoing' : 'incoming'}`}>
                     
@@ -656,6 +782,11 @@ const Private: FC = () => {
                     )}
                    {/* 📨 Tombol reply sebagai icon saja */}
                    {/* {m.from === 'them' && ( */}
+                   {m.from_group?.trim() && (
+                      <span className="wa-group-badge" title="Pesan dari group">
+                        {m.from_group}
+                      </span>
+                      )}
                       <button
                         className="wa-reply-btn"
                         title="Reply"
@@ -799,6 +930,35 @@ const Private: FC = () => {
                     <i className='bi bi-send'></i>
                   </button>
                 ) : null}
+                { /* short cut */}
+                <div className="wa-shortcut">
+                  <button
+                    className="wa-shortcut-btn"
+                    title="Shortcut"
+                    onClick={() => setShowShortcut(prev => {
+                      const next = !prev;
+                      return next;
+                    })}
+                  >
+                    ⚡
+                  </button>
+                  {showShortcut && shortcuts.length > 0 && (
+                    <div className="wa-shortcut-list">
+                      {shortcuts.map(s => (
+                        <div
+                          key={s.id}
+                          className="wa-shortcut-item"
+                          onClick={() => {
+                            setDraft(s.chat_message);
+                            setShowShortcut(false);
+                          }}
+                        >
+                          {s.chat_message}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </footer>
 
@@ -815,6 +975,44 @@ const Private: FC = () => {
           </button>
         </div>
       )}
+      {showBindName && (
+        <div className="wa-modal-backdrop">
+          <div className="wa-modal">
+            <h5>Kaitkan Nama</h5>
+
+            <input
+              type="text"
+              className="wa-modal-input"
+              placeholder="Masukkan nama"
+              value={bindName}
+              onChange={(e) => setBindName(e.target.value)}
+              autoFocus
+            />
+
+            <div className="wa-modal-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  setShowBindName(false);
+                  setBindName('');
+                  setIdBindName('');
+                }}
+              >
+                Batal
+              </button>
+
+              <button
+                className="btn btn-primary"
+                onClick={handleChangeGroupNameApprove}
+                disabled={!bindName.trim()}
+              >
+                Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 

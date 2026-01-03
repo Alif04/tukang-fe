@@ -661,9 +661,13 @@ const sentWA = async () => {
     const invoiceMessage = `
 Hi *${order?.members?.full_name || "-"}*, terima kasih telah menggunakan layanan instalasi Mitra10.
 
-Berikut terlampir *Quotation Jasa Instalasi & Servis Mitra10* untuk pesanan Anda.
+Berikut terlampir *Quotation Jasa Instalasi & Servis Mitra10*.
+Jika Anda menyetujui penawaran tersebut, mohon lakukan pembayaran melalui kanal resmi Mitra10
+sesuai instruksi pada dokumen.
 
-Jika Anda menyetujui penawaran tersebut, mohon melakukan pembayaran melalui *kanal resmi Mitra10* sesuai instruksi pada dokumen.
+Jika lampiran PDF tidak dapat dibuka atau tidak terkirim, silakan unduh Quotation melalui link berikut:
+👉 [${apiUrl}/orders/quotation-pdf/${order.id}]
+Terima kasih atas kepercayaan Anda kepada Mitra10.
 
 ⚠️ *Catatan Penting:*
 • Quotation disusun berdasarkan hasil survey awal

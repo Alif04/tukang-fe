@@ -460,3 +460,164 @@
   margin-bottom: 8px;
   order: -1; /* posisikan di atas textarea */
 }
+
+.wa-bubble-actions {
+  display: flex;
+  justify-content: space-between; /* kiri & kanan */
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.wa-group-badge {
+  font-size: 11px;
+  color: #555;
+  background: #f1f3f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  max-width: 70%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wa-reply-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #555;
+}
+
+.wa-reply-btn:hover {
+  color: #0d6efd; /* biru saat hover */
+}
+
+/* ===========================
+   SHORTCUT (FINAL)
+=========================== */
+
+.wa-shortcut {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tombol ⚡ */
+.wa-shortcut-btn {
+  border: none;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 50%;
+  line-height: 1;
+}
+
+.wa-shortcut-btn:hover {
+  background: #e9ecef;
+}
+
+/* Panel Shortcut */
+.wa-shortcut-list {
+  position: absolute;
+  bottom: 48px;
+  right: 0;
+  width: 220px;
+
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  z-index: 9999;
+
+  max-height: 260px;
+  overflow-y: auto;
+
+  animation: waFadeUp 0.15s ease-out;
+}
+
+/* Item */
+.wa-shortcut-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.4;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.wa-shortcut-item:last-child {
+  border-bottom: none;
+}
+
+.wa-shortcut-item:hover {
+  background: #f5f5f5;
+}
+
+/* Animasi muncul */
+@keyframes waFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .wa-shortcut-list {
+    bottom: 40px;
+    right: 0;
+    width: 200px;
+    max-height: 240px;
+  }
+}
+
+/* ===========================
+   SIMPLE MODAL
+=========================== */
+
+.wa-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.wa-modal {
+  background: #fff;
+  width: 320px;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.wa-modal h5 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.wa-modal-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.wa-modal-input:focus {
+  border-color: #0d6efd;
+}
+
+.wa-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
