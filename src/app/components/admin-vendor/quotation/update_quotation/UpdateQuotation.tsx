@@ -217,6 +217,7 @@ const UpdateQuotationVendor: FC = () => {
   const handleChangeQuotationType = (isChecked: boolean) => {
     setQuotation((prev) => ({
       ...prev,
+      quotation_details: [],
       quotation_special: isChecked ? 1 : 0,
     }))
   }
@@ -446,10 +447,19 @@ const UpdateQuotationVendor: FC = () => {
   const QuotationValidation = () => {
     let valid = true
 
+    if (!quotation.quotation_details.length) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Mohon isi item quotation',
+        icon: 'warning',
+      })
+      valid = false
+    }
+
     if (!quotation.quotation_date) {
       Swal.fire({
         title: 'Warning',
-        text: 'Tolong isi tanggal quotation',
+        text: 'Mohon isi tanggal quotation',
         icon: 'warning',
       })
       valid = false
@@ -463,7 +473,7 @@ const UpdateQuotationVendor: FC = () => {
       if (!detail.item_name || detail.item_name.trim() === '') {
         Swal.fire({
           title: 'Warning',
-          text: `Tolong isi "${typeName}" pada baris ke-${rowNumber}.`,
+          text: `Mohon isi "${typeName}" pada baris ke-${rowNumber}.`,
           icon: 'warning',
         })
         return false
@@ -472,7 +482,7 @@ const UpdateQuotationVendor: FC = () => {
       if (!detail.unit || detail.unit.trim() === '') {
         Swal.fire({
           title: 'Warning',
-          text: `Tolong isi kolom "Satuan" pada "${typeName}" pada baris ke-${rowNumber}.`,
+          text: `Mohon isi kolom "Satuan" pada "${typeName}" pada baris ke-${rowNumber}.`,
           icon: 'warning',
         })
         return false
@@ -481,7 +491,7 @@ const UpdateQuotationVendor: FC = () => {
       if (detail.quantity === null || detail.quantity === '') {
         Swal.fire({
           title: 'Warning',
-          text: `Tolong isi kolom "QTY" (Quantity) pada baris ke-${rowNumber}.`,
+          text: `Mohon isi kolom "QTY" (Quantity) pada baris ke-${rowNumber}.`,
           icon: 'warning',
         })
         return false
@@ -490,7 +500,7 @@ const UpdateQuotationVendor: FC = () => {
       if (detail.margin === null || detail.margin === '') {
         Swal.fire({
           title: 'Warning',
-          text: `Tolong isi kolom "Profit" pada baris ke-${rowNumber}.`,
+          text: `Mohon isi kolom "Profit" pada baris ke-${rowNumber}.`,
           icon: 'warning',
         })
         return false
@@ -499,7 +509,7 @@ const UpdateQuotationVendor: FC = () => {
       if (detail.unit_price === null || detail.unit_price === '') {
         Swal.fire({
           title: 'Warning',
-          text: `Tolong isi kolom "Price" pada baris ke-${rowNumber}.`,
+          text: `Mohon isi kolom "Price" pada baris ke-${rowNumber}.`,
           icon: 'warning',
         })
         return false

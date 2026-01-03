@@ -852,7 +852,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           {order?.quotation[0]?.quotation_receipt[1]?.receipt_quotation &&
                             order?.quotation[0]?.quotation_special === 1 && (
                               <div className='fs-6 fw-bold'>
-                                Receipt Quotation Tahap 1 :{' '}
+                                Receipt Quotation Tahap 2 :{' '}
                                 <span className='fs-6 fw-semibold'>
                                   {order?.quotation[0]?.quotation_receipt[1]?.receipt_quotation ??
                                     '-'}
@@ -907,7 +907,7 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
                           {order?.quotation[0]?.quotation_receipt[2]?.receipt_quotation &&
                             order?.quotation[0]?.quotation_special === 1 && (
                               <div className='fs-6 fw-bold'>
-                                Receipt Quotation Tahap 1 :{' '}
+                                Receipt Quotation Tahap 3 :{' '}
                                 <span className='fs-6 fw-semibold'>
                                   {order?.quotation[0]?.quotation_receipt[2]?.receipt_quotation ??
                                     '-'}
