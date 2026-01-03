@@ -143,15 +143,21 @@ const NewInvoiceVendor: FC = () => {
   const workend = statusData.filter((status: any) =>
     ['WORKEND', 'REWORKEND'].includes(status.category)
   )
-  const workstep = statusData.filter((status: any) => ['WORKENDSTEPONE'].includes(status.category))
+  const workStepOne = statusData.filter((status: any) => status.category === 'WORKENDSTEPONE')
+  const workStepTwo = statusData.filter((status: any) => status.category === 'WORKENDSTEPTWO')
+  const workStepThree = statusData.filter((status: any) => status.category === 'WORKENDSTEPTHREE')
   const surveyend = statusData.filter((status: any) => ['QUOTEIN'].includes(status.category))
   const workStatuses = workend.map((x) => x.value)
-  const workStepStatuses = workstep.map((x) => x.value)
+
+  const workStepOneStatus = workStepOne.map((x) => x.value)
+  const workStepTwoStatus = workStepTwo.map((x) => x.value)
+  const workStepThreeStatus = workStepThree.map((x) => x.value)
+
   const surveyStatuses = surveyend.map((x) => x.value)
 
   // Create Invoice
   const [selectedRows, setSelectedRows] = useState<DataType[]>([])
-  const [invoiceCode, setInvoiceCode] = useState<string | number>('NaN')
+  const [, setInvoiceCode] = useState<string | number>('NaN')
   const [invoices, setInvoices] = useState<InvoiceData>({
     vendor_id: Number(vendorId),
     invoice_evidences: [],
@@ -240,7 +246,10 @@ const NewInvoiceVendor: FC = () => {
         }
 
         // ORDER STATUS TYPE 3: WORKENDSTEPONE
-        if (orderType === 'pengerjaan' && order?.status?.category === 'WORKENDSTEPONE') {
+        if (
+          orderType === 'pengerjaan' &&
+          order?.order_history?.find((x: any) => x.status.category === 'WORKENDSTEPONE')
+        ) {
           let baseTotal = 0
           if (order?.work_orders?.vendor?.margin_type === 1) {
             baseTotal =
@@ -256,7 +265,10 @@ const NewInvoiceVendor: FC = () => {
         }
 
         // ORDER STATUS TYPE 4: WORKENDSTEPTWO
-        if (orderType === 'pengerjaan' && order?.status?.category === 'WORKENDSTEPTWO') {
+        if (
+          orderType === 'pengerjaan' &&
+          order?.order_history?.find((x: any) => x.status.category === 'WORKENDSTEPTWO')
+        ) {
           let baseTotal = 0
           if (order?.work_orders?.vendor?.margin_type === 1) {
             baseTotal =
@@ -271,8 +283,11 @@ const NewInvoiceVendor: FC = () => {
           return calculateTotal(baseTotal)
         }
 
-        // ORDER STATUS TYPE 4: WORKENDSTEPTWO
-        if (orderType === 'pengerjaan' && order?.status?.category === 'WORKENDSTEPTHREE') {
+        // ORDER STATUS TYPE 5: WORKENDSTEPTHREE
+        if (
+          orderType === 'pengerjaan' &&
+          order?.order_history?.find((x: any) => x.status.category === 'WORKENDSTEPTHREE')
+        ) {
           let baseTotal = 0
           if (order?.work_orders?.vendor?.margin_type === 1) {
             baseTotal =
@@ -334,7 +349,11 @@ const NewInvoiceVendor: FC = () => {
 
   const getOrders = async (queryparams: any) => {
     const urlWork = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&status=${workStatuses}${queryparams}`
-    const urlWorkStep = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${workStepStatuses}${queryparams}`
+
+    const urlWorkStepOne = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${workStepOneStatus}${queryparams}`
+    const urlWorkStepTwo = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${workStepTwoStatus}${queryparams}`
+    const urlWorkStepThree = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${workStepThreeStatus}${queryparams}`
+
     const urlSurvey = `${apiUrl}/orders?order_by=desc&date_from=${dateFrom}&date_to=${dateTo}&vendor_id=${vendorId}&history_status=${surveyStatuses}${queryparams}`
 
     try {
@@ -345,15 +364,18 @@ const NewInvoiceVendor: FC = () => {
         'ngrok-skip-browser-warning': 'true',
       }
 
-      const [workOrders, surveyOrders, workStepOrders] = await Promise.all([
-        getAllData(urlWork, headers),
-        getAllData(urlSurvey, headers),
-        getAllData(urlWorkStep, headers),
-      ])
+      const [workOrders, surveyOrders, workStepOrders, workStepTwoOrders, workStepThreeOrders] =
+        await Promise.all([
+          getAllData(urlWork, headers),
+          getAllData(urlSurvey, headers),
+          getAllData(urlWorkStepOne, headers),
+          getAllData(urlWorkStepTwo, headers),
+          getAllData(urlWorkStepThree, headers),
+        ])
 
       setLoadData(false)
 
-      return {workOrders, surveyOrders, workStepOrders}
+      return {workOrders, surveyOrders, workStepOrders, workStepTwoOrders, workStepThreeOrders}
     } catch (error) {
       console.error('Error fetching orders:', error)
       throw error
@@ -362,146 +384,162 @@ const NewInvoiceVendor: FC = () => {
 
   const ViewWorkOrder = async (queryparams: any) => {
     try {
-      const {workOrders, surveyOrders, workStepOrders} = await getOrders(queryparams)
+      const {workOrders, surveyOrders, workStepOrders, workStepTwoOrders, workStepThreeOrders} =
+        await getOrders(queryparams)
 
-      if (!workOrders && !surveyOrders && !workStepOrders) {
+      if (
+        !workOrders &&
+        !surveyOrders &&
+        !workStepOrders &&
+        !workStepTwoOrders &&
+        !workStepThreeOrders
+      ) {
         console.error('No data received from getOrders')
         return []
       }
 
-      const surveyOrderData = surveyOrders
-        .filter((x) => {
-          const orderHistory = x.order_history.length >= 1
-          const noInvoice = x.invoice_details.length === 0
+      const canCreateInvoice = (order: any, invoiceType: number) => {
+        const noInvoice = order.invoice_details.length === 0
 
-          const sortedInvoices = x.invoice_details
-            .sort((a: any, b: any) => a.type - b.type)
-            .sort((a: any, b: any) => {
-              if (a.type === b.type) {
-                return b.invoices.id - a.invoices.id
-              }
-
-              return 0
-            })
-
-          const hasInvoiceSent =
-            x.invoice_details.length >= 1 &&
-            [1, 2, 4, 5, 6, 7].includes(
-              sortedInvoices.filter((inv: any) => inv.type === 1)[0]?.invoices.status
-            )
-
-          const hasInvoiceRejected =
-            sortedInvoices.filter((inv: any) => inv.type === 1)[0]?.invoices.status === 3
-
-          return (orderHistory && noInvoice) || hasInvoiceRejected || !hasInvoiceSent
+        const sortedInvoices = order.invoice_details.slice().sort((a: any, b: any) => {
+          if (a.type !== b.type) return a.type - b.type
+          return b.invoices.id - a.invoices.id
         })
-        .map((item: any, index: number) => {
-          const quoteInHistory = item?.order_history?.find(
+
+        const relevantInvoice = sortedInvoices.find((inv: any) => inv.type === invoiceType)
+
+        if (!relevantInvoice) return true
+
+        const hasInvoiceSent = [1, 2, 4, 5, 6, 7].includes(relevantInvoice.invoices.status)
+        const hasInvoiceRejected = relevantInvoice.invoices.status === 3
+
+        return noInvoice || hasInvoiceRejected || !hasInvoiceSent
+      }
+
+      const createDataObject = (
+        item: any,
+        keyIndex: number,
+        orderType: string,
+        statusHistory?: any
+      ) => {
+        const status = statusHistory || item.status
+
+        return {
+          _key: keyIndex,
+          order_id: item.id,
+          store_name: item.store?.store_name,
+          date_order: formatDateWithTimeZone(item.created_at),
+          member_name: item.members?.full_name,
+          order_type: orderType,
+          order_status: status?.category || null,
+          order_status_label: status?.description || null,
+          grand_total: grandTotalOrder(item, orderType === 'Survei' ? 'survei' : 'pengerjaan'),
+        }
+      }
+
+      let currentIndex = 1
+
+      // Work Orders (WORKEND, REWORKEND) - INVOICE TYPE 2
+      const workOrderData = workOrders
+        .filter((order) => canCreateInvoice(order, 2))
+        .map((item: any) => {
+          const dataObj = createDataObject(item, currentIndex++, 'Pengerjaan')
+          return dataObj
+        })
+
+      // Survey Orders (QUOTEIN) - INVOICE TYPE 1
+      const surveyOrderData = surveyOrders
+        .filter((order) => {
+          const hasQuoteInHistory = order.order_history.some(
+            (h: any) => h.status.category === 'QUOTEIN'
+          )
+          return hasQuoteInHistory && canCreateInvoice(order, 1)
+        })
+        .map((item: any) => {
+          const quoteInHistory = item.order_history.find(
             (x: any) => x.status.category === 'QUOTEIN'
           )
-
-          return {
-            _key: workOrders.length + index + 1,
-            order_id: item?.id,
-            store_name: item?.store?.store_name,
-            date_order: formatDateWithTimeZone(item?.created_at),
-            member_name: item?.members?.full_name,
-            order_type: 'Survei',
-            order_status: quoteInHistory ? quoteInHistory.status.category : null,
-            order_status_label: quoteInHistory ? quoteInHistory.status.description : null,
-            grand_total: grandTotalOrder(item, 'survei'),
-          }
+          return createDataObject(item, currentIndex++, 'Survei', quoteInHistory?.status)
         })
 
-      const workOrderData = workOrders
-        .filter((x) => {
-          const noInvoice = x.invoice_details.length === 0
-
-          const sortedInvoices = x.invoice_details
-            .sort((a: any, b: any) => a.type - b.type)
-            .sort((a: any, b: any) => {
-              if (a.type === b.type) {
-                return b.invoices.id - a.invoices.id
-              }
-
-              return 0
-            })
-
-          const hasInvoiceSent =
-            x.invoice_details.length >= 1 &&
-            [1, 2, 4, 5, 6, 7].includes(
-              sortedInvoices.filter((inv: any) => inv.type === 2)[0]?.invoices.status
-            )
-
-          const hasInvoiceRejected =
-            sortedInvoices.filter((inv: any) => inv.type === 2)[0]?.invoices.status === 3
-
-          return noInvoice || hasInvoiceRejected || !hasInvoiceSent
+      // Work Step One Orders (WORKENDSTEPONE) - INVOICE TYPE 3
+      const workStepOneData = workStepOrders
+        .filter((order) => {
+          const hasStepOneHistory = order.order_history.some(
+            (h: any) => h.status.category === 'WORKENDSTEPONE'
+          )
+          return hasStepOneHistory && canCreateInvoice(order, 3)
         })
-        .map((item: any, index: number) => {
-          return {
-            _key: index + 1,
-            order_id: item?.id,
-            store_name: item?.store?.store_name,
-            date_order: formatDateWithTimeZone(item?.created_at),
-            member_name: item?.members?.full_name,
-            order_type: 'Pengerjaan',
-            order_status: item?.status?.category,
-            order_status_label: item?.status?.description,
-            grand_total: grandTotalOrder(item, 'pengerjaan'),
-          }
-        })
-
-      const workStepData = workStepOrders
-        .filter((x) => {
-          const orderHistory = x.order_history.length >= 1
-          const noInvoice = x.invoice_details.length === 0
-
-          const sortedInvoices = x.invoice_details
-            .sort((a: any, b: any) => a.type - b.type)
-            .sort((a: any, b: any) => {
-              if (a.type === b.type) {
-                return b.invoices.id - a.invoices.id
-              }
-
-              return 0
-            })
-
-          const hasInvoiceSent =
-            x.invoice_details.length >= 1 &&
-            [1, 2, 4, 5, 6, 7].includes(
-              sortedInvoices.filter((inv: any) => inv.type === 3)[0]?.invoices.status
-            )
-
-          const hasInvoiceRejected =
-            sortedInvoices.filter((inv: any) => inv.type === 3)[0]?.invoices.status === 3
-
-          return (orderHistory && noInvoice) || hasInvoiceRejected || !hasInvoiceSent
-        })
-        .map((item: any, index: number) => {
-          const workStepHistory = item?.order_history?.find(
+        .map((item: any) => {
+          const workStepHistory = item.order_history.find(
             (x: any) => x.status.category === 'WORKENDSTEPONE'
           )
-
-          return {
-            _key: workOrders.length + surveyOrders.length + index + 1,
-            order_id: item?.id,
-            store_name: item?.store?.store_name,
-            date_order: formatDateWithTimeZone(item?.created_at),
-            member_name: item?.members?.full_name,
-            order_type: 'Pekerjaan Tahap 1',
-            order_status: workStepHistory ? workStepHistory.status.category : null,
-            order_status_label: workStepHistory ? workStepHistory.status.description : null,
-            grand_total: grandTotalOrder(item, 'pengerjaan'),
-          }
+          return createDataObject(
+            item,
+            currentIndex++,
+            'Pekerjaan Tahap 1',
+            workStepHistory?.status
+          )
         })
 
-      const data = [...workOrderData, ...surveyOrderData, ...workStepData]
-      const sortedByOrderID = data.sort((a: any, b: any) => b.order_id - a.order_id)
+      // Work Step Two Orders (WORKENDSTEPTWO) - INVOICE TYPE 5
+      const workStepTwoData = workStepTwoOrders
+        .filter((order) => {
+          const hasStepTwoHistory = order.order_history.some(
+            (h: any) => h.status.category === 'WORKENDSTEPTWO'
+          )
+          return hasStepTwoHistory && canCreateInvoice(order, 4)
+        })
+        .map((item: any) => {
+          const workStepHistory = item.order_history.find(
+            (x: any) => x.status.category === 'WORKENDSTEPTWO'
+          )
+          return createDataObject(
+            item,
+            currentIndex++,
+            'Pekerjaan Tahap 2',
+            workStepHistory?.status
+          )
+        })
 
-      console.log('sortedByOrderID', sortedByOrderID)
+      // Work Step Three Orders (WORKENDSTEPTHREE) - INVOICE TYPE 5
+      const workStepThreeData = workStepThreeOrders
+        .filter((order) => {
+          const hasStepThreeHistory = order.order_history.some(
+            (h: any) => h.status.category === 'WORKENDSTEPTHREE'
+          )
+          return hasStepThreeHistory && canCreateInvoice(order, 5)
+        })
+        .map((item: any) => {
+          const workStepHistory = item.order_history.find(
+            (x: any) => x.status.category === 'WORKENDSTEPTHREE'
+          )
+          return createDataObject(
+            item,
+            currentIndex++,
+            'Pekerjaan Tahap 3',
+            workStepHistory?.status
+          )
+        })
 
-      return sortedByOrderID
+      const allData = [
+        ...workOrderData,
+        ...surveyOrderData,
+        ...workStepOneData,
+        ...workStepTwoData,
+        ...workStepThreeData,
+      ]
+
+      const sortedData = allData.sort((a, b) => b.order_id - a.order_id)
+
+      const finalData = sortedData.map((item, index) => ({
+        ...item,
+        _key: index + 1,
+      }))
+
+      console.log('final data', finalData)
+
+      return finalData
     } catch (error) {
       console.error('Error getting work order list data:', error)
       return []
@@ -524,7 +562,6 @@ const NewInvoiceVendor: FC = () => {
   // Selected Row
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-      // const updatedSelectedRowKeys = selectedRows.map((row) => row.order_id)
       const invoiceType = selectedRows.map((row) => ({
         order_id: row.order_id,
         type:
