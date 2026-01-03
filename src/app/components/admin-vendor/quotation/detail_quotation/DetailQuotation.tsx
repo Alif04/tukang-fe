@@ -46,25 +46,30 @@ const DetailQuotationVendor: FC = () => {
 
   // Export PDF Quotation
   const generatePdf = (order_id: number, customer_name: string) => {
-    axios
-      .get(`${apiUrl}/orders/quotation-pdf/${order_id}`, {
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      })
-      .then((response) => {
-        const url = window.URL.createObjectURL(new Blob([response.data]))
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', `Quotation - ${customer_name} - Order ID ${order_id}.pdf`)
-        document.body.appendChild(link)
-        link.click()
-      })
-      .catch((error: any) => {
-        Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
-      })
+    try {
+      setLoadingPDF(true)
+
+      axios
+        .get(`${apiUrl}/orders/quotation-pdf/${order_id}`, {
+          method: 'GET',
+          responseType: 'blob',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        })
+        .then((response) => {
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          const link = document.createElement('a')
+          link.href = url
+          link.setAttribute('download', `Quotation - ${customer_name} - Order ID ${order_id}.pdf`)
+          document.body.appendChild(link)
+          link.click()
+        })
+    } catch (error) {
+      Swal.fire('Error', 'Terjadi kesalahan saat mengekspor data', 'error')
+    } finally {
+      setLoadingPDF(false)
+    }
   }
 
   // Payment Stage

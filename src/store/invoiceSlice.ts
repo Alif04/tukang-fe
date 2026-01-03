@@ -20,7 +20,7 @@ const initialState: invoiceFilter = {
   searchFilter: '',
   currentPage: 1,
   pageSize: 50,
-  dateFrom: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0],
+  dateFrom: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
   dateTo: new Date().toISOString().split('T')[0],
   selectedVendor: {value: null, label: 'All Vendor'},
 }
