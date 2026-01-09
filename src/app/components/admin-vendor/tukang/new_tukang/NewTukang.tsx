@@ -42,7 +42,8 @@ const NewTukangVendor: FC = () => {
   const navigate = useNavigate()
   const animatedComponents = makeAnimated()
 
-  const vendorId = localStorage.getItem('vendor_id') as any
+  const userVendorId = localStorage.getItem('vendor_id') as any
+  const vendorId = userVendorId ? userVendorId : ''
   const vendorName = localStorage.getItem('vendorName') as string
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -351,7 +352,7 @@ const NewTukangVendor: FC = () => {
 
     if (tukang.service_type_id?.length) {
       tukang.service_type_id.forEach((item: any, index: number) => {
-        if (item) {
+        if (item && item.service_type_id) {
           formData.append(`service_types[${index}][service_type_id]`, item.service_type_id)
         }
       })
@@ -359,7 +360,7 @@ const NewTukangVendor: FC = () => {
 
     if (tukang.area_id?.length) {
       tukang.area_id.forEach((item: any, index: number) => {
-        if (item) {
+        if (item && item.id) {
           formData.append(`tukang_area[${index}][area_id]`, item.id)
         }
       })
@@ -378,8 +379,6 @@ const NewTukangVendor: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
         },
       })
       .then((response) => {
