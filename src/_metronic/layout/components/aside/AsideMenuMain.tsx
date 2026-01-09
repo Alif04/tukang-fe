@@ -11,6 +11,9 @@ export function AsideMenuMain() {
   const userVendor = localStorage.getItem('vendor_id')
   const userTukang = localStorage.getItem('tukang_id')
 
+  const manualBookHandle = () => {
+    document.location.href = '/manual-book'
+  }
   const logoutHandler = () => {
     const textConfirmation = `Apakah Anda yakin ingin keluar dari aplikasi ini ?`
 
@@ -866,7 +869,15 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
       </AsideMenuItemWithSub> */}
-
+      {/* Logout */}
+      <div className='menu-item'>
+        <a className='menu-link' onClick={manualBookHandle}>
+          <span className='menu-icon'>
+            <KTSVG path='media/icons/duotune/communication/com007.svg' className='svg-icon-2' />
+          </span>
+          <span className='menu-title'>Manual Book</span>
+        </a>
+      </div>
       {/* Logout */}
       <div className='menu-item'>
         <a className='menu-link' onClick={logoutHandler}>

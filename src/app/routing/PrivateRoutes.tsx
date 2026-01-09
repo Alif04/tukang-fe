@@ -5,7 +5,15 @@ import TopBarProgress from 'react-topbar-progress-indicator'
 import {DashboardWrapper} from '../pages/dashboard/DashboardWrapper'
 import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
 import {WithChildren} from '../../_metronic/helpers'
-
+import {PageLink, PageTitle} from '../../../src/_metronic/layout/core'
+const chatBreadCrumbs: Array<PageLink> = [
+  {
+    title: 'Chat',
+    path: '/chat/view-chat',
+    isSeparator: false,
+    isActive: false,
+  },
+]
 const PrivateRoutes = () => {
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
   const ChatPage = lazy(() => import('../modules/chat/ChatPage'))
@@ -35,6 +43,7 @@ const PrivateRoutes = () => {
   const EmployeePage = lazy(() => import('../modules/employee/EmployeePage'))
   const IncentiveSales = lazy(() => import('../modules/incentive_sales/IncentiveSalesPage'))
   const IncentiveManager = lazy(() => import('../modules/incentive_manager/IncentiveManagerPage'))
+  const ManualBook = lazy(() => import('../modules/manual-book/ManualBookPage'))
   const PromotionQuotation = lazy(
     () => import('../modules/promotion_quotation/PromotionQuotationPage')
   )
@@ -341,6 +350,18 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <ChatPage />
+            </SuspensedView>
+          }
+        />
+
+        
+      
+      <Route
+          path='manual-book'
+          element={
+            <SuspensedView>
+              <PageTitle breadcrumbs={chatBreadCrumbs}>Manual Book</PageTitle>
+              <ManualBook />
             </SuspensedView>
           }
         />
