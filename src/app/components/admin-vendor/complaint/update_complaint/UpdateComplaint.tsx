@@ -9,7 +9,8 @@ import Select from 'react-select'
 import {Image, Skeleton} from 'antd'
 import {Card, Row, Col, Form, Table, Button, ListGroup} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faImage, faFileImage, faRotate, faCircleInfo} from '@fortawesome/free-solid-svg-icons'
+import {Tag} from 'antd'
 
 interface RemedialStatus {
   value: number | null
@@ -25,6 +26,7 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
 
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [resyncLoading, setResyncLoading] = useState<boolean>(false)
 
   const username = localStorage.getItem('username') as string
   const userRole = localStorage.getItem('userRole') as string
@@ -39,6 +41,60 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
 
   // Remedial Evidence
   const [visibleRemedial, setVisibleRemedial] = useState(false)
+
+  const getCrmSyncLabel = (isSync: number) => {
+    switch (isSync) {
+      case 1:
+        return {text: 'Tersinkronisasi', color: 'green'}
+      case 2:
+        return {text: 'Gagal Sync', color: 'red'}
+      default:
+        return {text: 'Belum Sync', color: 'default'}
+    }
+  }
+
+  const handleResync = async () => {
+    if (!complaintDetail?.id) return
+    setResyncLoading(true)
+    try {
+      const response = await axios.post(
+        `${apiUrl}/complaints/${complaintDetail.id}/resync`,
+        {},
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+
+      if (response.data?.status === 200 || response.data?.status === 201) {
+        Swal.fire({
+          title: 'Berhasil',
+          text: 'Data pengaduan berhasil dikirim ulang ke CRM',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+        })
+        fetchComplaintData()
+      } else {
+        Swal.fire({
+          title: 'Gagal',
+          text: response.data?.message || 'Gagal mengirim ulang ke CRM',
+          icon: 'error',
+        })
+      }
+    } catch (error: any) {
+      Swal.fire({
+        title: 'Gagal',
+        text: error?.response?.data?.message || 'Terjadi kesalahan saat resubmit ke CRM',
+        icon: 'error',
+      })
+    } finally {
+      setResyncLoading(false)
+    }
+  }
 
   const fetchComplaintData = async () => {
     try {
@@ -369,6 +425,35 @@ const UpdateComplaintVendor: FC<{updatePageTitle: (complaint: any) => void}> = (
                     </Form.Label>
                   </Skeleton>
                 </Col>
+
+                {/* CRM Sync Status */}
+                <div className='mt-3 p-2 border rounded bg-light'>
+                  <div className='d-flex align-items-center justify-content-between'>
+                    <div className='d-flex align-items-center gap-2'>
+                      <span className='fw-bold text-warning'>CRM:</span>
+                      <Tag color={getCrmSyncLabel(complaintDetail?.is_sync ?? 0).color}>
+                        {getCrmSyncLabel(complaintDetail?.is_sync ?? 0).text}
+                      </Tag>
+                    </div>
+                    {(complaintDetail?.is_sync ?? 0) !== 1 && (
+                      <Button
+                        variant='outline-warning'
+                        size='sm'
+                        disabled={resyncLoading}
+                        onClick={handleResync}
+                        title='Resubmit ke CRM'
+                      >
+                        <FontAwesomeIcon icon={faRotate} spin={resyncLoading} />
+                      </Button>
+                    )}
+                    {(complaintDetail?.is_sync ?? 0) === 1 && (
+                      <span className='text-success fw-bold' style={{fontSize: '12px'}}>
+                        <FontAwesomeIcon icon={faCircleInfo} className='me-1' />
+                        Tersinkronisasi
+                      </span>
+                    )}
+                  </div>
+                </div>
               </Col>
             </Row>
 

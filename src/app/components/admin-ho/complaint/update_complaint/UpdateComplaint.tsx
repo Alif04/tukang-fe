@@ -6,7 +6,10 @@ import './UpdateComplaint.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import {Image} from 'antd'
-import {Row, Col, Form, Table, Button, ListGroup, Modal} from 'react-bootstrap'
+import {Row, Col, Form, Table, Button, ListGroup, Modal, Card, Badge} from 'react-bootstrap'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faCircleInfo, faRotate} from '@fortawesome/free-solid-svg-icons'
+import {Tag} from 'antd'
 
 interface Complaint {
   order_id: number | null
@@ -45,6 +48,61 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
 
   const [previewImage, setPreviewImage] = useState<any>()
   const [visible, setVisible] = useState(false)
+  const [resyncLoading, setResyncLoading] = useState<boolean>(false)
+
+  const getCrmSyncLabel = (isSync: number) => {
+    switch (isSync) {
+      case 1:
+        return {text: 'Tersinkronisasi', color: 'green'}
+      case 2:
+        return {text: 'Gagal Sync', color: 'red'}
+      default:
+        return {text: 'Belum Sync', color: 'default'}
+    }
+  }
+
+  const handleResync = async () => {
+    if (!complaintDetail?.id) return
+    setResyncLoading(true)
+    try {
+      const response = await axios.post(
+        `${apiUrl}/complaints/${complaintDetail.id}/resync`,
+        {},
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+
+      if (response.data?.status === 200 || response.data?.status === 201) {
+        Swal.fire({
+          title: 'Berhasil',
+          text: 'Data pengaduan berhasil dikirim ulang ke CRM',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+        })
+        fetchComplaintData()
+      } else {
+        Swal.fire({
+          title: 'Gagal',
+          text: response.data?.message || 'Gagal mengirim ulang ke CRM',
+          icon: 'error',
+        })
+      }
+    } catch (error: any) {
+      Swal.fire({
+        title: 'Gagal',
+        text: error?.response?.data?.message || 'Terjadi kesalahan saat resubmit ke CRM',
+        icon: 'error',
+      })
+    } finally {
+      setResyncLoading(false)
+    }
+  }
 
   const fetchComplaintData = async () => {
     try {
@@ -235,6 +293,28 @@ const UpdateComplaintHO: FC<{updatePageTitle: (complaint: any) => void}> = ({upd
                     {complaintDetail?.orders?.receipt_number ?? '-'}
                   </span>
                 </Form.Label>
+                <br></br>
+                <div className='mt-3 p-2 border rounded bg-light'>
+                  <div className='d-flex align-items-center justify-content-between'>
+                    <div>
+                      <span className='fw-bold text-warning me-2'>CRM:</span>
+                      <Tag color={getCrmSyncLabel(complaintDetail?.is_sync ?? 0).color}>
+                        {getCrmSyncLabel(complaintDetail?.is_sync ?? 0).text}
+                      </Tag>
+                    </div>
+                    {(complaintDetail?.is_sync ?? 0) !== 1 && (
+                      <Button
+                        variant='outline-warning'
+                        size='sm'
+                        disabled={resyncLoading}
+                        onClick={handleResync}
+                        title='Resubmit ke CRM'
+                      >
+                        <FontAwesomeIcon icon={faRotate} spin={resyncLoading} />
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </Col>
             </Row>
 

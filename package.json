@@ -71,6 +71,7 @@
     "@types/react-dom": "18.0.2",
     "@types/react-helmet": "^6.1.11",
     "@types/react-redux": "^7.1.33",
+    "playwright": "^1.59.1",
     "prettier": "2.6.2",
     "typescript": "4.6.3"
   },
@@ -78,6 +79,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:vendor-visual": "node scripts/vendor-registration-visual-test.js",
+    "test:vendor-visual:headful": "set HEADLESS=false&& node scripts/vendor-registration-visual-test.js",
     "eject": "react-scripts eject",
     "lint": "prettier --check ./src",
     "format": "prettier --write ./src",

@@ -51,6 +51,8 @@ const PrivateRoutes = () => {
 
   const DataRolePage = lazy(() => import('../modules/data-role/DataMasterPage'))
   const NotifSettingPage = lazy(() => import('../modules/notif-setting/NotifSettingPage'))
+  const VendorSPPage = lazy(() => import('../modules/vendor-sp/VendorSPPage'))
+  const VendorRegistrationPage = lazy(() => import('../modules/vendor-registration/VendorRegistrationPage'))
 
   return (
     <Routes>
@@ -220,6 +222,24 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <VendorPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='vendor-sp/*'
+          element={
+            <SuspensedView>
+              <VendorSPPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='vendor-registration/*'
+          element={
+            <SuspensedView>
+              <VendorRegistrationPage />
             </SuspensedView>
           }
         />

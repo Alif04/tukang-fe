@@ -11,8 +11,10 @@ import {LoadingOutlined} from '@ant-design/icons'
 import type {ColumnsType} from 'antd/es/table'
 import {Form, FormGroup, Row, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faBook, faPen, faSearch, faRotate} from '@fortawesome/free-solid-svg-icons'
 import {formatDateWithTimeZone} from '../../../../../_metronic/helpers'
+import Swal from 'sweetalert2'
+import {Tooltip as AntTooltip} from 'antd'
 
 const {RangePicker} = DatePicker
 
@@ -34,6 +36,7 @@ interface DataType {
   complaint_date: Date
   complaint_age: string
   complaint_status: string
+  is_sync: number // 0=belum, 1=berhasil, 2=gagal
 }
 
 const ViewComplaintStore: React.FC<Props> = ({className}) => {
@@ -50,6 +53,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
   const tukangId = userTukang !== null ? `&tukang_id=${userTukang}` : ''
 
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [resyncLoading, setResyncLoading] = useState<number | null>(null)
   const [loadData, setLoadData] = useState<boolean>(true)
 
   const [dateFrom, setDateFrom] = useState<any>(
@@ -227,9 +231,51 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.complaint_status.length - b.complaint_status.length,
     },
     {
+      title: 'Submission Status',
+      dataIndex: 'is_sync',
+      key: 'is_sync',
+      className: 'text-start',
+      width: 150,
+      align: 'center',
+      filters: [
+        {text: 'Success', value: 1},
+        {text: 'In Progress', value: 0},
+        {text: 'Failed', value: 2},
+      ],
+      onFilter: (value, record) => record.is_sync === value,
+      render: (is_sync: number) => {
+        let bgColor = ''
+        let label = ''
+
+        switch (is_sync) {
+          case 1:
+            bgColor = 'success'
+            label = 'Success'
+            break
+          case 2:
+            bgColor = 'error'
+            label = 'Failed'
+            break
+          default:
+            bgColor = 'warning'
+            label = 'In Progress'
+            break
+        }
+
+        return (
+          <span
+            className={`badge bg-${bgColor} px-3 py-2`}
+            style={{fontSize: '12px', borderRadius: '20px'}}
+          >
+            {label}
+          </span>
+        )
+      },
+    },
+    {
       title: 'Action',
       key: 'action',
-      width: 110,
+      width: 150,
       fixed: 'right',
       render: (record) => {
         const handleDetail = () => {
@@ -237,13 +283,35 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           navigate(`/complaint/detail-complaint/${id}`)
         }
 
-        // const handleEdit = () => {
-        //   const id = record.complaint_id
-        //   navigate(`/complaint/update-complaint/${id}`)
-        // }
+        const handleResync = (e: React.MouseEvent) => {
+          e.stopPropagation()
+          resyncComplaint(record.complaint_id)
+        }
 
         return (
-          <div className='button-wrapper d-flex justify-content-center gap-3'>
+          <div className='button-wrapper d-flex justify-content-center gap-2'>
+            {record.is_sync !== 1 && (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Resubmit ke CRM')}
+              >
+                <Button
+                  variant='primary'
+                  className='button-detail'
+                  disabled={resyncLoading === record.complaint_id}
+                  onClick={handleResync}
+                >
+                  <FontAwesomeIcon
+                    icon={faRotate}
+                    className='text-white'
+                    fontSize={'13px'}
+                    spin={resyncLoading === record.complaint_id}
+                  />
+                </Button>
+              </OverlayTrigger>
+            )}
+
             <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
@@ -257,18 +325,6 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
                 />
               </Button>
             </OverlayTrigger>
-
-            {/* {!['Tukang'].includes(userRole) && (
-              <OverlayTrigger
-                placement='bottom'
-                delay={{show: 250, hide: 400}}
-                overlay={renderTooltip('Edit Komplain')}
-              >
-                <Button variant='primary' className='button-edit' onClick={handleEdit}>
-                  <FontAwesomeIcon className='text-white' icon={faPen} fontSize={'13px'} />
-                </Button>
-              </OverlayTrigger>
-            )} */}
           </div>
         )
       },
@@ -352,6 +408,7 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
           complaint_date: complaintDate,
           complaint_age: complaintAge,
           complaint_status: item?.status?.description,
+          is_sync: item?.is_sync ?? 0,
         }
 
         return data
@@ -405,6 +462,51 @@ const ViewComplaintStore: React.FC<Props> = ({className}) => {
     setComplaintData(data)
 
     setLoadingButton(false)
+  }
+
+  const resyncComplaint = async (complaintId: number) => {
+    setResyncLoading(complaintId)
+    try {
+      const response = await axiosInstance.post(
+        `${apiUrl}/complaints/${complaintId}/resync`,
+        {},
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+
+      if (response.data?.status === 200 || response.data?.status === 201) {
+        Swal.fire({
+          title: 'Berhasil',
+          text: 'Data pengaduan berhasil dikirim ulang ke CRM',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+        })
+
+        // Refresh data setelah resync
+        const data = await ViewComplaint(currentPage, pageSize, '')
+        setComplaintData(data)
+      } else {
+        Swal.fire({
+          title: 'Gagal',
+          text: response.data?.message || 'Gagal mengirim ulang ke CRM',
+          icon: 'error',
+        })
+      }
+    } catch (error: any) {
+      Swal.fire({
+        title: 'Gagal',
+        text: error?.response?.data?.message || 'Terjadi kesalahan saat resubmit ke CRM',
+        icon: 'error',
+      })
+    } finally {
+      setResyncLoading(null)
+    }
   }
 
   return (

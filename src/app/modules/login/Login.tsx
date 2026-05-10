@@ -266,6 +266,16 @@ export function Login() {
                   {isLoading ? 'Logging In...' : 'Login'}
                 </Button>
               </div>
+
+              <div className='text-center mt-5 pt-5 border-top'>
+                <p className='text-muted mb-2'>Belum punya akun vendor?</p>
+                <Link
+                  to='/vendor-register'
+                  className='btn btn-outline-primary w-100'
+                >
+                  Daftar sebagai Vendor
+                </Link>
+              </div>
             </form>
           </div>
         </div>

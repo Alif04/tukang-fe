@@ -1,0 +1,227 @@
+/* Table */
+
+#view-vendor-registration .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #ffff;
+  font-weight: 500;
+  background-color: #183383;
+}
+
+#view-vendor-registration
+  .ant-table-wrapper
+  .ant-table-container
+  table
+  > thead
+  > tr:first-child
+  > *:first-child {
+  border-start-start-radius: 0;
+}
+
+.ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+  border-start-end-radius: 0;
+}
+
+#view-vendor-registration .table-head-wrapper {
+  margin-bottom: 20px;
+}
+
+#view-vendor-registration .vendor-registration-table {
+  --vendor-table-row-hover-bg: var(--bs-gray-200, #dcdcdc);
+  --vendor-table-row-even-bg: var(--bs-body-bg, #ffffff);
+  --vendor-table-row-odd-bg: #e4e9f7;
+  --vendor-table-cell-padding-y: 0.85rem;
+  --vendor-table-cell-padding-x: 0.75rem;
+  --vendor-table-action-size: 2rem;
+  --vendor-table-action-radius: var(--bs-border-radius, 0.475rem);
+  --vendor-table-badge-radius: var(--bs-border-radius, 0.475rem);
+  --vendor-table-badge-border-width: 1px;
+}
+
+#view-vendor-registration .ant-table-fixed {
+  table-layout: fixed;
+}
+
+#view-vendor-registration .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: var(--vendor-table-row-hover-bg);
+}
+
+#view-vendor-registration .ant-table-tbody > tr > td {
+  word-wrap: break-word;
+  word-break: break-word;
+  padding: var(--vendor-table-cell-padding-y) var(--vendor-table-cell-padding-x);
+  vertical-align: middle;
+  font-weight: 500;
+  color: var(--bs-gray-700, #5e6278);
+}
+
+#view-vendor-registration .ant-table-thead > tr > th {
+  padding: var(--vendor-table-cell-padding-y) var(--vendor-table-cell-padding-x);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+#view-vendor-registration .ant-table-tbody > tr > td.ant-table-cell-fix-right {
+  box-shadow: none;
+}
+
+#view-vendor-registration .table-striped-rows tr:nth-child(even) td {
+  background-color: var(--vendor-table-row-even-bg);
+}
+
+#view-vendor-registration .table-striped-rows tr:nth-child(odd) td {
+  background-color: var(--vendor-table-row-odd-bg);
+}
+
+/* Searchbar */
+
+#view-vendor-registration .filter-search {
+  width: 40%;
+}
+
+#view-vendor-registration input.filter-ltr.form-control {
+  height: 45px !important;
+  padding-left: 35px !important;
+}
+
+#view-vendor-registration .filter-search .search-icon {
+  float: left;
+  margin-left: 11px;
+  margin-top: -30px;
+  position: relative;
+}
+
+/* Filter */
+
+#view-vendor-registration .select__control.css-13cymwt-control {
+  height: 45px;
+}
+
+#view-vendor-registration .form-control.p-0.css-b62m3t-container {
+  z-index: 99 !important;
+  border: none;
+}
+
+/* Button Submit */
+#view-vendor-registration .btn-dark-primary {
+  background-color: #020080 !important;
+  border-color: #020080 !important;
+  color: white !important;
+  height: 45px;
+}
+
+#view-vendor-registration .btn-dark-primary:hover {
+  background-color: #020060 !important;
+  border-color: #020060 !important;
+}
+
+/* Action Button Wrapper */
+#view-vendor-registration .button-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+#view-vendor-registration .action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--vendor-table-action-size);
+  height: var(--vendor-table-action-size);
+  min-width: var(--vendor-table-action-size);
+  border-radius: var(--vendor-table-action-radius) !important;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+#view-vendor-registration .action-button svg {
+  font-size: 13px;
+}
+
+#view-vendor-registration .action-button:hover,
+#view-vendor-registration .action-button:focus {
+  transform: translateY(-1px);
+}
+
+#view-vendor-registration .action-button.btn-light-primary {
+  color: var(--bs-primary, #009ef7);
+  background-color: var(--bs-primary-light, rgba(0, 158, 247, 0.1));
+  border-color: transparent;
+}
+
+#view-vendor-registration .action-button.btn-light-primary:hover,
+#view-vendor-registration .action-button.btn-light-primary:focus {
+  color: var(--bs-white, #ffffff);
+  background-color: var(--bs-primary, #009ef7);
+  border-color: var(--bs-primary, #009ef7);
+}
+
+#view-vendor-registration .action-button.btn-danger,
+#view-vendor-registration .action-button.btn-primary {
+  color: var(--bs-white, #ffffff);
+}
+
+#view-vendor-registration .action-button.btn-primary:hover,
+#view-vendor-registration .action-button.btn-primary:focus {
+  background-color: var(--bs-primary-active, #0078d4);
+  border-color: var(--bs-primary-active, #0078d4);
+}
+
+#view-vendor-registration .action-button.btn-danger:hover,
+#view-vendor-registration .action-button.btn-danger:focus {
+  background-color: var(--bs-danger-active, #d9214e);
+  border-color: var(--bs-danger-active, #d9214e);
+}
+
+#view-vendor-registration .status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  padding: 0.45rem 0.75rem;
+  border: var(--vendor-table-badge-border-width) solid currentColor;
+  border-radius: var(--vendor-table-badge-radius);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+#view-vendor-registration .status-badge-pending {
+  color: var(--bs-warning, #f1bc00);
+}
+
+#view-vendor-registration .status-badge-approved {
+  color: var(--bs-success, #50cd89);
+}
+
+#view-vendor-registration .status-badge-rejected {
+  color: var(--bs-danger, #f1416c);
+}
+
+#view-vendor-registration .status-badge-unknown {
+  color: var(--bs-gray-600, #7e8299);
+}
+
+/* Pagination */
+#view-vendor-registration .pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+#view-vendor-registration .total-text {
+  color: #666;
+  font-size: 14px;
+}
+
+#view-vendor-registration .pagination .ant-pagination-item-active {
+  background-color: #183383;
+  border-color: #183383;
+}
+
+#view-vendor-registration .pagination .ant-pagination-item-active a {
+  color: white;
+}

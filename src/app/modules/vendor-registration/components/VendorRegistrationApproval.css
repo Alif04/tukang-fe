@@ -1,0 +1,215 @@
+/* Detail Vendor Registration - Match DetailVendor Style */
+
+#detail-vendor-registration .vendor-profile {
+  margin-bottom: 20px;
+}
+
+#detail-vendor-registration .vendor-profile img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #183383;
+  display: block;
+  margin: 0 auto;
+}
+
+#detail-vendor-registration .vendor-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #183383;
+  display: block;
+  margin: 0 auto;
+}
+
+#detail-vendor-registration .vendor-avatar-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: #183383;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  font-size: 48px;
+}
+
+#detail-vendor-registration .detail-info-wrapper {
+  margin-top: 20px;
+}
+
+#detail-vendor-registration .detail-info {
+  margin-bottom: 8px;
+}
+
+#detail-vendor-registration .detail-info .form-label {
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+#detail-vendor-registration .detail-info p {
+  margin-bottom: 0;
+}
+
+/* Badge Status */
+#detail-vendor-registration .status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: var(--bs-border-radius, 0.475rem);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+#detail-vendor-registration .status-badge-pending {
+  color: var(--bs-warning, #f1bc00);
+}
+
+#detail-vendor-registration .status-badge-approved {
+  color: var(--bs-success, #50cd89);
+}
+
+#detail-vendor-registration .status-badge-rejected {
+  color: var(--bs-danger, #f1416c);
+}
+
+#detail-vendor-registration .status-badge-unknown {
+  color: var(--bs-gray-600, #7e8299);
+}
+
+/* Document Preview */
+#detail-vendor-registration .document-preview {
+  border: 1px solid var(--bs-gray-300, #dee2e6);
+  border-radius: var(--bs-border-radius, 0.475rem);
+  overflow: hidden;
+  height: 200px;
+  background-color: var(--bs-gray-100, #f8f9fa);
+}
+
+#detail-vendor-registration .document-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Back Button */
+#detail-vendor-registration .btn-back {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #183383;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#detail-vendor-registration .btn-back:hover {
+  background-color: #152a66;
+}
+
+/* Action Buttons */
+#detail-vendor-registration .btn-approve {
+  background-color: var(--bs-success, #28a745);
+  color: #fff;
+  border: none;
+  padding: 0.625rem 1.5rem;
+  border-radius: var(--bs-border-radius, 0.475rem);
+  font-weight: 600;
+  min-width: 150px;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+#detail-vendor-registration .btn-approve:hover:not(:disabled) {
+  background-color: var(--bs-success-active, #218838);
+  transform: translateY(-1px);
+}
+
+#detail-vendor-registration .btn-approve:disabled {
+  background-color: var(--bs-gray-400, #ced4da);
+  color: var(--bs-gray-600, #6c757d);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+#detail-vendor-registration .btn-reject {
+  background-color: var(--bs-danger, #dc3545);
+  color: #fff;
+  border: none;
+  padding: 0.625rem 1.5rem;
+  border-radius: var(--bs-border-radius, 0.475rem);
+  font-weight: 600;
+  min-width: 150px;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+#detail-vendor-registration .btn-reject:hover:not(:disabled) {
+  background-color: var(--bs-danger-active, #b02a37);
+  transform: translateY(-1px);
+}
+
+#detail-vendor-registration .btn-reject:disabled {
+  background-color: var(--bs-gray-400, #ced4da);
+  color: var(--bs-gray-600, #6c757d);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* Alert */
+#detail-vendor-registration .alert {
+  padding: 1rem;
+  border-radius: var(--bs-border-radius, 0.475rem);
+  font-weight: 500;
+}
+
+#detail-vendor-registration .alert-success {
+  background-color: var(--bs-success-light, #d4edda);
+  color: var(--bs-success, #155724);
+  border: 1px solid var(--bs-success, #c3e6cb);
+}
+
+#detail-vendor-registration .alert-danger {
+  background-color: var(--bs-danger-light, #f8d7da);
+  color: var(--bs-danger, #721c24);
+  border: 1px solid var(--bs-danger, #f5c6cb);
+}
+
+/* Text */
+#detail-vendor-registration .text-muted {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Action buttons container */
+#detail-vendor-registration .action-buttons {
+  margin-top: 1.25rem !important;
+  padding-top: 1.25rem !important;
+  border-top-color: var(--bs-gray-300, #dee2e6) !important;
+}
+
+/* Reject form */
+#detail-vendor-registration .reject-form {
+  background-color: var(--bs-gray-100, #f8f9fa);
+  padding: 1.25rem;
+  border-radius: var(--bs-border-radius, 0.475rem);
+  border: 1px solid var(--bs-gray-300, #dee2e6);
+}
+
+/* Form Label */
+#detail-vendor-registration .form-label {
+  font-weight: 600;
+  color: var(--bs-gray-800, #333);
+}

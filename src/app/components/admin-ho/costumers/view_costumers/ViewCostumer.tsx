@@ -275,7 +275,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
           costumer_id: item.id,
           member_number: item.member_number,
           full_name: item.full_name,
-          whatsapp_number: `+62${item?.whatsapp_number ?? '-'}`,
+          whatsapp_number: item?.whatsapp_number ?? '-',
           phone_number: item?.phone_number ?? '-',
           email_address: item?.email ?? '-',
           customer_since: joinDate,

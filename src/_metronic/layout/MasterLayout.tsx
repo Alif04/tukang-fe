@@ -1,7 +1,6 @@
 import {useEffect} from 'react'
 import {Outlet} from 'react-router-dom'
 import {AsideDefault} from './components/aside/AsideDefault'
-import ChatPage from './components/chat/ChatPage'
 import {HeaderWrapper} from './components/header/HeaderWrapper'
 import {ScrollTop} from './components/ScrollTop'
 import {Content} from './components/Content'
@@ -9,10 +8,11 @@ import {PageDataProvider} from './core'
 import {useLocation} from 'react-router-dom'
 import {ThemeModeProvider} from '../partials'
 import {MenuComponent} from '../assets/ts/components'
+import LiveChatPopup from '../../app/modules/livechat/LiveChatPopup'
 
 const MasterLayout = () => {
   const location = useLocation()
-  const userRole = localStorage.getItem('userRole') as string
+
   useEffect(() => {
     setTimeout(() => {
       MenuComponent.reinitialization()
@@ -41,13 +41,13 @@ const MasterLayout = () => {
               <Content>
                 <Outlet />
               </Content>
-              {/* {(userRole === 'Admin HO' ||
-                userRole === 'Store CS' ||
-                userRole === 'Owner Vendor' ||
-                userRole === 'Super User') && <ChatPage />} */}
             </div>
           </div>
         </div>
+
+        {/* ✅ LiveChatPopup di luar semua container — position:fixed bisa bebas */}
+        <LiveChatPopup />
+
         <ScrollTop />
       </ThemeModeProvider>
     </PageDataProvider>

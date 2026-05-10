@@ -6,10 +6,10 @@ import './DetailComplaint.css'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import Select, {SingleValue} from 'react-select'
-import {Image, Skeleton} from 'antd'
+import {Image, Skeleton, Tag} from 'antd'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {Row, Col, Form, ListGroup, Modal, Button, Card, Alert} from 'react-bootstrap'
-import {faTrash, faImage, faFileImage, faCircleInfo} from '@fortawesome/free-solid-svg-icons'
+import {faTrash, faImage, faFileImage, faCircleInfo, faRotate} from '@fortawesome/free-solid-svg-icons'
 import {formatDate} from '@fullcalendar/core'
 import {formatDateWithTime, formatDateWithTimeZone} from '../../../../../_metronic/helpers'
 
@@ -100,6 +100,63 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
   // Loading
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [resyncLoading, setResyncLoading] = useState<boolean>(false)
+
+  // CRM Sync Status
+  const getCrmSyncLabel = (isSync: number) => {
+    switch (isSync) {
+      case 1:
+        return {text: 'Tersinkronisasi', color: 'green'}
+      case 2:
+        return {text: 'Gagal Sync', color: 'red'}
+      default:
+        return {text: 'Belum Sync', color: 'default'}
+    }
+  }
+
+  const handleResync = async () => {
+    if (!complaintDetail?.id) return
+    setResyncLoading(true)
+    try {
+      const response = await axios.post(
+        `${apiUrl}/complaints/${complaintDetail.id}/resync`,
+        {},
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'ngrok-skip-browser-warning': 'true',
+          },
+        }
+      )
+
+      if (response.data?.status === 200 || response.data?.status === 201) {
+        Swal.fire({
+          title: 'Berhasil',
+          text: 'Data pengaduan berhasil dikirim ulang ke CRM',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+        })
+        // Refresh page data
+        fetchComplaintData()
+      } else {
+        Swal.fire({
+          title: 'Gagal',
+          text: response.data?.message || 'Gagal mengirim ulang ke CRM',
+          icon: 'error',
+        })
+      }
+    } catch (error: any) {
+      Swal.fire({
+        title: 'Gagal',
+        text: error?.response?.data?.message || 'Terjadi kesalahan saat resubmit ke CRM',
+        icon: 'error',
+      })
+    } finally {
+      setResyncLoading(false)
+    }
+  }
 
   // Complaint Approval
   const [complaintStatusDone, setComplaintStatusDone] = useState<any>()
@@ -1659,6 +1716,48 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
           {shouldDisplayActions() && ['Admin HO', 'Super User'].includes(userRole) && (
             <ActionButtons />
           )}
+
+          {/* CRM Sync Status Section */}
+          <Card className='mt-4 mb-4 border-warning'>
+            <Card.Body>
+              <Row className='align-items-center'>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6}>
+                  <div className='d-flex align-items-center gap-3'>
+                    <div className='fs-4 fw-bold text-warning'>CRM Integration</div>
+                    <Tag color={getCrmSyncLabel(complaintDetail?.is_sync ?? 0).color}>
+                      {getCrmSyncLabel(complaintDetail?.is_sync ?? 0).text}
+                    </Tag>
+                  </div>
+                  <p className='fs-7 text-muted mt-1 mb-0'>
+                    Status sinkronisasi data pengaduan ke sistem CRM eksternal
+                  </p>
+                </Col>
+                <Col xs={12} md={6} lg={6} xl={6} xxl={6} className='text-end'>
+                  {(complaintDetail?.is_sync ?? 0) !== 1 && (
+                    <Button
+                      variant='warning'
+                      className='text-white'
+                      disabled={resyncLoading}
+                      onClick={handleResync}
+                    >
+                      <FontAwesomeIcon
+                        icon={faRotate}
+                        className='me-2'
+                        spin={resyncLoading}
+                      />
+                      {resyncLoading ? 'Mengirim Ulang...' : 'Resubmit ke CRM'}
+                    </Button>
+                  )}
+                  {(complaintDetail?.is_sync ?? 0) === 1 && (
+                    <span className='text-success fw-bold'>
+                      <FontAwesomeIcon icon={faCircleInfo} className='me-1' />
+                      Data sudah tersinkronisasi
+                    </span>
+                  )}
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
 
           <hr />
 

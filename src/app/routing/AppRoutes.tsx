@@ -14,6 +14,8 @@ import {ForgotPassword} from '../modules/forgot-password/forgot-password'
 import {ResetPassword} from '../modules/reset-password/reset-password'
 import {App} from '../App'
 import {DetailOrderWithoutAuth} from '../pages/detail_order_without_auth/DetailOrderWithoutAuth'
+import VendorRegisterPage from '../modules/vendor-registration/VendorRegisterPage'
+import CreateUserPage from '../modules/create-user/CreateUserPage'
 
 /**
  * Base URL of the website.
@@ -50,6 +52,8 @@ const AppRoutes: FC = () => {
               <Route path='login' element={<Login />} />
               <Route path='forgot-password' element={<ForgotPassword />} />
               <Route path='reset-password' element={<ResetPassword />} />
+              <Route path='vendor-register' element={<VendorRegisterPage />} />
+              <Route path='create-user/:token' element={<CreateUserPage />} />
 
               {/* Redirect to Error Page */}
               <Route path='*' element={<Navigate to='/login' />} />

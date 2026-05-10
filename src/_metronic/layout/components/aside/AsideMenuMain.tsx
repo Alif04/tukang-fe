@@ -298,7 +298,13 @@ export function AsideMenuMain() {
         />
         <AsideMenuItem
           to='/vendor/new-vendor'
-          title='Register Vendor'
+          title='Register Vendor (Manual)'
+          role={['Admin HO', 'Super User']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
+          to='/vendor-registration/view'
+          title='Pendaftaran Vendor'
           role={['Admin HO', 'Super User']}
           hasBullet={true}
         />
