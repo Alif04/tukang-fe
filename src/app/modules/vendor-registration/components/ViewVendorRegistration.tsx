@@ -8,7 +8,7 @@ import {Table, Spin, Pagination, PaginationProps} from 'antd'
 import {Row, Form, OverlayTrigger, Tooltip, FormGroup, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {LoadingOutlined} from '@ant-design/icons'
-import {faSearch, faFileAlt, faCheckCircle, faTimes} from '@fortawesome/free-solid-svg-icons'
+import {faSearch, faFileAlt, faCheckCircle, faTimes, faHistory} from '@fortawesome/free-solid-svg-icons'
 import './ViewVendorRegistration.css'
 
 import type {ColumnsType} from 'antd/es/table'
@@ -38,14 +38,22 @@ interface VendorRegistration {
 }
 
 const ViewVendorRegistration: React.FC = () => {
-  const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
 
   const statusConfig: Record<number, {label: string; className: string}> = {
-    1: {label: 'Pending', className: 'status-badge-pending'},
-    2: {label: 'Disetujui', className: 'status-badge-approved'},
-    3: {label: 'Ditolak', className: 'status-badge-rejected'},
+    1: {label: 'Menunggu Approve', className: 'status-badge-pending'},
+    2: {label: 'Proses Pitching', className: 'status-badge-pitching'},
+    3: {label: 'Disetujui', className: 'status-badge-approved'},
+    4: {label: 'Ditolak', className: 'status-badge-rejected'},
   }
+
+  const statusTabs = [
+    {value: undefined, label: 'Semua', countKey: 'total'},
+    {value: 1, label: 'Menunggu Approve', countKey: 'menunggu_approve'},
+    {value: 2, label: 'Proses Pitching', countKey: 'proses_pitching'},
+    {value: 3, label: 'Disetujui', countKey: 'disetujui'},
+    {value: 4, label: 'Ditolak', countKey: 'ditolak'},
+  ]
 
   // Loading state
   const [loadData, setLoadData] = useState<boolean>(true)
@@ -56,6 +64,7 @@ const ViewVendorRegistration: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(10)
   const [loadingButton, setLoadingButton] = useState<boolean>(false)
+  const [stats, setStats] = useState<Record<string, number>>({})
 
   // Filter State
   const [searchFilter, setSearchFilter] = useState<string>('')
@@ -200,7 +209,24 @@ const ViewVendorRegistration: React.FC = () => {
               </a>
             </OverlayTrigger>
 
-            {record.status === 1 && (
+            <OverlayTrigger
+              placement='bottom'
+              delay={{show: 250, hide: 400}}
+              overlay={<Tooltip id={`tooltip-history-${id}`}>Histori</Tooltip>}
+            >
+              <a
+                href='#'
+                className='btn btn-icon btn-sm btn-light-primary rounded action-button shadow-none'
+                onClick={(e) => {
+                  e.preventDefault()
+                  navigate(`/vendor-registration/history/${id}`)
+                }}
+              >
+                <FontAwesomeIcon icon={faHistory} fontSize={'13px'} />
+              </a>
+            </OverlayTrigger>
+
+            {(record.status === 1 || record.status === 2) && (
               <>
                 <OverlayTrigger
                   placement='bottom'
@@ -222,7 +248,11 @@ const ViewVendorRegistration: React.FC = () => {
                 <OverlayTrigger
                   placement='bottom'
                   delay={{show: 250, hide: 400}}
-                  overlay={<Tooltip id={`tooltip-approve-${id}`}>Setujui</Tooltip>}
+                  overlay={
+                    <Tooltip id={`tooltip-approve-${id}`}>
+                      {record.status === 1 ? 'Proses Pitching' : 'Setujui Final'}
+                    </Tooltip>
+                  }
                 >
                   <a
                     href='#'
@@ -276,10 +306,31 @@ const ViewVendorRegistration: React.FC = () => {
     }
   }
 
+  const fetchStats = async () => {
+    try {
+      const response = await vendorRegistrationService.getStats()
+      const data = response.data?.data ?? response.data ?? {}
+      setStats({
+        ...data,
+        total:
+          (data.menunggu_approve || 0) +
+          (data.proses_pitching || 0) +
+          (data.disetujui || 0) +
+          (data.ditolak || 0),
+      })
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+    }
+  }
+
   // Initial fetch and debounce search
   useEffect(() => {
     fetchData(currentPage, pageSize, debouncedSearch)
-  }, [currentPage, pageSize, debouncedSearch])
+  }, [currentPage, pageSize, debouncedSearch, statusFilter])
+
+  useEffect(() => {
+    fetchStats()
+  }, [])
 
   // Handle filter submit
   const handleSubmitFilter = () => {
@@ -295,18 +346,40 @@ const ViewVendorRegistration: React.FC = () => {
 
   const handleStatusChange = (newValue: SingleValue<{value: number; label: string}>) => {
     setStatusFilter(newValue?.value)
+    setCurrentPage(1)
   }
 
   const statusOptions = [
-    {value: 1, label: 'Pending'},
-    {value: 2, label: 'Disetujui'},
-    {value: 3, label: 'Ditolak'},
+    {value: 1, label: 'Menunggu Approve'},
+    {value: 2, label: 'Proses Pitching'},
+    {value: 3, label: 'Disetujui'},
+    {value: 4, label: 'Ditolak'},
   ]
 
   return (
     <section id='view-vendor-registration'>
       <div className='card'>
         <div className='card-body'>
+          <div className='vendor-registration-status-tabs'>
+            {statusTabs.map((tab) => {
+              const isActive = statusFilter === tab.value
+              return (
+                <button
+                  key={tab.label}
+                  type='button'
+                  className={`status-tab ${isActive ? 'active' : ''}`}
+                  onClick={() => {
+                    setStatusFilter(tab.value)
+                    setCurrentPage(1)
+                  }}
+                >
+                  <span>{tab.label}</span>
+                  <strong>{stats[tab.countKey] ?? 0}</strong>
+                </button>
+              )
+            })}
+          </div>
+
           <Row className='table-head-wrapper'>
             <div className='d-flex flex-column flex-sm-row flex-md-row flex-lg-row flex-xl-row flex-xxl-row align-items-start align-items-sm-center align-items-md-center align-items-lg-center align-items-xl-center align-items-xxl-center justify-content-start gap-3'>
               <div className='filter-search'>

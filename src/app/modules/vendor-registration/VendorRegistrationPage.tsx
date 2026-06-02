@@ -6,6 +6,7 @@ import {HeaderWrapper} from '../../../_metronic/layout/components/header/HeaderW
 
 import {ViewVendorRegistration} from './components/ViewVendorRegistration'
 import {VendorRegistrationApproval} from './components/VendorRegistrationApproval'
+import {VendorRegistrationHistory} from './components/VendorRegistrationHistory'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -59,6 +60,25 @@ const VendorRegistrationPage: React.FC = () => {
               APPROVAL PENDAFTARAN VENDOR
             </PageTitle>
             <VendorRegistrationApproval />
+          </>
+        }
+      />
+
+      <Route
+        path='history/:id'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+            <PageTitle breadcrumbs={orderBreadCrumbs}>
+              HISTORI PENDAFTARAN VENDOR
+            </PageTitle>
+            <VendorRegistrationHistory />
           </>
         }
       />

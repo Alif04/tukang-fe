@@ -73,6 +73,10 @@
   color: var(--bs-warning, #f1bc00);
 }
 
+#detail-vendor-registration .status-badge-pitching {
+  color: var(--bs-primary, #009ef7);
+}
+
 #detail-vendor-registration .status-badge-approved {
   color: var(--bs-success, #50cd89);
 }
@@ -187,6 +191,12 @@
   border: 1px solid var(--bs-danger, #f5c6cb);
 }
 
+#detail-vendor-registration .alert-info {
+  background-color: var(--bs-primary-light, rgba(0, 158, 247, 0.1));
+  color: var(--bs-primary, #009ef7);
+  border: 1px solid var(--bs-primary, #009ef7);
+}
+
 /* Text */
 #detail-vendor-registration .text-muted {
   color: #6c757d;
@@ -212,4 +222,34 @@
 #detail-vendor-registration .form-label {
   font-weight: 600;
   color: var(--bs-gray-800, #333);
+}
+
+#detail-vendor-registration .vendor-registration-history {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#detail-vendor-registration .history-row {
+  border-bottom: 1px solid var(--bs-gray-200, #e9ecef);
+  padding-bottom: 1rem;
+}
+
+#detail-vendor-registration .history-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+#detail-vendor-registration .history-time {
+  color: var(--bs-gray-600, #6c757d);
+  font-weight: 600;
+  font-size: 13px;
+  padding-top: 0.75rem;
+}
+
+#detail-vendor-registration .history-item {
+  border: 1px solid var(--bs-gray-300, #dee2e6);
+  border-radius: var(--bs-border-radius, 0.475rem);
+  padding: 1rem;
+  background: var(--bs-body-bg, #ffffff);
 }

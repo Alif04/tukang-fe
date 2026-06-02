@@ -2,7 +2,6 @@ import React, {useState, useEffect, useRef} from 'react'
 import {useParams, useNavigate, useSearchParams} from 'react-router-dom'
 import {vendorRegistrationService} from '../../../services/vendorRegistrationService'
 import {PageTitle} from '../../../../_metronic/layout/core'
-import {toAbsoluteUrl} from '../../../../_metronic/helpers'
 import Swal from 'sweetalert2'
 import {Form, Row, Col, Button} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -15,6 +14,7 @@ import {
   faIdCard,
   faTools,
   faImage,
+  faHistory,
 } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
 import './VendorRegistrationApproval.css'
@@ -49,7 +49,7 @@ interface VendorRegistrationDetail {
   surat_permohonan_photo?: string
   pks_photo?: string
   siup_photo?: string
-  tukang_data?: string
+  tukang_data?: string | any[]
 }
 
 const VendorRegistrationApproval: React.FC = () => {
@@ -57,6 +57,8 @@ const VendorRegistrationApproval: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const apiUrl = process.env.REACT_APP_API_URL
+  const userRole = localStorage.getItem('userRole')
+  const isAuthorized = userRole === 'Admin HO' || userRole === 'Super User'
 
   const actionParam = searchParams.get('action')
 
@@ -139,22 +141,34 @@ const VendorRegistrationApproval: React.FC = () => {
   }
 
   const handleApprove = async () => {
+    const isStartPitching = vendorDetail?.status === 1
+    const isFinalApprove = vendorDetail?.status === 2
+    if (!isStartPitching && !isFinalApprove) return
+
     Swal.fire({
       title: 'Konfirmasi',
-      text: 'Apakah Anda yakin ingin menyetujui pendaftaran vendor ini?',
+      text: isStartPitching
+        ? 'Apakah Anda yakin ingin memproses vendor ini ke tahap pitching?'
+        : 'Apakah Anda yakin ingin menyetujui final pendaftaran vendor ini?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'Ya, Setujui',
+      confirmButtonText: isStartPitching ? 'Ya, Proses Pitching' : 'Ya, Setujui Final',
       cancelButtonText: 'Batal',
       confirmButtonColor: '#183383',
     }).then(async (result) => {
       if (result.isConfirmed) {
         setSubmitting(true)
         try {
-          await vendorRegistrationService.approve(id as string)
+          if (isStartPitching) {
+            await vendorRegistrationService.startPitching(id as string)
+          } else {
+            await vendorRegistrationService.finalApprove(id as string)
+          }
           Swal.fire({
             title: 'Berhasil',
-            text: 'Pendaftaran vendor berhasil disetujui. Email notifikasi telah dikirim.',
+            text: isStartPitching
+              ? 'Pendaftaran vendor berhasil masuk proses pitching.'
+              : 'Pendaftaran vendor berhasil disetujui. Email notifikasi telah dikirim.',
             icon: 'success',
           }).then(() => {
             navigate('/vendor-registration/view')
@@ -219,10 +233,12 @@ const VendorRegistrationApproval: React.FC = () => {
 
   const getStatusBadge = (status: number | undefined) => {
     if (status === 1) {
-      return <span className='status-badge status-badge-pending'>Pending</span>
+      return <span className='status-badge status-badge-pending'>Menunggu Approve</span>
     } else if (status === 2) {
-      return <span className='status-badge status-badge-approved'>Disetujui</span>
+      return <span className='status-badge status-badge-pitching'>Proses Pitching</span>
     } else if (status === 3) {
+      return <span className='status-badge status-badge-approved'>Disetujui</span>
+    } else if (status === 4) {
       return <span className='status-badge status-badge-rejected'>Ditolak</span>
     }
     return <span className='status-badge status-badge-unknown'>Unknown</span>
@@ -300,6 +316,14 @@ const VendorRegistrationApproval: React.FC = () => {
                 <FontAwesomeIcon icon={faArrowLeft} />
               </button>
               <h4 className='mb-0'>Detail Pendaftaran Vendor</h4>
+              <Button
+                variant='light'
+                className='ms-auto'
+                onClick={() => navigate(`/vendor-registration/history/${vendorDetail.id}`)}
+              >
+                <FontAwesomeIcon icon={faHistory} className='me-2' />
+                Histori
+              </Button>
             </div>
 
             <Row>
@@ -501,7 +525,9 @@ const VendorRegistrationApproval: React.FC = () => {
                   let tukangList: any[] = []
                   try {
                     if (vendorDetail.tukang_data) {
-                      tukangList = JSON.parse(vendorDetail.tukang_data)
+                      tukangList = Array.isArray(vendorDetail.tukang_data)
+                        ? vendorDetail.tukang_data
+                        : JSON.parse(vendorDetail.tukang_data)
                     }
                   } catch {}
                   if (!Array.isArray(tukangList) || tukangList.length === 0) return null
@@ -689,12 +715,16 @@ const VendorRegistrationApproval: React.FC = () => {
                 })()}
 
                 {/* Action Buttons */}
-                {vendorDetail.status === 1 && (
+                {(vendorDetail.status === 1 || vendorDetail.status === 2) && isAuthorized && (
                   <div className='action-buttons d-flex justify-content-end align-items-start gap-3 mt-4 pt-4 border-top'>
                     <div ref={approveFormRef}>
                       <Button className='btn-approve' onClick={handleApprove} disabled={submitting}>
                         <FontAwesomeIcon icon={faCheck} className='me-2' />
-                        {submitting ? 'Menyetujui...' : 'Setujui Pendaftaran'}
+                        {submitting
+                          ? 'Memproses...'
+                          : vendorDetail.status === 1
+                          ? 'Proses Pitching'
+                          : 'Setujui Final'}
                       </Button>
                     </div>
 
@@ -747,13 +777,20 @@ const VendorRegistrationApproval: React.FC = () => {
                 )}
 
                 {vendorDetail.status === 2 && (
+                  <div className='alert alert-info mt-4'>
+                    <FontAwesomeIcon icon={faCheck} className='me-2' />
+                    Pendaftaran sedang dalam proses pitching
+                  </div>
+                )}
+
+                {vendorDetail.status === 3 && (
                   <div className='alert alert-success mt-4'>
                     <FontAwesomeIcon icon={faCheck} className='me-2' />
                     Pendaftaran telah disetujui
                   </div>
                 )}
 
-                {vendorDetail.status === 3 && (
+                {vendorDetail.status === 4 && (
                   <div className='alert alert-danger mt-4'>
                     <FontAwesomeIcon icon={faTimes} className='me-2' />
                     Pendaftaran ditolak

@@ -4,8 +4,11 @@ import apiClient from './apiClient';
 export const vendorRegistrationService = {
   getAll: (params: any) => apiClient.get('/vendor-registration', { params }),
   getById: (id: string | number) => apiClient.get(`/vendor-registration/${id}`),
+  getHistory: (id: string | number) => apiClient.get(`/vendor-registration/${id}/history`),
   getStats: () => apiClient.get('/vendor-registration/stats'),
   approve: (id: string | number, data?: any) => apiClient.put(`/vendor-registration/${id}/approve`, data),
+  startPitching: (id: string | number, data?: any) => apiClient.put(`/vendor-registration/${id}/start-pitching`, data),
+  finalApprove: (id: string | number, data?: any) => apiClient.put(`/vendor-registration/${id}/final-approve`, data),
   reject: (id: string | number, data: any) => apiClient.put(`/vendor-registration/${id}/reject`, data),
 };
 
