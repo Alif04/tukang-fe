@@ -11,6 +11,7 @@ import { DocumentUploadForm } from './components/forms/DocumentUploadForm';
 import { TukangInfoForm } from './components/forms/TukangInfoForm';
 
 import '../../components/admin-ho/vendor/new_vendor/NewVendor.css';
+import './VendorRegisterPage.css';
 
 const VendorRegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -48,6 +49,26 @@ const VendorRegisterPage: React.FC = () => {
     } else if (!formData.address) {
       Swal.fire({ title: 'Warning', text: 'Alamat wajib diisi', icon: 'warning' });
       valid = false;
+    } else if (!formData.pdp_consent) {
+      Swal.fire({
+        title: 'Warning',
+        text: 'Persetujuan pemrosesan data pribadi sesuai UU PDP wajib dicentang sebelum submit.',
+        icon: 'warning',
+      });
+      valid = false;
+    } else if (tukangList.length > 0) {
+      for (let i = 0; i < tukangList.length; i++) {
+        const t = tukangList[i];
+        if (!t.full_name || !t.phone_number || !t.ktp_number || !t.service_type_id || t.service_type_id.length === 0) {
+          Swal.fire({ 
+            title: 'Warning', 
+            text: `Data Tukang ke-${i + 1} belum lengkap. Mohon lengkapi Nama, No. HP, No. KTP, dan Keahlian.`, 
+            icon: 'warning' 
+          });
+          valid = false;
+          break;
+        }
+      }
     }
 
     return valid;
@@ -69,6 +90,7 @@ const VendorRegisterPage: React.FC = () => {
       submitData.append('pic_name', formData.pic_name);
       submitData.append('pic_email', formData.pic_email);
       submitData.append('pic_phone', formData.pic_phone);
+      submitData.append('pdp_consent', String(Boolean(formData.pdp_consent)));
 
       // Optional fields
       if (formData.ktp_number) submitData.append('ktp_number', formData.ktp_number);
@@ -120,15 +142,15 @@ const VendorRegisterPage: React.FC = () => {
   };
 
   return (
-    <section id="new-vendor" style={{ padding: '30px', maxWidth: '1000px', margin: '0 auto' }}>
-      <Card style={{ borderRadius: '16px', boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)', border: 'none', overflow: 'hidden' }}>
-        <Card.Header style={{ backgroundColor: '#020080', borderBottom: '1px solid #020080', padding: '15px 25px' }}>
-          <Card.Title style={{ color: '#fff', marginBottom: 0, fontWeight: 600 }}>
+    <section id="new-vendor" className="vendor-register-page">
+      <Card className="vendor-register-card">
+        <Card.Header className="vendor-register-header">
+          <Card.Title className="vendor-register-title">
             Pendaftaran Vendor Baru
           </Card.Title>
         </Card.Header>
 
-        <Card.Body style={{ padding: '30px' }}>
+        <Card.Body className="vendor-register-body">
           <Form onSubmit={handleSubmit}>
             <CompanyInfoForm data={formData} onChange={updateField} />
             <PicInfoForm data={formData} onChange={updateField} />
@@ -140,12 +162,27 @@ const VendorRegisterPage: React.FC = () => {
             />
             <DocumentUploadForm images={images} onChange={updateImage} />
 
-            <div className="d-flex justify-content-center mt-5">
+            <div className="pdp-consent-box">
+              <Form.Check
+                id="pdp-consent"
+                type="checkbox"
+                checked={Boolean(formData.pdp_consent)}
+                onChange={(e) => updateField('pdp_consent', e.target.checked)}
+                label={
+                  <span>
+                    Saya menyetujui pemrosesan data pribadi perusahaan, PIC, dokumen, dan data
+                    tukang untuk keperluan verifikasi pendaftaran vendor sesuai Undang-Undang
+                    Perlindungan Data Pribadi (UU PDP).
+                  </span>
+                }
+              />
+            </div>
+
+            <div className="vendor-register-submit">
               <Button
-                className="px-5 py-2"
-                style={{ backgroundColor: '#020080', border: 'none', borderRadius: '8px', fontWeight: 600 }}
+                className="vendor-register-submit-button"
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !formData.pdp_consent}
               >
                 {isLoading ? 'Menyimpan...' : 'Daftar Sekarang'}
               </Button>

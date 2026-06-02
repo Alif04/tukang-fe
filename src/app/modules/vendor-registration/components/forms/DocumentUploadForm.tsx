@@ -58,7 +58,7 @@ export const DocumentUploadForm: React.FC<Props> = ({ images, onChange }) => {
 
     return (
       <Form.Group className="mb-3">
-        <div className="d-flex justify-content-between align-items-center" style={{ cursor: 'pointer', padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }} onClick={() => document.getElementById(`input-${field}`)?.click()}>
+        <div className="vendor-document-upload-row d-flex justify-content-between align-items-center" style={{ cursor: 'pointer', padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }} onClick={() => document.getElementById(`input-${field}`)?.click()}>
           <Form.Control
             id={`input-${field}`}
             type="file"
@@ -67,7 +67,7 @@ export const DocumentUploadForm: React.FC<Props> = ({ images, onChange }) => {
             onChange={handleFileChange(field)}
           />
           <Form.Label className="m-0 fw-bold">{label}</Form.Label>
-          <div className="d-flex align-items-center">
+          <div className="vendor-document-upload-file d-flex align-items-center">
             <span className="me-3 text-primary text-decoration-underline" style={{ fontSize: '12px' }}>
               {imageState?.fileName || 'Pilih File'}
             </span>

@@ -34,7 +34,7 @@ export const PicInfoForm: React.FC<Props> = ({ data, onChange }) => {
       <h5 className="mb-4 fw-bold">Informasi Penanggung Jawab (PIC)</h5>
 
       <Row className="form-body mb-3">
-        <Col>
+        <Col md={6}>
           <Form.Group>
             <Form.Label style={{ fontWeight: 500 }}>Nama PIC</Form.Label>
             <Form.Control
@@ -46,7 +46,7 @@ export const PicInfoForm: React.FC<Props> = ({ data, onChange }) => {
           </Form.Group>
         </Col>
 
-        <Col>
+        <Col md={6}>
           <Form.Group>
             <Form.Label style={{ fontWeight: 500 }}>Nomor HP / WA PIC</Form.Label>
             <Form.Control
@@ -72,7 +72,7 @@ export const PicInfoForm: React.FC<Props> = ({ data, onChange }) => {
       </Row>
 
       <Row className="form-body mb-3">
-        <Col>
+        <Col md={6}>
           <Form.Group>
             <Form.Label style={{ fontWeight: 500 }}>Nomor KTP (Opsional)</Form.Label>
             <Form.Control
@@ -84,7 +84,7 @@ export const PicInfoForm: React.FC<Props> = ({ data, onChange }) => {
           </Form.Group>
         </Col>
 
-        <Col>
+        <Col md={6}>
           <Form.Group>
             <Form.Label style={{ fontWeight: 500 }}>Nomor NPWP (Opsional)</Form.Label>
             <Form.Control

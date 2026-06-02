@@ -253,3 +253,80 @@
   padding: 1rem;
   background: var(--bs-body-bg, #ffffff);
 }
+
+@media (max-width: 1199.98px) {
+  #detail-vendor-registration .vendor-profile {
+    max-width: 220px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #detail-vendor-registration .detail-info-wrapper {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 767.98px) {
+  #detail-vendor-registration .card-body {
+    padding: 1rem;
+  }
+
+  #detail-vendor-registration .d-flex.align-items-center.mb-4 {
+    align-items: flex-start !important;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  #detail-vendor-registration .d-flex.align-items-center.mb-4 h4 {
+    flex: 1 1 calc(100% - 56px);
+    font-size: 1.1rem;
+  }
+
+  #detail-vendor-registration .d-flex.align-items-center.mb-4 .btn.ms-auto {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  #detail-vendor-registration .vendor-avatar,
+  #detail-vendor-registration .vendor-profile img,
+  #detail-vendor-registration .vendor-avatar-placeholder {
+    width: 112px;
+    height: 112px;
+  }
+
+  #detail-vendor-registration .detail-info {
+    row-gap: 0.15rem;
+  }
+
+  #detail-vendor-registration .detail-info .form-label {
+    padding-bottom: 0;
+  }
+
+  #detail-vendor-registration .detail-info p {
+    margin-top: 0 !important;
+    overflow-wrap: anywhere;
+  }
+
+  #detail-vendor-registration .action-buttons {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  #detail-vendor-registration .action-buttons > *,
+  #detail-vendor-registration .action-buttons button,
+  #detail-vendor-registration .reject-form {
+    width: 100%;
+    max-width: none !important;
+  }
+
+  #detail-vendor-registration .history-time {
+    padding-top: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  #detail-vendor-registration .history-item .status-badge {
+    min-width: 100%;
+  }
+}

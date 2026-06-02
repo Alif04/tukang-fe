@@ -77,7 +77,7 @@ export const CompanyInfoForm: React.FC<Props> = ({ data, onChange }) => {
       </Row>
 
       <Row className="form-body mb-3">
-        <Col>
+        <Col md={6}>
           <Form.Group>
             <Form.Label style={{ fontWeight: 500 }}>Service Area</Form.Label>
             <Select
@@ -93,7 +93,7 @@ export const CompanyInfoForm: React.FC<Props> = ({ data, onChange }) => {
           </Form.Group>
         </Col>
 
-        <Col>
+        <Col md={6}>
           <Form.Group>
             <Form.Label style={{ fontWeight: 500 }}>Service Type</Form.Label>
             <Select

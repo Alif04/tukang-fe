@@ -21,6 +21,7 @@ export const useVendorRegistrationForm = () => {
     bank_id: null,
     service_types: [],
     areas: [],
+    pdp_consent: false,
   });
 
   const [images, setImages] = useState<Record<string, any>>({
