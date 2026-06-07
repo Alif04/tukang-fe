@@ -78,8 +78,8 @@ const NewCostumerHO: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
 
@@ -174,8 +174,8 @@ const NewCostumerHO: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then((response) => {
@@ -279,9 +279,9 @@ const NewCostumerHO: FC = () => {
                   <Form.Label>Whatsapp Number</Form.Label>
 
                   <InputGroup>
-                    <InputGroup.Text>+ 62</InputGroup.Text>
                     <Form.Control
                       name='whatsapp_number'
+                      placeholder='Masukan Nomor Telpon dengan Format 08, contoh: 08xxxxx'
                       type='number'
                       onChange={(e) => memberInfoFormHandler(e)}
                     />

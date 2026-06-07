@@ -44,8 +44,8 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         .then((response) => {
@@ -176,8 +176,8 @@ const WarrantyFormClaimVendor: FC<{updatePageTitle: (warranty: any) => void}> = 
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         .then((response) => {

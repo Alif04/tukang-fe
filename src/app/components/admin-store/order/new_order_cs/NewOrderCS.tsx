@@ -188,8 +188,8 @@ const NewOrderStoreCS: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         }
       )
@@ -234,8 +234,8 @@ const NewOrderStoreCS: FC = () => {
   //         headers: {
   //           Accept: 'application/json',
   //           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  //           'Access-Control-Allow-Origin': '*',
-  //           'ngrok-skip-browser-warning': 'true',
+  //           // 'Access-Control-Allow-Origin': '*',
+  //          // 'ngrok-skip-browser-warning':  'true',
   //         },
   //       })
 
@@ -269,8 +269,8 @@ const NewOrderStoreCS: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
           params: {
             search: searchByPhoneNumber ? searchByPhoneNumber : null,
@@ -307,8 +307,8 @@ const NewOrderStoreCS: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
         params: {
           is_active: 1,
@@ -339,8 +339,8 @@ const NewOrderStoreCS: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
         params: {
           take: 0,
@@ -768,8 +768,8 @@ const NewOrderStoreCS: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then(async (response) => {
@@ -854,8 +854,8 @@ const NewOrderStoreCS: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
 
@@ -974,8 +974,8 @@ const NewOrderStoreCS: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         .then((response) => {
@@ -996,8 +996,8 @@ const NewOrderStoreCS: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
           params: {
             order_by: 'asc',

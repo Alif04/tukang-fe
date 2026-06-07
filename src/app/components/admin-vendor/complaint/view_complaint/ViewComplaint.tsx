@@ -8,9 +8,9 @@ import {useNavigate} from 'react-router-dom'
 import type {ColumnsType} from 'antd/es/table'
 import {Form, InputGroup, Row, Col, Button, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faBook, faPen, faSearch} from '@fortawesome/free-solid-svg-icons'
-
+import {faBook, faPen, faSearch, faRotate} from '@fortawesome/free-solid-svg-icons'
 import {Table, DatePicker, Tag, PaginationProps} from 'antd'
+import Swal from 'sweetalert2'
 const {RangePicker} = DatePicker
 
 type Props = {
@@ -19,7 +19,10 @@ type Props = {
 
 const ViewComplaintVendor: React.FC<Props> = ({className}) => {
   const navigate = useNavigate()
+  const apiUrl = process.env.REACT_APP_API_URL
 
+  const [loadingButton, setLoadingButton] = useState(false)
+  const [resyncLoading, setResyncLoading] = useState<number | null>(null)
   const [complaintData, setComplaintData] = useState<DataType[]>([])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalData, setTotalData] = useState<number>(0)
@@ -47,6 +50,7 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
     complaint_date: string
     complaint_age: string
     complaint_status: string
+    is_sync: number // 0=belum, 1=berhasil, 2=gagal
   }
 
   const renderTooltip = (title: string) => <Tooltip id='button-tooltip'>{title}</Tooltip>
@@ -294,6 +298,48 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
       sorter: (a, b) => a.complaint_status.length - b.complaint_status.length,
     },
     {
+      title: 'Submission Status',
+      dataIndex: 'is_sync',
+      key: 'is_sync',
+      className: 'text-start',
+      width: 150,
+      align: 'center',
+      filters: [
+        {text: 'Success', value: 1},
+        {text: 'In Progress', value: 0},
+        {text: 'Failed', value: 2},
+      ],
+      onFilter: (value, record) => record.is_sync === value,
+      render: (is_sync: number) => {
+        let bgColor = ''
+        let label = ''
+
+        switch (is_sync) {
+          case 1:
+            bgColor = 'success'
+            label = 'Success'
+            break
+          case 2:
+            bgColor = 'error'
+            label = 'Failed'
+            break
+          default:
+            bgColor = 'warning'
+            label = 'In Progress'
+            break
+        }
+
+        return (
+          <span
+            className={`badge bg-${bgColor} px-3 py-2`}
+            style={{fontSize: '12px', borderRadius: '20px'}}
+          >
+            {label}
+          </span>
+        )
+      },
+    },
+    {
       title: 'Action',
       key: 'action',
       render: (record) => {
@@ -307,8 +353,35 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
           navigate(`/complaint/update-complaint/${id}`)
         }
 
+        const handleResync = (e: React.MouseEvent) => {
+          e.stopPropagation()
+          resyncComplaint(record.complaint_id)
+        }
+
         return (
-          <div className='button-wrapper d-flex justify-content-center gap-3'>
+          <div className='button-wrapper d-flex justify-content-center gap-2'>
+            {record.is_sync !== 1 && (
+              <OverlayTrigger
+                placement='bottom'
+                delay={{show: 250, hide: 400}}
+                overlay={renderTooltip('Resubmit ke CRM')}
+              >
+                <Button
+                  variant='primary'
+                  className='button-edit'
+                  disabled={resyncLoading === record.complaint_id}
+                  onClick={handleResync}
+                >
+                  <FontAwesomeIcon
+                    icon={faRotate}
+                    className='text-white'
+                    fontSize={'13px'}
+                    spin={resyncLoading === record.complaint_id}
+                  />
+                </Button>
+              </OverlayTrigger>
+            )}
+
             <OverlayTrigger
               placement='bottom'
               delay={{show: 250, hide: 400}}
@@ -332,7 +405,7 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
         )
       },
       fixed: 'right',
-      width: 100,
+      width: 130,
     },
   ]
 
@@ -353,8 +426,8 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         }
       )
@@ -420,6 +493,7 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
           complaint_date: formatDate(complaintDate),
           complaint_age: complaintAge,
           complaint_status: item.status?.category,
+          is_sync: item?.is_sync ?? 0,
         }
 
         return data
@@ -435,6 +509,48 @@ const ViewComplaintVendor: React.FC<Props> = ({className}) => {
   const fetchData = async (page: number, pageSize: number) => {
     const data = await ViewComplaint(page, pageSize)
     setComplaintData(data)
+  }
+
+  const resyncComplaint = async (complaintId: number) => {
+    setResyncLoading(complaintId)
+    try {
+      const response = await axios.post(
+        `${apiUrl}/complaints/${complaintId}/resync`,
+        {},
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+           // 'ngrok-skip-browser-warning':  'true',
+          },
+        }
+      )
+
+      if (response.data?.status === 200 || response.data?.status === 201) {
+        Swal.fire({
+          title: 'Berhasil',
+          text: 'Data pengaduan berhasil dikirim ulang ke CRM',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+        })
+        fetchData(currentPage, 10)
+      } else {
+        Swal.fire({
+          title: 'Gagal',
+          text: response.data?.message || 'Gagal mengirim ulang ke CRM',
+          icon: 'error',
+        })
+      }
+    } catch (error: any) {
+      Swal.fire({
+        title: 'Gagal',
+        text: error?.response?.data?.message || 'Terjadi kesalahan saat resubmit ke CRM',
+        icon: 'error',
+      })
+    } finally {
+      setResyncLoading(null)
+    }
   }
 
   useEffect(() => {

@@ -1,18 +1,18 @@
-import React, {FC, useEffect, useState, useRef} from 'react'
-import {useNavigate, useParams} from 'react-router-dom'
-import {Orders} from '../../../../interfaces/order'
+import React, { FC, useEffect, useState, useRef } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Orders } from '../../../../interfaces/order'
 
 import './UpdateOrder.css'
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import Select, {SingleValue} from 'react-select'
+import Select, { SingleValue } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import {Card, Row, Col, Form, InputGroup, Table, Button, ListGroup} from 'react-bootstrap'
-import {Image, Spin} from 'antd'
-import {LoadingOutlined} from '@ant-design/icons'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTrash, faImage, faFileImage} from '@fortawesome/free-solid-svg-icons'
+import { Card, Row, Col, Form, InputGroup, Table, Button, ListGroup } from 'react-bootstrap'
+import { Image, Spin } from 'antd'
+import { LoadingOutlined } from '@ant-design/icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash, faImage, faFileImage } from '@fortawesome/free-solid-svg-icons'
 
 interface StoreItemSelect {
   value: number | null
@@ -93,7 +93,7 @@ interface Order {
   [key: string]: any
 }
 const apiChat = process.env.REACT_APP_API_CHAT_URL || process.env.REACT_APP_API_URL || ''
-const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePageTitle}) => {
+const UpdateOrderHO: FC<{ updatePageTitle: (order: Orders) => void }> = ({ updatePageTitle }) => {
   const apiUrl = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const params = useParams()
@@ -217,8 +217,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         }
       )
@@ -268,8 +268,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
+              // 'Access-Control-Allow-Origin': '*',
+             // 'ngrok-skip-browser-warning':  'true',
             },
           })
           .then((response) => {
@@ -431,14 +431,14 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
                     prices:
                       item?.item?.prices?.length > 0
                         ? item?.item?.prices.map((price: any) => ({
-                            id: price?.id,
-                            item_id: price?.item_id,
-                            store_id: price?.store_id,
-                            periodic_start: price?.periodic_start,
-                            periodic_end: price?.periodic_end,
-                            price: price?.price,
-                            min_order: price?.min_order,
-                          }))
+                          id: price?.id,
+                          item_id: price?.item_id,
+                          store_id: price?.store_id,
+                          periodic_start: price?.periodic_start,
+                          periodic_end: price?.periodic_end,
+                          price: price?.price,
+                          min_order: price?.min_order,
+                        }))
                         : [],
                   }
 
@@ -493,8 +493,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
 
@@ -522,8 +522,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         if (Array.isArray(response.data.data)) {
@@ -553,8 +553,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         if (response.data) {
@@ -581,8 +581,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
 
@@ -610,8 +610,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
 
@@ -650,7 +650,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   // Order Detail Form Handler
   const orderDetailsFormHandler = (e: any, index: number) => {
     setOrderForm((prev) => {
-      const cache = {...prev}
+      const cache = { ...prev }
       cache.order_details[index] = {
         ...cache.order_details[index],
         [e.target.name]: e.target.value,
@@ -751,6 +751,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
   }, [paymentTypeValue])
 
   // Status
+  // ✅ PERBAIKAN 2: Hapus orderForm.project_status_id dari dependency
+  // Gunakan functional update agar tidak perlu orderForm sebagai dependency
   useEffect(() => {
     const storedStatus = localStorage.getItem('statusData')
     const statusData = storedStatus ? JSON.parse(storedStatus) : []
@@ -809,11 +811,13 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     setOrderStatusLabel(desiredStatus?.description)
     const statusId = desiredStatus?.value
 
-    setOrderForm({
-      ...orderForm,
+    // ✅ Gunakan functional update agar tidak perlu orderForm di dependency array
+    setOrderForm((prev) => ({
+      ...prev,
       project_status_id: statusId,
-    })
-  }, [paymentTypeValue, orderForm.project_status_id, isCanceledOrder])
+    }))
+  // ✅ Hapus orderForm.project_status_id — ini yang menyebabkan infinite loop
+  }, [paymentTypeValue, isCanceledOrder, orderDetail])
 
   // Select Date Request
   const today = new Date().toISOString().split('T')[0]
@@ -824,11 +828,11 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
     setOrderForm((prev) => {
       const order_details = prev.order_details.map((detail) => {
-        let newDetail = {...detail}
+        let newDetail = { ...detail }
 
         if (detail.item) {
-          const {item, quantity} = detail
-          const {prices, default_price} = item
+          const { item, quantity } = detail
+          const { prices, default_price } = item
 
           // const activePrices = prices.filter((price) => price.is_active === true)
 
@@ -849,13 +853,13 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
           const total = unitPrice * quantity
 
-          newDetail = {...newDetail, unit_price: unitPrice.toString(), total: total.toString()}
+          newDetail = { ...newDetail, unit_price: unitPrice.toString(), total: total.toString() }
         }
 
         return newDetail
       })
 
-      return {...prev, order_details}
+      return { ...prev, order_details }
     })
   }
 
@@ -868,8 +872,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
       const existingFiles = [...receiptFiles]
       const mergedFiles = existingFiles.concat(file)
 
-      const {length: existingFilesLength} = existingFiles
-      const {length: fileListLength} = fileList
+      const { length: existingFilesLength } = existingFiles
+      const { length: fileListLength } = fileList
 
       for (let i = 0; i < fileListLength; i++) {
         mergedFiles[existingFilesLength + i] = fileList.item(i)
@@ -915,7 +919,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     }
 
     setOrderForm((prev) => {
-      const cache = {...prev}
+      const cache = { ...prev }
       cache.order_details.push(newDetail)
       return cache
     })
@@ -925,7 +929,7 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   const handleRemoveForm = (index: any) => {
     setOrderForm((prev) => {
-      const cache = {...prev}
+      const cache = { ...prev }
       cache.order_details.splice(index, 1)
       return cache
     })
@@ -981,16 +985,12 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
 
   // Submit Update Order
   const formData = new FormData()
-  const appendIfNotDefault = (key: any, value: any) => {
-    if (value !== null && value !== undefined && value !== '' && value !== 0) {
-      formData.append(key, String(value))
-    }
-  }
+  
   const API_BASE = process.env.REACT_APP_WA_BACKEND_API_URL
   const [emailDetail, setEmailDetail] = useState<any>()
-   useEffect(() => {
-     fetchEmailData()
-   }, []);
+  useEffect(() => {
+    fetchEmailData()
+  }, []);
   const fetchEmailData = async () => {
     try {
       await axios
@@ -998,8 +998,8 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
           params: {
             order_by: 'asc',
@@ -1015,15 +1015,15 @@ const UpdateOrderHO: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePa
     }
   }
   const sentWA = async () => {
-      
-      // ==================================
-      // === TEMPLATE INVOICE WHATSAPP ===
-      // ==================================
-      // Final WhatsApp Message
-      let invoiceMessage='';
-      if (orderDetail?.status?.category === 'BOOKED') {
-        const information_detail= emailDetail?.information_detail?.map((item: any) => item.information).join('\n• '); 
-        invoiceMessage = `
+
+    // ==================================
+    // === TEMPLATE INVOICE WHATSAPP ===
+    // ==================================
+    // Final WhatsApp Message
+    let invoiceMessage = '';
+    if (orderDetail?.status?.category === 'BOOKED') {
+      const information_detail = emailDetail?.information_detail?.map((item: any) => item.information).join('\n• ');
+      invoiceMessage = `
 Hi *${orderDetail?.members?.full_name || "-"}*, terima kasih telah menggunakan layanan instalasi Mitra10.
 
 Order Anda saat ini *sedang dijadwalkan untuk Survey Lokasi* oleh tim instalasi kami.
@@ -1050,8 +1050,8 @@ ${information_detail}
 
 Terima kasih telah memilih *Mitra10* 🙏
 `;
-      } else if (orderDetail?.status?.category === 'QUOTATIONPAID') {
-        invoiceMessage = `
+    } else if (orderDetail?.status?.category === 'QUOTATIONPAID') {
+      invoiceMessage = `
 ${emailDetail?.welcome_header} , ${orderDetail?.members?.full_name || "-"}, terima kasih atas pembayaran Anda.
 Pembayaran untuk layanan instalasi Mitra10 telah kami terima dan terverifikasi.
 
@@ -1065,65 +1065,74 @@ Layanan Mitra10** sesuai penawaran sebelumnya.
 
 Terima kasih telah memilih Mitra10.
             `;
-      }
+    }
 
-    
-    
+
+
     // =============================
     // === KIRIM GAMBAR + PESAN ===
     // =============================
-      const payload = { 
-        phonenumber: orderDetail?.members?.member_number,
-          message: invoiceMessage,
-          location: '',
-          img: '',
-          document: '',
-          audio: '',
-          video: '',
-          types:'Order'
-        };
-    
-        await axios.post(`${API_BASE}/conversation`, payload, {
-          headers: { 'Content-Type': 'application/json' },
-        });
-    
-      }
-    useEffect(() => {
-      if (!orderDetail || !emailDetail) return;
-  
-      console.log("DATA BENAR-BENAR SIAP:", orderDetail,emailDetail);
-      //sentWA();
-    }, [orderDetail]);
+    const payload = {
+      phonenumber: orderDetail?.members?.member_number,
+      message: invoiceMessage,
+      location: '',
+      img: '',
+      document: '',
+      audio: '',
+      video: '',
+      types: 'Order'
+    };
+
+    await axios.post(`${API_BASE}/conversation`, payload, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+  }
+  useEffect(() => {
+    if (!orderDetail || !emailDetail) return;
+
+    console.log("DATA BENAR-BENAR SIAP:", orderDetail, emailDetail);
+    //sentWA();
+  }, [orderDetail]);
   const handleUpdateOrder = async () => {
-    // setIsLoading(true)
+    // ✅ PERBAIKAN 1: Pindahkan formData ke dalam fungsi agar selalu fresh
+    const formData = new FormData()
+
+    const appendIfNotDefault = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '' && value !== 0) {
+        formData.append(key, String(value))
+      }
+    }
+
     const url = `${apiUrl}/orders/${params.id}`
 
     let errorBags = []
     const requiredOrderFields = [
-      {key: 'member_id', fieldName: 'Nomor Member'},
-      {key: 'sales_id', fieldName: 'Sales Information'},
-      {key: 'store_id', fieldName: 'Store'},
-      {key: 'vendor_id', fieldName: 'Vendor'},
-      {key: 'project_status_id', fieldName: 'Proyek Status'},
-      {key: 'project_address', fieldName: 'Alamat Proyek'},
-      {key: 'project_number', fieldName: 'Nomor Proyek'},
-      {key: 'request_survey', fieldName: 'Request Survey'},
-      {key: 'payment_type', fieldName: 'Payment Type'},
-      {key: 'receipt_number', fieldName: 'Nomor Receipt'},
-      {key: 'is_overdistance', fieldName: 'Overdistance'},
-      {key: 'additional_fee', fieldName: 'Additional Fee'},
-      {key: 'notes', fieldName: 'Catatan'},
+      { key: 'member_id', fieldName: 'Nomor Member' },
+      { key: 'sales_id', fieldName: 'Sales Information' },
+      { key: 'store_id', fieldName: 'Store' },
+      { key: 'vendor_id', fieldName: 'Vendor' },
+      { key: 'project_status_id', fieldName: 'Proyek Status' },
+      { key: 'project_address', fieldName: 'Alamat Proyek' },
+      { key: 'project_number', fieldName: 'Nomor Proyek' },
+      { key: 'request_survey', fieldName: 'Request Survey' },
+      { key: 'payment_type', fieldName: 'Payment Type' },
+      { key: 'receipt_number', fieldName: 'Nomor Receipt' },
+      { key: 'is_overdistance', fieldName: 'Overdistance' },
+      { key: 'additional_fee', fieldName: 'Additional Fee' },
+      { key: 'notes', fieldName: 'Catatan' },
     ]
+    
 
     const requiredOrderDetailsFields = [
-      {key: 'item_id', fieldName: 'Nama Pemasangan'},
-      {key: 'item_notes', fieldName: 'Nama Pemasangan'},
-      {key: 'item_code', fieldName: 'Item Code'},
-      {key: 'item_name', fieldName: 'Item Name'},
-      {key: 'quantity', fieldName: 'Quantity'},
+      { key: 'item_id', fieldName: 'Nama Pemasangan' },
+      { key: 'item_notes', fieldName: 'Nama Pemasangan' },
+      { key: 'item_code', fieldName: 'Item Code' },
+      { key: 'item_name', fieldName: 'Item Name' },
+      { key: 'quantity', fieldName: 'Quantity' },
     ]
 
-    for (const {key, fieldName} of requiredOrderFields) {
+    for (const { key, fieldName } of requiredOrderFields) {
       const value = orderForm[key]
       if (!value && key !== 'order_details') {
         if (key === 'additional_fee' && isOverdistance === 1) {
@@ -1131,7 +1140,7 @@ Terima kasih telah memilih Mitra10.
         } else if (key === 'is_overdistance' || key === 'notes') {
           if (value) formData.append(key, value.toString())
         } else {
-          errorBags.push({message: `Mohon isi kolom ${fieldName}`})
+          errorBags.push({ message: `Mohon isi kolom ${fieldName}` })
           setIsLoading(false)
         }
       } else {
@@ -1141,7 +1150,7 @@ Terima kasih telah memilih Mitra10.
 
     if (orderForm.order_details && Array.isArray(orderForm.order_details)) {
       orderForm.order_details.forEach((item: any, index: number) => {
-        requiredOrderDetailsFields.forEach(({key, fieldName}) => {
+        requiredOrderDetailsFields.forEach(({ key, fieldName }) => {
           const value = item[key]
 
           if (
@@ -1201,8 +1210,8 @@ Terima kasih telah memilih Mitra10.
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then((response) => {
@@ -1323,7 +1332,7 @@ Terima kasih telah memilih Mitra10.
         spinning={isLoadingPage}
         size='large'
         tip='Loading...'
-        indicator={<LoadingOutlined style={{fontSize: 24}} spin />}
+        indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
       >
         <Card className='mb-5'>
           <Card.Body>
@@ -1549,7 +1558,7 @@ Terima kasih telah memilih Mitra10.
                         className='field-alamat'
                         disabled={
                           orderDetail?.quotation?.length >= 1 &&
-                          orderDetail?.payment_type === 'survey'
+                            orderDetail?.payment_type === 'survey'
                             ? true
                             : false
                         }
@@ -1616,7 +1625,7 @@ Terima kasih telah memilih Mitra10.
                       value={orderForm.receipt_number}
                       readOnly={
                         orderDetail?.quotation?.length >= 1 &&
-                        orderDetail?.payment_type === 'survey'
+                          orderDetail?.payment_type === 'survey'
                           ? true
                           : false
                       }
@@ -1637,7 +1646,7 @@ Terima kasih telah memilih Mitra10.
                           value={orderDetail?.quotation[0]?.receipt_quotation}
                           readOnly={
                             orderDetail?.quotation?.length >= 1 &&
-                            orderDetail?.payment_type === 'survey'
+                              orderDetail?.payment_type === 'survey'
                               ? true
                               : false
                           }
@@ -1657,7 +1666,7 @@ Terima kasih telah memilih Mitra10.
                       as='textarea'
                       name='notes'
                       className='additional-notes'
-                      style={{minHeight: '150px'}}
+                      style={{ minHeight: '150px' }}
                       value={orderForm.notes}
                       onChange={(event) => {
                         orderFormHandler(event)
@@ -1713,7 +1722,7 @@ Terima kasih telah memilih Mitra10.
                       value={orderForm.request_survey}
                       readOnly={
                         orderDetail?.quotation?.length >= 1 &&
-                        orderDetail?.payment_type === 'survey'
+                          orderDetail?.payment_type === 'survey'
                           ? true
                           : false
                       }
@@ -1842,19 +1851,19 @@ Terima kasih telah memilih Mitra10.
                         <table className='table hover responsive'>
                           <thead className='table-warranty-head'>
                             <tr>
-                              <th className='text-center' style={{width: '355px'}}>
+                              <th className='text-center' style={{ width: '355px' }}>
                                 Jenis Jasa
                               </th>
 
-                              <th className='text-center' style={{width: '100px'}}>
+                              <th className='text-center' style={{ width: '100px' }}>
                                 QTY
                               </th>
 
-                              <th className='text-center' style={{width: '250px'}}>
+                              <th className='text-center' style={{ width: '250px' }}>
                                 Satuan
                               </th>
 
-                              <th className='text-center' style={{width: '250px'}}>
+                              <th className='text-center' style={{ width: '250px' }}>
                                 Final Price
                               </th>
                             </tr>
@@ -1898,19 +1907,19 @@ Terima kasih telah memilih Mitra10.
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
                               <tr>
-                                <th className='text-center' style={{width: '355px'}}>
+                                <th className='text-center' style={{ width: '355px' }}>
                                   Jenis Jasa
                                 </th>
 
-                                <th className='text-center' style={{width: '100px'}}>
+                                <th className='text-center' style={{ width: '100px' }}>
                                   QTY
                                 </th>
 
-                                <th className='text-center' style={{width: '250px'}}>
+                                <th className='text-center' style={{ width: '250px' }}>
                                   Satuan
                                 </th>
 
-                                <th className='text-center' style={{width: '250px'}}>
+                                <th className='text-center' style={{ width: '250px' }}>
                                   Final Price
                                 </th>
                               </tr>
@@ -1953,19 +1962,19 @@ Terima kasih telah memilih Mitra10.
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
                               <tr>
-                                <th className='text-center' style={{width: '355px'}}>
+                                <th className='text-center' style={{ width: '355px' }}>
                                   Jenis Jasa
                                 </th>
 
-                                <th className='text-center' style={{width: '100px'}}>
+                                <th className='text-center' style={{ width: '100px' }}>
                                   QTY
                                 </th>
 
-                                <th className='text-center' style={{width: '250px'}}>
+                                <th className='text-center' style={{ width: '250px' }}>
                                   Satuan
                                 </th>
 
-                                <th className='text-center' style={{width: '250px'}}>
+                                <th className='text-center' style={{ width: '250px' }}>
                                   Final Price
                                 </th>
                               </tr>
@@ -2008,19 +2017,19 @@ Terima kasih telah memilih Mitra10.
                           <table className='table hover responsive'>
                             <thead className='table-warranty-head'>
                               <tr>
-                                <th className='text-center' style={{width: '355px'}}>
+                                <th className='text-center' style={{ width: '355px' }}>
                                   Jenis Jasa
                                 </th>
 
-                                <th className='text-center' style={{width: '100px'}}>
+                                <th className='text-center' style={{ width: '100px' }}>
                                   QTY
                                 </th>
 
-                                <th className='text-center' style={{width: '250px'}}>
+                                <th className='text-center' style={{ width: '250px' }}>
                                   Satuan
                                 </th>
 
-                                <th className='text-center' style={{width: '250px'}}>
+                                <th className='text-center' style={{ width: '250px' }}>
                                   Final Price
                                 </th>
                               </tr>
@@ -2052,19 +2061,19 @@ Terima kasih telah memilih Mitra10.
                       <table className='table hover responsive'>
                         <thead className='table-warranty-head'>
                           <tr>
-                            <th className='text-center' style={{width: '355px'}}>
+                            <th className='text-center' style={{ width: '355px' }}>
                               Material Yang Dibutuhkan
                             </th>
 
-                            <th className='text-center' style={{width: '100px'}}>
+                            <th className='text-center' style={{ width: '100px' }}>
                               QTY
                             </th>
 
-                            <th className='text-center' style={{width: '250px'}}>
+                            <th className='text-center' style={{ width: '250px' }}>
                               Satuan
                             </th>
 
-                            <th className='text-center' style={{width: '250px'}}>
+                            <th className='text-center' style={{ width: '250px' }}>
                               Price
                             </th>
                           </tr>
@@ -2128,18 +2137,17 @@ Terima kasih telah memilih Mitra10.
 
                           <tr>
                             <td colSpan={3} className='text-end fw-bolder'>
-                              {`${
-                                orderDetail?.quotation[0]?.promotion
+                              {`${orderDetail?.quotation[0]?.promotion
                                   ? `Additional Promotion (${orderDetail?.quotation[0]?.promotion?.name})`
                                   : `Additional Promotion`
-                              }`}
+                                }`}
                             </td>
                             <td className=' fw-bolder'>
                               {orderDetail?.quotation[0]?.promotion?.promotion_type === 1
                                 ? `${orderDetail?.quotation[0]?.promotion?.promotion} %`
                                 : `Rp. ${parseInt(
-                                    orderDetail?.quotation[0]?.promotion?.promotion ?? 0
-                                  ).toLocaleString('id')}`}
+                                  orderDetail?.quotation[0]?.promotion?.promotion ?? 0
+                                ).toLocaleString('id')}`}
                             </td>
                           </tr>
 
@@ -2180,7 +2188,7 @@ Terima kasih telah memilih Mitra10.
                             <Image
                               key={previewImage}
                               width={200}
-                              style={{display: 'none'}}
+                              style={{ display: 'none' }}
                               src={`${apiUrl}/public/receipt/${previewImage}`}
                               preview={{
                                 visible: visible,
@@ -2220,7 +2228,7 @@ Terima kasih telah memilih Mitra10.
                                 <Image
                                   key={previewImage}
                                   width={200}
-                                  style={{display: 'none'}}
+                                  style={{ display: 'none' }}
                                   src={`${apiUrl}/public/quotation/${previewImage}`}
                                   preview={{
                                     visible: visibleQuotationReceipt,
@@ -2269,7 +2277,7 @@ Terima kasih telah memilih Mitra10.
                                 <Image
                                   key={previewImage}
                                   width={200}
-                                  style={{display: 'none'}}
+                                  style={{ display: 'none' }}
                                   src={`${apiUrl}/public/quotation/${previewImage}`}
                                   preview={{
                                     visible: visibleQuotationFiles,
@@ -2307,11 +2315,11 @@ Terima kasih telah memilih Mitra10.
                             {!(
                               paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey'
                             ) && (
-                              <>
-                                <th>Harga Jasa</th>
-                                <th>Total</th>
-                              </>
-                            )}
+                                <>
+                                  <th>Harga Jasa</th>
+                                  <th>Total</th>
+                                </>
+                              )}
                             {orderForm.order_details.length >= 2 && <th>Action</th>}
                           </tr>
                         </thead>
@@ -2341,7 +2349,7 @@ Terima kasih telah memilih Mitra10.
                                     onInputChange={(newValue) => setSearchItem(newValue)}
                                     onChange={(newValue) => {
                                       setOrderForm((prev) => {
-                                        const cache = {...prev}
+                                        const cache = { ...prev }
                                         cache.order_details[index] = {
                                           ...cache.order_details[index],
                                           item_id:
@@ -2396,15 +2404,15 @@ Terima kasih telah memilih Mitra10.
                                 )}
                               </td>
 
-                              <td style={{maxWidth: '200px', minWidth: '200px'}}>
+                              <td style={{ maxWidth: '200px', minWidth: '200px' }}>
                                 <Form.Control
                                   id={`item-name-${index}`}
                                   name={`item_name`}
                                   as='textarea'
                                   plaintext
                                   ref={(el: any) =>
-                                    (textAreaRefs.current[orderForm.order_details.length + index] =
-                                      el)
+                                  (textAreaRefs.current[orderForm.order_details.length + index] =
+                                    el)
                                   }
                                   readOnly={
                                     paymentTypeValue[1] === 'pemasangan_tanpa_survey' ? true : false
@@ -2432,9 +2440,9 @@ Terima kasih telah memilih Mitra10.
                                     as='textarea'
                                     name={`item_notes`}
                                     ref={(el: any) =>
-                                      (textAreaRefs.current[
-                                        2 * orderForm.order_details.length + index
-                                      ] = el)
+                                    (textAreaRefs.current[
+                                      2 * orderForm.order_details.length + index
+                                    ] = el)
                                     }
                                     value={element.item_notes ?? ''}
                                     onChange={(e) => {
@@ -2443,7 +2451,7 @@ Terima kasih telah memilih Mitra10.
                                     onInput={() => {
                                       const textarea =
                                         textAreaRefs.current[
-                                          2 * orderForm.order_details.length + index
+                                        2 * orderForm.order_details.length + index
                                         ]
                                       if (textarea) {
                                         textarea.style.height = 'auto'
@@ -2483,7 +2491,7 @@ Terima kasih telah memilih Mitra10.
                                     }}
                                     onChange={(newValue) => {
                                       setOrderForm((prev) => {
-                                        const cache = {...prev}
+                                        const cache = { ...prev }
                                         cache.order_details[index] = {
                                           ...cache.order_details[index],
                                           item_id: newValue?.value ?? null,
@@ -2515,34 +2523,32 @@ Terima kasih telah memilih Mitra10.
                               {!(
                                 paymentTypeValue[0] === 'gratis' || paymentTypeValue[1] === 'survey'
                               ) && (
-                                <>
-                                  <td>
-                                    <Form.Control
-                                      id={`unit-price-${index}`}
-                                      readOnly
-                                      plaintext
-                                      value={`Rp. ${
-                                        element?.unit_price
-                                          ? parseInt(element?.unit_price).toLocaleString('id')
-                                          : 0
-                                      }`}
-                                    />
-                                  </td>
+                                  <>
+                                    <td>
+                                      <Form.Control
+                                        id={`unit-price-${index}`}
+                                        readOnly
+                                        plaintext
+                                        value={`Rp. ${element?.unit_price
+                                            ? parseInt(element?.unit_price).toLocaleString('id')
+                                            : 0
+                                          }`}
+                                      />
+                                    </td>
 
-                                  <td>
-                                    <Form.Control
-                                      id={`total-${index}`}
-                                      readOnly
-                                      plaintext
-                                      value={`Rp. ${
-                                        element?.total
-                                          ? parseInt(element?.total).toLocaleString('id')
-                                          : 0
-                                      }`}
-                                    />
-                                  </td>
-                                </>
-                              )}
+                                    <td>
+                                      <Form.Control
+                                        id={`total-${index}`}
+                                        readOnly
+                                        plaintext
+                                        value={`Rp. ${element?.total
+                                            ? parseInt(element?.total).toLocaleString('id')
+                                            : 0
+                                          }`}
+                                      />
+                                    </td>
+                                  </>
+                                )}
 
                               {orderForm.order_details.length >= 2 && (
                                 <td align='center'>
@@ -2558,25 +2564,25 @@ Terima kasih telah memilih Mitra10.
                             paymentTypeValue[0] === 'gratis' ||
                             paymentTypeValue[1] === 'pemasangan_tanpa_survey'
                           ) && (
-                            <tr>
-                              <td
-                                className='text-end fw-bolder'
-                                colSpan={orderForm.order_details.length >= 2 ? 4 : 3}
-                              >
-                                Biaya Survey
-                              </td>
+                              <tr>
+                                <td
+                                  className='text-end fw-bolder'
+                                  colSpan={orderForm.order_details.length >= 2 ? 4 : 3}
+                                >
+                                  Biaya Survey
+                                </td>
 
-                              <td className=' fw-bolder'>
-                                {(() => {
-                                  if (paymentTypeValue[1] === 'survey') {
-                                    return `Rp. 99.000`
-                                  } else {
-                                    return `Rp. 0`
-                                  }
-                                })()}
-                              </td>
-                            </tr>
-                          )}
+                                <td className=' fw-bolder'>
+                                  {(() => {
+                                    if (paymentTypeValue[1] === 'survey') {
+                                      return `Rp. 99.000`
+                                    } else {
+                                      return `Rp. 0`
+                                    }
+                                  })()}
+                                </td>
+                              </tr>
+                            )}
 
                           {isOverdistance === 1 && (
                             <tr>
@@ -2591,8 +2597,8 @@ Terima kasih telah memilih Mitra10.
                                       ? 6
                                       : 5
                                     : orderForm.order_details.length === 1
-                                    ? 3
-                                    : 4
+                                      ? 3
+                                      : 4
                                 }
                               >
                                 Biaya Tambahan
@@ -2617,8 +2623,8 @@ Terima kasih telah memilih Mitra10.
                                       ? 6
                                       : 5
                                     : orderForm.order_details.length === 1
-                                    ? 3
-                                    : 4
+                                      ? 3
+                                      : 4
                                 }
                               >
                                 Grand Total
@@ -2677,7 +2683,7 @@ Terima kasih telah memilih Mitra10.
                                       icon={faTrash}
                                       size='sm'
                                       color='#ed2b2a'
-                                      style={{cursor: 'pointer'}}
+                                      style={{ cursor: 'pointer' }}
                                       onClick={(e) => handleRemoveFile(index)}
                                     />
                                   </ListGroup.Item>
@@ -2686,7 +2692,7 @@ Terima kasih telah memilih Mitra10.
                                     <Image
                                       key={`${previewImage} - ${index}`}
                                       width={200}
-                                      style={{display: 'none'}}
+                                      style={{ display: 'none' }}
                                       src={
                                         item instanceof File
                                           ? URL.createObjectURL(item)
@@ -2730,8 +2736,8 @@ Terima kasih telah memilih Mitra10.
                     ? 'Submitting..'
                     : 'Request Pengerjaan Ke Vendor Terkait'
                   : isLoading
-                  ? 'Submitting..'
-                  : 'Submit Order & Email'}
+                    ? 'Submitting..'
+                    : 'Submit Order & Email'}
               </Button>
 
               {orderDetail?.quotation?.length >= 1 && orderDetail?.payment_type === 'survey' ? (
@@ -2749,4 +2755,4 @@ Terima kasih telah memilih Mitra10.
   )
 }
 
-export {UpdateOrderHO}
+export { UpdateOrderHO }

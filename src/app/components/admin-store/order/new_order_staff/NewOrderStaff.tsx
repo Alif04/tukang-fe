@@ -178,8 +178,8 @@ const NewOrderStoreStaff: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         }
       )
@@ -224,8 +224,8 @@ const NewOrderStoreStaff: FC = () => {
   //         headers: {
   //           Accept: 'application/json',
   //           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  //           'Access-Control-Allow-Origin': '*',
-  //           'ngrok-skip-browser-warning': 'true',
+  //           // 'Access-Control-Allow-Origin': '*',
+  //          // 'ngrok-skip-browser-warning':  'true',
   //         },
   //       })
 
@@ -259,8 +259,8 @@ const NewOrderStoreStaff: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
           params: {
             search: searchByPhoneNumber ? searchByPhoneNumber : null,
@@ -297,8 +297,8 @@ const NewOrderStoreStaff: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
         params: {
           is_active: 1,
@@ -329,8 +329,8 @@ const NewOrderStoreStaff: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
         params: {
           take: 0,
@@ -703,8 +703,8 @@ const NewOrderStoreStaff: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then((response) => {
@@ -790,8 +790,8 @@ const NewOrderStoreStaff: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
 
@@ -911,8 +911,8 @@ const NewOrderStoreStaff: FC = () => {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
+              // 'Access-Control-Allow-Origin': '*',
+             // 'ngrok-skip-browser-warning':  'true',
             },
           })
           .then((response) => {
@@ -933,8 +933,8 @@ const NewOrderStoreStaff: FC = () => {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
+              // 'Access-Control-Allow-Origin': '*',
+             // 'ngrok-skip-browser-warning':  'true',
             },
             params: {
               order_by: 'asc',

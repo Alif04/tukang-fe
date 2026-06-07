@@ -158,8 +158,8 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
 
@@ -275,8 +275,8 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
           params,
         })
@@ -303,8 +303,8 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
           params: {
             take: 0,
@@ -624,8 +624,8 @@ const DailyFollowUpCSI: React.FC<Props> = ({endpoint, statusName, headerColor, t
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then((response) => {

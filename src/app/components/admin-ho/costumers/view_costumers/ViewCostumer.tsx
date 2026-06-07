@@ -163,8 +163,8 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                      'Access-Control-Allow-Origin': '*',
-                      'ngrok-skip-browser-warning': 'true',
+                      // 'Access-Control-Allow-Origin': '*',
+                     // 'ngrok-skip-browser-warning':  'true',
                     },
                   })
                   .then((response) => {
@@ -240,8 +240,8 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
 
@@ -275,7 +275,7 @@ const ViewCostumerHO: React.FC<Props> = ({className}) => {
           costumer_id: item.id,
           member_number: item.member_number,
           full_name: item.full_name,
-          whatsapp_number: `+62${item?.whatsapp_number ?? '-'}`,
+          whatsapp_number: item?.whatsapp_number ?? '-',
           phone_number: item?.phone_number ?? '-',
           email_address: item?.email ?? '-',
           customer_since: joinDate,

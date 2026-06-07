@@ -236,8 +236,8 @@ const ViewOrders: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         .then((response) => {
@@ -414,8 +414,8 @@ const ViewOrders: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
         params: {
           take: 0,
@@ -450,8 +450,8 @@ const ViewOrders: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
           params: {
             page: currentPage,
@@ -493,8 +493,8 @@ const ViewOrders: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
         params: {
           take: 0,
@@ -764,8 +764,8 @@ const ViewOrders: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
         params: {
           search: searchFilter || null,
@@ -1010,8 +1010,8 @@ const ViewOrders: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
 
@@ -1132,8 +1132,8 @@ const ViewOrders: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         .then(() => {
@@ -1289,8 +1289,8 @@ const ViewOrders: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then((response) => {
@@ -1360,8 +1360,8 @@ const ViewOrders: FC = () => {
               headers: {
                 Accept: 'application/json',
                 Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                'Access-Control-Allow-Origin': '*',
-                'ngrok-skip-browser-warning': 'true',
+                // 'Access-Control-Allow-Origin': '*',
+               // 'ngrok-skip-browser-warning':  'true',
               },
             }
           )

@@ -22,8 +22,8 @@ const UpdateWarrantyHO: FC<{updatePageTitle: (warranty: any) => void}> = ({updat
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         .then((response) => {
@@ -126,8 +126,8 @@ const UpdateWarrantyHO: FC<{updatePageTitle: (warranty: any) => void}> = ({updat
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         .then((response) => {
