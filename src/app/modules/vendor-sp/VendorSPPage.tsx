@@ -8,6 +8,7 @@ import {ViewVendorSP} from './components/ViewVendorSP'
 import {ViewVendorViolationType} from './components/ViewVendorViolationType'
 import {ViewVendorViolationLog} from './components/ViewVendorViolationLog'
 import {VendorReactivation} from './components/VendorReactivation'
+import {VendorViolationRevisionRequests} from './components/VendorViolationRevisionRequests'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -95,6 +96,25 @@ const VendorSPPage: React.FC = () => {
               REAKTIVASI VENDOR SP3
             </PageTitle>
             <VendorReactivation />
+          </>
+        }
+      />
+
+      <Route
+        path='revision-request'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+            <PageTitle breadcrumbs={orderBreadCrumbs}>
+              APPROVAL REVISI / RESET POIN VENDOR
+            </PageTitle>
+            <VendorViolationRevisionRequests />
           </>
         }
       />

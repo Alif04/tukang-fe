@@ -34,6 +34,7 @@ interface ViolationLog {
   year: number
   description: string | null
   evidence_path: string | null
+  adjusted_point?: number | null
   is_active: boolean
   created_at: string
   vendor: {
@@ -197,11 +198,10 @@ const ViewVendorViolationLog: React.FC = () => {
     },
     {
       title: 'Poin',
-      dataIndex: ['violation_type', 'point'],
       key: 'point',
       width: 80,
-      render: (point: number) => (
-        <Badge count={point} showZero color='red' />
+      render: (_, record) => (
+        <Badge count={record.adjusted_point ?? record.violation_type?.point ?? 0} showZero color='red' />
       ),
     },
     {

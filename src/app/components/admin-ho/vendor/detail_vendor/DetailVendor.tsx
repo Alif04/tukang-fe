@@ -14,7 +14,7 @@ import {
 import './DetailVendor.css'
 
 import {useParams} from 'react-router-dom'
-import {Form, Row, Col, Nav, Tab} from 'react-bootstrap'
+import {Form, Row, Col, Nav, Tab, Modal, Button, Alert} from 'react-bootstrap'
 
 const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -33,6 +33,13 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   // Quarter points state
   const [quarterPoints, setQuarterPoints] = useState<any>(null)
   const [quarterPointsLoading, setQuarterPointsLoading] = useState(false)
+  const [revisionRequests, setRevisionRequests] = useState<any[]>([])
+  const [revisionModal, setRevisionModal] = useState(false)
+  const [revisionType, setRevisionType] = useState<'REVISE' | 'RESET'>('REVISE')
+  const [revisionTargetLogId, setRevisionTargetLogId] = useState<number | ''>('')
+  const [revisionNewPoint, setRevisionNewPoint] = useState<number>(0)
+  const [revisionReason, setRevisionReason] = useState('')
+  const [revisionSubmitting, setRevisionSubmitting] = useState(false)
 
   // Tukang list state
   const [tukangList, setTukangList] = useState<any[]>([])
@@ -41,6 +48,8 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   // SP Status
   const [spStatus, setSpStatus] = useState<any>(null)
   const [spLoading, setSpLoading] = useState(false)
+  const userRole = localStorage.getItem('userRole')
+  const canSubmitRevision = userRole === 'Admin HO' || userRole === 'Super User'
 
   // Fetch API
   const fetchVendorData = async () => {
@@ -159,6 +168,19 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
     }
   }
 
+  const fetchRevisionRequests = async (vendorId: number) => {
+    try {
+      const response = await vendorViolationService.getRevisionRequests({
+        vendor_id: vendorId,
+        take: 20,
+      })
+      setRevisionRequests(response.data?.data || response.data || [])
+    } catch (error) {
+      console.error('Error fetching revision requests:', error)
+      setRevisionRequests([])
+    }
+  }
+
   // Fetch Tukang List
   const fetchTukangList = async (vendorId: number) => {
     setTukangLoading(true)
@@ -191,6 +213,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       fetchSpHistory(vendorDetail.id)
       fetchViolationLogs(vendorDetail.id)
       fetchQuarterPoints(vendorDetail.id)
+      fetchRevisionRequests(vendorDetail.id)
       fetchTukangList(vendorDetail.id)
     }
     // eslint-disable-next-line
@@ -244,6 +267,44 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
         return 'Vendor dinonaktifkan'
       default:
         return ''
+    }
+  }
+
+  const openRevisionModal = (type: 'REVISE' | 'RESET', logId?: number) => {
+    setRevisionType(type)
+    setRevisionTargetLogId(logId || '')
+    setRevisionNewPoint(0)
+    setRevisionReason('')
+    setRevisionModal(true)
+  }
+
+  const submitRevisionRequest = async () => {
+    if (!vendorDetail?.id) return
+    if (!revisionReason.trim()) {
+      alert('Alasan wajib diisi')
+      return
+    }
+    if (revisionType === 'REVISE' && !revisionTargetLogId) {
+      alert('Pilih log pelanggaran yang akan direvisi')
+      return
+    }
+
+    setRevisionSubmitting(true)
+    try {
+      await vendorViolationService.createRevisionRequest({
+        vendor_id: vendorDetail.id,
+        type: revisionType,
+        target_log_id: revisionType === 'REVISE' ? revisionTargetLogId : undefined,
+        new_point: revisionType === 'REVISE' ? revisionNewPoint : undefined,
+        reason: revisionReason,
+      })
+      setRevisionModal(false)
+      await fetchRevisionRequests(vendorDetail.id)
+      alert('Request revisi/reset berhasil diajukan')
+    } catch (error: any) {
+      alert(error?.response?.data?.message || 'Gagal mengajukan request revisi/reset')
+    } finally {
+      setRevisionSubmitting(false)
     }
   }
 
@@ -306,6 +367,17 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       <p className='fw-normal mt-3'>{vendorDetail?.id}</p>
                     </Col>
                   </Form.Group>
+
+                  {spStatus?.has_ever_sp && (
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Riwayat SP :
+                      </Form.Label>
+                      <Col sm='6'>
+                        <span className='badge badge-light-danger fw-semibold'>Pernah SP</span>
+                      </Col>
+                    </Form.Group>
+                  )}
 
                   <Form.Group as={Row} className='detail-info'>
                     <Form.Label column sm='6'>
@@ -728,11 +800,38 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     ) : (
                       <>
                         {/* Total Points Metric Card */}
+                        {canSubmitRevision && (
+                          <div className='d-flex flex-wrap gap-2 mb-4'>
+                            <button
+                              type='button'
+                              className='btn btn-sm btn-light-primary'
+                              onClick={() => openRevisionModal('REVISE')}
+                            >
+                              Ajukan Revisi Poin
+                            </button>
+                            <button
+                              type='button'
+                              className='btn btn-sm btn-light-danger'
+                              onClick={() => openRevisionModal('RESET')}
+                            >
+                              Reset Poin Quarter
+                            </button>
+                          </div>
+                        )}
+
+                        {quarterPoints?.has_ever_sp && (
+                          <Alert variant='warning' className='py-2'>
+                            Vendor pernah mencapai SP. Histori SP tetap ditampilkan meskipun poin sudah direvisi/reset.
+                          </Alert>
+                        )}
+
                         <div
                           className={`d-flex align-items-center gap-4 p-3 mb-4 rounded-3 ${
-                            (quarterPoints?.total_points || 0) >= 50
+                            (quarterPoints?.total_points || 0) > 50
                               ? 'bg-danger bg-opacity-10 border border-danger'
-                              : (quarterPoints?.total_points || 0) >= 30
+                              : (quarterPoints?.total_points || 0) > 25
+                              ? 'bg-danger bg-opacity-10 border border-danger'
+                              : (quarterPoints?.total_points || 0) > 0
                               ? 'bg-warning bg-opacity-10 border border-warning'
                               : 'bg-success bg-opacity-10 border border-success'
                           }`}
@@ -740,9 +839,9 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                         >
                           <div
                             className={`d-flex align-items-center justify-content-center rounded-circle ${
-                              (quarterPoints?.total_points || 0) >= 50
+                              (quarterPoints?.total_points || 0) > 25
                                 ? 'bg-danger text-white'
-                                : (quarterPoints?.total_points || 0) >= 30
+                                : (quarterPoints?.total_points || 0) > 0
                                 ? 'bg-warning text-dark'
                                 : 'bg-success text-white'
                             }`}
@@ -756,9 +855,9 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                             </p>
                             <h2
                               className={`mb-0 fw-boldest ${
-                                (quarterPoints?.total_points || 0) >= 50
+                                (quarterPoints?.total_points || 0) > 25
                                   ? 'text-danger'
-                                  : (quarterPoints?.total_points || 0) >= 30
+                                  : (quarterPoints?.total_points || 0) > 0
                                   ? 'text-warning'
                                   : 'text-success'
                               }`}
@@ -816,7 +915,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                                   </td>
                                   <td className='text-center'>
                                     <span className='badge badge-danger fw-bold fs-6'>
-                                      +{log.violation_type?.point || 0}
+                                      +{log.adjusted_point ?? log.violation_type?.point ?? 0}
                                     </span>
                                   </td>
                                   <td className='text-gray-600 fw-normal'>{log.description || '-'}</td>
@@ -824,6 +923,15 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                                     <span className='text-primary fw-semibold'>
                                       {log.orders?.project_number || '-'}
                                     </span>
+                                    {canSubmitRevision && (
+                                      <button
+                                        type='button'
+                                        className='btn btn-link btn-sm p-0 ms-2'
+                                        onClick={() => openRevisionModal('REVISE', log.id)}
+                                      >
+                                        Revisi
+                                      </button>
+                                    )}
                                   </td>
                               </tr>
                             ))}
@@ -831,6 +939,48 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                           </table>
                         </div>
                       </>
+                    )}
+
+                    {revisionRequests.length > 0 && (
+                      <div className='mt-5'>
+                        <h6 className='fw-bold mb-3'>Request Revisi/Reset Poin</h6>
+                        <div className='table-responsive'>
+                          <table className='table table-sm table-bordered'>
+                            <thead>
+                              <tr>
+                                <th>Tanggal</th>
+                                <th>Tipe</th>
+                                <th>Status</th>
+                                <th>Alasan</th>
+                                <th>Review</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {revisionRequests.map((request: any) => (
+                                <tr key={request.id}>
+                                  <td>{formatDate(new Date(request.created_at))}</td>
+                                  <td>{request.type}</td>
+                                  <td>
+                                    <span
+                                      className={`badge ${
+                                        request.status === 'APPROVED'
+                                          ? 'badge-light-success'
+                                          : request.status === 'REJECTED'
+                                          ? 'badge-light-danger'
+                                          : 'badge-light-warning'
+                                      }`}
+                                    >
+                                      {request.status}
+                                    </span>
+                                  </td>
+                                  <td>{request.reason}</td>
+                                  <td>{request.review_note || '-'}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                     )}
                   </Tab.Pane>
 
@@ -948,6 +1098,72 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
           </Row>
         </div>
       </div>
+
+      <Modal show={revisionModal} onHide={() => setRevisionModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{revisionType === 'RESET' ? 'Reset Poin Quarter' : 'Ajukan Revisi Poin'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group className='mb-3'>
+            <Form.Label>Tipe</Form.Label>
+            <Form.Select
+              value={revisionType}
+              onChange={(event) => setRevisionType(event.target.value as 'REVISE' | 'RESET')}
+            >
+              <option value='REVISE'>REVISE</option>
+              <option value='RESET'>RESET</option>
+            </Form.Select>
+          </Form.Group>
+
+          {revisionType === 'REVISE' && (
+            <>
+              <Form.Group className='mb-3'>
+                <Form.Label>Log Pelanggaran</Form.Label>
+                <Form.Select
+                  value={revisionTargetLogId}
+                  onChange={(event) => setRevisionTargetLogId(Number(event.target.value))}
+                >
+                  <option value=''>Pilih log</option>
+                  {violationLogs.map((log: any) => (
+                    <option key={log.id} value={log.id}>
+                      #{log.id} - {log.violation_type?.name || log.violation_type?.code}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+
+              <Form.Group className='mb-3'>
+                <Form.Label>Poin Baru</Form.Label>
+                <Form.Select
+                  value={revisionNewPoint}
+                  onChange={(event) => setRevisionNewPoint(Number(event.target.value))}
+                >
+                  <option value={0}>0</option>
+                  <option value={1}>1</option>
+                </Form.Select>
+              </Form.Group>
+            </>
+          )}
+
+          <Form.Group>
+            <Form.Label>Alasan</Form.Label>
+            <Form.Control
+              as='textarea'
+              rows={3}
+              value={revisionReason}
+              onChange={(event) => setRevisionReason(event.target.value)}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='light' onClick={() => setRevisionModal(false)}>
+            Batal
+          </Button>
+          <Button variant='primary' disabled={revisionSubmitting} onClick={submitRevisionRequest}>
+            Ajukan
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </section>
   )
 }

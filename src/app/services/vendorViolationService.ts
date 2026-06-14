@@ -17,4 +17,13 @@ export const vendorViolationService = {
     apiClient.get(`/vendor-violation/vendor/${vendorId}/points`, {
       params: { quarter, year },
     }),
+
+  // Violation Revision / Reset Requests
+  getRevisionRequests: (params?: any) => apiClient.get('/vendor-violation/revision-request', { params }),
+  getRevisionRequestById: (id: string | number) => apiClient.get(`/vendor-violation/revision-request/${id}`),
+  createRevisionRequest: (data: any) => apiClient.post('/vendor-violation/revision-request', data),
+  approveRevisionRequest: (id: string | number, data?: any) =>
+    apiClient.put(`/vendor-violation/revision-request/${id}/approve`, data),
+  rejectRevisionRequest: (id: string | number, data?: any) =>
+    apiClient.put(`/vendor-violation/revision-request/${id}/reject`, data),
 };
