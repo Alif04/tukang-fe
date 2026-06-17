@@ -15,6 +15,7 @@ import './DetailVendor.css'
 
 import {useParams} from 'react-router-dom'
 import {Form, Row, Col, Nav, Tab, Modal, Button, Alert} from 'react-bootstrap'
+import Swal from 'sweetalert2'
 
 const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({updatePageTitle}) => {
   const apiUrl = process.env.REACT_APP_API_URL
@@ -281,11 +282,11 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const submitRevisionRequest = async () => {
     if (!vendorDetail?.id) return
     if (!revisionReason.trim()) {
-      alert('Alasan wajib diisi')
+      Swal.fire('Warning', 'Alasan wajib diisi', 'warning')
       return
     }
     if (revisionType === 'REVISE' && !revisionTargetLogId) {
-      alert('Pilih log pelanggaran yang akan direvisi')
+      Swal.fire('Warning', 'Pilih log pelanggaran yang akan direvisi', 'warning')
       return
     }
 
@@ -300,9 +301,13 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
       })
       setRevisionModal(false)
       await fetchRevisionRequests(vendorDetail.id)
-      alert('Request revisi/reset berhasil diajukan')
+      Swal.fire('Berhasil', 'Request revisi/reset berhasil diajukan', 'success')
     } catch (error: any) {
-      alert(error?.response?.data?.message || 'Gagal mengajukan request revisi/reset')
+      Swal.fire(
+        'Error',
+        error?.response?.data?.message || 'Gagal mengajukan request revisi/reset',
+        'error'
+      )
     } finally {
       setRevisionSubmitting(false)
     }

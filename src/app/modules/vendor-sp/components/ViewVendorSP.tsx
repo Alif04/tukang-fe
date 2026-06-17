@@ -2,29 +2,28 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { vendorSpService } from '../../../services/vendorSpService'
 import {
-  Card,
   Table,
   Button,
-  Tag,
   Space,
   Input,
   Select,
-  DatePicker,
   Modal,
-  message,
-  Tooltip,
   Badge,
 } from 'antd'
 import {
   EyeOutlined,
   ReloadOutlined,
   CheckCircleOutlined,
-  StopOutlined,
-  ExclamationCircleOutlined,
 } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
+import Swal from 'sweetalert2'
+import {
+  VendorSpActionButton,
+  VendorSpPill,
+  vendorSpPagination,
+  vendorSpTableClassName,
+} from './VendorSpTable'
 
-const { RangePicker } = DatePicker
 const { Option } = Select
 
 interface VendorSP {
@@ -66,22 +65,27 @@ const ViewVendorSP: React.FC = () => {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const params = new URLSearchParams({
-        page: pagination.current.toString(),
-        take: pagination.pageSize.toString(),
-        ...(filters.search && { search: filters.search }),
-        ...(filters.sp_level && { sp_level: filters.sp_level.toString() }),
-        ...(filters.status && { status: filters.status.toString() }),
-      })
+      const params = {
+        page: pagination.current,
+        take: pagination.pageSize,
+        ...(filters.search ? { search: filters.search } : {}),
+        ...(filters.sp_level ? { sp_level: filters.sp_level } : {}),
+        ...(filters.status ? { status: filters.status } : {}),
+      }
       const response = await vendorSpService.getAll(params)
+      const payload = response.data?.data && response.data?.meta
+        ? response.data
+        : response.data?.data || response.data
+      const rows = Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : []
+      const total = payload?.meta?.total ?? rows.length
 
-      setData(response.data.data)
+      setData(rows)
       setPagination((prev) => ({
         ...prev,
-        total: response.data.meta.total,
+        total,
       }))
     } catch (error) {
-      message.error('Gagal mengambil data Surat Peringatan')
+      Swal.fire('Error', 'Gagal mengambil data Surat Peringatan', 'error')
     } finally {
       setLoading(false)
     }
@@ -93,7 +97,11 @@ const ViewVendorSP: React.FC = () => {
   }, [pagination.current, pagination.pageSize, filters.status, filters.sp_level, filters.search])
 
   const handleTableChange = (newPagination: any) => {
-    setPagination(newPagination)
+    setPagination((prev) => ({
+      ...prev,
+      current: newPagination.current || 1,
+      pageSize: newPagination.pageSize || prev.pageSize,
+    }))
   }
 
   const getSpLevelColor = (level: number) => {
@@ -156,10 +164,10 @@ const ViewVendorSP: React.FC = () => {
       onOk: async () => {
         try {
           await vendorSpService.complete(id)
-          message.success('SP berhasil diselesaikan')
+          Swal.fire('Berhasil', 'SP berhasil diselesaikan', 'success')
           fetchData()
         } catch (error) {
-          message.error('Gagal menyelesaikan SP')
+          Swal.fire('Error', 'Gagal menyelesaikan SP', 'error')
         }
       },
     })
@@ -187,9 +195,9 @@ const ViewVendorSP: React.FC = () => {
       dataIndex: 'sp_level',
       key: 'sp_level',
       render: (level: number) => (
-        <Tag color={getSpLevelColor(level)} className='fw-bold'>
+        <VendorSpPill color={getSpLevelColor(level)}>
           {getSpLevelText(level)}
-        </Tag>
+        </VendorSpPill>
       ),
     },
     {
@@ -225,7 +233,7 @@ const ViewVendorSP: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status: number) => (
-        <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
+        <VendorSpPill color={getStatusColor(status)}>{getStatusText(status)}</VendorSpPill>
       ),
     },
     {
@@ -233,22 +241,19 @@ const ViewVendorSP: React.FC = () => {
       key: 'action',
       render: (_, record) => (
         <Space size='small'>
-          <Tooltip title='Detail'>
-            <Button
-              type='link'
-              icon={<EyeOutlined />}
-              onClick={() => navigate(`/vendor-sp/detail/${record.id}`)}
-            />
-          </Tooltip>
+          <VendorSpActionButton
+            title='Detail'
+            tone='primary'
+            icon={<EyeOutlined />}
+            onClick={() => navigate(`/vendor-sp/detail/${record.id}`)}
+          />
           {record.status === 1 && (
-            <Tooltip title='Selesaikan SP'>
-              <Button
-                type='link'
-                icon={<CheckCircleOutlined />}
-                onClick={() => handleComplete(record.id)}
-                danger
-              />
-            </Tooltip>
+            <VendorSpActionButton
+              title='Selesaikan SP'
+              tone='success'
+              icon={<CheckCircleOutlined />}
+              onClick={() => handleComplete(record.id)}
+            />
           )}
         </Space>
       ),
@@ -256,12 +261,13 @@ const ViewVendorSP: React.FC = () => {
   ]
 
   return (
-    <div className='card card-xxl-stretch mb-5 mb-xxl-8'>
+    <div className='card card-xxl-stretch mb-5 mb-xxl-8 vendor-sp-table'>
       <div className='card-header border-0 pt-5'>
         <div className='card-title d-flex flex-column'>
-          <div className='d-flex justify-content-between align-items-center mb-3'>
-            <div className='d-flex gap-2'>
+          <div className='vendor-sp-toolbar'>
+            <div className='vendor-sp-filter-group'>
               <Input.Search
+                className='vendor-sp-filter-control'
                 placeholder='Cari vendor...'
                 onSearch={(value) =>
                   setFilters((prev) => ({ ...prev, search: value }))
@@ -269,6 +275,7 @@ const ViewVendorSP: React.FC = () => {
                 style={{ width: 250 }}
               />
               <Select
+                className='vendor-sp-filter-control'
                 placeholder='Level SP'
                 allowClear
                 style={{ width: 120 }}
@@ -281,6 +288,7 @@ const ViewVendorSP: React.FC = () => {
                 <Option value={3}>SP3</Option>
               </Select>
               <Select
+                className='vendor-sp-filter-control'
                 placeholder='Status'
                 allowClear
                 style={{ width: 120 }}
@@ -293,7 +301,7 @@ const ViewVendorSP: React.FC = () => {
                 <Option value={3}>Diperpanjang</Option>
               </Select>
             </div>
-            <Space>
+            <Space className='vendor-sp-action-group'>
               <Button
                 icon={<ReloadOutlined />}
                 onClick={fetchData}
@@ -308,15 +316,12 @@ const ViewVendorSP: React.FC = () => {
 
       <div className='card-body py-3'>
         <Table
+          className={vendorSpTableClassName}
           columns={columns}
           dataSource={data}
           rowKey='id'
           loading={loading}
-          pagination={{
-            ...pagination,
-            showSizeChanger: true,
-            showTotal: (total) => `Total ${total} data`,
-          }}
+          pagination={vendorSpPagination(pagination)}
           onChange={handleTableChange}
           scroll={{ x: 1000 }}
         />

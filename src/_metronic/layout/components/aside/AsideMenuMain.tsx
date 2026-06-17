@@ -308,6 +308,37 @@ export function AsideMenuMain() {
           role={['Admin HO', 'Super User']}
           hasBullet={true}
         />
+        <AsideMenuItemWithSub
+          to='/vendor-sp'
+          title='Vendor SP'
+          role={['Admin HO', 'Super User']}
+          hasBullet={true}
+        >
+          <AsideMenuItem
+            to='/vendor-sp/view'
+            title='Daftar SP Vendor'
+            role={['Admin HO', 'Super User']}
+            hasBullet={true}
+          />
+          <AsideMenuItem
+            to='/vendor-sp/violation-log'
+            title='Log Pelanggaran'
+            role={['Admin HO', 'Super User']}
+            hasBullet={true}
+          />
+          <AsideMenuItem
+            to='/vendor-sp/revision-request'
+            title='Approval Revisi Poin'
+            role={['Super User']}
+            hasBullet={true}
+          />
+          <AsideMenuItem
+            to='/vendor-sp/reactivation'
+            title='Reaktivasi Vendor SP3'
+            role={['Admin HO', 'Super User']}
+            hasBullet={true}
+          />
+        </AsideMenuItemWithSub>
       </AsideMenuItemWithSub>
 
       {/* Halaman Customers */}

@@ -1,4 +1,7 @@
-const MAX_UPLOAD_SIZE_MB = 25
+// 25 MB — samakan dengan BE DEFAULT_MAX_FILE_SIZE + video
+const MAX_IMAGE_SIZE_MB = 25
+const MAX_DOCUMENT_SIZE_MB = 25
+const MAX_VIDEO_SIZE_MB = 25
 
 const VIDEO_EXTENSIONS = ['mp4', 'webm', 'mov']
 const DOCUMENT_EXTENSIONS = ['pdf', 'doc', 'docx', 'xls', 'xlsx']
@@ -31,8 +34,19 @@ export const validateLiveChatUpload = (file: File): string | null => {
     return 'Format file tidak didukung. Gunakan gambar, video MP4/WEBM/MOV, atau dokumen PDF/DOC/DOCX/XLS/XLSX.'
   }
 
-  if (file.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024) {
-    return `Ukuran file maksimal ${MAX_UPLOAD_SIZE_MB} MB.`
+  // Validate size based on type
+  let maxSize = MAX_DOCUMENT_SIZE_MB
+  let maxSizeLabel = MAX_DOCUMENT_SIZE_MB
+  if (isVideo) {
+    maxSize = MAX_VIDEO_SIZE_MB
+    maxSizeLabel = MAX_VIDEO_SIZE_MB
+  } else if (isImage) {
+    maxSize = MAX_IMAGE_SIZE_MB
+    maxSizeLabel = MAX_IMAGE_SIZE_MB
+  }
+
+  if (file.size > maxSize * 1024 * 1024) {
+    return `Ukuran file maksimal ${maxSizeLabel} MB.`
   }
 
   return null

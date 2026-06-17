@@ -1,6 +1,8 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react'
+import AsyncSelect from 'react-select/async'
+import type {OptionsOrGroups, GroupBase} from 'react-select'
 import Swal from 'sweetalert2'
-import {getStoreDisplayName, getVendorDisplayName, normalizeLiveChatRoom, normalizeStore, normalizeVendor} from './roomDisplay'
+import {getStoreDisplayName, getVendorDisplayName, normalizeLiveChatRoom} from './roomDisplay'
 import {isLiveChatVideo, LIVECHAT_UPLOAD_ACCEPT, validateLiveChatUpload} from './uploadValidation'
 
 const API_URL = process.env.REACT_APP_LIVECHAT_API_URL || 'http://localhost:3002'
@@ -136,10 +138,10 @@ const api = {
       headers: buildHeaders(token),
       body: JSON.stringify({vendorId}),
     }).then((r) => r.json()),
-  getStores: (token: string) =>
-    fetch(`${API_URL}/rooms/stores`, {headers: buildHeaders(token)}).then((r) => r.json()),
-  getVendors: (token: string) =>
-    fetch(`${API_URL}/rooms/vendors`, {headers: buildHeaders(token)}).then((r) => r.json()),
+  getStores: (token: string, search?: string) =>
+    fetch(`${API_URL}/rooms/stores${search ? `?search=${encodeURIComponent(search)}` : ''}`, {headers: buildHeaders(token)}).then((r) => r.json()),
+  getVendors: (token: string, search?: string) =>
+    fetch(`${API_URL}/rooms/vendors${search ? `?search=${encodeURIComponent(search)}` : ''}`, {headers: buildHeaders(token)}).then((r) => r.json()),
   uploadFile: (token: string, roomId: number, file: File) => {
     const form = new FormData()
     form.append('file', file)
@@ -147,7 +149,29 @@ const api = {
       method: 'POST',
       headers: {Authorization: `Bearer ${token}`},
       body: form,
-    }).then((r) => r.json())
+    }).then(async (r) => {
+      // Handle non-JSON responses (e.g., gateway errors, HTML pages)
+      const contentType = r.headers.get('content-type') || ''
+      if (!r.ok) {
+        let errorMessage = `Upload gagal (HTTP ${r.status})`
+        if (contentType.includes('application/json')) {
+          const errData = await r.json()
+          errorMessage = errData?.message || errorMessage
+        } else {
+          const text = await r.text().catch(() => '')
+          if (text) {
+            // Extract meaningful error from HTML if possible
+            const match = text.match(/<title>(.*?)<\/title>/i)
+            if (match) errorMessage = `Upload gagal: ${match[1]}`
+          }
+        }
+        return { success: false, message: errorMessage }
+      }
+      if (!contentType.includes('application/json')) {
+        return { success: false, message: 'Respons server tidak valid. Pastikan koneksi stabil.' }
+      }
+      return r.json()
+    })
   },
   deleteRoom: (token: string, roomId: number) =>
     fetch(`${API_URL}/rooms/${roomId}`, {
@@ -251,41 +275,58 @@ const CreateModal: React.FC<{
 }> = ({token, onClose, onCreated}) => {
   const [step, setStep] = useState<null | 'order' | 'store' | 'vendor'>(null)
   const [orderId, setOrderId] = useState('')
-  const [stores, setStores] = useState<Store[]>([])
-  const [vendors, setVendors] = useState<Vendor[]>([])
   const [selectedStore, setSelectedStore] = useState('')
   const [selectedVendor, setSelectedVendor] = useState('')
   const [loading, setLoading] = useState(false)
-  const [loadingList, setLoadingList] = useState(false)
   const [error, setError] = useState('')
+  // Store ALL stores/vendors for filtering
+  const [allStores, setAllStores] = useState<Store[]>([])
+  const [allVendors, setAllVendors] = useState<Vendor[]>([])
+  const [loadingList, setLoadingList] = useState(false)
 
-  const goStore = async () => {
+  // Helper to get store options filtered by search (from local data)
+  const getStoreOptions = (inputValue: string) =>
+    allStores
+      .filter((s) => s.store_name.toLowerCase().includes(inputValue.toLowerCase()))
+      .map((s) => ({ value: String(s.id), label: s.store_name }))
+
+  // Helper to get vendor options filtered by search (from local data)
+  const getVendorOptions = (inputValue: string) =>
+    allVendors
+      .filter((v) => v.company_name.toLowerCase().includes(inputValue.toLowerCase()))
+      .map((v) => ({ value: String(v.id), label: v.company_name }))
+
+  // Load stores on first open
+  const loadStoresIfNeeded = useCallback(() => {
+    if (allStores.length === 0) {
+      setLoadingList(true)
+      api.getStores(token, '').then((r: any) => {
+        setAllStores((r.data || []) as Store[])
+      }).catch(() => {}).finally(() => setLoadingList(false))
+    }
+  }, [allStores.length, token])
+
+  // Load vendors on first open
+  const loadVendorsIfNeeded = useCallback(() => {
+    if (allVendors.length === 0) {
+      setLoadingList(true)
+      api.getVendors(token, '').then((r: any) => {
+        setAllVendors((r.data || []) as Vendor[])
+      }).catch(() => {}).finally(() => setLoadingList(false))
+    }
+  }, [allVendors.length, token])
+
+  const goStore = () => {
     setStep('store')
-    setLoadingList(true)
-    try {
-      const r = await api.getStores(token)
-      // Normalize store data to handle various API response formats
-      const normalized = (r.data || []).map(normalizeStore).filter(Boolean) as any[]
-      setStores(normalized)
-    } catch {
-      setError('Gagal memuat store')
-    } finally {
-      setLoadingList(false)
-    }
+    setSelectedStore('')
+    setError('')
+    loadStoresIfNeeded()
   }
-  const goVendor = async () => {
+  const goVendor = () => {
     setStep('vendor')
-    setLoadingList(true)
-    try {
-      const r = await api.getVendors(token)
-      // Normalize vendor data to handle various API response formats
-      const normalized = (r.data || []).map(normalizeVendor).filter(Boolean) as any[]
-      setVendors(normalized)
-    } catch {
-      setError('Gagal memuat vendor')
-    } finally {
-      setLoadingList(false)
-    }
+    setSelectedVendor('')
+    setError('')
+    loadVendorsIfNeeded()
   }
 
   const canSubmit = () => {
@@ -300,19 +341,35 @@ const CreateModal: React.FC<{
     setError('')
     try {
       let res: any
-      if (step === 'order') res = await api.createRoom(token, orderId.trim())
-      else if (step === 'store') res = await api.createDirectStore(token, selectedStore)
-      else if (step === 'vendor') res = await api.createDirectVendor(token, selectedVendor)
+      let fallbackStoreName: string | undefined
+      let fallbackVendorName: string | undefined
+
+      if (step === 'order') {
+        res = await api.createRoom(token, orderId.trim())
+      } else if (step === 'store') {
+        res = await api.createDirectStore(token, selectedStore)
+        // Get store name from local state (already loaded)
+        if (res?.success) {
+          const storeData = allStores.find((s: Store) => String(s.id) === selectedStore)
+          fallbackStoreName = storeData?.store_name
+        }
+      } else if (step === 'vendor') {
+        res = await api.createDirectVendor(token, selectedVendor)
+        // Get vendor name from local state (already loaded)
+        if (res?.success) {
+          const vendorData = allVendors.find((v: Vendor) => String(v.id) === selectedVendor)
+          fallbackVendorName = vendorData?.company_name
+        }
+      }
+
       if (res?.success) {
-        const selectedStoreData = stores.find((store) => String(store.id) === selectedStore)
-        const selectedVendorData = vendors.find((vendor) => String(vendor.id) === selectedVendor)
         const createdRoom = normalizeLiveChatRoom(res.data || {}, {
           fallbackType:
             step === 'store' ? 'DIRECT_STORE' : step === 'vendor' ? 'DIRECT_VENDOR' : 'ORDER',
           fallbackStoreId: step === 'store' ? selectedStore : undefined,
-          fallbackStoreName: selectedStoreData?.store_name,
+          fallbackStoreName,
           fallbackVendorId: step === 'vendor' ? selectedVendor : undefined,
-          fallbackVendorName: selectedVendorData?.company_name,
+          fallbackVendorName,
         }) as Room
         onCreated(createdRoom)
         onClose()
@@ -402,13 +459,13 @@ const CreateModal: React.FC<{
                   icon: 'bi-shop',
                   label: 'Chat dengan Store',
                   sub: 'Pilih dari daftar store',
-                  action: goStore,
+                  action: () => goStore(),
                 },
                 {
                   icon: 'bi-truck',
                   label: 'Chat dengan Vendor',
                   sub: 'Pilih dari daftar vendor',
-                  action: goVendor,
+                  action: () => goVendor(),
                 },
               ].map((item) => (
                 <button
@@ -464,23 +521,34 @@ const CreateModal: React.FC<{
             <div>
               <label className='form-label fw-bold fs-7'>Pilih Store</label>
               {loadingList ? (
-                <div className='text-center py-3 text-muted fs-8'>
+                <div className='text-center py-3 text-muted'>
                   <span className='spinner-border spinner-border-sm me-2' />
                   Memuat...
                 </div>
               ) : (
-                <select
-                  className='form-select form-select-sm'
-                  value={selectedStore}
-                  onChange={(e) => setSelectedStore(e.target.value)}
-                >
-                  <option value=''>-- Pilih Store --</option>
-                  {stores.map((s) => (
-                    <option key={s.id} value={String(s.id)}>
-                      {s.store_name}
-                    </option>
-                  ))}
-                </select>
+                <AsyncSelect
+                  placeholder='Ketik untuk mencari store...'
+                  loadOptions={(input) => Promise.resolve(getStoreOptions(input))}
+                  defaultOptions={true}
+                  noOptionsMessage={({inputValue}) =>
+                    inputValue ? 'Store tidak ditemukan' : 'Ketik nama store'
+                  }
+                  onChange={(opt: any) => setSelectedStore(opt ? opt.value : '')}
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      borderRadius: 10,
+                      fontSize: 13,
+                      borderColor: '#d7e3f0',
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      borderRadius: 10,
+                      fontSize: 13,
+                      zIndex: 9999,
+                    }),
+                  }}
+                />
               )}
             </div>
           )}
@@ -489,23 +557,34 @@ const CreateModal: React.FC<{
             <div>
               <label className='form-label fw-bold fs-7'>Pilih Vendor</label>
               {loadingList ? (
-                <div className='text-center py-3 text-muted fs-8'>
+                <div className='text-center py-3 text-muted'>
                   <span className='spinner-border spinner-border-sm me-2' />
                   Memuat...
                 </div>
               ) : (
-                <select
-                  className='form-select form-select-sm'
-                  value={selectedVendor}
-                  onChange={(e) => setSelectedVendor(e.target.value)}
-                >
-                  <option value=''>-- Pilih Vendor --</option>
-                  {vendors.map((v) => (
-                    <option key={v.id} value={String(v.id)}>
-                      {v.company_name}
-                    </option>
-                  ))}
-                </select>
+                <AsyncSelect
+                  placeholder='Ketik untuk mencari vendor...'
+                  loadOptions={(input) => Promise.resolve(getVendorOptions(input))}
+                  defaultOptions={true}
+                  noOptionsMessage={({inputValue}) =>
+                    inputValue ? 'Vendor tidak ditemukan' : 'Ketik nama vendor'
+                  }
+                  onChange={(opt: any) => setSelectedVendor(opt ? opt.value : '')}
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      borderRadius: 10,
+                      fontSize: 13,
+                      borderColor: '#d7e3f0',
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      borderRadius: 10,
+                      fontSize: 13,
+                      zIndex: 9999,
+                    }),
+                  }}
+                />
               )}
             </div>
           )}
@@ -531,6 +610,8 @@ const CreateModal: React.FC<{
                 onClick={() => {
                   setStep(null)
                   setError('')
+                  setSelectedStore('')
+                  setSelectedVendor('')
                 }}
                 style={{
                   minWidth: 108,
@@ -997,7 +1078,7 @@ const LiveChatPopup: React.FC = () => {
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set())
   const [previewMedia, setPreviewMedia] = useState<MediaPreview | null>(null)
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null) // ← scroll target: BOTTOM (newest messages)
   const sseRef = useRef<EventSource | null>(null)
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -1033,7 +1114,7 @@ const LiveChatPopup: React.FC = () => {
         try {
           const msg: Message = JSON.parse(e.data)
           const isActiveRoom = activeRoomRef.current?.id === msg.roomId
-          setMessages((prev) => (prev.find((m) => m.id === msg.id) ? prev : [...prev, msg]))
+          setMessages((prev) => (prev.find((m) => m.id === msg.id) ? prev : [...prev, msg])) // ← newest at BOTTOM
           setRooms((prev) =>
             updateRoomList(prev, msg.roomId, (room) => ({
               ...room,
@@ -1160,7 +1241,7 @@ const LiveChatPopup: React.FC = () => {
       try {
         const res = await api.getMessages(token, room.id)
         if (res.success && Array.isArray(res.data)) {
-          setMessages(res.data.reverse())
+          setMessages(res.data.reverse()) // oldest-first for display, newest at bottom
         }
         await api.markAsRead(token, room.id)
         setRooms((prev) => prev.map((r) => (r.id === room.id ? { ...r, unreadCount: 0 } : r)))
@@ -1177,7 +1258,7 @@ const LiveChatPopup: React.FC = () => {
     try {
       const res = await api.sendMessage(token, activeRoom.id, content)
       if (res.success) {
-        setMessages((prev) => (prev.find((m) => m.id === res.data.id) ? prev : [...prev, res.data]))
+        setMessages((prev) => (prev.find((m) => m.id === res.data.id) ? prev : [...prev, res.data])) // ← newest at BOTTOM
         setRooms((prev) =>
           updateRoomList(prev, activeRoom.id, (room) => ({
             ...room,
@@ -1213,7 +1294,7 @@ const LiveChatPopup: React.FC = () => {
     try {
       const res = await api.uploadFile(token, activeRoom.id, file)
       if (res.success) {
-        setMessages((prev) => (prev.find((m) => m.id === res.data.id) ? prev : [...prev, res.data]))
+        setMessages((prev) => (prev.find((m) => m.id === res.data.id) ? prev : [...prev, res.data])) // ← newest at BOTTOM
         setRooms((prev) =>
           updateRoomList(prev, activeRoom.id, (room) => ({
             ...room,
@@ -1306,9 +1387,9 @@ const LiveChatPopup: React.FC = () => {
     else clearSSE()
   }, [open])
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
-  }, [messages])
+  // NOTE: Removed auto-scroll on messages change
+  // - Initial load: oldest at TOP, newest at BOTTOM
+  // - New message: auto-scroll to BOTTOM handled in SSE/send/upload handlers below
 
   useEffect(() => {
     if (!open || view !== 'chat') setPreviewMedia(null)
@@ -1913,25 +1994,28 @@ const LiveChatPopup: React.FC = () => {
                     Belum ada pesan. Mulai chat!
                   </div>
                 ) : (
-                  messages.map((msg, i) => {
-                    const isMe = String(msg.senderId) === String(userId)
-                    const prev = messages[i - 1]
-                    const showMeta = !isMe && (!prev || prev.senderId !== msg.senderId)
-                    const showDate =
-                      !prev || formatDate(msg.createdAt) !== formatDate(prev.createdAt)
-                    return (
-                      <Bubble
-                        key={msg.id}
-                        msg={msg}
-                        isMe={isMe}
-                        showMeta={showMeta}
-                        showDate={showDate}
-                        onPreviewMedia={setPreviewMedia}
-                      />
-                    )
-                  })
+                  <>
+                    {messages.map((msg, i) => {
+                      const isMe = String(msg.senderId) === String(userId)
+                      const prev = messages[i - 1]
+                      const showMeta = !isMe && (!prev || prev.senderId !== msg.senderId)
+                      const showDate =
+                        !prev || formatDate(msg.createdAt) !== formatDate(prev.createdAt)
+                      return (
+                        <Bubble
+                          key={msg.id}
+                          msg={msg}
+                          isMe={isMe}
+                          showMeta={showMeta}
+                          showDate={showDate}
+                          onPreviewMedia={setPreviewMedia}
+                        />
+                      )
+                    })}
+                    {/* Scroll target: BOTTOM — newest messages appear here */}
+                    <div ref={messagesEndRef} />
+                  </>
                 )}
-                <div ref={messagesEndRef} />
               </div>
 
               {/* Input */}

@@ -1,7 +1,15 @@
 import React, {useEffect, useState} from 'react'
-import {Button, Card, Input, Modal, Select, Space, Table, Tag, message} from 'antd'
+import {Button, Card, Input, Modal, Select, Space, Table} from 'antd'
 import type {ColumnsType} from 'antd/es/table'
 import {vendorViolationService} from '../../../services/vendorViolationService'
+import Swal from 'sweetalert2'
+import {CheckCircleOutlined, CloseCircleOutlined, ReloadOutlined} from '@ant-design/icons'
+import {
+  VendorSpActionButton,
+  VendorSpPill,
+  vendorSpPagination,
+  vendorSpTableClassName,
+} from './VendorSpTable'
 
 const {Option} = Select
 
@@ -23,7 +31,7 @@ const VendorViolationRevisionRequests: React.FC = () => {
       })
       setData(response.data?.data || response.data || [])
     } catch (error) {
-      message.error('Gagal mengambil request revisi/reset')
+      Swal.fire('Error', 'Gagal mengambil request revisi/reset', 'error')
     } finally {
       setLoading(false)
     }
@@ -55,12 +63,12 @@ const VendorViolationRevisionRequests: React.FC = () => {
         })
       }
 
-      message.success('Request berhasil direview')
+      Swal.fire('Berhasil', 'Request berhasil direview', 'success')
       setReviewTarget(null)
       setReviewAction(null)
       fetchData()
     } catch (error: any) {
-      message.error(error?.response?.data?.message || 'Gagal review request')
+      Swal.fire('Error', error?.response?.data?.message || 'Gagal review request', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -87,7 +95,9 @@ const VendorViolationRevisionRequests: React.FC = () => {
       title: 'Tipe',
       dataIndex: 'type',
       key: 'type',
-      render: (value: string) => <Tag color={value === 'RESET' ? 'red' : 'blue'}>{value}</Tag>,
+      render: (value: string) => (
+        <VendorSpPill color={value === 'RESET' ? 'red' : 'blue'}>{value}</VendorSpPill>
+      ),
     },
     {
       title: 'Target',
@@ -112,9 +122,9 @@ const VendorViolationRevisionRequests: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       render: (value: string) => (
-        <Tag color={value === 'APPROVED' ? 'green' : value === 'REJECTED' ? 'red' : 'gold'}>
+        <VendorSpPill color={value === 'APPROVED' ? 'green' : value === 'REJECTED' ? 'red' : 'gold'}>
           {value}
-        </Tag>
+        </VendorSpPill>
       ),
     },
     {
@@ -128,12 +138,18 @@ const VendorViolationRevisionRequests: React.FC = () => {
       render: (_, record) =>
         record.status === 'PENDING' ? (
           <Space>
-            <Button size='small' type='primary' onClick={() => openReview(record, 'APPROVE')}>
-              Approve
-            </Button>
-            <Button size='small' danger onClick={() => openReview(record, 'REJECT')}>
-              Reject
-            </Button>
+            <VendorSpActionButton
+              title='Approve'
+              tone='success'
+              icon={<CheckCircleOutlined />}
+              onClick={() => openReview(record, 'APPROVE')}
+            />
+            <VendorSpActionButton
+              title='Reject'
+              tone='danger'
+              icon={<CloseCircleOutlined />}
+              onClick={() => openReview(record, 'REJECT')}
+            />
           </Space>
         ) : (
           <span className='text-muted'>{record.review_note || '-'}</span>
@@ -143,10 +159,12 @@ const VendorViolationRevisionRequests: React.FC = () => {
 
   return (
     <Card
+      className='vendor-sp-table'
       title='Approval Revisi / Reset Poin Vendor'
       extra={
-        <Space>
+        <Space className='vendor-sp-action-group'>
           <Select
+            className='vendor-sp-filter-control'
             value={status}
             allowClear
             placeholder='Semua status'
@@ -157,11 +175,19 @@ const VendorViolationRevisionRequests: React.FC = () => {
             <Option value='APPROVED'>APPROVED</Option>
             <Option value='REJECTED'>REJECTED</Option>
           </Select>
-          <Button onClick={fetchData}>Refresh</Button>
+          <Button icon={<ReloadOutlined />} onClick={fetchData}>Refresh</Button>
         </Space>
       }
     >
-      <Table rowKey='id' loading={loading} columns={columns} dataSource={data} scroll={{x: 1000}} />
+      <Table
+        className={vendorSpTableClassName}
+        rowKey='id'
+        loading={loading}
+        columns={columns}
+        dataSource={data}
+        pagination={vendorSpPagination({pageSize: 10})}
+        scroll={{x: 1000}}
+      />
 
       <Modal
         title={`${reviewAction === 'APPROVE' ? 'Approve' : 'Reject'} Request`}

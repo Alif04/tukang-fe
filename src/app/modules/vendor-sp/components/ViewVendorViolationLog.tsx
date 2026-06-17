@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
 import {
-  Card,
   Table,
   Button,
   Tag,
@@ -12,7 +10,6 @@ import {
   Modal,
   Form,
   message,
-  Tooltip,
   Badge,
   Descriptions,
 } from 'antd'
@@ -22,6 +19,12 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
+import {
+  VendorSpActionButton,
+  VendorSpPill,
+  vendorSpPagination,
+  vendorSpTableClassName,
+} from './VendorSpTable'
 
 const { Option } = Select
 
@@ -63,7 +66,6 @@ const CATEGORIES = [
 ]
 
 const ViewVendorViolationLog: React.FC = () => {
-  const navigate = useNavigate()
   const [data, setData] = useState<ViolationLog[]>([])
   const [loading, setLoading] = useState(false)
   const [pagination, setPagination] = useState({
@@ -98,10 +100,16 @@ const ViewVendorViolationLog: React.FC = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
 
-      setData(response.data.data)
+      const payload = response.data?.data && response.data?.meta
+        ? response.data
+        : response.data?.data || response.data
+      const rows = Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : []
+      const total = payload?.meta?.total ?? rows.length
+
+      setData(rows)
       setPagination((prev) => ({
         ...prev,
-        total: response.data.meta.total,
+        total,
       }))
     } catch (error) {
       message.error('Gagal mengambil data')
@@ -143,7 +151,11 @@ const ViewVendorViolationLog: React.FC = () => {
   }, [pagination.current, pagination.pageSize, filters])
 
   const handleTableChange = (newPagination: any) => {
-    setPagination(newPagination)
+    setPagination((prev) => ({
+      ...prev,
+      current: newPagination.current || 1,
+      pageSize: newPagination.pageSize || prev.pageSize,
+    }))
   }
 
   const handleAdd = async (values: any) => {
@@ -189,9 +201,9 @@ const ViewVendorViolationLog: React.FC = () => {
       key: 'violation',
       render: (_, record) => (
         <div>
-          <Tag color={getCategoryColor(record.violation_type?.category)}>
+          <VendorSpPill color={getCategoryColor(record.violation_type?.category)}>
             {record.violation_type?.code}
-          </Tag>
+          </VendorSpPill>
           <div className='small mt-1'>{record.violation_type?.name}</div>
         </div>
       ),
@@ -218,7 +230,7 @@ const ViewVendorViolationLog: React.FC = () => {
       width: 120,
       render: (_, record) =>
         record.orders ? (
-          <Tag>{record.orders.project_number}</Tag>
+          <VendorSpPill>{record.orders.project_number}</VendorSpPill>
         ) : (
           <span className='text-muted'>-</span>
         ),
@@ -235,24 +247,24 @@ const ViewVendorViolationLog: React.FC = () => {
       key: 'action',
       width: 80,
       render: (_, record) => (
-        <Tooltip title='Detail'>
-          <Button
-            type='link'
-            icon={<EyeOutlined />}
-            onClick={() => setDetailModal(record)}
-          />
-        </Tooltip>
+        <VendorSpActionButton
+          title='Detail'
+          tone='primary'
+          icon={<EyeOutlined />}
+          onClick={() => setDetailModal(record)}
+        />
       ),
     },
   ]
 
   return (
-    <div className='card card-xxl-stretch mb-5 mb-xxl-8'>
+    <div className='card card-xxl-stretch mb-5 mb-xxl-8 vendor-sp-table'>
       <div className='card-header border-0 pt-5'>
         <div className='card-title d-flex flex-column'>
-          <div className='d-flex justify-content-between align-items-center mb-3'>
-            <div className='d-flex gap-2'>
+          <div className='vendor-sp-toolbar'>
+            <div className='vendor-sp-filter-group'>
               <Input.Search
+                className='vendor-sp-filter-control'
                 placeholder='Cari vendor...'
                 onSearch={(value) =>
                   setFilters((prev) => ({ ...prev, search: value }))
@@ -260,6 +272,7 @@ const ViewVendorViolationLog: React.FC = () => {
                 style={{ width: 200 }}
               />
               <Select
+                className='vendor-sp-filter-control'
                 placeholder='Kategori'
                 allowClear
                 style={{ width: 150 }}
@@ -274,6 +287,7 @@ const ViewVendorViolationLog: React.FC = () => {
                 ))}
               </Select>
               <Select
+                className='vendor-sp-filter-control'
                 placeholder='Pilih Vendor'
                 allowClear
                 showSearch
@@ -290,7 +304,7 @@ const ViewVendorViolationLog: React.FC = () => {
                 }))}
               />
             </div>
-            <Space>
+            <Space className='vendor-sp-action-group'>
               <Button icon={<ReloadOutlined />} onClick={fetchData}>
                 Refresh
               </Button>
@@ -308,15 +322,12 @@ const ViewVendorViolationLog: React.FC = () => {
 
       <div className='card-body py-3'>
         <Table
+          className={vendorSpTableClassName}
           columns={columns}
           dataSource={data}
           rowKey='id'
           loading={loading}
-          pagination={{
-            ...pagination,
-            showSizeChanger: true,
-            showTotal: (total) => `Total ${total} data`,
-          }}
+          pagination={vendorSpPagination(pagination)}
           onChange={handleTableChange}
           scroll={{ x: 1000 }}
         />

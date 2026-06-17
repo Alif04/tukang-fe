@@ -4,20 +4,14 @@ import {
   Card,
   Table,
   Button,
-  Tag,
   Space,
   Input,
-  Select,
   Modal,
   Form,
-  InputNumber,
-  message,
-  Popconfirm,
   Alert,
   Descriptions,
 } from 'antd'
 import {
-  PlusOutlined,
   ReloadOutlined,
   CheckCircleOutlined,
   StopOutlined,
@@ -25,8 +19,12 @@ import {
 } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import axios from 'axios'
-
-const { Option } = Select
+import Swal from 'sweetalert2'
+import {
+  VendorSpPill,
+  vendorSpPagination,
+  vendorSpTableClassName,
+} from './VendorSpTable'
 
 interface ReactivationLog {
   id: number
@@ -73,13 +71,19 @@ const VendorReactivation: React.FC = () => {
         page: pagination.current,
         take: pagination.pageSize,
       })
-      setData(response.data.data || response.data)
+      const payload = response.data?.data && response.data?.meta
+        ? response.data
+        : response.data?.data || response.data
+      const rows = Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : []
+      const total = payload?.meta?.total ?? rows.length
+
+      setData(rows)
       setPagination((prev) => ({
         ...prev,
-        total: response.data.meta?.total || response.data.length,
+        total,
       }))
     } catch (error) {
-      message.error('Gagal mengambil data log reaktivasi')
+      Swal.fire('Error', 'Gagal mengambil data log reaktivasi', 'error')
     } finally {
       setLoading(false)
     }
@@ -92,7 +96,14 @@ const VendorReactivation: React.FC = () => {
         `${process.env.REACT_APP_API_URL}/vendor?vendor_with_max_order=0&take=100&is_active=0`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
-      setInactiveVendors(response.data.data)
+      const vendors: InactiveVendor[] = Array.isArray(response.data?.data)
+        ? response.data.data
+        : Array.isArray(response.data)
+          ? response.data
+          : []
+      setInactiveVendors(
+        vendors.filter((vendor: InactiveVendor) => Number(vendor.is_active) === 0)
+      )
     } catch (error) {
       console.error('Failed to fetch inactive vendors')
     }
@@ -109,13 +120,13 @@ const VendorReactivation: React.FC = () => {
         vendor_id: selectedVendor?.id,
         reason: values.reason,
       })
-      message.success('Vendor berhasil diaktifkan kembali')
+      Swal.fire('Berhasil', 'Vendor berhasil diaktifkan kembali', 'success')
       setReactivateModal(false)
       setSelectedVendor(null)
       fetchReactivationLogs()
       fetchInactiveVendors()
     } catch (error) {
-      message.error('Gagal mengaktifkan vendor')
+      Swal.fire('Error', 'Gagal mengaktifkan vendor', 'error')
     }
   }
 
@@ -148,13 +159,13 @@ const VendorReactivation: React.FC = () => {
       render: (_, record) => {
         switch (record.status) {
           case 1:
-            return <Tag color='processing'>Pending</Tag>
+            return <VendorSpPill color='processing'>Pending</VendorSpPill>
           case 2:
-            return <Tag color='success'>Disetujui</Tag>
+            return <VendorSpPill color='success'>Disetujui</VendorSpPill>
           case 3:
-            return <Tag color='error'>Ditolak</Tag>
+            return <VendorSpPill color='error'>Ditolak</VendorSpPill>
           default:
-            return <Tag>Unknown</Tag>
+            return <VendorSpPill>Unknown</VendorSpPill>
         }
       },
     },
@@ -174,7 +185,7 @@ const VendorReactivation: React.FC = () => {
   ]
 
   return (
-    <div className='card card-xxl-stretch mb-5 mb-xxl-8'>
+    <div className='card card-xxl-stretch mb-5 mb-xxl-8 vendor-sp-table'>
       <div className='card-header border-0 pt-5'>
         <div className='card-title d-flex flex-column'>
           <h3 className='card-label'>Reaktivasi Vendor SP3</h3>
@@ -243,16 +254,19 @@ const VendorReactivation: React.FC = () => {
 
         <h5 className='mb-3'>Log Reaktivasi</h5>
         <Table
+          className={vendorSpTableClassName}
           columns={columns}
           dataSource={data}
           rowKey='id'
           loading={loading}
-          pagination={{
-            ...pagination,
-            showSizeChanger: true,
-            showTotal: (total) => `Total ${total} data`,
-          }}
-          onChange={(newPagination: any) => setPagination(newPagination)}
+          pagination={vendorSpPagination(pagination)}
+          onChange={(newPagination: any) =>
+            setPagination((prev) => ({
+              ...prev,
+              current: newPagination.current || 1,
+              pageSize: newPagination.pageSize || prev.pageSize,
+            }))
+          }
         />
       </div>
 

@@ -9,6 +9,7 @@ import {ViewVendorViolationType} from './components/ViewVendorViolationType'
 import {ViewVendorViolationLog} from './components/ViewVendorViolationLog'
 import {VendorReactivation} from './components/VendorReactivation'
 import {VendorViolationRevisionRequests} from './components/VendorViolationRevisionRequests'
+import {DetailVendorSP} from './components/DetailVendorSP'
 
 const orderBreadCrumbs: Array<PageLink> = [
   {
@@ -39,6 +40,25 @@ const VendorSPPage: React.FC = () => {
               DAFTAR SURAT PERINGATAN VENDOR
             </PageTitle>
             <ViewVendorSP />
+          </>
+        }
+      />
+
+      <Route
+        path='detail/:id'
+        element={
+          <>
+            {userRole === 'Admin HO' || userRole === 'Super User' ? (
+              <>
+                <HeaderWrapper className='bg-header-ho' />
+              </>
+            ) : (
+              <></>
+            )}
+            <PageTitle breadcrumbs={orderBreadCrumbs}>
+              DETAIL SURAT PERINGATAN VENDOR
+            </PageTitle>
+            <DetailVendorSP />
           </>
         }
       />

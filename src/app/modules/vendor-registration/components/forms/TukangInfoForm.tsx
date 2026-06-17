@@ -30,9 +30,13 @@ export const TukangInfoForm: React.FC<TukangInfoFormProps> = ({
   const apiUrl = process.env.REACT_APP_API_URL
   const animatedComponents = makeAnimated()
   const [serviceTypeOptions, setServiceTypeOptions] = useState<any[]>([])
+  const [isLoadingOptions, setIsLoadingOptions] = useState<boolean>(false)
+  const [errorOptions, setErrorOptions] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchServiceTypes = async () => {
+      setIsLoadingOptions(true)
+      setErrorOptions(null)
       try {
         const res = await axios.get(`${apiUrl}/service-type/public/list`, {
           headers: {'ngrok-skip-browser-warning': 'true'},
@@ -45,26 +49,28 @@ export const TukangInfoForm: React.FC<TukangInfoFormProps> = ({
         setServiceTypeOptions(options)
       } catch (err) {
         console.error('Failed to load service types', err)
+        setErrorOptions('Gagal memuat daftar keahlian')
+      } finally {
+        setIsLoadingOptions(false)
       }
     }
     fetchServiceTypes()
   }, [apiUrl])
 
   return (
-    <div className='tukang-section mb-4'>
+    <div className='tukang-section mb-10'>
       {/* Section Header */}
-      <div className='d-flex align-items-center justify-content-between mb-4'>
+      <div className='d-flex align-items-center justify-content-between mb-6'>
         <div>
-          <h5 className='fw-bold mb-1'>Informasi Tukang</h5>
-          <p className='text-muted mb-0' style={{fontSize: '12px'}}>
+          <h3 className='fw-bold text-dark mb-1'>Informasi Tukang</h3>
+          <div className='text-muted fs-7'>
             Tambahkan data tukang yang akan bekerja dengan vendor ini
-          </p>
+          </div>
         </div>
         <Button
           variant='primary'
           onClick={onAdd}
-          className='btn btn-primary d-flex align-items-center gap-2'
-          style={{padding: '8px 16px'}}
+          className='btn btn-primary btn-sm d-flex align-items-center gap-2'
         >
           <FontAwesomeIcon icon={faPlus} />
           Tambah Tukang
@@ -74,95 +80,69 @@ export const TukangInfoForm: React.FC<TukangInfoFormProps> = ({
       {/* Empty State */}
       {tukangList.length === 0 && (
         <div
-          className='text-center py-5'
-          style={{
-            background: '#f8f9fa',
-            borderRadius: '12px',
-            border: '2px dashed #e9ecef',
-          }}
+          className='text-center py-10 bg-light rounded border border-dashed border-gray-300'
         >
-          <FontAwesomeIcon icon={faUser} className='text-muted mb-3' style={{fontSize: '32px'}} />
-          <p className='text-muted mb-0'>Belum ada tukang ditambahkan.</p>
-          <p className='text-muted mb-0' style={{fontSize: '12px'}}>
+          <FontAwesomeIcon icon={faUser} className='text-muted mb-3 fs-1' />
+          <div className='text-gray-600 fw-semibold'>Belum ada tukang ditambahkan.</div>
+          <div className='text-muted fs-7'>
             Klik "Tambah Tukang" untuk menambahkan data tukang.
-          </p>
+          </div>
         </div>
       )}
 
       {/* Tukang Cards */}
-      <div className='d-flex flex-column gap-3'>
+      <div className='d-flex flex-column gap-5'>
         {tukangList.map((tukang, idx) => (
           <div
             key={idx}
-            className='tukang-card'
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              border: '1px solid #e9ecef',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-              // overflow: 'hidden',
-              transition: 'all 0.2s ease',
-            }}
+            className='card shadow-sm border border-gray-200'
           >
             {/* Card Header */}
             <div
-              className='d-flex align-items-center justify-content-between px-4 py-3'
-              style={{
-                background: 'linear-gradient(135deg, #183383 0%, #1a42b8 100%)',
-                borderBottom: '1px solid rgba(255,255,255,0.1)',
-              }}
+              className='card-header min-h-50px px-6 py-2 bg-primary'
+              style={{ borderBottom: 'none' }}
             >
-              <div className='d-flex align-items-center gap-3'>
-                <div
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: 'rgba(255,255,255,0.2)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontSize: '13px',
-                    fontWeight: '700',
-                  }}
-                >
-                  {idx + 1}
+              <div className='card-title m-0'>
+                <div className='d-flex align-items-center gap-3'>
+                  <div
+                    className='symbol symbol-30px symbol-circle'
+                    style={{ background: 'rgba(255,255,255,0.2)' }}
+                  >
+                    <span className='symbol-label bg-transparent text-white fw-bold fs-7'>
+                      {idx + 1}
+                    </span>
+                  </div>
+                  <h4 className='text-white fw-bold fs-6 m-0'>Tukang {idx + 1}</h4>
                 </div>
-                <span style={{color: '#fff', fontWeight: '600', fontSize: '14px'}}>
-                  Tukang {idx + 1}
-                </span>
               </div>
-              <Button
-                variant='link'
-                onClick={() => onRemove(idx)}
-                className='p-0'
-                style={{color: 'rgba(255,255,255,0.7)'}}
-                title='Hapus Tukang'
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </Button>
+              <div className='card-toolbar'>
+                <Button
+                  variant='link'
+                  onClick={() => onRemove(idx)}
+                  className='btn btn-icon btn-sm btn-color-white btn-active-color-primary'
+                  title='Hapus Tukang'
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </Button>
+              </div>
             </div>
 
             {/* Card Body */}
-            <div className='px-4 py-4'>
-              <Row className='g-3'>
+            <div className='card-body p-6'>
+              <Row className='g-6'>
                 {/* Nama Lengkap */}
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label
-                      className='mb-1'
-                      style={{fontSize: '12px', fontWeight: '600', color: '#5e6278'}}
-                    >
-                      <FontAwesomeIcon icon={faUser} className='me-1' style={{fontSize: '10px'}} />
+                    <Form.Label className='form-label fw-bold fs-7 text-gray-700'>
+                      <FontAwesomeIcon icon={faUser} className='me-2 text-primary' />
                       Nama Lengkap
                     </Form.Label>
                     <Form.Control
                       type='text'
+                      className='form-control form-control-solid'
                       placeholder='Masukkan nama lengkap tukang'
                       value={tukang.full_name}
                       onChange={(e) => onUpdate(idx, 'full_name', e.target.value)}
-                      style={{borderRadius: '8px', padding: '10px 14px'}}
                     />
                   </Form.Group>
                 </Col>
@@ -170,19 +150,16 @@ export const TukangInfoForm: React.FC<TukangInfoFormProps> = ({
                 {/* No. HP */}
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label
-                      className='mb-1'
-                      style={{fontSize: '12px', fontWeight: '600', color: '#5e6278'}}
-                    >
-                      <FontAwesomeIcon icon={faPhone} className='me-1' style={{fontSize: '10px'}} />
+                    <Form.Label className='form-label fw-bold fs-7 text-gray-700'>
+                      <FontAwesomeIcon icon={faPhone} className='me-2 text-primary' />
                       No. HP
                     </Form.Label>
                     <Form.Control
                       type='text'
+                      className='form-control form-control-solid'
                       placeholder='08xxxxxxxxxx'
                       value={tukang.phone_number}
                       onChange={(e) => onUpdate(idx, 'phone_number', e.target.value)}
-                      style={{borderRadius: '8px', padding: '10px 14px'}}
                     />
                   </Form.Group>
                 </Col>
@@ -190,23 +167,16 @@ export const TukangInfoForm: React.FC<TukangInfoFormProps> = ({
                 {/* No. KTP */}
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label
-                      className='mb-1'
-                      style={{fontSize: '12px', fontWeight: '600', color: '#5e6278'}}
-                    >
-                      <FontAwesomeIcon
-                        icon={faIdCard}
-                        className='me-1'
-                        style={{fontSize: '10px'}}
-                      />
+                    <Form.Label className='form-label fw-bold fs-7 text-gray-700'>
+                      <FontAwesomeIcon icon={faIdCard} className='me-2 text-primary' />
                       No. KTP
                     </Form.Label>
                     <Form.Control
                       type='text'
+                      className='form-control form-control-solid'
                       placeholder='Nomor KTP'
                       value={tukang.ktp_number}
                       onChange={(e) => onUpdate(idx, 'ktp_number', e.target.value)}
-                      style={{borderRadius: '8px', padding: '10px 14px'}}
                     />
                   </Form.Group>
                 </Col>
@@ -214,21 +184,16 @@ export const TukangInfoForm: React.FC<TukangInfoFormProps> = ({
                 {/* Skill / Keahlian */}
                 <Col md={6}>
                   <Form.Group>
-                    <Form.Label
-                      className='mb-1'
-                      style={{fontSize: '12px', fontWeight: '600', color: '#5e6278'}}
-                    >
-                      <FontAwesomeIcon icon={faTools} className='me-1' style={{fontSize: '10px'}} />
+                    <Form.Label className='form-label fw-bold fs-7 text-gray-700'>
+                      <FontAwesomeIcon icon={faTools} className='me-2 text-primary' />
                       Skill / Keahlian
                     </Form.Label>
                     <Select
                       isMulti
                       closeMenuOnSelect={false}
                       menuPortalTarget={document.body}
-                      menuPosition='absolute' // ← ganti
-                      maxMenuHeight={200} // ← tambah
-                      classNamePrefix='select'
-                      placeholder='Pilih keahlian...'
+                      isLoading={isLoadingOptions}
+                      placeholder={errorOptions || 'Pilih keahlian...'}
                       options={serviceTypeOptions}
                       components={animatedComponents}
                       value={serviceTypeOptions.filter((opt) =>
@@ -242,11 +207,13 @@ export const TukangInfoForm: React.FC<TukangInfoFormProps> = ({
                         )
                       }
                       styles={{
-                        menuPortal: (base) => ({...base, zIndex: 9999}), // ← tambah
+                        menuPortal: (base) => ({...base, zIndex: 9999}),
                         control: (base) => ({
                           ...base,
-                          borderRadius: '8px',
+                          borderRadius: '0.475rem',
                           padding: '2px 4px',
+                          backgroundColor: '#f5f8fa',
+                          border: 'none',
                           fontSize: '13px',
                         }),
                       }}
@@ -257,20 +224,13 @@ export const TukangInfoForm: React.FC<TukangInfoFormProps> = ({
 
               {/* Selected Skills Tags */}
               {(tukang.service_type_id || []).length > 0 && (
-                <div className='mt-3 d-flex flex-wrap gap-2'>
+                <div className='mt-6 d-flex flex-wrap gap-2'>
                   {serviceTypeOptions
                     .filter((opt) => (tukang.service_type_id || []).includes(opt.value))
                     .map((opt) => (
                       <span
                         key={opt.value}
-                        className='d-inline-flex align-items-center gap-1 px-2 py-1'
-                        style={{
-                          background: 'rgba(24, 51, 131, 0.08)',
-                          color: '#183383',
-                          borderRadius: '20px',
-                          fontSize: '11px',
-                          fontWeight: '600',
-                        }}
+                        className='badge badge-light-primary px-3 py-2 rounded-pill fs-9'
                       >
                         {opt.label}
                       </span>
