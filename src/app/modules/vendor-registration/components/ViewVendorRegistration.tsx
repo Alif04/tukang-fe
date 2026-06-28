@@ -166,7 +166,7 @@ const ViewVendorRegistration: React.FC = () => {
       },
     },
     {
-      title: 'Tanggal Daftar',
+      title: 'Tanggal',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center',
@@ -400,7 +400,7 @@ const ViewVendorRegistration: React.FC = () => {
                 name='status'
                 className='form-control p-0'
                 classNamePrefix='select'
-                placeholder='Pilih Status'
+                placeholder='Filter Status'
                 options={statusOptions}
                 isSearchable={false}
                 isClearable={true}

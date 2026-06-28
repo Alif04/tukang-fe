@@ -21,6 +21,7 @@ interface StatusStorage {
 
 const Topbar: FC = () => {
   const apiUrl = process.env.REACT_APP_API_URL
+  const liveChatApiUrl = process.env.REACT_APP_LIVECHAT_API_URL || 'http://localhost:3002'
   const {config} = useLayout()
 
   // Notification State
@@ -37,6 +38,34 @@ const Topbar: FC = () => {
   const [status, setStatus] = useState<StatusStorage[]>([])
   const [selectedStatus, setSelectedStatus] = useState<StatusStorage[]>([])
   const statuses = selectedStatus.length > 0 ? `&status=${selectedStatus.map((x) => x.value)}` : ''
+  const liveChatAllowedRoles = ['Store CS', 'Admin HO', 'Super User', 'Admin Vendor', 'Owner Vendor']
+
+  const getChatUnreadCount = async () => {
+    const token = localStorage.getItem('accessToken')
+    const userRole = localStorage.getItem('userRole') || ''
+
+    if (!token || !liveChatAllowedRoles.includes(userRole)) return
+
+    try {
+      const response = await axios.get(`${liveChatApiUrl}/rooms`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+      const rooms = response.data?.data || []
+      const totalUnread = Array.isArray(rooms)
+        ? rooms.reduce((sum: number, room: any) => sum + (room.unreadCount || 0), 0)
+        : 0
+
+      window.dispatchEvent(
+        new CustomEvent('livechat:unread-count', {detail: {totalUnread}})
+      )
+    } catch (error) {
+      console.error('Error fetching live chat unread count:', error)
+    }
+  }
 
   // Fetching Data
   const getNotifications = async (page: number, pageSize: number) => {
@@ -108,6 +137,17 @@ const Topbar: FC = () => {
     return () => clearInterval(intervalId)
     // eslint-disable-next-line
   }, [currentPage, pageSize])
+
+  useEffect(() => {
+    getChatUnreadCount()
+
+    const intervalId = setInterval(() => {
+      getChatUnreadCount()
+    }, 30000)
+
+    return () => clearInterval(intervalId)
+    // eslint-disable-next-line
+  }, [])
 
   useEffect(() => {
     getStatus()

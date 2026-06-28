@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
   images: any;
@@ -19,6 +19,22 @@ export const DocumentUploadForm: React.FC<Props> = ({ images, onChange }) => {
         file: file,
       });
     }
+  };
+
+  const handleRemove = (field: string, blob?: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (blob) {
+      URL.revokeObjectURL(blob);
+    }
+
+    const input = document.getElementById(`input-${field}`) as HTMLInputElement | null;
+    if (input) {
+      input.value = '';
+    }
+
+    onChange(field, null);
   };
 
   const renderUpload = (field: string, label: string, isAvatar = false) => {
@@ -43,7 +59,31 @@ export const DocumentUploadForm: React.FC<Props> = ({ images, onChange }) => {
               onChange={handleFileChange(field)}
             />
             {imageState?.blob ? (
-              <img src={imageState.blob} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '50%', border: '3px solid #020080' }} />
+              <div style={{ position: 'relative' }}>
+                <img src={imageState.blob} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '50%', border: '3px solid #020080' }} />
+                <button
+                  type="button"
+                  aria-label={`Hapus ${label}`}
+                  onClick={handleRemove(field, imageState.blob)}
+                  style={{
+                    position: 'absolute',
+                    right: '-8px',
+                    top: '-8px',
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    backgroundColor: '#dc3545',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <FontAwesomeIcon icon={faTrash} fontSize="12px" />
+                </button>
+              </div>
             ) : (
               <>
                 <FontAwesomeIcon icon={faUpload} size="2x" style={{ color: '#666', marginBottom: '10px' }} />
@@ -71,7 +111,18 @@ export const DocumentUploadForm: React.FC<Props> = ({ images, onChange }) => {
             <span className="me-3 text-primary text-decoration-underline" style={{ fontSize: '12px' }}>
               {imageState?.fileName || 'Pilih File'}
             </span>
-            <FontAwesomeIcon icon={faUpload} />
+            {imageState?.fileName ? (
+              <button
+                type="button"
+                aria-label={`Hapus ${label}`}
+                className="btn btn-icon btn-sm btn-light-danger"
+                onClick={handleRemove(field, imageState.blob)}
+              >
+                <FontAwesomeIcon icon={faTrash} fontSize="12px" />
+              </button>
+            ) : (
+              <FontAwesomeIcon icon={faUpload} />
+            )}
           </div>
         </div>
       </Form.Group>
