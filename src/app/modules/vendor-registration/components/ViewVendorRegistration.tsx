@@ -2,7 +2,6 @@
 import React, {useEffect, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import { vendorRegistrationService } from '../../../services/vendorRegistrationService'
-import Select, {SingleValue} from 'react-select'
 import Swal from 'sweetalert2'
 import {Table, Spin, Pagination, PaginationProps} from 'antd'
 import {Row, Form, OverlayTrigger, Tooltip, FormGroup, Button} from 'react-bootstrap'
@@ -67,7 +66,9 @@ const ViewVendorRegistration: React.FC = () => {
   const [stats, setStats] = useState<Record<string, number>>({})
 
   // Filter State
-  const [searchFilter, setSearchFilter] = useState<string>('')
+  const [companyNameFilter, setCompanyNameFilter] = useState<string>('')
+  const [dateFromFilter, setDateFromFilter] = useState<string>('')
+  const [dateToFilter, setDateToFilter] = useState<string>('')
   const [statusFilter, setStatusFilter] = useState<number | undefined>(undefined)
 
   const useDebounce = (value: string, delay: number) => {
@@ -79,7 +80,7 @@ const ViewVendorRegistration: React.FC = () => {
     return debouncedValue
   }
 
-  const debouncedSearch = useDebounce(searchFilter, 500)
+  const debouncedCompanyName = useDebounce(companyNameFilter, 500)
 
   // Pagination
   const itemRender: PaginationProps['itemRender'] = (_, type, originalElement) => {
@@ -275,7 +276,7 @@ const ViewVendorRegistration: React.FC = () => {
   ]
 
   // Fetch data
-  const fetchData = async (page: number, pageSize: number, search: string) => {
+  const fetchData = async (page: number, pageSize: number) => {
     setLoadData(true)
     try {
       const params: any = {
@@ -283,8 +284,14 @@ const ViewVendorRegistration: React.FC = () => {
         take: pageSize,
       }
 
-      if (search) {
-        params.search = search
+      if (debouncedCompanyName) {
+        params.company_name = debouncedCompanyName
+      }
+      if (dateFromFilter) {
+        params.date_from = dateFromFilter
+      }
+      if (dateToFilter) {
+        params.date_to = dateToFilter
       }
       if (statusFilter !== undefined) {
         params.status = statusFilter
@@ -293,7 +300,7 @@ const ViewVendorRegistration: React.FC = () => {
       const response = await vendorRegistrationService.getAll(params)
 
       setVendorData(response.data?.data || [])
-      setTotalData(response.data?.meta?.total || 0)
+      setTotalData(response.data?.meta?.total ?? response.data?.total ?? 0)
     } catch (error) {
       console.error('Error fetching data:', error)
       Swal.fire({
@@ -325,8 +332,15 @@ const ViewVendorRegistration: React.FC = () => {
 
   // Initial fetch and debounce search
   useEffect(() => {
-    fetchData(currentPage, pageSize, debouncedSearch)
-  }, [currentPage, pageSize, debouncedSearch, statusFilter])
+    fetchData(currentPage, pageSize)
+  }, [
+    currentPage,
+    pageSize,
+    debouncedCompanyName,
+    dateFromFilter,
+    dateToFilter,
+    statusFilter,
+  ])
 
   useEffect(() => {
     fetchStats()
@@ -335,26 +349,15 @@ const ViewVendorRegistration: React.FC = () => {
   // Handle filter submit
   const handleSubmitFilter = () => {
     setLoadingButton(true)
-    fetchData(1, pageSize, debouncedSearch)
+    fetchData(1, pageSize)
     setCurrentPage(1)
     setLoadingButton(false)
   }
 
-  const handleChangeSearchFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchFilter(e.target.value)
-  }
-
-  const handleStatusChange = (newValue: SingleValue<{value: number; label: string}>) => {
-    setStatusFilter(newValue?.value)
+  const handleChangeCompanyNameFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCompanyNameFilter(e.target.value)
     setCurrentPage(1)
   }
-
-  const statusOptions = [
-    {value: 1, label: 'Menunggu Approve'},
-    {value: 2, label: 'Proses Pitching'},
-    {value: 3, label: 'Disetujui'},
-    {value: 4, label: 'Ditolak'},
-  ]
 
   return (
     <section id='view-vendor-registration'>
@@ -385,10 +388,10 @@ const ViewVendorRegistration: React.FC = () => {
               <div className='filter-search'>
                 <FormGroup>
                   <Form.Control
-                    placeholder='Search'
+                    placeholder='Nama Perusahaan'
                     className='filter-ltr'
-                    onChange={handleChangeSearchFilter}
-                    value={searchFilter}
+                    onChange={handleChangeCompanyNameFilter}
+                    value={companyNameFilter}
                   />
                   <span className='search-icon'>
                     <FontAwesomeIcon icon={faSearch} className='text-black' size='sm' />
@@ -396,16 +399,32 @@ const ViewVendorRegistration: React.FC = () => {
                 </FormGroup>
               </div>
 
-              <Select
-                name='status'
-                className='form-control p-0'
-                classNamePrefix='select'
-                placeholder='Filter Status'
-                options={statusOptions}
-                isSearchable={false}
-                isClearable={true}
-                onChange={handleStatusChange}
-              />
+              <FormGroup>
+                <Form.Label className='mb-1'>Tanggal Dari</Form.Label>
+                <Form.Control
+                  type='date'
+                  aria-label='Tanggal mulai'
+                  value={dateFromFilter}
+                  onChange={(event) => {
+                    setDateFromFilter(event.target.value)
+                    setCurrentPage(1)
+                  }}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Form.Label className='mb-1'>Tanggal Sampai</Form.Label>
+                <Form.Control
+                  type='date'
+                  aria-label='Tanggal akhir'
+                  min={dateFromFilter || undefined}
+                  value={dateToFilter}
+                  onChange={(event) => {
+                    setDateToFilter(event.target.value)
+                    setCurrentPage(1)
+                  }}
+                />
+              </FormGroup>
 
               <Button
                 className='btn-dark-primary button-submit m-0'

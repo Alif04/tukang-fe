@@ -10,6 +10,11 @@ import {HeaderNotificationsMenu} from '../../../partials'
 import {useLayout} from '../../core'
 import {formatTotalNumber} from '../../../helpers/NumberHelpers'
 
+const NOTIFICATION_SYNC_EVENT = 'notifications:sync'
+let notificationPollingInterval: ReturnType<typeof setInterval> | null = null
+let notificationPollingSubscribers = 0
+let notificationPollingFetch: (() => void) | null = null
+
 const toolbarButtonMarginClass = 'ms-1 ms-lg-3',
   toolbarButtonHeightClass = 'w-30px h-30px w-md-40px h-md-40px',
   toolbarButtonIconSizeClass = 'svg-icon-1'
@@ -51,7 +56,6 @@ const Topbar: FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true',
         },
       })
       const rooms = response.data?.data || []
@@ -69,6 +73,10 @@ const Topbar: FC = () => {
 
   // Fetching Data
   const getNotifications = async (page: number, pageSize: number) => {
+    notificationPollingFetch = () => {
+      void getNotifications(page, pageSize)
+    }
+
     try {
       const response = await axios.get(
         `${apiUrl}/notifications?take=${pageSize}&page=${page}${statuses}`,
@@ -76,25 +84,34 @@ const Topbar: FC = () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
           },
         }
       )
 
       const notificationsData = response.data.data.map((item: any) => {
         let parsedData = {}
-        parsedData = JSON.parse(item.data)
+        try {
+          parsedData = item.data ? JSON.parse(item.data) : {}
+        } catch {
+          parsedData = {}
+        }
+
         return {
           ...item,
           parsedData,
         }
       })
 
-      setNotifications(notificationsData)
-      setCurrentPage(response.data.page)
-      setTotalData(response?.data?.total ?? 0)
-      setTotalUnread(response?.data?.unread ?? 0)
+      const notificationState = {
+        notifications: notificationsData,
+        currentPage: response.data.page,
+        totalData: response?.data?.total ?? 0,
+        totalUnread: response?.data?.unread ?? 0,
+      }
+
+      window.dispatchEvent(
+        new CustomEvent(NOTIFICATION_SYNC_EVENT, {detail: notificationState})
+      )
 
       return notificationsData
     } catch (error) {
@@ -107,8 +124,6 @@ const Topbar: FC = () => {
       const response = await axios.get(`${apiUrl}/status?take=0`, {
         headers: {
           Accept: 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
         },
       })
 
@@ -128,15 +143,39 @@ const Topbar: FC = () => {
   }
 
   useEffect(() => {
-    getNotifications(currentPage, pageSize)
+    const syncNotifications = (event: Event) => {
+      const {notifications, currentPage, totalData, totalUnread} = (
+        event as CustomEvent
+      ).detail
 
-    const intervalId = setInterval(() => {
-      getNotifications(currentPage, pageSize)
-    }, 30000)
+      setNotifications(notifications)
+      setCurrentPage(currentPage)
+      setTotalData(totalData)
+      setTotalUnread(totalUnread)
+    }
 
-    return () => clearInterval(intervalId)
+    window.addEventListener(NOTIFICATION_SYNC_EVENT, syncNotifications)
+    notificationPollingSubscribers += 1
+
+    if (!notificationPollingInterval) {
+      getNotifications(1, pageSize)
+      notificationPollingInterval = setInterval(() => {
+        notificationPollingFetch?.()
+      }, 30000)
+    }
+
+    return () => {
+      window.removeEventListener(NOTIFICATION_SYNC_EVENT, syncNotifications)
+      notificationPollingSubscribers -= 1
+
+      if (notificationPollingSubscribers === 0 && notificationPollingInterval) {
+        clearInterval(notificationPollingInterval)
+        notificationPollingInterval = null
+        notificationPollingFetch = null
+      }
+    }
     // eslint-disable-next-line
-  }, [currentPage, pageSize])
+  }, [])
 
   useEffect(() => {
     getChatUnreadCount()

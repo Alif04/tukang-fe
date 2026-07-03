@@ -382,11 +382,14 @@ const HeaderNotificationsMenu: React.FC<Props> = ({
           defaultPageSize={pageSize}
           showSizeChanger
           pageSizeOptions={[5, 10, 20, 50, 100, 500]}
-          onShowSizeChange={(current, size) => {
-            setPageSize(size)
-          }}
-          onChange={(page, pageSize) => {
-            getNotifications(page, pageSize)
+          onChange={(page, size) => {
+            if (size !== pageSize) {
+              setPageSize(size)
+              getNotifications(1, size)
+              return
+            }
+
+            getNotifications(page, size)
           }}
         />
       </div>
