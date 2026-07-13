@@ -542,7 +542,9 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
       })
 
       if (response.data.status === 200 || response.data.status === 201) {
-        sendMessage()
+        sendMessage().catch((error) => {
+          console.error('Error sending chat status message:', error)
+        })
         
         Swal.fire({
           title: 'Berhasil',
@@ -573,10 +575,18 @@ const UpdateWorkVendor: FC<{updatePageTitle: (work_order: WorkOrder) => void}> =
 
   const sendMessage = async () => {
     const statusAll: any = statusData.find((t: any) => t.value === Number(orderStatusLabel))
+    if (!statusAll?.description) {
+      console.warn('Skipping chat status message: status description not found')
+      return
+    }
 
     const filteredTemplates: any = template.find(
       (t: any) => t.subCategory === statusAll.description && t.status === 'Active'
     )
+    if (!filteredTemplates) {
+      console.warn(`Skipping chat status message: active template not found for ${statusAll.description}`)
+      return
+    }
 
     if (filteredTemplates.withImage) {
       const data = {
