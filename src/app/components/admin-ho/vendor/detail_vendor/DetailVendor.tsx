@@ -51,6 +51,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
   const [spLoading, setSpLoading] = useState(false)
   const userRole = localStorage.getItem('userRole')
   const canSubmitRevision = userRole === 'Admin HO' || userRole === 'Super User'
+  const isVendorSpEnabled = process.env.REACT_APP_ENABLE_VENDOR_SP === 'true'
 
   // Fetch API
   const fetchVendorData = async () => {
@@ -210,11 +211,13 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
   useEffect(() => {
     if (vendorDetail?.id) {
-      fetchSpStatus(vendorDetail.id)
-      fetchSpHistory(vendorDetail.id)
-      fetchViolationLogs(vendorDetail.id)
-      fetchQuarterPoints(vendorDetail.id)
-      fetchRevisionRequests(vendorDetail.id)
+      if (isVendorSpEnabled) {
+        fetchSpStatus(vendorDetail.id)
+        fetchSpHistory(vendorDetail.id)
+        fetchViolationLogs(vendorDetail.id)
+        fetchQuarterPoints(vendorDetail.id)
+        fetchRevisionRequests(vendorDetail.id)
+      }
       fetchTukangList(vendorDetail.id)
     }
     // eslint-disable-next-line
@@ -373,7 +376,7 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     </Col>
                   </Form.Group>
 
-                  {spStatus?.has_ever_sp && (
+                  {isVendorSpEnabled && spStatus?.has_ever_sp && (
                     <Form.Group as={Row} className='detail-info'>
                       <Form.Label column sm='6'>
                         Riwayat SP :
@@ -407,29 +410,30 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                     </Col>
                   </Form.Group>
 
-                  {/* SP Status */}
-                  <Form.Group as={Row} className='detail-info'>
-                    <Form.Label column sm='6'>
-                      Status SP :
-                    </Form.Label>
-                    <Col sm='6'>
-                      {spStatus?.has_active_sp ? (
-                        <span
-                          className={`badge fw-semibold ${
-                            spStatus?.sp_level === 1
-                              ? 'badge-warning'
-                              : spStatus?.sp_level === 2
-                              ? 'badge-danger'
-                              : 'badge-dark'
-                          }`}
-                        >
-                          {getSpLevelText(spStatus?.sp_level)} ({spStatus?.total_point ?? 0} poin)
-                        </span>
-                      ) : (
-                        <span className='badge badge-light-success fw-semibold'>NORMAL</span>
-                      )}
-                    </Col>
-                  </Form.Group>
+                  {isVendorSpEnabled && (
+                    <Form.Group as={Row} className='detail-info'>
+                      <Form.Label column sm='6'>
+                        Status SP :
+                      </Form.Label>
+                      <Col sm='6'>
+                        {spStatus?.has_active_sp ? (
+                          <span
+                            className={`badge fw-semibold ${
+                              spStatus?.sp_level === 1
+                                ? 'badge-warning'
+                                : spStatus?.sp_level === 2
+                                ? 'badge-danger'
+                                : 'badge-dark'
+                            }`}
+                          >
+                            {getSpLevelText(spStatus?.sp_level)} ({spStatus?.total_point ?? 0} poin)
+                          </span>
+                        ) : (
+                          <span className='badge badge-light-success fw-semibold'>NORMAL</span>
+                        )}
+                      </Col>
+                    </Form.Group>
+                  )}
 
                   <Form.Group as={Row} className='detail-info'>
                     <Form.Label column sm='6'>
@@ -692,23 +696,27 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                 </div>
               </Row>
 
-              {/* Tabs for SP History, Violation Logs, Tukang */}
+              {/* Tabs for vendor details */}
               <hr />
               <h5 className='fw-bold mb-3'>RIWAYAT & DETAIL</h5>
-              <Tab.Container defaultActiveKey='sp-history'>
+              <Tab.Container defaultActiveKey={isVendorSpEnabled ? 'sp-history' : 'tukang-list'}>
                 <Nav variant='tabs' className='mb-3'>
-                  <Nav.Item>
-                    <Nav.Link eventKey='sp-history'>
-                      <FontAwesomeIcon icon={faUserShield} className='me-2' />
-                      Riwayat SP ({spHistory.length})
-                    </Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link eventKey='violation-logs'>
-                      <FontAwesomeIcon icon={faExclamationTriangle} className='me-2' />
-                      Log Pelanggaran ({violationLogs.length})
-                    </Nav.Link>
-                  </Nav.Item>
+                  {isVendorSpEnabled && (
+                    <>
+                      <Nav.Item>
+                        <Nav.Link eventKey='sp-history'>
+                          <FontAwesomeIcon icon={faUserShield} className='me-2' />
+                          Riwayat SP ({spHistory.length})
+                        </Nav.Link>
+                      </Nav.Item>
+                      <Nav.Item>
+                        <Nav.Link eventKey='violation-logs'>
+                          <FontAwesomeIcon icon={faExclamationTriangle} className='me-2' />
+                          Log Pelanggaran ({violationLogs.length})
+                        </Nav.Link>
+                      </Nav.Item>
+                    </>
+                  )}
                   <Nav.Item>
                     <Nav.Link eventKey='tukang-list'>
                       <FontAwesomeIcon icon={faUser} className='me-2' />
@@ -719,32 +727,34 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
 
                 <Tab.Content>
                   {/* SP History Tab */}
-                  <Tab.Pane eventKey='sp-history'>
-                    {spHistoryLoading ? (
-                      <div className='text-center py-4'>
-                        <div className='spinner-border text-primary' role='status' />
-                      </div>
-                    ) : spHistory.length === 0 ? (
-                      <div className='alert alert-success mb-0'>
-                        <FontAwesomeIcon icon={faUserShield} className='me-2' />
-                        Vendor tidak memiliki riwayat Surat Peringatan.
-                      </div>
-                    ) : (
-                      <div className='table-responsive'>
-                        <table className='table table-hover table-bordered'>
-                          <thead className='table-light'>
-                            <tr>
-                              <th>Level</th>
-                              <th>Tanggal Mulai</th>
-                              <th>Tanggal Berakhir</th>
-                              <th>Total Poin</th>
-                              <th>Status</th>
-                              <th>Pengurangan Alokasi</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {spHistory.map((sp: any) => (
-                              <tr key={sp.id}>
+                  {isVendorSpEnabled && (
+                    <>
+                    <Tab.Pane eventKey='sp-history'>
+                      {spHistoryLoading ? (
+                        <div className='text-center py-4'>
+                          <div className='spinner-border text-primary' role='status' />
+                        </div>
+                      ) : spHistory.length === 0 ? (
+                        <div className='alert alert-success mb-0'>
+                          <FontAwesomeIcon icon={faUserShield} className='me-2' />
+                          Vendor tidak memiliki riwayat Surat Peringatan.
+                        </div>
+                      ) : (
+                        <div className='table-responsive'>
+                          <table className='table table-hover table-bordered'>
+                            <thead className='table-light'>
+                              <tr>
+                                <th>Level</th>
+                                <th>Tanggal Mulai</th>
+                                <th>Tanggal Berakhir</th>
+                                <th>Total Poin</th>
+                                <th>Status</th>
+                                <th>Pengurangan Alokasi</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {spHistory.map((sp: any) => (
+                                <tr key={sp.id}>
                                 <td>
                                   <span
                                     className={`badge bg-${
@@ -988,6 +998,8 @@ const DetailVendorHO: FC<{updatePageTitle: (vendor: Vendor) => void}> = ({update
                       </div>
                     )}
                   </Tab.Pane>
+                    </>
+                  )}
 
                   {/* Tukang List Tab */}
                   <Tab.Pane eventKey='tukang-list'>

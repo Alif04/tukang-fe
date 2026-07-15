@@ -15,6 +15,7 @@ const chatBreadCrumbs: Array<PageLink> = [
   },
 ]
 const PrivateRoutes = () => {
+  const isVendorSpEnabled = process.env.REACT_APP_ENABLE_VENDOR_SP === 'true'
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
   const ChatPage = lazy(() => import('../modules/chat/ChatPage'))
   const CalendarPage = lazy(() => import('../modules/calendar/CalendarPage'))
@@ -226,14 +227,16 @@ const PrivateRoutes = () => {
           }
         />
 
-        <Route
-          path='vendor-sp/*'
-          element={
-            <SuspensedView>
-              <VendorSPPage />
-            </SuspensedView>
-          }
-        />
+        {isVendorSpEnabled && (
+          <Route
+            path='vendor-sp/*'
+            element={
+              <SuspensedView>
+                <VendorSPPage />
+              </SuspensedView>
+            }
+          />
+        )}
 
         <Route
           path='vendor-registration/*'
