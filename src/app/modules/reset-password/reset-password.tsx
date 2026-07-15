@@ -123,8 +123,8 @@ export function ResetPassword() {
         {
           headers: {
             Accept: 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         }
       )

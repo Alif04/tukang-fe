@@ -368,15 +368,15 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
                 overlay={renderTooltip('Resubmit ke CRM')}
               >
                 <Button
-                  variant='primary'
-                  className='button-edit'
+                  variant='warning'
+                  size='sm'
+                  className='text-white'
                   disabled={resyncLoading === record.complaint_id}
                   onClick={handleResync}
                 >
                   <FontAwesomeIcon
                     icon={faRotate}
-                    className='text-white'
-                    fontSize={'13px'}
+                    fontSize={'12px'}
                     spin={resyncLoading === record.complaint_id}
                   />
                 </Button>
@@ -425,8 +425,8 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
 
@@ -542,7 +542,7 @@ const ViewComplaintHO: React.FC<Props> = ({className}) => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'ngrok-skip-browser-warning': 'true',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         }
       )

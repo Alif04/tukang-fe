@@ -81,8 +81,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         .then((response) => {
@@ -224,8 +224,8 @@ const DetailOrders: FC<{updatePageTitle: (order: Orders) => void}> = ({updatePag
         maxBodyLength: Infinity,
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then(() => {

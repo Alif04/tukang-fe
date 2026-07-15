@@ -5,7 +5,7 @@ import Swal from 'sweetalert2'
 import {getStoreDisplayName, getVendorDisplayName, normalizeLiveChatRoom} from './roomDisplay'
 import {isLiveChatVideo, LIVECHAT_UPLOAD_ACCEPT, validateLiveChatUpload} from './uploadValidation'
 
-const API_URL = process.env.REACT_APP_LIVECHAT_API_URL || 'http://localhost:3002'
+const API_URL = process.env.REACT_APP_LIVECHAT_API_URL || 'https://apigatewayinstalasi.mitra10.com/live-chat'
 
 // ─── HELPERS ─────────────────────────────────────────────────
 const formatTime = (date: string) => {
@@ -1080,7 +1080,6 @@ const LiveChatPopup: React.FC = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null) // ← scroll target: BOTTOM (newest messages)
   const sseRef = useRef<EventSource | null>(null)
-  const sseRoomIdRef = useRef<number | null>(null)
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -1100,23 +1099,14 @@ const LiveChatPopup: React.FC = () => {
       sseRef.current.close()
       sseRef.current = null
     }
-    sseRoomIdRef.current = null
     setSseConnected(false)
   }, [])
 
   const connectSSE = useCallback(
     (roomId: number) => {
-      if (
-        sseRef.current &&
-        sseRoomIdRef.current === roomId &&
-        sseRef.current.readyState !== EventSource.CLOSED
-      ) {
-        return
-      }
       clearSSE()
       const es = new EventSource(`${API_URL}/rooms/${roomId}/sse?token=${token}`)
       sseRef.current = es
-      sseRoomIdRef.current = roomId
 
       es.addEventListener('CONNECTED', () => setSseConnected(true))
 
@@ -1255,11 +1245,9 @@ const LiveChatPopup: React.FC = () => {
         }
         await api.markAsRead(token, room.id)
         setRooms((prev) => prev.map((r) => (r.id === room.id ? { ...r, unreadCount: 0 } : r)))
-        setTotalUnread((prev) => Math.max(0, prev - (normalizedRoom.unreadCount || 0)))
-        connectSSE(room.id)
       } catch (e) { console.error(e) } finally { setLoadingMessages(false) }
     },
-    [token, connectSSE]
+    [token]
   )
   // ── Send ───────────────────────────────────────────────────
   const handleSend = async () => {
@@ -1396,23 +1384,8 @@ const LiveChatPopup: React.FC = () => {
   // ── Effects ────────────────────────────────────────────────
   useEffect(() => {
     if (open) loadRooms()
-    else {
-      clearSSE()
-      setActiveRoom(null)
-      activeRoomRef.current = null
-      setView('rooms')
-    }
-  }, [open, loadRooms, clearSSE])
-
-  useEffect(() => {
-    const handleUnreadCount = (event: Event) => {
-      const unread = (event as CustomEvent<{totalUnread: number}>).detail?.totalUnread
-      if (typeof unread === 'number') setTotalUnread(unread)
-    }
-
-    window.addEventListener('livechat:unread-count', handleUnreadCount)
-    return () => window.removeEventListener('livechat:unread-count', handleUnreadCount)
-  }, [])
+    else clearSSE()
+  }, [open])
 
   // NOTE: Removed auto-scroll on messages change
   // - Initial load: oldest at TOP, newest at BOTTOM

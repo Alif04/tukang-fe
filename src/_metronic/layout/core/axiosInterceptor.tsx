@@ -7,8 +7,6 @@ const axiosInstance = axios.create({
   baseURL: apiUrl,
   headers: {
     Accept: 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'ngrok-skip-browser-warning': 'true',
   },
 })
 

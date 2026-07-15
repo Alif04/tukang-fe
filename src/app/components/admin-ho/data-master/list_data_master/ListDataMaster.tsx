@@ -89,8 +89,8 @@ const ListDataMasterHO: React.FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then((response) => {
@@ -201,8 +201,8 @@ const ListDataMasterHO: React.FC = () => {
                     headers: {
                       Accept: 'application/json',
                       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                      'Access-Control-Allow-Origin': '*',
-                      'ngrok-skip-browser-warning': 'true',
+                      // 'Access-Control-Allow-Origin': '*',
+                     // 'ngrok-skip-browser-warning':  'true',
                     },
                   })
                   .then((response) => {
@@ -267,8 +267,8 @@ const ListDataMasterHO: React.FC = () => {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
 

@@ -39,8 +39,8 @@ export function Login() {
       const response = await axios.get(`${apiUrl}/status?take=0`, {
         headers: {
           Accept: 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
         timeout: 2500,
       })
@@ -77,8 +77,8 @@ export function Login() {
         {
           headers: {
             Accept: 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         }
       )

@@ -125,8 +125,8 @@ export default function ChatPage(): JSX.Element {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
 
@@ -162,8 +162,8 @@ export default function ChatPage(): JSX.Element {
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        'Access-Control-Allow-Origin': '*',
-        'ngrok-skip-browser-warning': 'true',
+        // // 'Access-Control-Allow-Origin': '*',
+       // // 'ngrok-skip-browser-warning':  'true',
       },
     })
     setVendorList(res.data.data)
@@ -180,8 +180,8 @@ export default function ChatPage(): JSX.Element {
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        'Access-Control-Allow-Origin': '*',
-        'ngrok-skip-browser-warning': 'true',
+        // // 'Access-Control-Allow-Origin': '*',
+       // // 'ngrok-skip-browser-warning':  'true',
       },
     })
 
@@ -313,8 +313,8 @@ export default function ChatPage(): JSX.Element {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
+              // 'Access-Control-Allow-Origin': '*',
+             // 'ngrok-skip-browser-warning':  'true',
             },
           })
           if (res.status === 200) {
@@ -382,8 +382,8 @@ export default function ChatPage(): JSX.Element {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
+              // 'Access-Control-Allow-Origin': '*',
+             // 'ngrok-skip-browser-warning':  'true',
             },
           })
           if (res.status === 200) {
@@ -460,8 +460,8 @@ export default function ChatPage(): JSX.Element {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-              'Access-Control-Allow-Origin': '*',
-              'ngrok-skip-browser-warning': 'true',
+              // 'Access-Control-Allow-Origin': '*',
+             // 'ngrok-skip-browser-warning':  'true',
             },
           })
           if (res.status === 200) {

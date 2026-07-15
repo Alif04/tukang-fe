@@ -125,7 +125,7 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'ngrok-skip-browser-warning': 'true',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         }
       )
@@ -190,8 +190,8 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            'Access-Control-Allow-Origin': '*',
-            'ngrok-skip-browser-warning': 'true',
+            // 'Access-Control-Allow-Origin': '*',
+           // 'ngrok-skip-browser-warning':  'true',
           },
         })
         .then((response) => {
@@ -295,8 +295,8 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then((response) => {
@@ -354,8 +354,8 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then((response) => {
@@ -525,8 +525,8 @@ const DetailComplaintPage: FC<{updatePageTitle: (complaint: any) => void}> = ({
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': 'true',
+        //  // 'Access-Control-Allow-Origin': '*',
+        // // 'ngrok-skip-browser-warning':  'true',
         },
       })
       .then((response) => {
