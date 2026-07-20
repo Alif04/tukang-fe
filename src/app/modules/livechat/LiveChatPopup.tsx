@@ -1089,7 +1089,7 @@ const LiveChatPopup: React.FC = () => {
     activeRoomRef.current = activeRoom
   }, [activeRoom])
 
-  // ── SSE ────────────────────────────────────────────────────
+  // ── Global SSE (room list real-time sync) ───────────────────
   const clearSSE = useCallback(() => {
     if (reconnectRef.current) {
       clearTimeout(reconnectRef.current)
@@ -1102,102 +1102,106 @@ const LiveChatPopup: React.FC = () => {
     setSseConnected(false)
   }, [])
 
-  const connectSSE = useCallback(
-    (roomId: number) => {
-      clearSSE()
-      const es = new EventSource(`${API_URL}/rooms/${roomId}/sse?token=${token}`)
-      sseRef.current = es
+  const connectGlobalSSE = useCallback(() => {
+    clearSSE()
+    const es = new EventSource(`${API_URL}/rooms/sse?token=${token}`)
+    sseRef.current = es
 
-      es.addEventListener('CONNECTED', () => setSseConnected(true))
+    es.addEventListener('CONNECTED', () => setSseConnected(true))
 
-      es.addEventListener('NEW_MESSAGE', (e: MessageEvent) => {
-        try {
-          const msg: Message = JSON.parse(e.data)
-          const isActiveRoom = activeRoomRef.current?.id === msg.roomId
-          setMessages((prev) => (prev.find((m) => m.id === msg.id) ? prev : [...prev, msg])) // ← newest at BOTTOM
-          setRooms((prev) =>
-            updateRoomList(prev, msg.roomId, (room) => ({
-              ...room,
-              lastMessage: buildLastMessage(msg),
-              updatedAt: msg.createdAt,
-              unreadCount: isActiveRoom ? 0 : room.unreadCount,
-            }))
-          )
-          if (isActiveRoom && String(msg.senderId) !== String(userId)) {
+    // NEW_MESSAGE: pesan baru dari room manapun
+    es.addEventListener('NEW_MESSAGE', (e: MessageEvent) => {
+      try {
+        const msg: Message = JSON.parse(e.data)
+        const isActiveRoom = activeRoomRef.current?.id === msg.roomId
+
+        // Update room list state (last message, timestamp, unread)
+        setRooms((prev) =>
+          updateRoomList(prev, msg.roomId, (room) => ({
+            ...room,
+            lastMessage: buildLastMessage(msg),
+            updatedAt: msg.createdAt,
+            unreadCount: isActiveRoom ? 0 : room.unreadCount,
+          }))
+        )
+
+        // Update chat window only if this room is currently open
+        if (isActiveRoom) {
+          setMessages((prev) => (prev.find((m) => m.id === msg.id) ? prev : [...prev, msg]))
+          if (String(msg.senderId) !== String(userId)) {
             void api.markAsRead(token, msg.roomId).catch(() => undefined)
           }
           setTimeout(() => messagesEndRef.current?.scrollIntoView({behavior: 'smooth'}), 50)
-        } catch {}
-      })
+        }
+      } catch {}
+    })
 
-      es.addEventListener('READ_RECEIPT', (e: MessageEvent) => {
-        try {
-          const data = JSON.parse(e.data)
-          setMessages((prev) =>
-            prev.map((m) => (data.messageIds?.includes(m.id) ? {...m, isRead: true} : m))
-          )
-        } catch {}
-      })
+    es.addEventListener('READ_RECEIPT', (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data)
+        setMessages((prev) =>
+          prev.map((m) => (data.messageIds?.includes(m.id) ? {...m, isRead: true} : m))
+        )
+      } catch {}
+    })
 
-      es.addEventListener('USER_ONLINE', (e: MessageEvent) => {
-        try {
-          const data = JSON.parse(e.data)
-          setOnlineUsers((prev) => {
-            const n = new Set(prev)
-            n.add(data.userId)
-            return n
-          })
-        } catch {}
-      })
+    es.addEventListener('USER_ONLINE', (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data)
+        setOnlineUsers((prev) => {
+          const n = new Set(prev)
+          n.add(data.userId)
+          return n
+        })
+      } catch {}
+    })
 
-      es.addEventListener('USER_OFFLINE', (e: MessageEvent) => {
-        try {
-          const data = JSON.parse(e.data)
-          setOnlineUsers((prev) => {
-            const n = new Set(prev)
-            n.delete(data.userId)
-            return n
-          })
-        } catch {}
-      })
+    es.addEventListener('USER_OFFLINE', (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data)
+        setOnlineUsers((prev) => {
+          const n = new Set(prev)
+          n.delete(data.userId)
+          return n
+        })
+      } catch {}
+    })
 
-      es.addEventListener('UNREAD_NOTIFICATION', (e: MessageEvent) => {
-        try {
-          const data = JSON.parse(e.data)
-          if (activeRoomRef.current?.id === data.roomId) {
-            void api.markAsRead(token, data.roomId).catch(() => undefined)
-            return
-          }
-          setRooms((prev) =>
-            updateRoomList(prev, data.roomId, (room) => ({
-              ...room,
-              unreadCount: (room.unreadCount || 0) + 1,
-              updatedAt: new Date().toISOString(),
-            }))
-          )
-          setTotalUnread((n) => n + 1)
-        } catch {}
-      })
+    es.addEventListener('UNREAD_NOTIFICATION', (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data)
+        if (activeRoomRef.current?.id === data.roomId) {
+          void api.markAsRead(token, data.roomId).catch(() => undefined)
+          return
+        }
+        setRooms((prev) =>
+          updateRoomList(prev, data.roomId, (room) => ({
+            ...room,
+            unreadCount: (room.unreadCount || 0) + 1,
+            updatedAt: new Date().toISOString(),
+          }))
+        )
+        setTotalUnread((n) => n + 1)
+      } catch {}
+    })
 
-      es.addEventListener('ROOM_CREATED', (e: MessageEvent) => {
-        try {
-          const data = JSON.parse(e.data)
-          const nextRoom = normalizeLiveChatRoom(data.room || {}) as Room
-          setRooms((prev) => mergeRoomIntoList(prev, nextRoom))
-        } catch {}
-      })
+    es.addEventListener('ROOM_CREATED', (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data)
+        const nextRoom = normalizeLiveChatRoom(data.room || {}) as Room
+        setRooms((prev) => mergeRoomIntoList(prev, nextRoom))
+      } catch {}
+    })
 
-      es.onerror = () => {
-        setSseConnected(false)
-        if (sseRef.current !== es) return
-        es.close()
-        reconnectRef.current = setTimeout(() => {
-          if (activeRoomRef.current?.id === roomId) connectSSE(roomId)
-        }, 3000)
-      }
-    },
-    [token, clearSSE]
-  )
+    es.onerror = () => {
+      setSseConnected(false)
+      if (sseRef.current !== es) return
+      es.close()
+      reconnectRef.current = setTimeout(() => {
+        if (open) connectGlobalSSE()
+      }, 3000)
+    }
+  }, [token, clearSSE, open])
 
   // ── Load Rooms ─────────────────────────────────────────────
   const loadRooms = useCallback(async () => {
@@ -1383,9 +1387,13 @@ const LiveChatPopup: React.FC = () => {
 
   // ── Effects ────────────────────────────────────────────────
   useEffect(() => {
-    if (open) loadRooms()
-    else clearSSE()
-  }, [open])
+    if (open) {
+      loadRooms()
+      connectGlobalSSE()
+    } else {
+      clearSSE()
+    }
+  }, [open, loadRooms, connectGlobalSSE, clearSSE])
 
   // NOTE: Removed auto-scroll on messages change
   // - Initial load: oldest at TOP, newest at BOTTOM
@@ -1887,7 +1895,6 @@ const LiveChatPopup: React.FC = () => {
                     }}
                     onClick={() => {
                       setView('rooms')
-                      clearSSE()
                     }}
                     title='Kembali ke daftar room'
                   >
