@@ -15,9 +15,7 @@ export const PicInfoForm: React.FC<Props> = ({ data, onChange }) => {
   useEffect(() => {
     const fetchBanks = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/bank/public/list`, {
-          headers: { 'ngrok-skip-browser-warning': 'true' },
-        });
+        const response = await axios.get(`${apiUrl}/bank/public/list`);
         if (Array.isArray(response.data.data?.data)) {
           setBanks(response.data.data.data.map((item: any) => ({ value: item.id, label: item.bank_name })));
         }

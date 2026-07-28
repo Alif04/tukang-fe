@@ -20,8 +20,8 @@ export const CompanyInfoForm: React.FC<Props> = ({ data, onChange }) => {
     const fetchDropdowns = async () => {
       try {
         const [areaRes, typeRes] = await Promise.all([
-          axios.get(`${apiUrl}/area?take=100`, { headers: { 'ngrok-skip-browser-warning': 'true' } }),
-          axios.get(`${apiUrl}/service-type/public/list`, { headers: { 'ngrok-skip-browser-warning': 'true' } }),
+          axios.get(`${apiUrl}/area?take=100`),
+          axios.get(`${apiUrl}/service-type/public/list`),
         ]);
 
         if (Array.isArray(areaRes.data.data)) {

@@ -38,9 +38,7 @@ export const TukangInfoForm: React.FC<TukangInfoFormProps> = ({
       setIsLoadingOptions(true)
       setErrorOptions(null)
       try {
-        const res = await axios.get(`${apiUrl}/service-type/public/list`, {
-          headers: {'ngrok-skip-browser-warning': 'true'},
-        })
+        const res = await axios.get(`${apiUrl}/service-type/public/list`)
         const data = res.data?.data?.data || res.data?.data || []
         const options = data.map((item: any) => ({
           value: item.id,
