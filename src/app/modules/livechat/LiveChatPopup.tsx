@@ -1249,7 +1249,10 @@ const LiveChatPopup: React.FC = () => {
         }
         await api.markAsRead(token, room.id)
         setRooms((prev) => prev.map((r) => (r.id === room.id ? { ...r, unreadCount: 0 } : r)))
-      } catch (e) { console.error(e) } finally { setLoadingMessages(false) }
+      } catch (e) { console.error(e) } finally {
+        setLoadingMessages(false)
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({behavior: 'auto'}), 100)
+      }
     },
     [token]
   )
