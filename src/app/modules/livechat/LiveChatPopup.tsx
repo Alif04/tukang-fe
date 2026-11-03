@@ -9,6 +9,8 @@ import {mergeLiveChatMessages} from './liveChatMessages'
 
 const API_URL =
   process.env.REACT_APP_LIVECHAT_API_URL || 'https://apigatewayinstalasi.mitra10.com/live-chat'
+const MAIN_API_URL =
+  process.env.REACT_APP_API_URL || 'https://apigatewayinstalasi.mitra10.com'
 
 // ─── HELPERS ─────────────────────────────────────────────────
 const formatTime = (date: string) => {
@@ -155,14 +157,54 @@ const api = {
       headers: buildHeaders(token),
       body: JSON.stringify({vendorId}),
     }).then((r) => r.json()),
-  getStores: (token: string, search?: string) =>
-    fetch(`${API_URL}/rooms/stores${search ? `?search=${encodeURIComponent(search)}` : ''}`, {
+  getStores: async (token: string, search?: string, vendorId?: string | number) => {
+    const params = new URLSearchParams()
+    if (search) params.append('search', search)
+    if (vendorId) params.append('vendor_id', String(vendorId))
+    const query = params.toString() ? `?${params.toString()}` : ''
+
+    if (vendorId) {
+      try {
+        const res = await fetch(
+          `${MAIN_API_URL}/stores?take=9999&vendor_id=${vendorId}${search ? `&search=${encodeURIComponent(search)}` : ''}`,
+          {headers: buildHeaders(token)}
+        ).then((r) => r.json())
+        const items = res?.data || res || []
+        const data = Array.isArray(items) ? items : items.data || []
+        return {success: true, data}
+      } catch (err) {
+        console.warn('Fallback to livechat getStores:', err)
+      }
+    }
+
+    return fetch(`${API_URL}/rooms/stores${query}`, {
       headers: buildHeaders(token),
-    }).then((r) => r.json()),
-  getVendors: (token: string, search?: string) =>
-    fetch(`${API_URL}/rooms/vendors${search ? `?search=${encodeURIComponent(search)}` : ''}`, {
+    }).then((r) => r.json())
+  },
+  getVendors: async (token: string, search?: string, storeId?: string | number) => {
+    const params = new URLSearchParams()
+    if (search) params.append('search', search)
+    if (storeId) params.append('store_id', String(storeId))
+    const query = params.toString() ? `?${params.toString()}` : ''
+
+    if (storeId) {
+      try {
+        const res = await fetch(
+          `${MAIN_API_URL}/vendor?take=9999&store_id=${storeId}${search ? `&search=${encodeURIComponent(search)}` : ''}`,
+          {headers: buildHeaders(token)}
+        ).then((r) => r.json())
+        const items = res?.data || res || []
+        const data = Array.isArray(items) ? items : items.data || []
+        return {success: true, data}
+      } catch (err) {
+        console.warn('Fallback to livechat getVendors:', err)
+      }
+    }
+
+    return fetch(`${API_URL}/rooms/vendors${query}`, {
       headers: buildHeaders(token),
-    }).then((r) => r.json()),
+    }).then((r) => r.json())
+  },
   uploadFile: (token: string, roomId: number, file: File) => {
     const form = new FormData()
     form.append('file', file)
@@ -317,33 +359,40 @@ const CreateModal: React.FC<{
       .filter((v) => v.company_name.toLowerCase().includes(inputValue.toLowerCase()))
       .map((v) => ({value: String(v.id), label: v.company_name}))
 
+  const userRole = localStorage.getItem('userRole') || ''
+  const vendorId = localStorage.getItem('vendor_id') || ''
+  const storeId = localStorage.getItem('storeId') || ''
+
   // Load stores on first open
   const loadStoresIfNeeded = useCallback(() => {
     if (allStores.length === 0) {
       setLoadingList(true)
+      const isVendor =
+        userRole === 'Owner Vendor' || userRole === 'Admin Vendor' || Boolean(vendorId)
       api
-        .getStores(token, '')
+        .getStores(token, '', isVendor ? vendorId : undefined)
         .then((r: any) => {
           setAllStores((r.data || []) as Store[])
         })
         .catch(() => {})
         .finally(() => setLoadingList(false))
     }
-  }, [allStores.length, token])
+  }, [allStores.length, token, userRole, vendorId])
 
   // Load vendors on first open
   const loadVendorsIfNeeded = useCallback(() => {
     if (allVendors.length === 0) {
       setLoadingList(true)
+      const isStore = userRole === 'Store CS' || Boolean(storeId)
       api
-        .getVendors(token, '')
+        .getVendors(token, '', isStore ? storeId : undefined)
         .then((r: any) => {
           setAllVendors((r.data || []) as Vendor[])
         })
         .catch(() => {})
         .finally(() => setLoadingList(false))
     }
-  }, [allVendors.length, token])
+  }, [allVendors.length, token, userRole, storeId])
 
   const goStore = () => {
     setStep('store')
