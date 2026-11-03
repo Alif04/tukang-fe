@@ -517,9 +517,10 @@ const CreateModal: React.FC<{
                 width: 32,
                 height: 32,
                 border: '1px solid #e6ebf4',
-                background: '#f4f7fc',
-                borderRadius: 10,
-                color: '#8b94a7',
+                  background: '#ffffff',
+                  borderRadius: 10,
+                  color: '#4b5568',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
                 cursor: 'pointer',
                 display: 'grid',
                 placeItems: 'center',
@@ -653,8 +654,10 @@ const CreateModal: React.FC<{
               height: 38,
               borderRadius: 12,
               border: 0,
-              background: 'rgba(255,255,255,0.22)',
-              color: '#fff',
+              background: '#ffffff',
+              color: '#1d6ff2',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+              fontWeight: 'bold',
               fontSize: 18,
               cursor: 'pointer',
               flex: 'none',
@@ -2103,14 +2106,18 @@ const LiveChatPopup: React.FC = () => {
                         width: 34,
                         height: 34,
                         borderRadius: 10,
-                        border: '1px solid rgba(255,255,255,0.24)',
-                        background: 'rgba(255,255,255,0.14)',
-                        color: '#fff',
+                        border: 'none',
+                        background: '#ffffff',
+                        color: '#1d6ff2',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                        display: 'grid',
+                        placeItems: 'center',
+                        cursor: 'pointer',
                       }}
                       onClick={() => setOpen(false)}
                       title='Tutup live chat'
                     >
-                      <i className='bi bi-x-lg' />
+                      <i className='bi bi-x-lg' style={{fontSize: 13, fontWeight: 'bold'}} />
                     </button>
                   </div>
                 </div>
@@ -2474,15 +2481,19 @@ const LiveChatPopup: React.FC = () => {
                       width: 34,
                       height: 34,
                       borderRadius: 12,
-                      border: '1px solid rgba(255,255,255,0.24)',
-                      background: 'rgba(255,255,255,0.14)',
-                      color: '#fff',
+                      border: 'none',
+                      background: '#ffffff',
+                      color: '#1d6ff2',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                      display: 'grid',
+                      placeItems: 'center',
                       flexShrink: 0,
+                      cursor: 'pointer',
                     }}
                     onClick={() => setOpen(false)}
                     title='Tutup live chat'
                   >
-                    <i className='bi bi-x-lg' />
+                    <i className='bi bi-x-lg' style={{fontSize: 13, fontWeight: 'bold'}} />
                   </button>
                 </div>
               </div>
