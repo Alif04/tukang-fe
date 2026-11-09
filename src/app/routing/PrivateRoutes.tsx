@@ -55,6 +55,7 @@ const HomeContentSettingsPage = lazy(() => import('../components/admin-ho/home-c
   const NotifSettingPage = lazy(() => import('../modules/notif-setting/NotifSettingPage'))
   const VendorSPPage = lazy(() => import('../modules/vendor-sp/VendorSPPage'))
   const RegistrantPage = lazy(() => import('../modules/pendaftar/RegistrantPage'))
+  const AiAssistantPage = lazy(() => import('../modules/ai-assistant/AiAssistantPage'))
   const isRegistrant = localStorage.getItem('userRole') === 'Pendaftar Vendor'
 
   return (
@@ -396,6 +397,15 @@ const HomeContentSettingsPage = lazy(() => import('../components/admin-ho/home-c
           element={
             <SuspensedView>
               <ChatPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path='ai-assistant/*'
+          element={
+            <SuspensedView>
+              <AiAssistantPage />
             </SuspensedView>
           }
         />

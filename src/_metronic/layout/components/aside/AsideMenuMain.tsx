@@ -27,6 +27,11 @@ export function AsideMenuMain() {
       denyButtonText: 'Tidak',
     }).then(async (result) => {
       if (result.isConfirmed) {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('mitra10_ai_assistant_')) {
+            localStorage.removeItem(key)
+          }
+        })
         localStorage.clear()
         sessionStorage.clear()
 
@@ -555,12 +560,26 @@ export function AsideMenuMain() {
           hasBullet={true}
         />
         <AsideMenuItem
+          to='/ai-assistant'
+          title='AI Report Chat'
+          role={['Admin HO', 'Super User']}
+          hasBullet={true}
+        />
+        <AsideMenuItem
           to='/reports/log-chat'
           title='Log chat'
           role={['Admin WA', 'Admin WA2']}
           hasBullet={true}
         />
       </AsideMenuItemWithSub>
+
+      <AsideMenuItem
+        to='/ai-assistant'
+        icon='/media/icons/duotune/communication/com012.svg'
+        title='AI Report Assistant'
+        fontIcon='bi-chat-dots'
+        role={['Admin HO', 'Super User']}
+      />
 
       {/* Halaman Setting */}
       <AsideMenuItemWithSub

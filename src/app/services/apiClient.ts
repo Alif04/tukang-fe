@@ -26,6 +26,11 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('accessToken');
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('mitra10_ai_assistant_')) {
+          localStorage.removeItem(key);
+        }
+      });
       window.location.href = '/login';
     }
     return Promise.reject(error);

@@ -11,6 +11,7 @@ import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons'
 
 import ModalNotification from './ModalNotification'
 import TermsAndConditionsViewer from './TermsAndConditionsViewer'
+import {purgeOtherUsersAiStorage} from '../ai-assistant/aiAssistantService'
 
 interface Status {
   value: number
@@ -112,6 +113,7 @@ export function Login() {
           localStorage.setItem('username', user.username)
           localStorage.setItem('userRole', user.roles.name)
           localStorage.setItem('accessToken', res.data.data.accessToken)
+          purgeOtherUsersAiStorage(user.id)
 
           if (isSales) {
             localStorage.setItem('sales_id', user?.sales[0]?.id)
