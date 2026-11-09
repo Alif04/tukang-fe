@@ -2,7 +2,9 @@ import apiClient from '../../services/apiClient'
 import {
   AiSkillId,
   AiSkillDefinition,
+  AiReportCatalogItem,
   TemporalContext,
+  AiReportCatalogPayload,
 } from './skills/types'
 import {
   AI_SKILLS,
@@ -32,7 +34,15 @@ export {
   parseAiReply,
   stripDokumenBlocksForHistory,
 }
-export type { AiSkillId, AiSkillDefinition, DocFormat, ParsedAiDoc, PromptIntent, TemporalContext }
+export type {
+  AiSkillId,
+  AiSkillDefinition,
+  AiReportCatalogPayload,
+  DocFormat,
+  ParsedAiDoc,
+  PromptIntent,
+  TemporalContext,
+}
 
 export type AiEngineMode =
   | '9router-gemini'
@@ -264,6 +274,51 @@ export function saveAiSettings(settings: AiSettings, userId?: string | number | 
   localStorage.setItem(key, JSON.stringify(clean))
 }
 
+export async function loadAiReportCatalog(): Promise<AiReportCatalogPayload | null> {
+  try {
+    const response = await apiClient.get('/reports/ai-catalog', { timeout: 15000 })
+    const payload = response.data?.data ?? response.data
+    if (!payload || !Array.isArray(payload.skills) || !Array.isArray(payload.catalog)) {
+      return null
+    }
+    return payload as AiReportCatalogPayload
+  } catch {
+    return null
+  }
+}
+
+export function applyBackendReportCatalog(
+  skills: Record<AiSkillId, AiSkillDefinition>,
+  catalog: AiReportCatalogPayload | null,
+): Record<AiSkillId, AiSkillDefinition> {
+  if (!catalog) return skills
+
+  const reportBySkill = catalog.catalog.reduce<Record<string, AiReportCatalogItem[]>>((acc, item) => {
+    acc[item.skill] = [...(acc[item.skill] || []), item]
+    return acc
+  }, {})
+
+  const next = { ...skills }
+  catalog.skills.forEach((backendSkill) => {
+    const localSkill = next[backendSkill.id]
+    if (!localSkill) return
+    next[backendSkill.id] = {
+      ...localSkill,
+      description: backendSkill.description,
+      focusKeywords: backendSkill.keywords,
+      reports: (reportBySkill[backendSkill.id] || []).map((item) => ({
+        key: item.key,
+        title: item.title,
+        status: item.status,
+        sumber: item.sumber,
+        unavailableReason: item.unavailableReason || undefined,
+      })),
+    }
+  })
+
+  return next
+}
+
 function capSessionDocsMarkdown(sessions: ChatSession[]): ChatSession[] {
   return sessions.slice(0, MAX_SAVED_SESSIONS).map((sess) => ({
     ...sess,
@@ -469,18 +524,24 @@ export async function sendAiReportMessage(params: {
     ? settings.deployModel || 'deepseek-ai/deepseek-v4.1-flash-1017'
     : settings.nineRouterModel || 'ag/gemini-3-flash'
 
-  const relayRes = await apiClient.post('/reports/ai-chat', {
-    sessionId,
-    userPrompt,
-    history: sanitizedHistory,
-    activeSkillId: settings.activeSkillId || 'auto',
-    requestedFormat,
-    engineMode: settings.engineMode,
-    model,
-    temperature: Math.min(1, Math.max(0, Number(settings.temperature ?? 0.3))),
-    topP: settings.topP ?? 1,
-    reasoningEffort: settings.reasoningEffort || 'high',
-  })
+  const relayRes = await apiClient.post(
+    '/reports/ai-chat',
+    {
+      sessionId,
+      userPrompt,
+      history: sanitizedHistory,
+      activeSkillId: settings.activeSkillId || 'auto',
+      requestedFormat,
+      engineMode: settings.engineMode,
+      model,
+      temperature: Math.min(1, Math.max(0, Number(settings.temperature ?? 0.3))),
+      topP: settings.topP ?? 1,
+      reasoningEffort: settings.reasoningEffort || 'high',
+    },
+    {
+      timeout: 120000, // 2 menit timeout khusus AI Report Chat (menghindari timeout 30000ms axios default)
+    }
+  )
 
   const rawData = relayRes.data?.data ?? relayRes.data
   const data = rawData?.data && rawData?.content === undefined ? rawData.data : rawData
@@ -521,9 +582,26 @@ export async function sendAiReportMessage(params: {
       : []),
     ...(Array.isArray(meta?.unavailableRequested) &&
     meta.unavailableRequested.length > 0
-      ? ['Status: Belum Tersedia (Fase 2)']
+      ? ['Status: Belum tersedia']
       : []),
   ]
+
+  const parsedRequest = meta?.parsedRequest
+  if (parsedRequest) {
+    const filters = parsedRequest.filters || {}
+    const appliedFilters = [
+      ...(filters.statusCategories?.length ? [`Status: ${filters.statusCategories.join(', ')}`] : []),
+      ...(filters.invoiceStatus?.length ? [`Invoice: ${filters.invoiceStatus.join(', ')}`] : []),
+      ...(filters.incentiveStatus?.length ? [`Insentif: ${filters.incentiveStatus.join(', ')}`] : []),
+      ...(filters.paymentType ? [`Pembayaran: ${filters.paymentType}`] : []),
+      ...(filters.penaltyOnly ? ['Filter: penalty'] : []),
+      ...(filters.voucherOnly ? ['Filter: voucher'] : []),
+      ...(filters.promotionOnly ? ['Filter: promosi'] : []),
+      ...(filters.csiSent !== undefined ? [`CSI: ${filters.csiSent ? 'terkirim' : 'belum terkirim'}`] : []),
+      ...(parsedRequest.groupBy?.length ? [`Kelompok: ${parsedRequest.groupBy.join(', ')}`] : []),
+    ]
+    dataUsed.push(...appliedFilters)
+  }
 
   return {
     text: cleanLatexAndMathFormatting(replyText),

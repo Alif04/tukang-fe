@@ -8,6 +8,8 @@ import {
   ChatMessage,
   ChatSession,
   loadAiSettings,
+  loadAiReportCatalog,
+  applyBackendReportCatalog,
   loadChatSessions,
   saveAiSettings,
   saveChatSessions,
@@ -15,6 +17,7 @@ import {
   sendAiReportMessage,
   AI_SKILLS,
   AiSkillId,
+  AiReportCatalogPayload,
   cleanLatexAndMathFormatting,
   detectRequestedFormat,
   parseAiReply,
@@ -281,16 +284,19 @@ const AiAssistantPage: React.FC = () => {
   const [settings, setSettings] = useState<AiSettings>(() => loadAiSettings())
   const [settingsModalOpen, setSettingsModalOpen] = useState(false)
   const [draftSettings, setDraftSettings] = useState<AiSettings>(() => loadAiSettings())
+  const [backendCatalog, setBackendCatalog] = useState<AiReportCatalogPayload | null>(null)
   const [activeArtifact, setActiveArtifact] = useState<ActiveArtifact | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
   const activeSession = sessions.find((s) => s.id === activeSessionId) || null
-  const effectiveSkill = AI_SKILLS[settings.activeSkillId || 'auto'] || AI_SKILLS['auto']
+  const runtimeSkills = applyBackendReportCatalog(AI_SKILLS, backendCatalog)
+  const effectiveSkill = runtimeSkills[settings.activeSkillId || 'auto'] || runtimeSkills['auto']
 
   useEffect(() => {
     purgeOtherUsersAiStorage()
+    loadAiReportCatalog().then(setBackendCatalog)
   }, [])
 
   useEffect(() => {
@@ -439,12 +445,18 @@ const AiAssistantPage: React.FC = () => {
         setPreviewOpen(true)
       }
     } catch (err: any) {
+      const isTimeout =
+        err?.code === 'ECONNABORTED' ||
+        /timeout/i.test(err?.message || '') ||
+        /exceeded/i.test(err?.message || '')
+      const errorDetail = isTimeout
+        ? 'Waktu proses komputasi melebihi batas (AI sedang memproses data/laporan dalam jumlah besar). Silakan coba ajukan pertanyaan kembali atau persempit periode/kriteria data.'
+        : err?.message || 'Terjadi kesalahan koneksi'
+
       const errMsg: ChatMessage = {
         id: `msg-${Date.now()}-err`,
         role: 'assistant',
-        content: `Gagal memproses permintaan ke API: ${
-          err?.message || 'Terjadi kesalahan koneksi'
-        }. Anda dapat beralih ke mode **Claude 3.5 Sonnet (Free / Cloud)** atau **Mitra10 Live Report Engine** pada pilihan model di bagian atas.`,
+        content: `Gagal memproses permintaan ke API: ${errorDetail}. Anda juga dapat beralih ke mode **Claude 3.5 Sonnet (Free / Cloud)** atau **Mitra10 Live Report Engine** pada pilihan model di bagian atas.`,
         timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
         modelLabel: 'System Notice',
       }
@@ -865,6 +877,17 @@ const AiAssistantPage: React.FC = () => {
                         </>
                       ) : (
                         <div>{msg.content}</div>
+                      )}
+
+                      {msg.role === 'assistant' && (msg.modelLabel || msg.dataUsed?.length) && (
+                        <div className='owui-msg-meta' aria-label='Sumber dan konteks jawaban'>
+                          {msg.modelLabel && <span className='owui-model-tag'>{msg.modelLabel}</span>}
+                          {msg.dataUsed?.map((item, itemIdx) => (
+                            <span className='owui-data-pill' key={`${msg.id}-data-${itemIdx}`}>
+                              {item}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
 

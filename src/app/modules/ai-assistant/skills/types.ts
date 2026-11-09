@@ -59,3 +59,32 @@ export interface AiSkillDefinition {
     dataSnapshot?: any
   }) => string
 }
+
+export interface AiReportCatalogItem {
+  key: string
+  title: string
+  skill: Exclude<AiSkillId, 'auto'>
+  status: 'ready' | 'unavailable'
+  sumber: string
+  allowedParams: string[]
+  fieldWhitelist: string[]
+  maxRows: number
+  unavailableReason?: string | null
+}
+
+export interface AiBackendSkillDefinition {
+  id: Exclude<AiSkillId, 'auto'>
+  name: string
+  description: string
+  keywords: string[]
+  defaultReportKeys: string[]
+}
+
+export interface AiReportCatalogPayload {
+  version: number
+  skills: AiBackendSkillDefinition[]
+  catalog: AiReportCatalogItem[]
+  rules?: Record<string, unknown>
+  policyText?: string
+  violationTypes?: unknown[]
+}
