@@ -82,9 +82,17 @@ export interface AiBackendSkillDefinition {
 
 export interface AiReportCatalogPayload {
   version: number
+  providers?: AiProviderOption[]
   skills: AiBackendSkillDefinition[]
   catalog: AiReportCatalogItem[]
   rules?: Record<string, unknown>
   policyText?: string
   violationTypes?: unknown[]
+}
+
+export interface AiProviderOption {
+  id: string
+  label: string
+  defaultModel: string
+  models?: string[]
 }

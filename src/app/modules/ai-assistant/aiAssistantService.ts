@@ -46,6 +46,8 @@ export type {
 
 export type AiEngineMode =
   | '9router-gemini'
+  | 'openrouter'
+  | 'gemini'
   | 'deepseek-deploy'
   | 'claude-free'
   | 'claude-api'
@@ -55,6 +57,8 @@ export interface AiSettings {
   engineMode: AiEngineMode
   activeSkillId: AiSkillId
   nineRouterModel: string
+  openRouterModel: string
+  geminiModel: string
   deployModel: string
   reasoningEffort: 'none' | 'low' | 'high' | 'max'
   temperature: number
@@ -233,6 +237,8 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
   engineMode: '9router-gemini',
   activeSkillId: 'auto',
   nineRouterModel: 'ag/gemini-3-flash',
+  openRouterModel: 'openai/gpt-4o',
+  geminiModel: 'gemini-2.5-flash',
   deployModel: 'deepseek-ai/deepseek-v4.1-flash-1017',
   reasoningEffort: 'high',
   temperature: 0.3,
@@ -519,10 +525,13 @@ export async function sendAiReportMessage(params: {
 
   const sanitizedHistory = buildSanitizedHistory(history, userPrompt)
 
-  const isDeploy = settings.engineMode === 'deepseek-deploy'
-  const model = isDeploy
+  const model = settings.engineMode === 'deepseek-deploy'
     ? settings.deployModel || 'deepseek-ai/deepseek-v4.1-flash-1017'
-    : settings.nineRouterModel || 'ag/gemini-3-flash'
+    : settings.engineMode === 'openrouter'
+      ? settings.openRouterModel || 'openai/gpt-4o'
+      : settings.engineMode === 'gemini'
+        ? settings.geminiModel || 'gemini-2.5-flash'
+        : settings.nineRouterModel || 'ag/gemini-3-flash'
 
   const relayRes = await apiClient.post(
     '/reports/ai-chat',
@@ -574,6 +583,10 @@ export async function sendAiReportMessage(params: {
 
   const dataUsed: string[] = [
     meta?.skillName || effectiveSkill.shortLabel,
+    ...(meta?.providerError
+      ? [`Provider error: ${meta.providerError.provider || meta.provider || 'unknown'} ${meta.providerError.status || ''} ${meta.providerError.code || 'ERROR'}`.replace(/\s+/g, ' ').trim()]
+      : []),
+    ...(meta?.providerError?.message ? [`Detail: ${meta.providerError.message}`] : []),
     ...(meta?.period?.label ? [`Periode: ${meta.period.label}`] : []),
     ...(Array.isArray(meta?.reportsFetched)
       ? meta.reportsFetched.map(

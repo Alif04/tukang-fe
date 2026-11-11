@@ -293,10 +293,59 @@ const AiAssistantPage: React.FC = () => {
   const activeSession = sessions.find((s) => s.id === activeSessionId) || null
   const runtimeSkills = applyBackendReportCatalog(AI_SKILLS, backendCatalog)
   const effectiveSkill = runtimeSkills[settings.activeSkillId || 'auto'] || runtimeSkills['auto']
+  const availableAiEngines = backendCatalog?.providers?.length
+    ? backendCatalog.providers
+    : [{ id: '9router-gemini', label: '9Router (Gemini)', defaultModel: 'ag/gemini-3-flash', models: [
+      'ag/gemini-3-flash',
+      'ag/gemini-3.1-pro-high',
+      'ag/gemini-3.1-pro-low',
+      'ai-combo',
+    ] }]
+
+  const activeEngine = availableAiEngines.find((engine) => engine.id === settings.engineMode)
+  const activeModels = Array.from(new Set([
+    ...(activeEngine?.models || []),
+    activeEngine?.defaultModel,
+    settings.engineMode === '9router-gemini' ? settings.nineRouterModel :
+      settings.engineMode === 'openrouter' ? settings.openRouterModel : settings.geminiModel,
+  ].filter(Boolean))) as string[]
+
+  const draftEngine = availableAiEngines.find((engine) => engine.id === draftSettings.engineMode)
+  const draftModels = Array.from(new Set([
+    ...(draftEngine?.models || []),
+    draftEngine?.defaultModel,
+    draftSettings.engineMode === '9router-gemini' ? draftSettings.nineRouterModel :
+      draftSettings.engineMode === 'openrouter' ? draftSettings.openRouterModel : draftSettings.geminiModel,
+  ].filter(Boolean))) as string[]
+
+  const updateSelectedModel = (mode: AiEngineMode, model: string, draft = false) => {
+    const field = mode === '9router-gemini' ? 'nineRouterModel' : mode === 'openrouter' ? 'openRouterModel' : 'geminiModel'
+    const next = { ...(draft ? draftSettings : settings), [field]: model }
+    if (draft) setDraftSettings(next)
+    else {
+      setSettings(next)
+      setDraftSettings(next)
+      saveAiSettings(next)
+    }
+  }
 
   useEffect(() => {
     purgeOtherUsersAiStorage()
-    loadAiReportCatalog().then(setBackendCatalog)
+    loadAiReportCatalog().then((payload) => {
+      setBackendCatalog(payload)
+      const providers = payload?.providers || []
+      if (providers.length === 0) return
+      setSettings((current) => {
+        if (providers.some((provider) => provider.id === current.engineMode)) return current
+        const next = { ...current, engineMode: providers[0].id as AiEngineMode }
+        saveAiSettings(next)
+        return next
+      })
+      setDraftSettings((current) => {
+        if (providers.some((provider) => provider.id === current.engineMode)) return current
+        return { ...current, engineMode: providers[0].id as AiEngineMode }
+      })
+    })
   }, [])
 
   useEffect(() => {
@@ -614,37 +663,21 @@ const AiAssistantPage: React.FC = () => {
                   onChange={(e) => handleEngineChange(e.target.value as AiEngineMode)}
                   title='Pilih Engine AI'
                 >
-                  <option value='9router-gemini'>9Router (Gemini)</option>
-                  <option value='deepseek-deploy'>DeepSeek-V4.1-Flash</option>
-                  <option value='local-analyst'>Mitra10 Report Engine</option>
-                  <option value='claude-free' disabled>
-                    Claude 3.5 Sonnet (Belum dikonfigurasi)
-                  </option>
-                  <option value='claude-api' disabled>
-                    Claude API / OpenRouter (Belum dikonfigurasi)
-                  </option>
+                  {availableAiEngines.map((engine) => (
+                    <option key={engine.id} value={engine.id}>
+                      {engine.label}
+                    </option>
+                  ))}
                 </select>
 
-                {settings.engineMode === '9router-gemini' && (
+                {activeModels.length > 0 && (
                   <select
                     className='owui-model-select submodel-select'
-                    value={settings.nineRouterModel || 'ag/gemini-3-flash'}
-                    onChange={(e) => {
-                      const next = { ...settings, nineRouterModel: e.target.value }
-                      setSettings(next)
-                      setDraftSettings(next)
-                      saveAiSettings(next)
-                    }}
-                    title='Pilih Model Gemini di 9Router'
+                    value={settings.engineMode === '9router-gemini' ? settings.nineRouterModel : settings.engineMode === 'openrouter' ? settings.openRouterModel : settings.geminiModel}
+                    onChange={(e) => updateSelectedModel(settings.engineMode, e.target.value)}
+                    title='Pilih model untuk provider aktif'
                   >
-                    <option value='ag/gemini-3-flash'>ag/gemini-3-flash (Cepat)</option>
-                    <option value='ag/gemini-3.1-pro-high'>ag/gemini-3.1-pro (Penalaran)</option>
-                    <option value='ag/gemini-3.1-pro-low'>ag/gemini-3.1-pro-low</option>
-                    <option value='ai-combo'>ai-combo (Fallback)</option>
-                    <option value='gc/gemini-2.5-pro'>gc/gemini-2.5-pro</option>
-                    <option value='gc/gemini-2.5-flash'>gc/gemini-2.5-flash</option>
-                    <option value='gemini/gemini-2.5-pro'>gemini/gemini-2.5-pro</option>
-                    <option value='gemini/gemini-2.5-flash'>gemini/gemini-2.5-flash</option>
+                    {activeModels.map((model) => <option key={model} value={model}>{model}</option>)}
                   </select>
                 )}
               </div>
@@ -966,17 +999,11 @@ const AiAssistantPage: React.FC = () => {
                   setDraftSettings({ ...draftSettings, engineMode: e.target.value as AiEngineMode })
                 }
               >
-                <option value='9router-gemini'>Gemini AI Engine (Lokal Cepat)</option>
-                <option value='deepseek-deploy'>
-                  deepseek-ai/deepseek-v4.1-flash-1017 (Deploy API)
-                </option>
-                <option value='local-analyst'>Mitra10 Live Report Engine (Gratis &amp; Instan)</option>
-                <option value='claude-free' disabled>
-                  Claude 3.5 Sonnet (Belum dikonfigurasi di server)
-                </option>
-                <option value='claude-api' disabled>
-                  Claude API / OpenRouter (Belum dikonfigurasi di server)
-                </option>
+                {availableAiEngines.map((engine) => (
+                  <option key={engine.id} value={engine.id}>
+                    {engine.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -1011,21 +1038,12 @@ const AiAssistantPage: React.FC = () => {
             </div>
 
             <div className='owui-field'>
-              <label>Model Gemini (Daftar Model Diizinkan Server)</label>
+              <label>Model Provider Aktif (Daftar dari Server)</label>
               <select
-                value={draftSettings.nineRouterModel || 'ag/gemini-3-flash'}
-                onChange={(e) =>
-                  setDraftSettings({ ...draftSettings, nineRouterModel: e.target.value })
-                }
+                value={draftSettings.engineMode === '9router-gemini' ? draftSettings.nineRouterModel : draftSettings.engineMode === 'openrouter' ? draftSettings.openRouterModel : draftSettings.geminiModel}
+                onChange={(e) => updateSelectedModel(draftSettings.engineMode, e.target.value, true)}
               >
-                <option value='ag/gemini-3-flash'>ag/gemini-3-flash (Cepat)</option>
-                <option value='ag/gemini-3.1-pro-high'>ag/gemini-3.1-pro-high (Penalaran)</option>
-                <option value='ag/gemini-3.1-pro-low'>ag/gemini-3.1-pro-low</option>
-                <option value='ai-combo'>ai-combo (Fallback)</option>
-                <option value='gc/gemini-2.5-pro'>gc/gemini-2.5-pro</option>
-                <option value='gc/gemini-2.5-flash'>gc/gemini-2.5-flash</option>
-                <option value='gemini/gemini-2.5-pro'>gemini/gemini-2.5-pro</option>
-                <option value='gemini/gemini-2.5-flash'>gemini/gemini-2.5-flash</option>
+                {draftModels.map((model) => <option key={model} value={model}>{model}</option>)}
               </select>
             </div>
 
