@@ -4,6 +4,7 @@ import Chart from 'react-apexcharts'
 import './analytics.css'
 import {AnalyticsPrivacy, fields} from './AnalyticsPrivacy'
 import {parseConversationsResponse, parseDashboardResponse, unwrapAnalyticsResponse} from './analyticsApi'
+import {downloadAnalyticsWorkbook, isExcelRequest, isExportableAnswer} from './analyticsExcel'
 
 type Tab = 'analisa' | 'dashboard' | 'privasi'
 type Message = {role: 'user' | 'assistant'; content: string}
@@ -29,6 +30,7 @@ const DashboardAIAnalytics: React.FC = () => {
   const [conversationId, setConversationId] = useState<number | undefined>()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [downloadNotice, setDownloadNotice] = useState('')
   const [summary, setSummary] = useState<any>(null)
   const [summaryError, setSummaryError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -66,10 +68,29 @@ const DashboardAIAnalytics: React.FC = () => {
     const next = [...custom, {title: title.slice(0, 80), prompt: question.trim()}]
     setCustom(next); localStorage.setItem('analyticsTemplates', JSON.stringify(next)); setError('')
   }
+  const exportMessage = (index: number) => {
+    const answer = messages[index]
+    if (!answer || answer.role !== 'assistant' || !isExportableAnswer(answer.content)) return false
+    const preceding = messages.slice(0, index).reverse().find(message => message.role === 'user')
+    try {
+      downloadAnalyticsWorkbook(preceding?.content || '', answer.content)
+      setError(''); setDownloadNotice('Data Excel diunduh dari hasil analisa yang ditampilkan.')
+      return true
+    } catch {
+      setDownloadNotice(''); setError('Data terstruktur tidak ditemukan dalam laporan ini sehingga Excel tidak dapat dibuat.')
+      return false
+    }
+  }
   const send = async () => {
     const text = question.trim()
     if (!text || busy) return
-    setQuestion(''); setError(''); setBusy(true)
+    if (isExcelRequest(text)) {
+      const lastAnswer = messages.map(message => message.role === 'assistant' && isExportableAnswer(message.content)).lastIndexOf(true)
+      if (lastAnswer < 0) {setError('Belum ada hasil analisa untuk diunduh. Buat atau buka laporan terlebih dahulu.'); return}
+      if (exportMessage(lastAnswer)) setQuestion('')
+      return
+    }
+    setDownloadNotice(''); setQuestion(''); setError(''); setBusy(true)
     try {
       const {data} = await axios.post(`${api}/ai-agent/chat`, {question: text, conversation_id: conversationId, allowed_fields: allowedFields}, {headers})
       const result = unwrapAnalyticsResponse(data)
@@ -83,15 +104,16 @@ const DashboardAIAnalytics: React.FC = () => {
       setQuestion(text)
     } finally {setBusy(false)}
   }
-  const openConversation = (item: Conversation) => {setConversationId(item.id); setMessages(item.messages.filter(m => m.role === 'USER' || m.role === 'ASSISTANT').map(m => ({role: m.role === 'USER' ? 'user' : 'assistant', content: m.content}))); setError('')}
+  const openConversation = (item: Conversation) => {setConversationId(item.id); setMessages(item.messages.filter(m => m.role === 'USER' || m.role === 'ASSISTANT').map(m => ({role: m.role === 'USER' ? 'user' : 'assistant', content: m.content}))); setError(''); setDownloadNotice('')}
   const templatesList = <div className='analytics-template-grid'>{templates.map((t, i) => <button type='button' className='analytics-template' key={`${t.title}-${i}`} onClick={() => {setQuestion(t.prompt); setShowTemplates(false); window.scrollTo({top: 0, behavior: 'smooth'})}}><span className='analytics-template-body'><b>{i < defaults.length ? 'BAWAAN' : 'TEMPLATE SAYA'}</b><span>{t.prompt}</span></span><span className='analytics-template-foot'><strong>{t.title}</strong><span>Pakai</span></span></button>)}</div>
   return <div className='analytics-page'>
     <nav className='analytics-tabs' aria-label='Menu Analytics'>{([['analisa', 'Analisa AI'], ['dashboard', 'Dashboard'], ['privasi', 'Batasan & Privasi']] as [Tab, string][]).map(([id, label]) => <button type='button' key={id} className={tab === id ? 'active' : ''} aria-current={tab === id ? 'page' : undefined} onClick={() => setTab(id)}>{label}</button>)}</nav>
     {tab === 'analisa' && <div className='analytics-home'>
-      {!messages.length ? <div className='analytics-welcome'><svg viewBox='0 0 32 32' aria-hidden='true'><rect x='3' y='16' width='6' height='12' rx='1.5'/><rect x='13' y='9' width='6' height='19' rx='1.5'/><rect x='23' y='4' width='6' height='24' rx='1.5'/></svg><h1>Selamat {greeting}{user ? `, ${user}` : ''}</h1></div> : <div className='analytics-thread'><button className='analytics-link' onClick={() => {setMessages([]); setConversationId(undefined); setError('')}}>← Analisa AI</button>{messages.map((m, i) => <div key={i} className={`analytics-message ${m.role}`}><strong>{m.role === 'user' ? 'Anda' : 'Analisa AI'}</strong><div>{m.content}</div></div>)}</div>}
+      {!messages.length ? <div className='analytics-welcome'><svg viewBox='0 0 32 32' aria-hidden='true'><rect x='3' y='16' width='6' height='12' rx='1.5'/><rect x='13' y='9' width='6' height='19' rx='1.5'/><rect x='23' y='4' width='6' height='24' rx='1.5'/></svg><h1>Selamat {greeting}{user ? `, ${user}` : ''}</h1></div> : <div className='analytics-thread'><button className='analytics-link' onClick={() => {setMessages([]); setConversationId(undefined); setError(''); setDownloadNotice('')}}>← Analisa AI</button>{messages.map((m, i) => <div key={i} className={`analytics-message ${m.role}`}><strong>{m.role === 'user' ? 'Anda' : 'Analisa AI'}</strong><div>{m.content}</div>{m.role === 'assistant' && isExportableAnswer(m.content) && <button type='button' className='analytics-export' onClick={() => exportMessage(i)}>↓ Unduh Excel</button>}</div>)}</div>}
       <div className='analytics-composer'><textarea value={question} maxLength={2000} onChange={e => setQuestion(e.target.value)} onKeyDown={e => {if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {e.preventDefault(); send()}}} placeholder={messages.length ? 'Minta analisa lanjutan dari laporan ini…' : 'Laporan atau analisa apa yang Anda butuhkan hari ini?'} aria-label='Permintaan analisa' /><div className='analytics-actions'><button type='button' className='analytics-icon' onClick={() => setShowTemplates(!showTemplates)} aria-label='Pilih template' title='Pilih template'>＋</button><span className='analytics-action-right'><button type='button' className='analytics-icon' onClick={saveTemplate} aria-label='Simpan sebagai template' title='Simpan sebagai template'>♧</button><button type='button' className='analytics-send' onClick={send} disabled={busy || !question.trim()} aria-label='Kirim permintaan'>{busy ? '…' : '↑'}</button></span></div>{showTemplates && <div className='analytics-popover'>{templates.map((t, i) => <button key={i} onClick={() => {setQuestion(t.prompt); setShowTemplates(false)}}>{t.title}</button>)}</div>}</div>
-      <p className='analytics-hint'>Pertanyaan dikirim ke Claude. Hindari memasukkan data pribadi. Tekan Enter untuk mengirim.</p>
+      <p className='analytics-hint'>Pertanyaan dikirim ke layanan AI. Hindari memasukkan data pribadi. Tekan Enter untuk mengirim.</p>
       {error && <div className='analytics-error' role='alert'>{error}</div>}
+      {downloadNotice && <div className='analytics-download-notice' role='status'>{downloadNotice}</div>}
       {!messages.length && <div className='analytics-recent'><div className='analytics-segment'><button className={section === 'recent' ? 'selected' : ''} onClick={() => setSection('recent')}>Laporan terbaru</button><button className={section === 'templates' ? 'selected' : ''} onClick={() => setSection('templates')}>Template</button></div>{section === 'recent' && recent.length > 0 ? <div className='analytics-template-grid'>{recent.map(c => <button className='analytics-template' key={c.id} onClick={() => openConversation(c)}><span className='analytics-template-body'><b>LAPORAN</b><span>{c.messages.find(m => m.role === 'ASSISTANT')?.content || c.title}</span></span><span className='analytics-template-foot'><strong>{c.title}</strong><span>{new Date(c.created_at).toLocaleDateString('id-ID')}</span></span></button>)}</div> : <><p>{section === 'recent' ? (recentError || 'Belum ada laporan. Mulai dari salah satu template:') : 'Pilih template untuk memulai analisa:'}</p>{templatesList}</>}</div>}
     </div>}
     {tab === 'dashboard' && <div className='analytics-dashboard'><div className='analytics-dash-head'><div><h1>Dashboard</h1><p>Sumber: data aplikasi · periode berdasarkan tanggal pembuatan</p></div><div className='analytics-dash-tools'><label><span className='analytics-sr'>Periode</span><select value={year} onChange={e => setYear(e.target.value)}><option value='all'>Semua periode</option>{Array.from({length: 6}, (_, i) => new Date().getFullYear() - i).map(y => <option key={y} value={y}>{y}</option>)}</select></label><button onClick={() => setShowWidgets(!showWidgets)}>+ Tambah widget</button><button onClick={() => setEditing(!editing)}>{editing ? 'Selesai mengatur' : 'Atur widget'}</button></div></div>

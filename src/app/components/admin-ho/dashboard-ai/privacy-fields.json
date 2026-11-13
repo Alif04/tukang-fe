@@ -62,5 +62,15 @@
       "vendor": "vendor dari order",
       "kategori": "kategori dari order"
     }
+  },
+  "csi": {
+    "desc": "Satu baris per jawaban survei CSI; hanya ringkasan jumlah dan nama template yang digunakan.",
+    "fields": {
+      "tanggal": "tanggal jawaban diterima",
+      "bulan": "YYYY-MM dari tanggal jawaban",
+      "tahun": "tahun jawaban",
+      "jumlah_jawaban": "jumlah jawaban survei",
+      "template": "nama template survei"
+    }
   }
 }
