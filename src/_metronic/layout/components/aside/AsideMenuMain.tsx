@@ -562,6 +562,14 @@ export function AsideMenuMain() {
         />
       </AsideMenuItemWithSub>
 
+      <AsideMenuItem
+        to='/analytics'
+        title='Analytics'
+        role={['Admin HO', 'Super User']}
+        icon='/media/icons/duotune/graphs/gra008.svg'
+        fontIcon='bi-bar-chart'
+      />
+
       {/* Halaman Setting */}
       <AsideMenuItemWithSub
         to='/setting'
