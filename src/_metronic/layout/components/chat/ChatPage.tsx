@@ -118,7 +118,7 @@ export default function ChatPage(): JSX.Element {
         apiUrlWithParams += `&store_id=${storeId}`
       }
 
-      if (userRole === 'Owner Vendor') {
+      if (userRole === 'Owner Vendor' || userRole === 'Admin Vendor') {
         apiUrlWithParams += `&vendor_id=${vendorId}`
       }
       const res = await axios.get(apiUrlWithParams, {
@@ -151,7 +151,7 @@ export default function ChatPage(): JSX.Element {
       apiUrlWithParams += `&store_id=${storeId}`
     }
 
-    if (userRole === 'Owner Vendor') {
+    if (userRole === 'Owner Vendor' || userRole === 'Admin Vendor') {
       apiUrlWithParams += `&vendor_id=${vendorId}`
     }
 
@@ -170,7 +170,7 @@ export default function ChatPage(): JSX.Element {
   }
   const getStore = async () => {
     let apiUrlWithParams = `${apiUrl}/stores?order_by=desc&page=1&take=50` // Increased take to 50
-    if (userRole === 'Owner Vendor') {
+    if (userRole === 'Owner Vendor' || userRole === 'Admin Vendor') {
       apiUrlWithParams += `&vendor_id=${vendorId}`
     }
     if (searchQuery) {

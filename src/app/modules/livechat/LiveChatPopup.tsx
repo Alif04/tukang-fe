@@ -1,6 +1,4 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react'
-import AsyncSelect from 'react-select/async'
-import type {OptionsOrGroups, GroupBase} from 'react-select'
 import Swal from 'sweetalert2'
 import {getStoreDisplayName, getVendorDisplayName, normalizeLiveChatRoom} from './roomDisplay'
 import {isLiveChatVideo, LIVECHAT_UPLOAD_ACCEPT, validateLiveChatUpload} from './uploadValidation'
@@ -9,6 +7,8 @@ import {mergeLiveChatMessages} from './liveChatMessages'
 
 const API_URL =
   process.env.REACT_APP_LIVECHAT_API_URL || 'https://apigatewayinstalasi.mitra10.com/live-chat'
+const MAIN_API_URL =
+  process.env.REACT_APP_API_URL || 'https://apigatewayinstalasi.mitra10.com'
 
 // ─── HELPERS ─────────────────────────────────────────────────
 const formatTime = (date: string) => {
@@ -155,14 +155,54 @@ const api = {
       headers: buildHeaders(token),
       body: JSON.stringify({vendorId}),
     }).then((r) => r.json()),
-  getStores: (token: string, search?: string) =>
-    fetch(`${API_URL}/rooms/stores${search ? `?search=${encodeURIComponent(search)}` : ''}`, {
+  getStores: async (token: string, search?: string, vendorId?: string | number) => {
+    const params = new URLSearchParams()
+    if (search) params.append('search', search)
+    if (vendorId) params.append('vendor_id', String(vendorId))
+    const query = params.toString() ? `?${params.toString()}` : ''
+
+    if (vendorId) {
+      try {
+        const res = await fetch(
+          `${MAIN_API_URL}/stores?take=9999&vendor_id=${vendorId}${search ? `&search=${encodeURIComponent(search)}` : ''}`,
+          {headers: buildHeaders(token)}
+        ).then((r) => r.json())
+        const items = res?.data || res || []
+        const data = Array.isArray(items) ? items : items.data || []
+        return {success: true, data}
+      } catch (err) {
+        console.warn('Fallback to livechat getStores:', err)
+      }
+    }
+
+    return fetch(`${API_URL}/rooms/stores${query}`, {
       headers: buildHeaders(token),
-    }).then((r) => r.json()),
-  getVendors: (token: string, search?: string) =>
-    fetch(`${API_URL}/rooms/vendors${search ? `?search=${encodeURIComponent(search)}` : ''}`, {
+    }).then((r) => r.json())
+  },
+  getVendors: async (token: string, search?: string, storeId?: string | number) => {
+    const params = new URLSearchParams()
+    if (search) params.append('search', search)
+    if (storeId) params.append('store_id', String(storeId))
+    const query = params.toString() ? `?${params.toString()}` : ''
+
+    if (storeId) {
+      try {
+        const res = await fetch(
+          `${MAIN_API_URL}/vendor?take=9999&store_id=${storeId}${search ? `&search=${encodeURIComponent(search)}` : ''}`,
+          {headers: buildHeaders(token)}
+        ).then((r) => r.json())
+        const items = res?.data || res || []
+        const data = Array.isArray(items) ? items : items.data || []
+        return {success: true, data}
+      } catch (err) {
+        console.warn('Fallback to livechat getVendors:', err)
+      }
+    }
+
+    return fetch(`${API_URL}/rooms/vendors${query}`, {
       headers: buildHeaders(token),
-    }).then((r) => r.json()),
+    }).then((r) => r.json())
+  },
   uploadFile: (token: string, roomId: number, file: File) => {
     const form = new FormData()
     form.append('file', file)
@@ -296,113 +336,82 @@ const CreateModal: React.FC<{
 }> = ({token, onClose, onCreated}) => {
   const [step, setStep] = useState<null | 'order' | 'store' | 'vendor'>(null)
   const [orderId, setOrderId] = useState('')
-  const [selectedStore, setSelectedStore] = useState('')
-  const [selectedVendor, setSelectedVendor] = useState('')
+  const [filterQuery, setFilterQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  // Store ALL stores/vendors for filtering
   const [allStores, setAllStores] = useState<Store[]>([])
   const [allVendors, setAllVendors] = useState<Vendor[]>([])
   const [loadingList, setLoadingList] = useState(false)
 
-  // Helper to get store options filtered by search (from local data)
-  const getStoreOptions = (inputValue: string) =>
-    allStores
-      .filter((s) => s.store_name.toLowerCase().includes(inputValue.toLowerCase()))
-      .map((s) => ({value: String(s.id), label: s.store_name}))
+  const userRole = localStorage.getItem('userRole') || ''
+  const vendorId = localStorage.getItem('vendor_id') || ''
+  const storeId = localStorage.getItem('storeId') || ''
 
-  // Helper to get vendor options filtered by search (from local data)
-  const getVendorOptions = (inputValue: string) =>
-    allVendors
-      .filter((v) => v.company_name.toLowerCase().includes(inputValue.toLowerCase()))
-      .map((v) => ({value: String(v.id), label: v.company_name}))
-
-  // Load stores on first open
   const loadStoresIfNeeded = useCallback(() => {
     if (allStores.length === 0) {
       setLoadingList(true)
+      const isVendor =
+        userRole === 'Owner Vendor' || userRole === 'Admin Vendor' || Boolean(vendorId)
       api
-        .getStores(token, '')
+        .getStores(token, '', isVendor ? vendorId : undefined)
         .then((r: any) => {
           setAllStores((r.data || []) as Store[])
         })
         .catch(() => {})
         .finally(() => setLoadingList(false))
     }
-  }, [allStores.length, token])
+  }, [allStores.length, token, userRole, vendorId])
 
-  // Load vendors on first open
   const loadVendorsIfNeeded = useCallback(() => {
     if (allVendors.length === 0) {
       setLoadingList(true)
+      const isStore = userRole === 'Store CS' || Boolean(storeId)
       api
-        .getVendors(token, '')
+        .getVendors(token, '', isStore ? storeId : undefined)
         .then((r: any) => {
           setAllVendors((r.data || []) as Vendor[])
         })
         .catch(() => {})
         .finally(() => setLoadingList(false))
     }
-  }, [allVendors.length, token])
+  }, [allVendors.length, token, userRole, storeId])
 
   const goStore = () => {
     setStep('store')
-    setSelectedStore('')
+    setFilterQuery('')
     setError('')
     loadStoresIfNeeded()
   }
+
   const goVendor = () => {
     setStep('vendor')
-    setSelectedVendor('')
+    setFilterQuery('')
     setError('')
     loadVendorsIfNeeded()
   }
 
-  const canSubmit = () => {
-    if (step === 'order') return orderId.trim().length > 0
-    if (step === 'store') return selectedStore !== ''
-    if (step === 'vendor') return selectedVendor !== ''
-    return false
+  const goOrder = () => {
+    setStep('order')
+    setOrderId('')
+    setError('')
   }
 
-  const handleSubmit = async () => {
+  const handleSelectStore = async (store: Store) => {
     setLoading(true)
     setError('')
     try {
-      let res: any
-      let fallbackStoreName: string | undefined
-      let fallbackVendorName: string | undefined
-
-      if (step === 'order') {
-        res = await api.createRoom(token, orderId.trim())
-      } else if (step === 'store') {
-        res = await api.createDirectStore(token, selectedStore)
-        // Get store name from local state (already loaded)
-        if (res?.success) {
-          const storeData = allStores.find((s: Store) => String(s.id) === selectedStore)
-          fallbackStoreName = storeData?.store_name
-        }
-      } else if (step === 'vendor') {
-        res = await api.createDirectVendor(token, selectedVendor)
-        // Get vendor name from local state (already loaded)
-        if (res?.success) {
-          const vendorData = allVendors.find((v: Vendor) => String(v.id) === selectedVendor)
-          fallbackVendorName = vendorData?.company_name
-        }
-      }
-
+      const res = await api.createDirectStore(token, String(store.id))
       if (res?.success) {
         const createdRoom = normalizeLiveChatRoom(res.data || {}, {
-          fallbackType:
-            step === 'store' ? 'DIRECT_STORE' : step === 'vendor' ? 'DIRECT_VENDOR' : 'ORDER',
-          fallbackStoreId: step === 'store' ? selectedStore : undefined,
-          fallbackStoreName,
-          fallbackVendorId: step === 'vendor' ? selectedVendor : undefined,
-          fallbackVendorName,
+          fallbackType: 'DIRECT_STORE',
+          fallbackStoreId: String(store.id),
+          fallbackStoreName: store.store_name,
         }) as Room
         onCreated(createdRoom)
         onClose()
-      } else setError(res?.message || 'Gagal membuat room')
+      } else {
+        setError(res?.message || 'Gagal membuat room')
+      }
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -410,292 +419,491 @@ const CreateModal: React.FC<{
     }
   }
 
+  const handleSelectVendor = async (vendor: Vendor) => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await api.createDirectVendor(token, String(vendor.id))
+      if (res?.success) {
+        const createdRoom = normalizeLiveChatRoom(res.data || {}, {
+          fallbackType: 'DIRECT_VENDOR',
+          fallbackVendorId: String(vendor.id),
+          fallbackVendorName: vendor.company_name,
+        }) as Room
+        onCreated(createdRoom)
+        onClose()
+      } else {
+        setError(res?.message || 'Gagal membuat room')
+      }
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleOrderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!orderId.trim()) return
+    setLoading(true)
+    setError('')
+    try {
+      const res = await api.createRoom(token, orderId.trim())
+      if (res?.success) {
+        const createdRoom = normalizeLiveChatRoom(res.data || {}, {
+          fallbackType: 'ORDER',
+        }) as Room
+        onCreated(createdRoom)
+        onClose()
+      } else {
+        setError(res?.message || 'Gagal membuat room')
+      }
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const filteredStores = allStores.filter((s) =>
+    s.store_name.toLowerCase().includes(filterQuery.toLowerCase())
+  )
+
+  const filteredVendors = allVendors.filter((v) =>
+    v.company_name.toLowerCase().includes(filterQuery.toLowerCase())
+  )
+
+  if (!step) {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(15, 23, 42, 0.4)',
+          borderRadius: 20,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 20,
+          zIndex: 10,
+        }}
+        onClick={onClose}
+      >
+        <div
+          style={{
+            background: '#fff',
+            borderRadius: 20,
+            width: '100%',
+            maxWidth: 360,
+            boxShadow: '0 20px 40px rgba(15, 23, 42, 0.25)',
+            overflow: 'hidden',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '18px 20px',
+              borderBottom: '1px solid #e6ebf4',
+            }}
+          >
+            <h3 style={{margin: 0, flex: 1, fontSize: 16, fontWeight: 700, color: '#1b2333'}}>
+              Mulai Chat
+            </h3>
+            <button
+              onClick={onClose}
+              style={{
+                width: 32,
+                height: 32,
+                border: '1px solid #e6ebf4',
+                  background: '#ffffff',
+                  borderRadius: 10,
+                  color: '#4b5568',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                cursor: 'pointer',
+                display: 'grid',
+                placeItems: 'center',
+                fontSize: 14,
+              }}
+              aria-label='Tutup'
+            >
+              &#10005;
+            </button>
+          </div>
+
+          <div
+            style={{
+              padding: '16px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+            }}
+          >
+            <button
+              className='lc-opt'
+              type='button'
+              onClick={goOrder}
+            >
+              <div className='tile'>
+                <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' width='20' height='20'>
+                  <path d='M21 8 12 3 3 8v8l9 5 9-5z' />
+                  <path d='m3 8 9 5 9-5M12 13v8' />
+                </svg>
+              </div>
+              <div>
+                <div className='ot'>Berdasarkan Order</div>
+                <div className='os'>Masukkan Order ID</div>
+              </div>
+              <span className='chev'>&#8250;</span>
+            </button>
+
+            <button
+              className='lc-opt'
+              type='button'
+              onClick={goStore}
+            >
+              <div className='tile'>
+                <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' width='20' height='20'>
+                  <path d='M3 9l1.5-5h15L21 9' />
+                  <path d='M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M5 21V12m14 9V12M3 21h18' />
+                </svg>
+              </div>
+              <div>
+                <div className='ot'>Chat dengan Store</div>
+                <div className='os'>Pilih dari daftar store</div>
+              </div>
+              <span className='chev'>&#8250;</span>
+            </button>
+
+            <button
+              className='lc-opt'
+              type='button'
+              onClick={goVendor}
+            >
+              <div className='tile'>
+                <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' width='20' height='20'>
+                  <path d='M2 6h11v10H2zM13 9h5l4 4v3h-9' />
+                  <circle cx='7' cy='18' r='2' />
+                  <circle cx='17' cy='18' r='2' />
+                </svg>
+              </div>
+              <div>
+                <div className='ot'>Chat dengan Vendor</div>
+                <div className='os'>Pilih dari daftar vendor</div>
+              </div>
+              <span className='chev'>&#8250;</span>
+            </button>
+          </div>
+
+          <div
+            style={{
+              padding: '14px 20px',
+              borderTop: '1px solid #e6ebf4',
+              display: 'flex',
+              justifyContent: 'flex-end',
+            }}
+          >
+            <button
+              onClick={onClose}
+              style={{
+                border: '1px solid #e6ebf4',
+                background: '#f4f7fc',
+                color: '#4b5568',
+                fontWeight: 600,
+                fontSize: 13,
+                padding: '10px 22px',
+                borderRadius: 12,
+                cursor: 'pointer',
+              }}
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       style={{
         position: 'absolute',
         inset: 0,
-        background: 'rgba(15, 23, 42, 0.46)',
-        backdropFilter: 'blur(6px)',
+        background: '#f4f7fc',
         borderRadius: 20,
+        zIndex: 12,
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 10,
+        flexDirection: 'column',
+        overflow: 'hidden',
       }}
-      onClick={onClose}
     >
       <div
         style={{
-          background: 'linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)',
-          borderRadius: 20,
-          width: '92%',
-          maxWidth: 360,
-          border: '1px solid #dbe7f5',
-          boxShadow: '0 24px 60px rgba(15, 23, 42, 0.26)',
-          overflow: 'hidden',
+          background: 'linear-gradient(135deg, #1d6ff2, #1ea4dc)',
+          color: '#fff',
+          padding: '18px 18px 16px',
+          flex: 'none',
         }}
-        onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div
-          style={{
-            padding: '16px 18px',
-            borderBottom: '1px solid #e7eef7',
-            background: 'linear-gradient(180deg, #f5faff 0%, #ffffff 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <span style={{fontWeight: 700, fontSize: 15, color: '#102a43'}}>
-            {!step
-              ? 'Mulai Chat'
-              : step === 'order'
-              ? 'Chat Order'
-              : step === 'store'
-              ? 'Chat Store'
-              : 'Chat Vendor'}
-          </span>
+        <div style={{display: 'flex', alignItems: 'center', gap: 10}}>
           <button
-            className='btn btn-sm btn-icon'
+            onClick={() => setStep(null)}
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 12,
+              border: 0,
+              background: '#ffffff',
+              color: '#1d6ff2',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+              fontWeight: 'bold',
+              fontSize: 18,
+              cursor: 'pointer',
+              flex: 'none',
+              display: 'grid',
+              placeItems: 'center',
+            }}
+            aria-label='Kembali'
+          >
+            &#8592;
+          </button>
+          <div style={{flex: 1, minWidth: 0}}>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: 15,
+                fontWeight: 600,
+                lineHeight: 1.2,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                color: '#fff',
+              }}
+            >
+              {step === 'store'
+                ? 'Chat dengan Store'
+                : step === 'vendor'
+                ? 'Chat dengan Vendor'
+                : 'Berdasarkan Order'}
+            </h2>
+            <p
+              style={{
+                margin: '2px 0 0',
+                fontSize: 11.5,
+                opacity: 0.9,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                color: '#fff',
+              }}
+            >
+              {step === 'store'
+                ? 'Pilih dari daftar store'
+                : step === 'vendor'
+                ? 'Pilih dari daftar vendor'
+                : 'Masukkan Order ID'}
+            </p>
+          </div>
+          <button
             onClick={onClose}
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 10,
-              background: '#f4f7fb',
-              border: '1px solid #d7e3f0',
-              color: '#486581',
+              width: 36,
+              height: 36,
+              borderRadius: 12,
+              border: 0,
+              background: 'rgba(255,255,255,0.22)',
+              color: '#fff',
+              fontSize: 15,
+              cursor: 'pointer',
+              flex: 'none',
+              display: 'grid',
+              placeItems: 'center',
             }}
+            aria-label='Tutup'
           >
-            <i className='bi bi-x fs-5' />
+            &#10005;
           </button>
         </div>
 
-        {/* Body */}
-        <div style={{padding: 18, background: '#fbfdff'}}>
-          {!step && (
-            <div className='d-flex flex-column gap-2'>
-              {[
-                {
-                  icon: 'bi-box-seam',
-                  label: 'Berdasarkan Order',
-                  sub: 'Masukkan Order ID',
-                  action: () => setStep('order'),
-                },
-                {
-                  icon: 'bi-shop',
-                  label: 'Chat dengan Store',
-                  sub: 'Pilih dari daftar store',
-                  action: () => goStore(),
-                },
-                {
-                  icon: 'bi-truck',
-                  label: 'Chat dengan Vendor',
-                  sub: 'Pilih dari daftar vendor',
-                  action: () => goVendor(),
-                },
-              ].map((item) => (
-                <button
-                  key={item.label}
-                  onClick={item.action}
-                  className='btn text-start d-flex align-items-center gap-3 p-3'
-                  style={{
-                    border: '1px solid #d8e5f2',
-                    borderRadius: 14,
-                    background: '#ffffff',
-                    boxShadow: '0 10px 24px rgba(15, 23, 42, 0.05)',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 12,
-                      background: 'linear-gradient(135deg, #eaf5ff, #dceeff)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <i className={`bi ${item.icon}`} style={{color: '#0f63ff', fontSize: 18}} />
-                  </div>
-                  <div>
-                    <div style={{fontWeight: 700, fontSize: 13, color: '#102a43'}}>
-                      {item.label}
-                    </div>
-                    <div style={{fontSize: 11, color: '#6b7c93'}}>{item.sub}</div>
-                  </div>
-                  <i className='bi bi-chevron-right text-muted ms-auto' />
-                </button>
-              ))}
+        {step !== 'order' && (
+          <div style={{marginTop: 14, position: 'relative'}}>
+            <svg
+              style={{
+                position: 'absolute',
+                left: 14,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#7b8aa5',
+              }}
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              width='17'
+              height='17'
+            >
+              <circle cx='11' cy='11' r='7' />
+              <path d='m21 21-4.3-4.3' />
+            </svg>
+            <input
+              type='text'
+              value={filterQuery}
+              onChange={(e) => setFilterQuery(e.target.value)}
+              placeholder={step === 'store' ? 'Ketik untuk mencari store...' : 'Ketik untuk mencari vendor...'}
+              autoComplete='off'
+              style={{
+                width: '100%',
+                border: 0,
+                borderRadius: 14,
+                padding: '13px 14px 13px 42px',
+                fontSize: 14,
+                background: 'rgba(255,255,255,0.95)',
+                color: '#1b2333',
+                outline: 'none',
+              }}
+            />
+          </div>
+        )}
+      </div>
+
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          background: '#f4f7fc',
+        }}
+      >
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: 14,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+          }}
+        >
+          {error && (
+            <div className='alert alert-danger py-2 px-3 mb-2' style={{fontSize: 12}}>
+              {error}
             </div>
           )}
 
           {step === 'order' && (
             <div>
-              <label className='form-label fw-bold fs-7'>Order ID</label>
-              <input
-                className='form-control form-control-sm'
-                value={orderId}
-                onChange={(e) => setOrderId(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && canSubmit() && handleSubmit()}
-                placeholder='Contoh: 12345'
-                autoFocus
-              />
+              <div className='lc-sec' style={{marginBottom: 8}}>Masukkan Order ID</div>
+              <form onSubmit={handleOrderSubmit} style={{display: 'flex', flexDirection: 'column', gap: 12}}>
+                <input
+                  type='text'
+                  inputMode='numeric'
+                  placeholder='Contoh: 5804'
+                  value={orderId}
+                  onChange={(e) => setOrderId(e.target.value.replace(/D/g, ''))}
+                  autoComplete='off'
+                  style={{
+                    width: '100%',
+                    border: '1.5px solid #e6ebf4',
+                    borderRadius: 14,
+                    padding: '13px 14px',
+                    fontSize: 14,
+                    outline: 'none',
+                    background: '#fff',
+                  }}
+                  autoFocus
+                />
+                <button
+                  type='submit'
+                  disabled={!orderId.trim() || loading}
+                  style={{
+                    border: 0,
+                    background: 'linear-gradient(135deg, #1d6ff2, #1ea4dc)',
+                    color: '#fff',
+                    borderRadius: 14,
+                    padding: 13,
+                    fontWeight: 600,
+                    fontSize: 14,
+                    cursor: orderId.trim() && !loading ? 'pointer' : 'not-allowed',
+                    opacity: orderId.trim() && !loading ? 1 : 0.5,
+                  }}
+                >
+                  {loading ? 'Memproses...' : 'Mulai Chat'}
+                </button>
+              </form>
             </div>
           )}
 
           {step === 'store' && (
-            <div>
-              <label className='form-label fw-bold fs-7'>Pilih Store</label>
+            <>
+              <div className='lc-sec'>Pilih Store</div>
               {loadingList ? (
-                <div className='text-center py-3 text-muted'>
-                  <span className='spinner-border spinner-border-sm me-2' />
-                  Memuat...
+                <div style={{textAlign: 'center', color: '#8b94a7', fontSize: 13, padding: '48px 16px'}}>
+                  <span className='spinner-border spinner-border-sm me-2' /> Memuat daftar store...
+                </div>
+              ) : filteredStores.length === 0 ? (
+                <div style={{textAlign: 'center', color: '#8b94a7', fontSize: 13, padding: '48px 16px'}}>
+                  Store tidak ditemukan
                 </div>
               ) : (
-                <AsyncSelect
-                  placeholder='Ketik untuk mencari store...'
-                  loadOptions={(input) => Promise.resolve(getStoreOptions(input))}
-                  defaultOptions={true}
-                  noOptionsMessage={({inputValue}) =>
-                    inputValue ? 'Store tidak ditemukan' : 'Ketik nama store'
-                  }
-                  onChange={(opt: any) => setSelectedStore(opt ? opt.value : '')}
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      borderRadius: 10,
-                      fontSize: 13,
-                      borderColor: '#d7e3f0',
-                    }),
-                    menu: (base) => ({
-                      ...base,
-                      borderRadius: 10,
-                      fontSize: 13,
-                      zIndex: 9999,
-                    }),
-                  }}
-                />
+                filteredStores.map((s) => (
+                  <div
+                    key={s.id}
+                    className='lc-select-card'
+                    onClick={() => !loading && handleSelectStore(s)}
+                    style={{opacity: loading ? 0.6 : 1}}
+                  >
+                    <div className='lc-tile store'>
+                      <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' width='20' height='20'>
+                        <path d='M3 9l1.5-5h15L21 9' />
+                        <path d='M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M5 21V12m14 9V12M3 21h18' />
+                      </svg>
+                    </div>
+                    <div className='lc-info'>
+                      <div className='t wrap'>{s.store_name}</div>
+                    </div>
+                  </div>
+                ))
               )}
-            </div>
+            </>
           )}
 
           {step === 'vendor' && (
-            <div>
-              <label className='form-label fw-bold fs-7'>Pilih Vendor</label>
+            <>
+              <div className='lc-sec'>Pilih Vendor</div>
               {loadingList ? (
-                <div className='text-center py-3 text-muted'>
-                  <span className='spinner-border spinner-border-sm me-2' />
-                  Memuat...
+                <div style={{textAlign: 'center', color: '#8b94a7', fontSize: 13, padding: '48px 16px'}}>
+                  <span className='spinner-border spinner-border-sm me-2' /> Memuat daftar vendor...
+                </div>
+              ) : filteredVendors.length === 0 ? (
+                <div style={{textAlign: 'center', color: '#8b94a7', fontSize: 13, padding: '48px 16px'}}>
+                  Vendor tidak ditemukan
                 </div>
               ) : (
-                <AsyncSelect
-                  placeholder='Ketik untuk mencari vendor...'
-                  loadOptions={(input) => Promise.resolve(getVendorOptions(input))}
-                  defaultOptions={true}
-                  noOptionsMessage={({inputValue}) =>
-                    inputValue ? 'Vendor tidak ditemukan' : 'Ketik nama vendor'
-                  }
-                  onChange={(opt: any) => setSelectedVendor(opt ? opt.value : '')}
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      borderRadius: 10,
-                      fontSize: 13,
-                      borderColor: '#d7e3f0',
-                    }),
-                    menu: (base) => ({
-                      ...base,
-                      borderRadius: 10,
-                      fontSize: 13,
-                      zIndex: 9999,
-                    }),
-                  }}
-                />
+                filteredVendors.map((v) => (
+                  <div
+                    key={v.id}
+                    className='lc-select-card'
+                    onClick={() => !loading && handleSelectVendor(v)}
+                    style={{opacity: loading ? 0.6 : 1}}
+                  >
+                    <div className='lc-tile vendor'>{getInitials(v.company_name)}</div>
+                    <div className='lc-info'>
+                      <div className='t wrap'>{v.company_name}</div>
+                    </div>
+                  </div>
+                ))
               )}
-            </div>
-          )}
-
-          {error && step && <div className='alert alert-danger mt-3 py-2 fs-8'>{error}</div>}
-        </div>
-
-        {/* Footer */}
-        <div
-          style={{
-            padding: '14px 18px',
-            borderTop: '1px solid #e7eef7',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: 8,
-            background: '#ffffff',
-          }}
-        >
-          {step ? (
-            <>
-              <button
-                className='btn btn-sm'
-                onClick={() => {
-                  setStep(null)
-                  setError('')
-                  setSelectedStore('')
-                  setSelectedVendor('')
-                }}
-                style={{
-                  minWidth: 108,
-                  borderRadius: 10,
-                  background: '#eef4ff',
-                  border: '1px solid #cfe0ff',
-                  color: '#0f63ff',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 4,
-                  fontSize: 0,
-                }}
-              >
-                <i className='bi bi-arrow-left-short' style={{fontSize: 16}} />
-                <span style={{fontSize: 12}}>Kembali</span>
-              </button>
-              <button
-                className='btn btn-sm btn-primary'
-                onClick={handleSubmit}
-                disabled={loading || !canSubmit()}
-                style={{
-                  minWidth: 116,
-                  borderRadius: 10,
-                  fontWeight: 600,
-                  boxShadow: '0 10px 24px rgba(15, 99, 255, 0.22)',
-                }}
-              >
-                {loading ? <span className='spinner-border spinner-border-sm me-1' /> : null}
-                Mulai Chat
-              </button>
             </>
-          ) : (
-            <button
-              className='btn btn-sm'
-              onClick={onClose}
-              style={{
-                borderRadius: 10,
-                background: '#f4f7fb',
-                border: '1px solid #d7e3f0',
-                color: '#486581',
-                fontWeight: 600,
-              }}
-            >
-              Tutup
-            </button>
           )}
         </div>
       </div>
     </div>
   )
 }
+
 
 // ─── MESSAGE BUBBLE ───────────────────────────────────────────
 const Bubble: React.FC<{
@@ -1694,6 +1902,103 @@ const LiveChatPopup: React.FC = () => {
           }}
         >
           <style>{`
+            
+            .lc-select-card {
+              background: #fff;
+              border: 1px solid #e6ebf4;
+              border-radius: 18px;
+              padding: 14px;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              cursor: pointer;
+              transition: box-shadow .15s, transform .15s;
+            }
+            .lc-select-card:hover {
+              box-shadow: 0 6px 16px rgba(29, 111, 242, 0.12);
+              transform: translateY(-1px);
+            }
+            .lc-tile {
+              width: 42px;
+              height: 42px;
+              border-radius: 12px;
+              display: grid;
+              place-items: center;
+              flex: none;
+            }
+            .lc-tile.store {
+              background: #e3f8ec;
+              color: #22a45d;
+            }
+            .lc-tile.vendor {
+              background: #1d6ff2;
+              color: #fff;
+              font-weight: 600;
+              font-size: 14px;
+              border-radius: 50%;
+            }
+            .lc-info {
+              flex: 1;
+              min-width: 0;
+            }
+            .lc-info .t {
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 1.3;
+              color: #1b2333;
+            }
+            .lc-info .t.wrap {
+              word-break: break-word;
+            }
+            .lc-sec {
+              font-size: 12px;
+              font-weight: 600;
+              color: #8b94a7;
+              padding: 2px 4px;
+            }
+            .lc-opt {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding: 12px;
+              border: 1px solid #e6ebf4;
+              border-radius: 14px;
+              background: #fff;
+              cursor: pointer;
+              text-align: left;
+              width: 100%;
+              transition: background .15s, border-color .15s;
+            }
+            .lc-opt:hover {
+              background: #e7f1ff;
+              border-color: #c9dcff;
+            }
+            .lc-opt .tile {
+              width: 42px;
+              height: 42px;
+              border-radius: 12px;
+              display: grid;
+              place-items: center;
+              flex: none;
+              background: #e7f1ff;
+              color: #1d6ff2;
+            }
+            .lc-opt .ot {
+              font-size: 14px;
+              font-weight: 600;
+              color: #1b2333;
+            }
+            .lc-opt .os {
+              font-size: 12px;
+              color: #8b94a7;
+              margin-top: 2px;
+            }
+            .lc-opt .chev {
+              margin-left: auto;
+              color: #8b94a7;
+              font-size: 18px;
+            }
+
             @keyframes popupSlideIn {
               from { opacity: 0; transform: translateY(16px) scale(0.97); }
               to { opacity: 1; transform: translateY(0) scale(1); }
@@ -1801,14 +2106,18 @@ const LiveChatPopup: React.FC = () => {
                         width: 34,
                         height: 34,
                         borderRadius: 10,
-                        border: '1px solid rgba(255,255,255,0.24)',
-                        background: 'rgba(255,255,255,0.14)',
-                        color: '#fff',
+                        border: 'none',
+                        background: '#ffffff',
+                        color: '#1d6ff2',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                        display: 'grid',
+                        placeItems: 'center',
+                        cursor: 'pointer',
                       }}
                       onClick={() => setOpen(false)}
                       title='Tutup live chat'
                     >
-                      <i className='bi bi-x-lg' />
+                      <i className='bi bi-x-lg' style={{fontSize: 13, fontWeight: 'bold'}} />
                     </button>
                   </div>
                 </div>
@@ -2172,15 +2481,19 @@ const LiveChatPopup: React.FC = () => {
                       width: 34,
                       height: 34,
                       borderRadius: 12,
-                      border: '1px solid rgba(255,255,255,0.24)',
-                      background: 'rgba(255,255,255,0.14)',
-                      color: '#fff',
+                      border: 'none',
+                      background: '#ffffff',
+                      color: '#1d6ff2',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                      display: 'grid',
+                      placeItems: 'center',
                       flexShrink: 0,
+                      cursor: 'pointer',
                     }}
                     onClick={() => setOpen(false)}
                     title='Tutup live chat'
                   >
-                    <i className='bi bi-x-lg' />
+                    <i className='bi bi-x-lg' style={{fontSize: 13, fontWeight: 'bold'}} />
                   </button>
                 </div>
               </div>
